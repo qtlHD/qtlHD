@@ -1,0 +1,4 @@
+R/qtlHD
+
+A re-implementation of R/qtl, with clean code, aimed at high-density,
+high-throughput data.
