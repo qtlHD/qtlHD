@@ -1,0 +1,2 @@
+This directory contains shared C code for qtlHD, but not the foreign
+fuction interfaces for R, Ruby, Perl, etc (these are in ./src/api)
