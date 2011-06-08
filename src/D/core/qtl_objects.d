@@ -70,6 +70,18 @@ struct Chromosome {
   Attribute[] attrib_list;  /// Ref. to list of attributes
 }
 
+/**
+ * Individual is the most primitive representation of an individual
+ * in the context of QTL mapping. Tracking phenotypes etc. is handled
+ * by a shared object.
+ */
+
+struct Individual {
+  const uint id;            /// Unique identifier
+  const string name;        /// Optional name
+  Attribute[] attrib_list;  /// Ref. to list of attributes
+}
+
 /******************************************************************************
  * Unit tests for primitives 
  */
