@@ -1,10 +1,12 @@
 /** 
  * This module contains the primitive objects used for QTL mapping.
  *
- * Test the module with 'rdmd --main -unittest qtl_objects.d'
+ * Test the module with 
+ *
+ *   rdmd --main -unittest qtl_objects.d
  */
 
-module qtl.qtl_object;
+module qtl.objects;
 
 /** 
  * Attribute is a container for additional information that is not
@@ -68,7 +70,7 @@ struct Chromosome {
   Attribute[] attrib_list;  /// Ref. to list of attributes
 }
 
-/**
+/******************************************************************************
  * Unit tests for primitives 
  */
 
