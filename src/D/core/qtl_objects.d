@@ -47,6 +47,15 @@ struct Genotype(T) {
 }
 
 /**
+ * Phenotype is the most primitive representation of a phenotype. The type
+ * can be any type T (normally a double, but can be any Object).
+ */
+
+struct Phenotype(T) {
+  T value;
+}
+
+/**
  * Chromosome is the most primitive representation of a chromosome. 
  * Sex chromosomes are known via their name. 
  *
@@ -80,5 +89,9 @@ unittest {
   Genotype!char g1 = { value:'A' };
   assert(g1.value == 'A');
   assert(g1.value != 2);
+
+  // Phenotype
+  Genotype!double g1 = { value:-7.809 };
+  assert(g1.value == -7.809);
 }
 
