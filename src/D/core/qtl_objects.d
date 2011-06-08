@@ -34,7 +34,18 @@ struct Marker {
   const string name;        /// Marker name
   const int chromosome;
   double position;          /// Marker position - content depends on map
-  Attribute[] attrib_list;
+  Attribute[] attrib_list;  /// Ref. to list of attributes
+}
+
+/**
+ * Chromosome is the most primitive representation of a chromosome. 
+ * Sex chromosomes are known via their name.
+ */
+
+struct Chromosome {
+  const uint id;            /// Unique identifier
+  const string name;        /// Chromosome name
+  Attribute[] attrib_list;  /// Ref. to list of attributes
 }
 
 /**
