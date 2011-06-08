@@ -4,7 +4,7 @@
  * Test the module with 'rdmd --main -unittest qtl_objects.d'
  */
 
-module qtl.qtl_object;
+module qtl.qtl_objects;
 
 /** 
  * Attribute is a container for additional information that is not
