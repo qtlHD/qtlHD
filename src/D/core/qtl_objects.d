@@ -8,6 +8,7 @@
 
 module qtl.objects;
 
+
 /** 
  * Attribute is a container for additional information that is not
  * anticipated in primitive objects. I.e. Gene Ontology annotation could
@@ -21,6 +22,18 @@ class Attribute {
 }
 
 /** 
+ * Primitives have an id, an optional name, and an attribute list.
+ */
+
+mixin template PrimitiveInfo()
+{
+  const uint id;            /// Unique identifier
+  const string name;        /// Marker name
+  Attribute[] attrib_list;  /// Ref. to list of attributes
+}
+
+
+/** 
  * The Marker struct is the most primitive representation of a marker, i.e.
  * the marker ID, the position, a reference to the marker name, and a reference
  * to a list of attributes - where an attribute can be any object. The
@@ -32,11 +45,9 @@ class Attribute {
  */
 
 struct Marker {
-  const uint id;            /// Unique identifier
-  const string name;        /// Marker name
+  mixin PrimitiveInfo;
   const int chromosome;
   double position;          /// Marker position - content depends on map
-  Attribute[] attrib_list;  /// Ref. to list of attributes
 }
 
 /**
@@ -65,9 +76,7 @@ struct Phenotype(T) {
  */
 
 struct Chromosome {
-  const uint id;            /// Unique identifier
-  const string name;        /// Chromosome name
-  Attribute[] attrib_list;  /// Ref. to list of attributes
+  mixin PrimitiveInfo;
 }
 
 /**
@@ -77,9 +86,7 @@ struct Chromosome {
  */
 
 struct Individual {
-  const uint id;            /// Unique identifier
-  const string name;        /// Optional name
-  Attribute[] attrib_list;  /// Ref. to list of attributes
+  mixin PrimitiveInfo;
 }
 
 /******************************************************************************
