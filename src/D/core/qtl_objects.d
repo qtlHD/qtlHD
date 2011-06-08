@@ -91,7 +91,7 @@ unittest {
   assert(g1.value != 2);
 
   // Phenotype
-  Genotype!double g1 = { value:-7.809 };
-  assert(g1.value == -7.809);
+  Phenotype!double p1 = { value:-7.809 };
+  assert(p1.value == -7.809);
 }
 
