@@ -27,7 +27,7 @@ class Attribute {
 mixin template PrimitiveInfo()
 {
   const uint id;            /// Unique identifier
-  const string name;        /// Marker name
+  const string name;        /// Name
   Attribute[] attrib_list;  /// Ref. to list of attributes
 }
 
@@ -50,7 +50,10 @@ struct Marker {
 
 /**
  * Genotype is the most primitive representation of a genotype. The type
- * can be any type T (normally char or uint).
+ * can be any type T (normally char or uint, but other objects may be
+ * possible).
+ *
+ * Note the primitive should be small, there may be many genotypes!
  */
 
 struct Genotype(T) {
@@ -59,7 +62,9 @@ struct Genotype(T) {
 
 /**
  * Phenotype is the most primitive representation of a phenotype. The type
- * can be any type T (normally a double, but can be any Object).
+ * can be any type T (normally a double, but can potentially be any Object).
+ *
+ * Note the primitive should be small, there may be many phenotypes!
  */
 
 struct Phenotype(T) {
