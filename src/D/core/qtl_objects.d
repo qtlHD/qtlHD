@@ -1,10 +1,12 @@
 /** 
  * This module contains the primitive objects used for QTL mapping.
  *
- * Test the module with 'rdmd --main -unittest qtl_objects.d'
+ * Test the module with 
+ *
+ *   rdmd --main -unittest qtl_objects.d
  */
 
-module qtl.qtl_objects;
+module qtl.objects;
 
 /** 
  * Attribute is a container for additional information that is not
@@ -15,8 +17,20 @@ module qtl.qtl_objects;
  */
 
 class Attribute {
-  private string description = "core attribute";
+  private string description = "unknown attribute";
 }
+
+/** 
+ * Primitives have an id, an optional name, and an attribute list.
+ */
+
+mixin template PrimitiveInfo()
+{
+  const uint id;            /// Unique identifier
+  const string name;        /// Marker name
+  Attribute[] attrib_list;  /// Ref. to list of attributes
+}
+
 
 /** 
  * The Marker struct is the most primitive representation of a marker, i.e.
@@ -30,25 +44,51 @@ class Attribute {
  */
 
 struct Marker {
-  const uint id;            /// Unique identifier
-  const string name;        /// Marker name
+  mixin PrimitiveInfo;
   const int chromosome;
   double position;          /// Marker position - content depends on map
-  Attribute[] attrib_list;  /// Ref. to list of attributes
+}
+
+/**
+ * Genotype is the most primitive representation of a genotype. The type
+ * can be any type T (normally char or uint).
+ */
+
+struct Genotype(T) {
+  T value;
+}
+
+/**
+ * Phenotype is the most primitive representation of a phenotype. The type
+ * can be any type T (normally a double, but can be any Object).
+ */
+
+struct Phenotype(T) {
+  T value;
 }
 
 /**
  * Chromosome is the most primitive representation of a chromosome. 
- * Sex chromosomes are known via their name.
+ * Sex chromosomes are known via their name. 
+ *
+ * To maintain a list of markers with a chromosome, use a shared object.
  */
 
 struct Chromosome {
-  const uint id;            /// Unique identifier
-  const string name;        /// Chromosome name
-  Attribute[] attrib_list;  /// Ref. to list of attributes
+  mixin PrimitiveInfo;
 }
 
 /**
+ * Individual is the most primitive representation of an individual
+ * in the context of QTL mapping. Tracking phenotypes etc. is handled
+ * by a shared object.
+ */
+
+struct Individual {
+  mixin PrimitiveInfo;
+}
+
+/******************************************************************************
  * Unit tests for primitives 
  */
 
@@ -60,9 +100,18 @@ unittest {
   assert(m1.attrib_list.length == 0);
   Marker m2 = { id:2, position:4.8, chromosome:1, attrib_list:new Attribute[1]};
   assert(m2.attrib_list.length == 1);
-  // create a list
+  // create a list of markers
   auto markers = [ m1 ];
   markers ~= m2 ;
   assert(markers.length == 2);
+
+  // Genotype
+  Genotype!char g1 = { value:'A' };
+  assert(g1.value == 'A');
+  assert(g1.value != 2);
+
+  // Phenotype
+  Phenotype!double p1 = { value:-7.809 };
+  assert(p1.value == -7.809);
 }
 
