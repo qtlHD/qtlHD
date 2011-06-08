@@ -25,7 +25,8 @@ class Attribute {
  * attrib_list gives a flexible way of tracking state. Arguably chromosome and 
  * name are attributes, but they are pretty standard.
  *
- * The Marker object does not keep track of the parent container.
+ * The Marker object does not keep track of the parent container. Normally
+ * a Marker list is maintained in a parent container.
  */
 
 struct Marker {
@@ -41,11 +42,16 @@ struct Marker {
  */
 
 unittest {
+  // test marker
   Marker m1 = { id:1, position:4.6};
   assert(m1.id == 1);
   assert(m1.attrib_list == null);
   assert(m1.attrib_list.length == 0);
   Marker m2 = { id:2, position:4.8, chromosome:1, attrib_list:new Attribute[1]};
   assert(m2.attrib_list.length == 1);
+  // create a list
+  auto markers = [ m1 ];
+  markers ~= m2 ;
+  assert(markers.length == 2);
 }
 
