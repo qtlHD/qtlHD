@@ -38,8 +38,19 @@ struct Marker {
 }
 
 /**
+ * Genotype is the most primitive representation of a genotype. The type
+ * can be any type T (normally char or uint).
+ */
+
+struct Genotype(T) {
+  T value;
+}
+
+/**
  * Chromosome is the most primitive representation of a chromosome. 
- * Sex chromosomes are known via their name.
+ * Sex chromosomes are known via their name. 
+ *
+ * To maintain a list of markers with a chromosome, use a shared object.
  */
 
 struct Chromosome {
@@ -60,9 +71,14 @@ unittest {
   assert(m1.attrib_list.length == 0);
   Marker m2 = { id:2, position:4.8, chromosome:1, attrib_list:new Attribute[1]};
   assert(m2.attrib_list.length == 1);
-  // create a list
+  // create a list of markers
   auto markers = [ m1 ];
   markers ~= m2 ;
   assert(markers.length == 2);
+
+  // Genotype
+  Genotype!char g1 = { value:'A' };
+  assert(g1.value == 'A');
+  assert(g1.value != 2);
 }
 
