@@ -1,7 +1,10 @@
-/** This module contains the primitive objects used for QTL mapping.
+/** 
+ * This module contains the primitive objects used for QTL mapping.
+ *
+ * Test the module with 'rdmd --main -unittest qtl_objects.d'
  */
 
-module qtl.object;
+module qtl.qtl_object;
 
 /** 
  * Attribute is a container for additional information that is not
@@ -12,6 +15,7 @@ module qtl.object;
  */
 
 class Attribute {
+  private string description;
 }
 
 /** 
@@ -29,7 +33,7 @@ struct Marker {
   double position;   /// The marker position - content depends on map
   Attribute[] attrib_list;
   unittest {
-    Marker m = { id:1, position=4.6};	      
+    Marker m = { id:1, position:4.6};	      
   }
 }
 
