@@ -8,7 +8,6 @@
 
 module qtl.objects;
 
-
 /** 
  * Attribute is a container for additional information that is not
  * anticipated in primitive objects. I.e. Gene Ontology annotation could
@@ -31,7 +30,6 @@ mixin template PrimitiveInfo()
   const string name;        /// Marker name
   Attribute[] attrib_list;  /// Ref. to list of attributes
 }
-
 
 /** 
  * The Marker struct is the most primitive representation of a marker, i.e.
