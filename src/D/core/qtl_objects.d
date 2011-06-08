@@ -17,7 +17,7 @@ module qtl.objects;
  */
 
 class Attribute {
-  private string description = "core attribute";
+  private string description = "unknown attribute";
 }
 
 /** 
