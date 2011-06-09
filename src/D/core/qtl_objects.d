@@ -24,9 +24,9 @@ class Attribute {
  * Primitives have an id, an optional name, and an attribute list.
  */
 
-mixin template PrimitiveInfo()
+mixin template PayLoad()
 {
-  const uint id;            /// Unique identifier
+  const uint id;            /// Unique identifier (maybe we don't need this)
   const string name;        /// Name
   Attribute[] attrib_list;  /// Ref. to list of attributes
 }
@@ -43,7 +43,7 @@ mixin template PrimitiveInfo()
  */
 
 struct Marker {
-  mixin PrimitiveInfo;
+  mixin PayLoad;
   const int chromosome;
   double position;          /// Marker position - content depends on map
 }
@@ -79,7 +79,7 @@ struct Phenotype(T) {
  */
 
 struct Chromosome {
-  mixin PrimitiveInfo;
+  mixin PayLoad;
 }
 
 /**
@@ -89,7 +89,7 @@ struct Chromosome {
  */
 
 struct Individual {
-  mixin PrimitiveInfo;
+  mixin PayLoad;
 }
 
 /******************************************************************************
