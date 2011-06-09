@@ -41,8 +41,9 @@ class ReadSimpleCSV {
     // read chromosome info
     foreach (i, cname; split(f.readln(), RegExp("\\s*,\\s*", "i")))
     {
-       writeln(cname);
-       // markers[i-1].chromosome = to!int(cname);
+       writeln('<',cname,'>');
+       if (cname != "" && cname[0] != 'X' && i > 0) 
+         markers[i-1].chromosome = to!int(cname);
     }
     // read rest
     char[] buf;
