@@ -44,7 +44,7 @@ mixin template PayLoad()
 
 struct Marker {
   mixin PayLoad;
-  const int chromosome;
+  int chromosome;
   double position;          /// Marker position - content depends on map
 }
 
