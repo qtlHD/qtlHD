@@ -3,10 +3,10 @@
  *
  * Test the module with 
  *
- *   rdmd --main -unittest qtl_objects.d
+ *   rdmd --main -unittest qtl/core/primitives.d 
  */
 
-module qtl.objects;
+module qtl.core.primitives;
 
 /** 
  * Attribute is a container for additional information that is not
