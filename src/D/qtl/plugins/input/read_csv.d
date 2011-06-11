@@ -7,6 +7,8 @@
 module qtl.plugins.input.read_csv;
 
 import qtl.core.primitives;
+import qtl.core.chromosome;
+
 import std.stdio;
 import std.regexp;
 import std.conv;
