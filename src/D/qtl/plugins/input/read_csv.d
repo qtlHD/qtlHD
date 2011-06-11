@@ -13,8 +13,6 @@ import std.conv;
 import std.string;
 import std.path;
 
-// import std.stream;
-
 /** 
  * Read a simple CSV file containing marker names, chromosome nrs, position, 
  * phenotype and genotype - such as the listeria.csv file used in R/qtl.
@@ -29,6 +27,8 @@ class ReadSimpleCSV {
   Marker[] markers;
 
   this(in string fn) {
+    alias std.regexp.split split;
+
     f = File(fn,"r");
     // read markers
     Marker[] ms;
@@ -56,6 +56,7 @@ class ReadSimpleCSV {
 }
 
 unittest {
+  alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
   writeln("Reading CSV file" ~ fn);
   Marker m2 = { id:2, position:4.8, chromosome:1};
