@@ -9,6 +9,7 @@ module qtl.plugins.input.read_csv;
 import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
+import qtl.core.genotype;
 
 import std.stdio;
 import std.regexp;
@@ -30,6 +31,7 @@ class ReadSimpleCSV {
   Marker[] markers;
   Chromosome[string] chromosomes;
   Phenotype!double[] phenotypes;
+  Genotype!int[][] genotypes;
 
   this(in string fn) {
     alias std.regexp.split split;
@@ -69,7 +71,7 @@ class ReadSimpleCSV {
          markers[i-1].position = to!double(pos2);
        }
     }
-    // read rest
+    // read remainig data
     string buf;
     uint individual = 0;
     while (f.readln(buf)) {
@@ -77,6 +79,12 @@ class ReadSimpleCSV {
       if (fields.length != size) throw new Exception("Field # out of range in ", buf);
       auto p = set_phenotype!double(fields[0]);
       phenotypes ~= p;
+      // set genotype
+      Genotype!int[] gs;
+      foreach (field; fields[1..$]) {
+        gs ~= set_genotype!int(strip(field));
+      }
+      genotypes ~= gs;
       individual++;
     }
     f.close();
@@ -104,6 +112,13 @@ unittest {
   assert(data.chromosomes["X"].id == 0);
   assert(data.chromosomes["7"].id == 7);
   assert(data.markers[2].position == 24.84773, "Marker position not matching");
+  // Check phenotype
+  assert(data.phenotypes[29].value == PHENOTYPE_NA, to!string(data.phenotypes[29].value));
+  assert(data.phenotypes[30].value == 74.417);
+  // Check genotype
+  assert(data.genotypes[1][0].value == GENOTYPE_NA);
+  assert(data.genotypes[1][1].value == 2);
+
   // foreach(name; data.chromosomes.keys.sort) {
   // }
 }
