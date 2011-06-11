@@ -28,6 +28,7 @@ class ReadSimpleCSV {
   string phenotypename;
   Marker[] markers;
   Chromosome[string] chromosomes;
+  Phenotype!double[] phenotypes;
 
   this(in string fn) {
     alias std.regexp.split split;
@@ -35,7 +36,9 @@ class ReadSimpleCSV {
     f = File(fn,"r");
     // read markers
     Marker[] ms;
-    foreach (i, mname; split(f.readln(), RegExp("\\s*,\\s*", "i")))
+    auto header = split(f.readln(),RegExp("\\s*,\\s*", "i"));
+    immutable size = header.length;
+    foreach (i, mname; header)
     {
        // writeln(mname);
        Marker m = { name:mname, id:i-1};
@@ -44,19 +47,21 @@ class ReadSimpleCSV {
     phenotypename = ms[0].name;
     markers = ms[1..$];
     // read chromosome info
-    foreach (i, cname; split(f.readln(), RegExp("\\s*,\\s*", "i")))
+    auto cnames = split(f.readln(),RegExp("\\s*,\\s*", "i"));
+    if (cnames.length != size) throw new Exception("# Chromosomes out of range");
+    foreach (i, cname; cnames)
     {
-       // We get a chromosome name, normally a number, or an 'X'.
        if (i>0) {
          immutable cname2 = strip(cname);
-         // writeln('<' ~ cname2 ~ '>');
          if (!(cname in chromosomes))
            chromosomes[cname2] = new Chromosome(cname2);
          markers[i-1].chromosome = chromosomes[cname2];
        }
     }
     // read position info
-    foreach (i, pos; split(f.readln(), RegExp("\\s*,\\s*", "i")))
+    auto positions = split(f.readln(),RegExp("\\s*,\\s*", "i"));
+    if (positions.length != size) throw new Exception("Positions out of range");
+    foreach (i, pos; positions)
     {
        if (i>0) {
          immutable pos2 = strip(pos);
@@ -64,9 +69,16 @@ class ReadSimpleCSV {
        }
     }
     // read rest
-    char[] buf;
-    // while (f.readln(buf))
-    //  writeln(buf ~ "xx");
+    string buf;
+    uint individual = 0;
+    while (f.readln(buf)) {
+      auto fields = split(buf,RegExp("\\s*,\\s*", "i"));
+      if (fields.length != size) throw new Exception("Field # out of range in ", buf);
+      immutable value = to!double(fields[0]);
+      writeln(individual, ':',  value);
+      Phenotype!double p = { value:value };
+      individual++;
+    }
     f.close();
   }
 }
@@ -75,7 +87,7 @@ unittest {
   writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
-  writeln("reading CSV file" ~ fn);
+  writeln("reading CSV " ~ fn);
   Marker m2 = { id:2, position:4.8};
   assert(m2.id == 2);
   auto markers = [ m2 ];
