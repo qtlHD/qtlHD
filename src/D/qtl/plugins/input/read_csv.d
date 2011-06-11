@@ -95,15 +95,13 @@ unittest {
   writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
-  writeln("reading CSV " ~ fn);
+  writeln("  reading CSV " ~ fn);
   Marker m2 = { id:2, position:4.8};
   assert(m2.id == 2);
   auto markers = [ m2 ];
   auto data = new ReadSimpleCSV(fn);
-  writeln(data.markers.length);
   assert(data.markers.length == 133, to!string(data.markers.length));
   assert(data.phenotypename == "T264");
-  writeln(data.markers[0].id);
   assert(data.markers[0].name == "D10M44");
   assert(data.markers[0].id == 0);
   assert(data.markers[1].id == 1);
