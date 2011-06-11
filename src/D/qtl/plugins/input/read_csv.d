@@ -10,6 +10,7 @@ import qtl.core.primitives;
 import std.stdio;
 import std.regexp;
 import std.conv;
+import std.string;
 import std.path;
 
 // import std.stream;
