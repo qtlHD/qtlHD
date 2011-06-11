@@ -8,6 +8,7 @@ module qtl.plugins.input.read_csv;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
+import qtl.core.phenotype;
 
 import std.stdio;
 import std.regexp;
@@ -74,9 +75,8 @@ class ReadSimpleCSV {
     while (f.readln(buf)) {
       auto fields = split(buf,RegExp("\\s*,\\s*", "i"));
       if (fields.length != size) throw new Exception("Field # out of range in ", buf);
-      immutable value = to!double(fields[0]);
-      writeln(individual, ':',  value);
-      Phenotype!double p = { value:value };
+      auto p = set_phenotype!double(fields[0]);
+      // phenotypes[individual] = p;
       individual++;
     }
     f.close();
