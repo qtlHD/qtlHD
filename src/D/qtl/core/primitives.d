@@ -71,6 +71,8 @@ struct Phenotype(T) {
   T value;
 }
 
+import std.conv;
+
 /**
  * Chromosome is the most primitive representation of a chromosome. 
  * Sex chromosomes are known via their name. Since these chromoses are 
@@ -82,6 +84,16 @@ struct Phenotype(T) {
 
 class Chromosome {
   mixin PayLoad;
+  this(string _name) {
+    uint name2id() {
+      if (_name == "X")
+        return 0;
+      else
+        return to!int(_name);
+    }
+    name = _name;
+    id = name2id();
+  }
 }
 
 /**
@@ -107,7 +119,7 @@ unittest {
   assert(m1.id == 1);
   assert(m1.attrib_list == null);
   assert(m1.attrib_list.length == 0);
-  Marker m2 = { id:2, position:4.8, chromosome:new Chromosome(), attrib_list:new Attribute[1]};
+  Marker m2 = { id:2, position:4.8, chromosome:new Chromosome("1"), attrib_list:new Attribute[1]};
   assert(m2.attrib_list.length == 1);
   // create a list of markers
   auto markers = [ m1 ];
