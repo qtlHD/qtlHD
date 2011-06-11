@@ -101,7 +101,7 @@ class Individual {
 import std.stdio;
 
 unittest {
-  writeln("Unit tests for primitives.d");
+  writeln("Unit test " ~ __FILE__);
   // test marker
   Marker m1 = { id:1, position:4.6};
   assert(m1.id == 1);

@@ -59,9 +59,10 @@ class ReadSimpleCSV {
 }
 
 unittest {
+  writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
-  writeln("Unit tests; reading CSV file" ~ fn);
+  writeln("reading CSV file" ~ fn);
   Marker m2 = { id:2, position:4.8};
   assert(m2.id == 2);
   auto markers = [ m2 ];
