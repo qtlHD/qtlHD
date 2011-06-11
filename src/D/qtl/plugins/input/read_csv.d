@@ -43,9 +43,10 @@ class ReadSimpleCSV {
     // read chromosome info
     foreach (i, cname; split(f.readln(), RegExp("\\s*,\\s*", "i")))
     {
-       writeln('<',cname,'>');
-       if (cname != "" && cname[0] != 'X' && i > 0) 
-         markers[i-1].chromosome = to!int(cname);
+       auto cname2 = strip(cname);
+       // We get a chromosome name, normally a number, or an 'X'.
+       // if (cname != "" && cname[0] != 'X' && i > 0) 
+         // markers[i-1].chromosome = to!int(cname);
     }
     // read rest
     char[] buf;
@@ -58,19 +59,18 @@ class ReadSimpleCSV {
 unittest {
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
-  writeln("Reading CSV file" ~ fn);
-  Marker m2 = { id:2, position:4.8, chromosome:1};
+  writeln("Unit tests; reading CSV file" ~ fn);
+  Marker m2 = { id:2, position:4.8};
   assert(m2.id == 2);
   auto markers = [ m2 ];
   auto data = new ReadSimpleCSV(fn);
   writeln(data.markers.length);
-  assert(data.markers.length == 133);
+  assert(data.markers.length == 133, to!string(data.markers.length));
   assert(data.phenotypename == "T264");
   writeln(data.markers[0].id);
   assert(data.markers[0].name == "D10M44");
   assert(data.markers[0].id == 0);
   assert(data.markers[1].id == 1);
-  writeln("Done");
 }
 
 void main() { }

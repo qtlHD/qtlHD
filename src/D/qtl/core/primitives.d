@@ -44,7 +44,7 @@ mixin template PayLoad()
 
 struct Marker {
   mixin PayLoad;
-  int chromosome;
+  Chromosome chromosome;
   double position;          /// Marker position - content depends on map
 }
 
@@ -73,12 +73,14 @@ struct Phenotype(T) {
 
 /**
  * Chromosome is the most primitive representation of a chromosome. 
- * Sex chromosomes are known via their name. 
+ * Sex chromosomes are known via their name. Since these chromoses are 
+ * 'shared' between markers, we use them by reference (i.e. a class).
+ * Chromosomes are number 1..$. The sex chromosome is set to id=0.
  *
  * To maintain a list of markers with a chromosome, use a shared object.
  */
 
-struct Chromosome {
+class Chromosome {
   mixin PayLoad;
 }
 
@@ -88,7 +90,7 @@ struct Chromosome {
  * by a shared object.
  */
 
-struct Individual {
+class Individual {
   mixin PayLoad;
 }
 
@@ -96,13 +98,16 @@ struct Individual {
  * Unit tests for primitives 
  */
 
+import std.stdio;
+
 unittest {
+  writeln("Unit tests for primitives.d");
   // test marker
   Marker m1 = { id:1, position:4.6};
   assert(m1.id == 1);
   assert(m1.attrib_list == null);
   assert(m1.attrib_list.length == 0);
-  Marker m2 = { id:2, position:4.8, chromosome:1, attrib_list:new Attribute[1]};
+  Marker m2 = { id:2, position:4.8, chromosome:new Chromosome(), attrib_list:new Attribute[1]};
   assert(m2.attrib_list.length == 1);
   // create a list of markers
   auto markers = [ m1 ];
