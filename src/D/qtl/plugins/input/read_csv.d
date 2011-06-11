@@ -10,6 +10,7 @@ import qtl.core.primitives;
 import std.stdio;
 import std.regexp;
 import std.conv;
+import std.path;
 
 // import std.stream;
 
@@ -47,14 +48,14 @@ class ReadSimpleCSV {
     }
     // read rest
     char[] buf;
-    while (f.readln(buf))
-      writeln(buf ~ "xx");
+    // while (f.readln(buf))
+    //  writeln(buf ~ "xx");
     f.close();
   }
 }
 
 unittest {
-  auto fn = "../../test/data/input/listeria.csv";
+  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
   writeln("Reading CSV file" ~ fn);
   Marker m2 = { id:2, position:4.8, chromosome:1};
   assert(m2.id == 2);
