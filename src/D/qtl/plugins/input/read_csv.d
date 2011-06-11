@@ -31,7 +31,7 @@ class ReadSimpleCSV {
   Marker[] markers;
   Chromosome[string] chromosomes;
   Phenotype!double[] phenotypes;
-  Genotype!int[][] genotypes;
+  Genotype!BC[][] genotypes;
 
   this(in string fn) {
     alias std.regexp.split split;
@@ -80,9 +80,9 @@ class ReadSimpleCSV {
       auto p = set_phenotype!double(fields[0]);
       phenotypes ~= p;
       // set genotype
-      Genotype!int[] gs;
+      Genotype!BC[] gs;
       foreach (field; fields[1..$]) {
-        gs ~= set_genotype!int(strip(field));
+        gs ~= set_genotype!BC(strip(field));
       }
       genotypes ~= gs;
       individual++;
@@ -116,8 +116,8 @@ unittest {
   assert(data.phenotypes[29].value == PHENOTYPE_NA, to!string(data.phenotypes[29].value));
   assert(data.phenotypes[30].value == 74.417);
   // Check genotype
-  assert(data.genotypes[1][0].value == GENOTYPE_NA);
-  assert(data.genotypes[1][1].value == 2);
+  assert(data.genotypes[1][0].value == BC.NA);
+  assert(data.genotypes[1][1].value == BC.B);
 
   // foreach(name; data.chromosomes.keys.sort) {
   // }
