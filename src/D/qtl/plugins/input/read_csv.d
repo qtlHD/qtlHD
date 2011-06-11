@@ -31,7 +31,7 @@ class ReadSimpleCSV {
   Marker[] markers;
   Chromosome[string] chromosomes;
   Phenotype!double[] phenotypes;
-  Genotype!BC[][] genotypes;
+  Genotype!BC[][] genotypes;      // FIXME: currently fixated for BC
 
   this(in string fn) {
     alias std.regexp.split split;
