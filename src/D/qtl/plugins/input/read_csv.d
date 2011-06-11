@@ -55,6 +55,14 @@ class ReadSimpleCSV {
          markers[i-1].chromosome = chromosomes[cname2];
        }
     }
+    // read position info
+    foreach (i, pos; split(f.readln(), RegExp("\\s*,\\s*", "i")))
+    {
+       if (i>0) {
+         immutable pos2 = strip(pos);
+         markers[i-1].position = to!double(pos2);
+       }
+    }
     // read rest
     char[] buf;
     // while (f.readln(buf))
@@ -83,6 +91,7 @@ unittest {
   assert(data.chromosomes.length == 20, to!string(data.chromosomes.length));
   assert(data.chromosomes["X"].id == 0);
   assert(data.chromosomes["7"].id == 7);
+  assert(data.markers[2].position == 24.84773, "Marker position not matching");
   // foreach(name; data.chromosomes.keys.sort) {
   // }
 }
