@@ -1,3 +1,6 @@
+/**
+ * Phenotype module
+ */
 
 module qtl.core.phenotype;
 

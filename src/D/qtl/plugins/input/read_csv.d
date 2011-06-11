@@ -76,7 +76,7 @@ class ReadSimpleCSV {
       auto fields = split(buf,RegExp("\\s*,\\s*", "i"));
       if (fields.length != size) throw new Exception("Field # out of range in ", buf);
       auto p = set_phenotype!double(fields[0]);
-      // phenotypes[individual] = p;
+      phenotypes ~= p;
       individual++;
     }
     f.close();
