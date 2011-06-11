@@ -85,14 +85,9 @@ import std.conv;
 class Chromosome {
   mixin PayLoad;
   this(string _name) {
-    uint name2id() {
-      if (_name == "X")
-        return 0;
-      else
-        return to!int(_name);
-    }
     name = _name;
-    id = name2id();
+    if (_name == "X") id = 0;
+    else              id = to!int(_name);
   }
 }
 
