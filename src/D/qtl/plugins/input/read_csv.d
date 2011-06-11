@@ -27,6 +27,7 @@ class ReadSimpleCSV {
   private File f;
   string phenotypename;
   Marker[] markers;
+  Chromosome[string] chromosomes;
 
   this(in string fn) {
     alias std.regexp.split split;
@@ -45,10 +46,14 @@ class ReadSimpleCSV {
     // read chromosome info
     foreach (i, cname; split(f.readln(), RegExp("\\s*,\\s*", "i")))
     {
-       auto cname2 = strip(cname);
        // We get a chromosome name, normally a number, or an 'X'.
-       // if (cname != "" && cname[0] != 'X' && i > 0) 
-         // markers[i-1].chromosome = to!int(cname);
+       if (i>0) {
+         immutable cname2 = strip(cname);
+         // writeln('<' ~ cname2 ~ '>');
+         if (!(cname in chromosomes))
+           chromosomes[cname2] = new Chromosome(cname2);
+         markers[i-1].chromosome = chromosomes[cname2];
+       }
     }
     // read rest
     char[] buf;
@@ -74,6 +79,12 @@ unittest {
   assert(data.markers[0].name == "D10M44");
   assert(data.markers[0].id == 0);
   assert(data.markers[1].id == 1);
+  // Check chromosomes
+  assert(data.chromosomes.length == 20, to!string(data.chromosomes.length));
+  assert(data.chromosomes["X"].id == 0);
+  assert(data.chromosomes["7"].id == 7);
+  // foreach(name; data.chromosomes.keys.sort) {
+  // }
 }
 
 void main() { }
