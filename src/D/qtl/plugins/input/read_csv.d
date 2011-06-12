@@ -12,7 +12,6 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 
 import std.stdio;
-// import std.regexp;
 import std.conv;
 import std.string;
 import std.path;
@@ -34,12 +33,9 @@ class ReadSimpleCSV {
   Genotype!BC[][] genotypes;      // FIXME: currently fixated for BC
 
   this(in string fn) {
-    // alias std.regexp.split split;
-
     f = File(fn,"r");
     // read markers
     Marker[] ms;
-    // auto header = split(f.readln(),RegExp("\\s*,\\s*", "i"));
     auto header = split(f.readln(),",");
     immutable size = header.length;
     ms.reserve(size);  // pre-allocate memory (just good practise)
