@@ -1,7 +1,7 @@
 /**
  * Plugin for reading simple CSV files
  *
- *   rm read_csv ; dmd -unittest qtl/plugins/input/read_csv.d qtl/core/primitives.d ; ./read_csv
+ *   rm read_csv ; dmd -unittest qtl/plugins/input/read_csv.d qtl/core/*.d ; time ./read_csv
  */
 
 module qtl.plugins.input.read_csv;
