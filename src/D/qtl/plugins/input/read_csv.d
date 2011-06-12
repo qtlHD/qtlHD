@@ -41,6 +41,7 @@ class ReadSimpleCSV {
     Marker[] ms;
     auto header = split(f.readln(),RegExp("\\s*,\\s*", "i"));
     immutable size = header.length;
+    ms.reserve(size);  // pre-allocate memory (just good practise)
     foreach (i, mname; header)
     {
        // writeln(mname);
@@ -81,6 +82,7 @@ class ReadSimpleCSV {
       phenotypes ~= p;
       // set genotype
       Genotype!BC[] gs;
+      gs.reserve(size);  // pre-allocate memory (just good practise)
       foreach (field; fields[1..$]) {
         gs ~= set_genotype!BC(strip(field));
       }
@@ -95,7 +97,7 @@ unittest {
   writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
-  writeln("  reading CSV " ~ fn);
+  writeln("  - reading CSV " ~ fn);
   Marker m2 = { id:2, position:4.8};
   assert(m2.id == 2);
   auto markers = [ m2 ];
