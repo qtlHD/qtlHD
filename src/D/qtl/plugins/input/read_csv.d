@@ -12,7 +12,7 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 
 import std.stdio;
-import std.regexp;
+// import std.regexp;
 import std.conv;
 import std.string;
 import std.path;
@@ -34,12 +34,13 @@ class ReadSimpleCSV {
   Genotype!BC[][] genotypes;      // FIXME: currently fixated for BC
 
   this(in string fn) {
-    alias std.regexp.split split;
+    // alias std.regexp.split split;
 
     f = File(fn,"r");
     // read markers
     Marker[] ms;
-    auto header = split(f.readln(),RegExp("\\s*,\\s*", "i"));
+    // auto header = split(f.readln(),RegExp("\\s*,\\s*", "i"));
+    auto header = split(f.readln(),",");
     immutable size = header.length;
     ms.reserve(size);  // pre-allocate memory (just good practise)
     foreach (i, mname; header)
@@ -51,7 +52,7 @@ class ReadSimpleCSV {
     phenotypename = ms[0].name;
     markers = ms[1..$];
     // read chromosome info
-    auto cnames = split(f.readln(),RegExp("\\s*,\\s*", "i"));
+    auto cnames = split(f.readln(),",");
     if (cnames.length != size) throw new Exception("# Chromosomes out of range");
     foreach (i, cname; cnames)
     {
@@ -63,7 +64,7 @@ class ReadSimpleCSV {
        }
     }
     // read position info
-    auto positions = split(f.readln(),RegExp("\\s*,\\s*", "i"));
+    auto positions = split(f.readln(),",");
     if (positions.length != size) throw new Exception("Positions out of range");
     foreach (i, pos; positions)
     {
@@ -72,11 +73,11 @@ class ReadSimpleCSV {
          markers[i-1].position = to!double(pos2);
        }
     }
-    // read remainig data
+    // read remaining data
     string buf;
     uint individual = 0;
     while (f.readln(buf)) {
-      auto fields = split(buf,RegExp("\\s*,\\s*", "i"));
+      auto fields = split(buf,",");
       if (fields.length != size) throw new Exception("Field # out of range in ", buf);
       auto p = set_phenotype!double(fields[0]);
       phenotypes ~= p;
