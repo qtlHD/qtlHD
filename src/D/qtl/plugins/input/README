@@ -1,7 +1,1 @@
 Input filters
-
-
-On Mac, to run read_csv.d unit test:
-   from qtlHD/src/D:
-     dmd -unittest qtl/plugins/input/*.d qtl/core/*.d
-     read_csv
