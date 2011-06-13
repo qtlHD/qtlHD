@@ -30,7 +30,7 @@ class ReadSimpleCSV {
   Marker[] markers;
   Chromosome[string] chromosomes;
   Phenotype!double[] phenotypes;
-  Genotype!BC[][] genotypes;      // FIXME: currently fixated for BC
+  Genotype!F2[][] genotypes;      // FIXME: currently fixated for F2
 
   this(in string fn) {
     f = File(fn,"r");
@@ -78,10 +78,10 @@ class ReadSimpleCSV {
       auto p = set_phenotype!double(fields[0]);
       phenotypes ~= p;
       // set genotype
-      Genotype!BC[] gs;
+      Genotype!F2[] gs;
       gs.reserve(size);  // pre-allocate memory (just good practise)
       foreach (field; fields[1..$]) {
-        gs ~= set_genotype!BC(strip(field));
+        gs ~= set_genotype!F2(strip(field));
       }
       genotypes ~= gs;
       individual++;
@@ -113,8 +113,8 @@ unittest {
   assert(data.phenotypes[29].value == PHENOTYPE_NA, to!string(data.phenotypes[29].value));
   assert(data.phenotypes[30].value == 74.417);
   // Check genotype
-  assert(data.genotypes[1][0].value == BC.NA);
-  assert(data.genotypes[1][1].value == BC.B);
+  assert(data.genotypes[1][0].value == F2.NA);
+  assert(data.genotypes[1][1].value == F2.B);
 
   // foreach(name; data.chromosomes.keys.sort) {
   // }
