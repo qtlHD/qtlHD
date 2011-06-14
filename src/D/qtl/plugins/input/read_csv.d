@@ -141,7 +141,6 @@ unittest {
 }
 
 unittest {
-  writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","hyper.csv");
   writeln("  - reading CSV " ~ fn);
