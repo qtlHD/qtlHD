@@ -24,4 +24,5 @@
 tags
 tmp
 *.aux
+cdc.d
 read_csv
