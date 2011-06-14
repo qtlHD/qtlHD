@@ -60,7 +60,7 @@ class CsvrToBinary {
   int markers = 0;
   
   NPhenotype!double phenome[];
-  GeneticMarker!char genome[];
+  GeneticMarker!string genome[];
   
   bool check_individuals(string[] items){
     if(individuals==0){
@@ -80,13 +80,14 @@ class CsvrToBinary {
     string line;
     int linecount;
     while((line = f.readln()) != ""){
+      line = strip(line);
       auto items = split(line,",");
       if(!check_individuals(items))throw new Exception("Not enough items on line " ~ to!string(linecount));
       if(is_phenotype(items)){
         writeln("Phenotype: " ~ items[0]);
         NPhenotype!double phenotype;
         phenotype.name = items[0];
-        for(uint i=0;i<3;i++) {
+        for(uint i=0;i<162;i++) {
           if(items[i+3] != "-"){
             phenotype.values ~= to!double(items[i+3]);
           }else{
@@ -97,7 +98,7 @@ class CsvrToBinary {
         phenotypes++;
       }else{
         writeln("Marker: " ~ items[0]);
-        GeneticMarker!char marker;
+        GeneticMarker!string marker;
         marker.name = items[0];
         marker.chr = items[1];
         if(items[1] == "X"){
@@ -118,9 +119,36 @@ class CsvrToBinary {
     f.close();
   }
   
+  byte[2] b_footprint = [ 0, 5 ];
+  byte[3] b_version = [ 0, 0, 1 ];
+  
+  void myWrite(T)(T x,File f,bool bin=true){
+    if(bin){
+      f.rawWrite(x);
+    }else{
+      f.writeln(x);
+    }
+  }
+  
+  void write_matrix(T)(T[] towrite, File to){
+    uint[2] sizes =[towrite.length,towrite[0].values.length];
+    myWrite(sizes,to);
+    foreach(T e;towrite){
+      myWrite(e.values,to);
+    }
+  }
+  
   void write_binary(in string filename){
     f = File(filename,"wb");
-
+    myWrite(b_footprint,f);
+    myWrite(b_version,f);
+    myWrite(b_footprint,f);
+    uint[1] nmatrix = [ 2 ];
+    myWrite(nmatrix,f);
+    write_matrix!(NPhenotype!double)(phenome,f);
+    myWrite(b_footprint,f);
+    write_matrix!(GeneticMarker!string)(genome,f);
+    myWrite(b_footprint,f);
     f.close();
   }
 
