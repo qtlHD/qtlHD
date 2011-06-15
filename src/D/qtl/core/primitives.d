@@ -8,6 +8,8 @@
 
 module qtl.core.primitives;
 
+import std.container; 
+
 /** 
  * Attribute is a container for additional information that is not
  * anticipated in primitive objects. I.e. Gene Ontology annotation could
@@ -79,7 +81,8 @@ import std.conv;
  * chromoses are 'shared' between markers, we use them by reference (i.e. a
  * class).  
  *
- * To maintain a list of markers with a chromosome, use a shared object.
+ * To maintain a list of markers with a chromosome, use a shared object,
+ * for example ChromosomeMarkers below.
  */
 
 class Chromosome {
@@ -110,6 +113,49 @@ class SexChromosome : Chromosome {
 class Individual {
   mixin PayLoad;
 }
+
+/******************************************************************************
+ * The following objects are not really primitive - but are useful
+ * building blocks.
+ */
+
+/**
+ * The MarkerIndex combines a Marker with a genotype matrix, where each row
+ * represents the genotype of an individual.  Each MarkerRef points to a
+ * Marker, a genotype matrix, and the column index in the matrix.
+ */
+
+struct MarkerRef(T) {
+  Marker marker;
+  Genotype!T[][] genotype_matrix;
+  uint column;
+}
+
+/**
+ * The ordered Marker list keeps track of MarkerRefs.
+ */
+
+class Markers(T) {
+  MarkerRef!T[] marker_list;  // Will probably become a List.
+}
+
+/**
+ * ChromosomeMap combines Chromosome and Marker list.
+ */
+
+class ChromosomeMap(T) {
+  Chromosome chromosome;
+  Markers!T markers;
+}
+
+/**
+ * The FullMap has an ordered chromosome map.
+ */
+
+class FullMap(T) {
+  SList!(ChromosomeMap!T) chromosome_map;
+}
+
 
 /******************************************************************************
  * Unit tests for primitives 
@@ -147,3 +193,12 @@ unittest {
   assert(x.is_sex == true);
 }
 
+unittest {
+  // this should compile 
+  auto map = new FullMap!uint();
+  foreach ( c ; map.chromosome_map ) {
+    auto markers = c.markers;
+    foreach ( m ; markers.marker_list ) {
+    }
+  }
+}
