@@ -85,10 +85,14 @@ unittest {
                       0.477152335696406526555080,
                       0.499999999999990007992778];
 
+  auto dist_orig = dist.dup;
+
   auto result_h = mapFunction(dist, "haldane");
   auto result_k = mapFunction(dist, "kosambi");
   auto result_m = mapFunction(dist, "morgan");
   auto result_cf = mapFunction(dist, "carter-falconer");
+
+  assert(dist == dist_orig);
 
   foreach(i; 0..dist.length) {
     assert(abs(result_h[i] - rec_frac_h[i]) < 1e-14);
@@ -158,10 +162,14 @@ unittest {
                   44.3338307722915629938143,
                   422.5973403267713024433760];
   
+  auto rec_frac_orig = rec_frac.dup;
+
   auto result_h = inverseMapFunction(rec_frac, "haldane");
   auto result_k = inverseMapFunction(rec_frac, "kosambi");
   auto result_m = inverseMapFunction(rec_frac, "morgan");
   auto result_cf = inverseMapFunction(rec_frac, "carter-falconer");
+
+  assert(rec_frac == rec_frac_orig);
 
   foreach(i; 0..rec_frac.length) {
     assert(abs(result_h[i] - dist_h[i]) < 1e-11);
