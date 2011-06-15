@@ -103,3 +103,14 @@ unittest {
   assert(ril[1].value == RIL.A);
   assert(ril[2].value == RIL.B);
 }
+
+import std.algorithm;
+
+unittest {
+  Genotype!BC[] bc;
+  bc = [ set_genotype!BC("-"), set_genotype!BC("A"), set_genotype!BC("H") ];
+  auto list = map!((x) { return x.value; })(bc);
+  assert(list[0] == BC.NA);
+  assert(list[1] == BC.A);
+  assert(list[2] == BC.H);
+}
