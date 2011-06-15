@@ -20,25 +20,28 @@ import std.path;
  * Read a simple CSV file containing marker names, chromosome nrs, position, 
  * phenotype and genotype - such as the listeria.csv file used in R/qtl.
  *
+ * The cross type is injected as XType. An XType works as long as it is
+ * a known Genotype class (BC, F2, RIL).
+ *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
 
-class ReadSimpleCSV {
+class ReadSimpleCSV(XType) {
 
   private File f;
   string[] phenotypenames;
   Marker[] markers;
   Chromosome[string] chromosomes;
   Phenotype!double[][] phenotypes;
-  Genotype!F2[][] genotypes;      // FIXME: currently fixated for F2
+  Genotype!XType[][] genotypes;  
 
   this(in string fn) {
     f = File(fn,"r");
     // read markers
     Marker[] ms;
     auto header = split(f.readln(),",");
-    immutable size = header.length;
-    ms.reserve(size);  // pre-allocate memory (just good practise)
+    immutable n_markers = header.length;
+    ms.reserve(n_markers);  // pre-allocate memory (just good practise)
     foreach (i, mname; header)
     {
        // writeln(mname);
@@ -48,7 +51,7 @@ class ReadSimpleCSV {
 
     // read chromosome info
     auto cnames = split(f.readln(),",");
-    if (cnames.length != size) throw new Exception("# Chromosomes out of range");
+    if (cnames.length != n_markers) throw new Exception("# Chromosomes out of range");
 
     // find first non-blank (indicating last phenotype columns)
     size_t n_phenotypes;
@@ -78,7 +81,7 @@ class ReadSimpleCSV {
 
     // read position info
     auto positions = split(f.readln(),",");
-    if (positions.length != size) throw new Exception("Positions out of range");
+    if (positions.length != n_markers) throw new Exception("Positions out of range");
     positions = positions[n_phenotypes..$];
     foreach (i, pos; positions)
     {
@@ -90,18 +93,18 @@ class ReadSimpleCSV {
     uint individual = 0;
     while (f.readln(buf)) {
       auto fields = split(buf,",");
-      if (fields.length != size) throw new Exception("Field # out of range in ", buf);
+      if (fields.length != n_markers) throw new Exception("Field # out of range in ", buf);
       Phenotype!double[] ps;
-      ps.reserve(size);
+      ps.reserve(n_markers);
       foreach(field; fields[0..n_phenotypes]) {
 	ps ~= set_phenotype!double(field);
       }
       phenotypes ~= ps;
       // set genotype
-      Genotype!F2[] gs;
-      gs.reserve(size);  // pre-allocate memory (just good practise)
+      Genotype!XType[] gs;
+      gs.reserve(n_markers);  // pre-allocate memory (just good practise)
       foreach (field; fields[n_phenotypes..$]) {
-        gs ~= set_genotype!F2(strip(field));
+        gs ~= set_genotype!XType(strip(field));
       }
       genotypes ~= gs;
       individual++;
@@ -118,7 +121,7 @@ unittest {
   Marker m2 = { id:2, position:4.8};
   assert(m2.id == 2);
   auto markers = [ m2 ];
-  auto data = new ReadSimpleCSV(fn);
+  auto data = new ReadSimpleCSV!F2(fn);
   assert(data.markers.length == 133, to!string(data.markers.length));
   assert(data.phenotypenames[0] == "T264");
   assert(data.markers[0].name == "D10M44");
@@ -144,7 +147,7 @@ unittest {
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","hyper.csv");
   writeln("  - reading CSV " ~ fn);
-  auto data = new ReadSimpleCSV(fn);
+  auto data = new ReadSimpleCSV!F2(fn);
   assert(data.markers.length == 174, to!string(data.markers.length));
   assert(data.phenotypenames == ["bp", "sex"]);
   assert(data.markers[3].name == "D1Mit178");
