@@ -14,8 +14,11 @@ import std.math;
 import qtl.plugins.input.read_csv;
 import std.path;
 
+class Cross { }
+
+
 // class to contain genotype data with hmm-related functions
-class F2Cross {
+class F2Cross : Cross {
   Genotype!F2[][] genotypes;
   immutable F2[] possible_true_genotypes = [F2.A, F2.H, F2.B];
 

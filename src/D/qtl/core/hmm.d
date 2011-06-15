@@ -17,21 +17,29 @@ import std.path;
 
 
 // calculate QTL genotype probabilities
-//double[int][int][T] calcGenoprob(T)(F2Cross cross, double[] rec_frac, double error_prob)
-//{
-//  
-//}
+double[size_t][size_t][T] calcGenoprob(T)(Cross cross, double[] rec_frac, double error_prob)
+{
+  
+}
 
+unittest {
+  writeln("Unit test " ~ __FILE__);
+  alias std.path.join join;
+  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
+  writeln("  - read CSV " ~ fn);
+  auto data = new ReadSimpleCSV(fn);
+  auto cross = new F2Cross(data.genotypes);
+}
 
-//double[int][Genotype!F2true] forwardEquations(F2Cross cross, double[] rec_frac, double error_prob)
-//{
-//  double[int][Genotype!F2true] 
-//
-//  foreach(i, 
-//}
+double[size_t][Genotype!T] forwardEquations(T)(Cross cross, double[] rec_frac, double error_prob)
+{
+  double[size_t][Genotype!T] alpha;
 
-//double[int][Genotype!F2true] backwardEquations(F2Cross cross, double[] rec_frac, double error_prob)
-//{
-//
-//}
+}
+
+double[size_t][Genotype!T] backwardEquations(T)(Cross cross, double[] rec_frac, double error_prob)
+{
+  double[size_t][Genotype!T] beta;
+
+}
 
