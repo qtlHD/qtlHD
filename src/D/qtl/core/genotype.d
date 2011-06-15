@@ -11,7 +11,7 @@ import std.stdio;
 immutable GENOTYPE_NA = -1;
 
 enum RIL { NA, A, B };
-enum F2  { NA, A, H, B, C, D }; // C = not A = H or B; D = not B = A or H
+enum F2  { NA, A, H, B, HorB, HorA }; 
 enum BC  { NA, A, H };
 
 Genotype!T set_genotype(T)(in string s) {
@@ -31,10 +31,10 @@ Genotype!T set_genotype(T)(in string s) {
       g.value = T.B;
       break;
     case "C":
-      g.value = T.C;
+      g.value = T.HorB;
       break;
     case "D":
-      g.value = T.D;
+      g.value = T.HorA;
       break;
   }
   return g;
