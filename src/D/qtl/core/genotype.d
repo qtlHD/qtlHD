@@ -39,3 +39,11 @@ Genotype!T set_genotype(T)(in string s) {
   }
   return g;
 }
+
+
+unittest {
+  writeln("Unit test " ~ __FILE__);
+  Genotype!F2[] gs;
+  gs ~= set_genotype!F2("A");
+  // assert(gs[0] == F2.A);
+}
