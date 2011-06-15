@@ -195,6 +195,7 @@ unittest {
 
 unittest {
   // this should compile 
+  // auto map = new FullMap!F2();
   auto map = new FullMap!uint();
   foreach ( c ; map.chromosome_map ) {
     auto markers = c.markers;
