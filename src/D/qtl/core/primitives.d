@@ -74,10 +74,10 @@ struct Phenotype(T) {
 import std.conv;
 
 /**
- * Chromosome is the most primitive representation of a chromosome. 
- * Sex chromosomes are known via their name. Since these chromoses are 
- * 'shared' between markers, we use them by reference (i.e. a class).
- * Chromosomes are number 1..$. The sex chromosome is set to id=0.
+ * Chromosome is the most primitive representation of a chromosome.
+ * Autosome and sex chromosomes are known via their type. Since these
+ * chromoses are 'shared' between markers, we use them by reference (i.e. a
+ * class).  
  *
  * To maintain a list of markers with a chromosome, use a shared object.
  */
@@ -86,9 +86,19 @@ class Chromosome {
   mixin PayLoad;
   this(string _name) {
     name = _name;
-    if (_name == "X") id = 0;
+    if (_name == "X") id = 0;   // FIXME: this will change
     else              id = to!int(_name);
   }
+}
+
+class Autosome : Chromosome {
+  static is_sex = false;
+  this(string _name) { super(_name); };
+}
+
+class SexChromosome : Chromosome {
+  static is_sex = true;
+  this(string _name) { super(_name); assert(id == 0); };
 }
 
 /**
@@ -114,7 +124,7 @@ unittest {
   assert(m1.id == 1);
   assert(m1.attrib_list == null);
   assert(m1.attrib_list.length == 0);
-  Marker m2 = { id:2, position:4.8, chromosome:new Chromosome("1"), attrib_list:new Attribute[1]};
+  Marker m2 = { id:2, position:4.8, chromosome:new Autosome("1"), attrib_list:new Attribute[1]};
   assert(m2.attrib_list.length == 1);
   // create a list of markers
   auto markers = [ m1 ];
@@ -129,5 +139,11 @@ unittest {
   // Phenotype
   Phenotype!double p1 = { value:-7.809 };
   assert(p1.value == -7.809);
+
+  // Chromosome
+  auto c1 = new Autosome("1");
+  auto x = new SexChromosome("X");
+  assert(c1.is_sex == false);
+  assert(x.is_sex == true);
 }
 
