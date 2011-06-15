@@ -44,6 +44,16 @@ Genotype!T set_genotype(T)(in string s) {
 unittest {
   writeln("Unit test " ~ __FILE__);
   Genotype!F2[] gs;
+  gs ~= set_genotype!F2("-");
   gs ~= set_genotype!F2("A");
-  // assert(gs[0] == F2.A);
+  gs ~= set_genotype!F2("B");
+  gs ~= set_genotype!F2("H");
+  gs ~= set_genotype!F2("C");
+  gs ~= set_genotype!F2("D");
+  assert(gs[0].value == F2.NA);
+  assert(gs[1].value == F2.A);
+  assert(gs[2].value == F2.B);
+  assert(gs[3].value == F2.H);
+  assert(gs[4].value == F2.HorB);
+  assert(gs[5].value == F2.HorA);
 }
