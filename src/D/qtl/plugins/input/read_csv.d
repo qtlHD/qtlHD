@@ -75,7 +75,7 @@ class ReadSimpleCSV(XType) {
     {
       immutable cname2 = strip(cname);
       if (!(cname in chromosomes))
-        chromosomes[cname2] = new Chromosome(cname2);
+        chromosomes[cname2] = get_chromosome_with_id(cname2);
       markers[i].chromosome = chromosomes[cname2];
     }
 

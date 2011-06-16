@@ -87,10 +87,9 @@ import std.conv;
 
 class Chromosome {
   mixin PayLoad;
-  this(string _name) {
+  this(string _name, uint _id = -1) {
+    id = _id;
     name = _name;
-    if (_name == "X") id = 0;   // FIXME: this will change
-    else              id = to!int(_name);
   }
 }
 
@@ -101,7 +100,7 @@ class Autosome : Chromosome {
 
 class SexChromosome : Chromosome {
   static is_sex = true;
-  this(string _name) { super(_name); assert(id == 0); };
+  this(string _name) { super(_name,0); assert(id == 0); };
 }
 
 /**
