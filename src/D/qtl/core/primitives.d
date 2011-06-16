@@ -44,10 +44,20 @@ mixin template PayLoad()
  * a Marker list is maintained in a parent container.
  */
 
-struct Marker {
+class Marker {
+  const MARKER_POSITION_UNKNOWN = double.nan;
+  bool is_pseudo = false; 
   mixin PayLoad;
   Chromosome chromosome;
   double position;          /// Marker position - content depends on map
+  this(uint _id=0, double _position = MARKER_POSITION_UNKNOWN, string _name = "unknown") { 
+    name = _name, position = _position, id = _id ;
+  }
+}
+
+class PseudoMarker : Marker {
+  bool is_pseudo = true;
+  this(uint _id=0, double _position = MARKER_POSITION_UNKNOWN, string _name = "unknown") { super(_id, _position, _name); }
 }
 
 /**
@@ -87,21 +97,20 @@ import std.conv;
 
 class Chromosome {
   mixin PayLoad;
-  this(string _name) {
+  bool is_sex() { return false; };
+  this(string _name, uint _id = -1) {
+    id = _id;
     name = _name;
-    if (_name == "X") id = 0;   // FIXME: this will change
-    else              id = to!int(_name);
   }
 }
 
 class Autosome : Chromosome {
-  static is_sex = false;
-  this(string _name) { super(_name); };
+  this(string _name, uint _id) { super(_name,_id); assert(!is_sex); }
 }
 
 class SexChromosome : Chromosome {
-  static is_sex = true;
-  this(string _name) { super(_name); assert(id == 0); };
+  override bool is_sex() { return true; };
+  this(string _name, uint _id=0) { super(_name,_id); assert(is_sex); };
 }
 
 /**
@@ -122,7 +131,10 @@ class Individual {
 /**
  * The MarkerIndex combines a Marker with a genotype matrix, where each row
  * represents the genotype of an individual.  Each MarkerRef points to a
- * Marker, a genotype matrix, and the column index in the matrix.
+ * Marker, a genotype matrix, and the column index in the matrix. 
+ *
+ * Multiple genotype matrices are possible. E.g. a genotype matrix for one or 
+ * more pseudomarkers can exist.
  */
 
 struct MarkerRef(T) {
@@ -166,11 +178,13 @@ import std.stdio;
 unittest {
   writeln("Unit test " ~ __FILE__);
   // test marker
-  Marker m1 = { id:1, position:4.6};
+  Marker m1 = new Marker(1,4.6);
   assert(m1.id == 1);
   assert(m1.attrib_list == null);
   assert(m1.attrib_list.length == 0);
-  Marker m2 = { id:2, position:4.8, chromosome:new Autosome("1"), attrib_list:new Attribute[1]};
+  Marker m2 = new Marker(2,4.8);
+  m2.chromosome = new Autosome("1",1);
+  m2.attrib_list = new Attribute[1];
   assert(m2.attrib_list.length == 1);
   // create a list of markers
   auto markers = [ m1 ];
@@ -185,21 +199,36 @@ unittest {
   // Phenotype
   Phenotype!double p1 = { value:-7.809 };
   assert(p1.value == -7.809);
-
-  // Chromosome
-  auto c1 = new Autosome("1");
-  auto x = new SexChromosome("X");
-  assert(c1.is_sex == false);
-  assert(x.is_sex == true);
 }
 
 unittest {
-  // this should compile 
-  // auto map = new FullMap!F2();
+  // e.g. for F2 auto map = new FullMap!F2();
+  // this should also compile:
   auto map = new FullMap!uint();
   foreach ( c ; map.chromosome_map ) {
     auto markers = c.markers;
     foreach ( m ; markers.marker_list ) {
     }
   }
+}
+
+unittest {
+  // Test list of markers and pseudomarkers
+  Marker m1 = new Marker(1,4.6);
+  Marker m2 = new Marker(2,4.8);
+  m2.chromosome = new Autosome("1",1);
+  m2.attrib_list = new Attribute[1];
+  MarkerRef!uint mref1 = { marker:m1 };
+  MarkerRef!uint mref2 = { marker:m2 };
+  PseudoMarker pm1 = new PseudoMarker(3, 4.7);
+  MarkerRef!uint pmref1 = { marker:pm1 };
+  Markers!uint markers = new Markers!uint();
+  markers.marker_list ~= mref1;
+  markers.marker_list ~= mref2;
+  markers.marker_list ~= pmref1;
+  uint[] result;
+  foreach ( m ; markers.marker_list ) {
+    result ~= m.marker.id;
+  }
+  assert(result==cast(uint[])[1,2,3]);
 }

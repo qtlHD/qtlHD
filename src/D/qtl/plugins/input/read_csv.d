@@ -45,7 +45,7 @@ class ReadSimpleCSV(XType) {
     foreach (i, mname; header)
     {
        // writeln(mname);
-       Marker m = { name:mname, id:i-1};
+       Marker m = new Marker(i-1,Marker.MARKER_POSITION_UNKNOWN,mname); 
        ms ~= m;
     }
 
@@ -75,7 +75,7 @@ class ReadSimpleCSV(XType) {
     {
       immutable cname2 = strip(cname);
       if (!(cname in chromosomes))
-        chromosomes[cname2] = new Chromosome(cname2);
+        chromosomes[cname2] = get_chromosome_with_id(cname2);
       markers[i].chromosome = chromosomes[cname2];
     }
 
@@ -118,7 +118,7 @@ unittest {
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
   writeln("  - reading CSV " ~ fn);
-  Marker m2 = { id:2, position:4.8};
+  Marker m2 = new Marker(2, 4.8);
   assert(m2.id == 2);
   auto markers = [ m2 ];
   auto data = new ReadSimpleCSV!F2(fn);
