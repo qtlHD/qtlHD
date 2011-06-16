@@ -6,6 +6,7 @@ module qtl.core.chromosome;
 
 import std.container;
 import std.conv;
+import std.variant;
 import qtl.core.primitives;
 
 import std.stdio;
@@ -20,17 +21,16 @@ Chromosome get_chromosome_with_id(string name) {
   uint id;
   if (name == "X") id = 0;  
   else             id = to!int(name);
-  return get_chromosome(name,id);
+  return get_chromosome(name,id,(name == "X"));
 }
 
 /**
- * Create new Chromosome object. Currently, if id is zero it 
+ * Create new Chromosome object. Currently, if is_sex is true it 
  * returns a SexChromosome, otherwise an Autosome.
- * (this may change)
  */
 
-Chromosome get_chromosome(string name, uint id) {
-  if (id==0) 
+Chromosome get_chromosome(string name, uint id, bool is_sex=false) {
+  if (is_sex) 
     return new SexChromosome(name);
   else
     return new Autosome(name,id);
@@ -41,7 +41,7 @@ Chromosome get_chromosome(string name, uint id) {
  */
 
 bool is_sex(Chromosome chromosome) {
-  return (chromosome.id == 0);
+  return (chromosome.is_sex);
 }
 
 unittest {
@@ -63,5 +63,5 @@ unittest {
 
   // test for sex
   assert(!is_sex(c1));
-  assert(is_sex(cx),typeof(cx).stringof ~ to!string(cx.id));
+  assert(is_sex(cx),typeof(cx).stringof ~ to!string(cx.id) ~ to!string(is_sex(cx)));
 }

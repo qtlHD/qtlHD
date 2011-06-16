@@ -87,6 +87,7 @@ import std.conv;
 
 class Chromosome {
   mixin PayLoad;
+  bool is_sex() { return false; };
   this(string _name, uint _id = -1) {
     id = _id;
     name = _name;
@@ -94,11 +95,12 @@ class Chromosome {
 }
 
 class Autosome : Chromosome {
-  this(string _name, uint _id) { super(_name,_id); assert(id != 0); }
+  this(string _name, uint _id) { super(_name,_id); assert(!is_sex); }
 }
 
 class SexChromosome : Chromosome {
-  this(string _name) { super(_name,0); assert(id == 0); };
+  bool is_sex() { return true; };
+  this(string _name) { super(_name,0); assert(is_sex); };
 }
 
 /**
@@ -185,8 +187,8 @@ unittest {
 }
 
 unittest {
-  // this should compile 
-  // auto map = new FullMap!F2();
+  // e.g. for F2 auto map = new FullMap!F2();
+  // this should also compile:
   auto map = new FullMap!uint();
   foreach ( c ; map.chromosome_map ) {
     auto markers = c.markers;
