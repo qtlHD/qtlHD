@@ -10,6 +10,7 @@ import qtl.core.genotype;
 import qtl.core.cross;
 import std.stdio;
 import std.math;
+import qtl.core.hmm_f2;
 
 // things for the unit tests 
 import qtl.plugins.input.read_csv;
@@ -17,9 +18,23 @@ import std.path;
 
 
 // calculate QTL genotype probabilities
-double[size_t][size_t][T] calcGenoprob(T)(Cross cross, double[] rec_frac, double error_prob)
+double[int][int][T] calcGenoprob(T)(, double[] rec_frac, double error_prob)
 {
-  
+  double[int][cross.possible_true_genotypes] alpha, beta;
+  double[int][int][T] genoprobs;
+
+  alias cross.genotypes geno;
+  auto n_markers = geno[0].length;
+
+  foreach(i; 0..geno.length) {
+
+    // initialize alpha and beta
+    foreach(true_gen; cross.possible_true_genotypes) {
+      alpha[true_gen][0] = cross.init(true_gen) + cross.emit(geno[i][0], true_gen, error_prob);
+      beta[true_gen][n_marekrs-1] = 0.0;
+    }
+  }
+  return genoprobs;
 }
 
 unittest {
@@ -29,17 +44,9 @@ unittest {
   writeln("  - read CSV " ~ fn);
   auto data = new ReadSimpleCSV!F2(fn);
   auto cross = new F2Cross(data.genotypes);
+
+  auto genoprob = calcGenoprob!F2(cross, 0, 0.01);
 }
 
-double[size_t][Genotype!T] forwardEquations(T)(Cross cross, double[] rec_frac, double error_prob)
-{
-  double[size_t][Genotype!T] alpha;
 
-}
-
-double[size_t][Genotype!T] backwardEquations(T)(Cross cross, double[] rec_frac, double error_prob)
-{
-  double[size_t][Genotype!T] beta;
-
-}
 
