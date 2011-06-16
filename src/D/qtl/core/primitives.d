@@ -99,8 +99,8 @@ class Autosome : Chromosome {
 }
 
 class SexChromosome : Chromosome {
-  bool is_sex() { return true; };
-  this(string _name) { super(_name,0); assert(is_sex); };
+  override bool is_sex() { return true; };
+  this(string _name, uint _id=0) { super(_name,_id); assert(is_sex); };
 }
 
 /**
