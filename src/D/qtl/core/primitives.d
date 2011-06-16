@@ -94,12 +94,10 @@ class Chromosome {
 }
 
 class Autosome : Chromosome {
-  static is_sex = false;
-  this(string _name) { super(_name); };
+  this(string _name, uint _id) { super(_name,_id); assert(id != 0); }
 }
 
 class SexChromosome : Chromosome {
-  static is_sex = true;
   this(string _name) { super(_name,0); assert(id == 0); };
 }
 
@@ -169,7 +167,7 @@ unittest {
   assert(m1.id == 1);
   assert(m1.attrib_list == null);
   assert(m1.attrib_list.length == 0);
-  Marker m2 = { id:2, position:4.8, chromosome:new Autosome("1"), attrib_list:new Attribute[1]};
+  Marker m2 = { id:2, position:4.8, chromosome:new Autosome("1",1), attrib_list:new Attribute[1]};
   assert(m2.attrib_list.length == 1);
   // create a list of markers
   auto markers = [ m1 ];
@@ -184,12 +182,6 @@ unittest {
   // Phenotype
   Phenotype!double p1 = { value:-7.809 };
   assert(p1.value == -7.809);
-
-  // Chromosome
-  auto c1 = new Autosome("1");
-  auto x = new SexChromosome("X");
-  assert(c1.is_sex == false);
-  assert(x.is_sex == true);
 }
 
 unittest {
