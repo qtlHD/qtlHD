@@ -27,7 +27,7 @@ unittest {
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
   writeln("  - read CSV " ~ fn);
-  auto data = new ReadSimpleCSV(fn);
+  auto data = new ReadSimpleCSV!F2(fn);
   auto cross = new F2Cross(data.genotypes);
 }
 

@@ -49,13 +49,13 @@ class F2Cross : Cross {
       } else {
 	return(log(error_prob)-LN2);
       }
-    case F2.C:
+    case F2.HorB:
       if(true_gen.value != F2.A) {
 	return(log(1.0-error_prob/2.0));
       } else {
 	return(log(error_prob)-LN2);
       }
-    case F2.D:
+    case F2.HorA:
       if(true_gen.value != F2.B) {
 	return(log(1.0-error_prob/2.0));
       } else {
@@ -96,7 +96,7 @@ unittest {
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
   writeln("  - read CSV " ~ fn);
-  auto data = new ReadSimpleCSV(fn);
+  auto data = new ReadSimpleCSV!F2(fn);
   auto cross = new F2Cross(data.genotypes);
 }
 
