@@ -3,7 +3,8 @@
  *
  * Run unit tests with:
  *
- *   rm scanone_hk ; dmd -unittest qtl/core/*.d ; time ./scanone_hk
+ *   rm read_csv ; dmd -unittest qtl/plugins/input/read_csv.d qtl/core/*.d ; time ./read_csv
+ * 
  */
 
 module qtl.core.scaneone_hk;
@@ -61,9 +62,23 @@ MappedQTLs scanone_hk(in MarkerContainer markers,
 }
 
 import std.stdio;
+import std.conv;
+import std.string;
+import std.path;
+
+import qtl.core.primitives;
+// import qtl.core.chromosome;
+// import qtl.core.phenotype;
+import qtl.core.genotype;
+import qtl.plugins.input.read_csv;
+
 
 unittest {
   writeln("Unit test " ~ __FILE__);
+  alias std.path.join join;
+  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
+  writeln("  - reading CSV " ~ fn);
+  auto data = new ReadSimpleCSV!F2(fn);
+  assert(data.markers.length == 133, to!string(data.markers.length));
 }
 
-void main() { }
