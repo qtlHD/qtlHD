@@ -141,6 +141,10 @@ class Individual {
   mixin PayLoad;
 }
 
+class Individuals {
+  SList!Individual list;
+}
+
 /******************************************************************************
  * The following objects are not really primitive - but are useful
  * building blocks.

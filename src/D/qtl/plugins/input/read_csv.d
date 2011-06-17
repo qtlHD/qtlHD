@@ -33,7 +33,8 @@ class ReadSimpleCSV(XType) {
   Marker[] markers;
   Chromosome[string] chromosomes;
   Phenotype!double[][] phenotypes;
-  Genotype!XType[][] genotypes;  
+  Genotype!XType[][] genotypes;
+  Individuals individuals;
 
   this(in string fn) {
     f = File(fn,"r");

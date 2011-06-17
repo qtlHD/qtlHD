@@ -80,5 +80,7 @@ unittest {
   writeln("  - reading CSV " ~ fn);
   auto data = new ReadSimpleCSV!F2(fn);
   assert(data.markers.length == 133, to!string(data.markers.length));
+  auto covariates = new Covariates;
+  auto result = scanone_hk(data.markers,data.phenotypes,data.individuals,);
 }
 
