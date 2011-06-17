@@ -1,8 +1,14 @@
 /**
  * Module for Haley-Knott scanone (single QTL mapping by HK regression).
+ *
+ * Run unit tests with:
+ *
+ *   rm scanone_hk ; dmd -unittest qtl/core/*.d ; time ./scanone_hk
  */
 
 module qtl.core.scaneone_hk;
+
+import qtl.core.primitives;
 
 /*
  * Performs genome scan using the Haley-Knott regression method
@@ -46,10 +52,18 @@ module qtl.core.scaneone_hk;
  *
  **********************************************************************/
 
-MappedQTLs scanone_hk(in Markers markers,
-                      in Phenotypes phenotypes, 
-                      in Individuals individuals,
-                      in Covariates covariates)
+MappedQTLs scanone_hk(in MarkerContainer markers,
+                      in PhenotypeContainer phenotypes, 
+                      in Individual[] individuals,
+                      in CovariateContainer covariates)
 {
+  return null;
 }
 
+import std.stdio;
+
+unittest {
+  writeln("Unit test " ~ __FILE__);
+}
+
+void main() { }

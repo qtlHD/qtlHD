@@ -83,6 +83,24 @@ struct Phenotype(T) {
   T value;
 }
 
+interface PhenotypeContainer {
+}
+
+class Phenotypes(T) : PhenotypeContainer {
+  Phenotype!T[] list;
+}
+
+struct Covariate(T) {
+  T value;
+}
+
+interface CovariateContainer {
+}
+
+class Covariates(T) : CovariateContainer {
+  Covariate!T[] list;
+}
+
 import std.conv;
 
 /**
@@ -147,8 +165,11 @@ struct MarkerRef(T) {
  * The ordered Marker list keeps track of MarkerRefs.
  */
 
-class Markers(T) {
-  MarkerRef!T[] marker_list;  // Will probably become a List.
+interface MarkerContainer {
+}
+
+class Markers(T) : MarkerContainer {
+  MarkerRef!T[] list;  // Will probably become a List.
 }
 
 /**
@@ -168,6 +189,8 @@ class FullMap(T) {
   SList!(ChromosomeMap!T) chromosome_map;
 }
 
+class MappedQTLs {
+}
 
 /******************************************************************************
  * Unit tests for primitives 
@@ -207,7 +230,7 @@ unittest {
   auto map = new FullMap!uint();
   foreach ( c ; map.chromosome_map ) {
     auto markers = c.markers;
-    foreach ( m ; markers.marker_list ) {
+    foreach ( m ; markers.list ) {
     }
   }
 }
@@ -223,11 +246,11 @@ unittest {
   PseudoMarker pm1 = new PseudoMarker(3, 4.7);
   MarkerRef!uint pmref1 = { marker:pm1 };
   Markers!uint markers = new Markers!uint();
-  markers.marker_list ~= mref1;
-  markers.marker_list ~= mref2;
-  markers.marker_list ~= pmref1;
+  markers.list ~= mref1;
+  markers.list ~= mref2;
+  markers.list ~= pmref1;
   uint[] result;
-  foreach ( m ; markers.marker_list ) {
+  foreach ( m ; markers.list ) {
     result ~= m.marker.id;
   }
   assert(result==cast(uint[])[1,2,3]);
