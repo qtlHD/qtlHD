@@ -68,25 +68,29 @@ import qtl.plugins.input.read_csv;
 class M {
 }
 
-class Mref(T) {
-  Genotype!T[][] genotypes;
+interface MContained {
 }
 
-alias Mref!F2 F2Mref;
-alias SList!F2Mref MarkerRefs;
+template Scanner(T) {
 
-MappedQTLs scanone_hk(in MarkerRefs markers) /*
-                      in PhenotypeContainer phenotypes, 
-                      in Individual[] individuals,
-                      in CovariateContainer covariates) */
-{
-  return null;
+        class Mref : MContained {
+          Genotype!T[][] genotypes;
+        }
+
+        MappedQTLs scanone_hk(Mref[] markers) /*
+                              in PhenotypeContainer phenotypes, 
+                              in Individual[] individuals,
+                              in CovariateContainer covariates) */
+        {
+          return null;
+        }
 }
+
 
 unittest {
   writeln("Unit test " ~ __FILE__);
   Genotype!F2[][] genotypes;
-  auto mref = new Mref!F2;
+  auto mref = new Scanner!F2.Mref();
   mref.genotypes = genotypes;
 
   alias F2 XType;
@@ -96,7 +100,7 @@ unittest {
   auto data = new ReadSimpleCSV!XType(fn);
   assert(data.markers.length == 133, to!string(data.markers.length));
   auto covariates = new Covariates!double;
-  MarkerRefs markerrefs;
-  auto result = scanone_hk(markerrefs); // ,data.phenotypes,data.individuals,covariates);
+  Scanner!F2.Mref[] markerrefs;
+  auto result = Scanner!F2.scanone_hk(markerrefs); // ,data.phenotypes,data.individuals,covariates);
 }
 
