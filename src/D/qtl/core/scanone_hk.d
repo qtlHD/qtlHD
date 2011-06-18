@@ -89,10 +89,11 @@ unittest {
   auto mref = new Mref!F2;
   mref.genotypes = genotypes;
 
+  alias F2 XType;
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
   writeln("  - reading CSV " ~ fn);
-  auto data = new ReadSimpleCSV!F2(fn);
+  auto data = new ReadSimpleCSV!XType(fn);
   assert(data.markers.length == 133, to!string(data.markers.length));
   auto covariates = new Covariates!double;
   MarkerRefs markerrefs;
