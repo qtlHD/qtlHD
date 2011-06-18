@@ -9,6 +9,7 @@
 
 module qtl.core.scaneone_hk;
 
+import std.container;
 import qtl.core.primitives;
 
 /*
@@ -53,14 +54,6 @@ import qtl.core.primitives;
  *
  **********************************************************************/
 
-MappedQTLs scanone_hk(in MarkerContainer markers,
-                      in PhenotypeContainer phenotypes, 
-                      in Individual[] individuals,
-                      in CovariateContainer covariates)
-{
-  return null;
-}
-
 import std.stdio;
 import std.conv;
 import std.string;
@@ -72,15 +65,37 @@ import qtl.core.primitives;
 import qtl.core.genotype;
 import qtl.plugins.input.read_csv;
 
+class M {
+}
+
+class Mref(T) {
+  Genotype!T[][] genotypes;
+}
+
+alias Mref!F2 F2Mref;
+alias SList!F2Mref MarkerRefs;
+
+MappedQTLs scanone_hk(in MarkerRefs markers) /*
+                      in PhenotypeContainer phenotypes, 
+                      in Individual[] individuals,
+                      in CovariateContainer covariates) */
+{
+  return null;
+}
 
 unittest {
   writeln("Unit test " ~ __FILE__);
+  Genotype!F2[][] genotypes;
+  auto mref = new Mref!F2;
+  mref.genotypes = genotypes;
+
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
   writeln("  - reading CSV " ~ fn);
   auto data = new ReadSimpleCSV!F2(fn);
   assert(data.markers.length == 133, to!string(data.markers.length));
-  auto covariates = new Covariates;
-  auto result = scanone_hk(data.markers,data.phenotypes,data.individuals,);
+  auto covariates = new Covariates!double;
+  MarkerRefs markerrefs;
+  auto result = scanone_hk(markerrefs); // ,data.phenotypes,data.individuals,covariates);
 }
 

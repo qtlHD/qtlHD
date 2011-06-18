@@ -161,7 +161,7 @@ class Individuals {
 
 struct MarkerRef(T) {
   Marker marker;
-  Genotype!T[][] genotype_matrix;
+  // Genotype!T[][] genotype_matrix;
   uint column;
 }
 
