@@ -31,29 +31,13 @@ Markers!T make_fixed_map(T)(in Markers!T markers, Position step, Position off_en
     assert(off_end>=0);
   }
   body {
-  // if step is zero, the purpose was to add a marker if there is only one.
-  // This is no longer the case, use add_marker_if_single instead.
+  // With R/qtl, if step is zero, the purpose was to add a marker if there is
+  // only one.  This is no longer the case, use add_marker_if_single instead.
 
 /*
  Non sex specific map:
-  if(!is.matrix(map)) { # sex-ave map
-    if(length(map) == 1) { # just one marker!
-      if(off.end==0) {
-        if(step == 0) step <- 1
-        nam <- names(map)
-        map <- c(map,map+step)
-        names(map) <- c(nam,paste("loc",step,sep=""))
-      }
-      else {
-        if(step==0) m <- c(-off.end,off.end)
-        else m <- seq(-off.end,off.end,by=step)
-        m <- m[m!=0]
-        names(m) <- paste("loc",m,sep="")
-        map <- sort(c(m+map,map))
-      }
-      return(map)
-    }
 
+  with multiple markers:
     minloc <- min(map)
     map <- map-minloc
 
@@ -257,19 +241,55 @@ Markers!T make_fixed_map_sex(T)(in Markers!T markers, Position step, Position of
 
 /**
  * Add a marker if there is only one
+ *
  */
 
-Markers!T add_if_single_marker(T)(Markers!T markers, Position step)
+Markers!T add_one_if_single_marker(T)(in Markers!T markers, Position step=1.0)
 in {
     assert(step>0);
+  }
+body {
+  auto new_markers = new Markers!T(markers.list.dup);
+  if (markers.list.length == 1) {
+    auto marker = markers.list[0].marker;
+    auto position = marker.position + step;
+    auto pm = new Marker(position,ID_UNKNOWN,"loc" ~ to!string(position));
+    new_markers.list ~= new MarkerRef!T(pm);
+    return new_markers;
+  }
+  return new_markers;
+}
+
+/**
+ * Add a marker if there is only one
+ *
+ * off_end:   If non zero the chromosome is filled with stepped markers from
+ *            marker.position-off_end to marker.position+off_end. Otherwise
+ *            a single marker is added as marker.position + step.
+ */
+
+Markers!T add_if_single_marker(T)(Markers!T markers, Position step=1.0, Position off_end=0.0)
+in {
+    assert(step>0);
+    assert(off_end>=0);
   }
 body {
   if (markers.list.length == 1) {
     auto marker = markers.list[0].marker;
     auto position = marker.position + step;
     auto pm = new Marker(position,ID_UNKNOWN,"loc" ~ to!string(position));
-    markers.list ~= new MarkerRef!T(pm);
-    return markers;
+    Markers!T new_markers = new Markers!T(markers.list.dup);
+    new_markers.list ~= new MarkerRef!T(pm);
+    return new_markers;
+  /*
+     m is a list of step sizes:
+        if(step==0) m <- c(-off.end,off.end)
+        else m <- seq(-off.end,off.end,by=step)
+        m <- m[m!=0]  // remove zero locations (why?)
+        names(m) <- paste("loc",m,sep="") // names
+        map <- sort(c(m+map,map)) // sort the list of new and existing locs
+      return(map)
+  */
   }
   return markers;
 }
@@ -279,9 +299,12 @@ unittest {
   auto markers = new Markers!F2();
   markers.list ~= new MarkerRef!F2(10.0);
   assert(markers.list.length == 1);
-  auto new_markers = add_if_single_marker!F2(markers,100.0);
+  auto new_markers = add_one_if_single_marker!F2(markers,2.0);
   assert(new_markers.list.length == 2, "Length is " ~ to!string(new_markers.list.length));
-  assert(new_markers.list[1].marker.position == 110.0);
-  assert(new_markers.list[1].marker.name == "loc110", new_markers.list[1].marker.name);
+  assert(markers.list.length == 1, "Length is " ~ to!string(markers.list.length));
+  assert(new_markers.list[1].marker.position == 12.0);
+  assert(new_markers.list[1].marker.name == "loc12", new_markers.list[1].marker.name);
+  auto new_markers2 = add_if_single_marker!F2(markers,1.0,5.0);
+  // assert(new_markers2.list.length == 7, "Length is " ~ to!string(new_markers2.list.length));
 }
 

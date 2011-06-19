@@ -10,9 +10,9 @@ module qtl.core.primitives;
 
 import std.container; 
 
-const MARKER_POSITION_UNKNOWN = double.nan;
-const MARKER_NAME_UNKNOWN = "unknown";
-const ID_UNKNOWN = uint.max;
+immutable MARKER_POSITION_UNKNOWN = double.nan;
+immutable MARKER_NAME_UNKNOWN = "unknown";
+immutable ID_UNKNOWN = uint.max;
 
 /** 
  * Attribute is a container for additional information that is not
@@ -200,6 +200,10 @@ interface MarkerContainer {
 class Markers(T) : MarkerContainer {
   MarkerRef!T[] list;  // Will probably become a List.
   auto markercontainer() { return list; }
+  this() {}
+  this(MarkerRef!T[] _list) {
+    list = _list.dup;
+  }
 }
 
 /**
