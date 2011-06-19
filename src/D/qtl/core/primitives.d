@@ -10,6 +10,10 @@ module qtl.core.primitives;
 
 import std.container; 
 
+const MARKER_POSITION_UNKNOWN = double.nan;
+const MARKER_NAME_UNKNOWN = "unknown";
+const ID_UNKNOWN = uint.max;
+
 /** 
  * Attribute is a container for additional information that is not
  * anticipated in primitive objects. I.e. Gene Ontology annotation could
@@ -34,6 +38,8 @@ mixin template PayLoad()
   Attribute[] attrib_list;  /// Ref. to list of attributes
 }
 
+alias double Position;
+
 /** 
  * The Marker struct is the most primitive representation of a marker, i.e.
  * the marker ID, the position, a reference to the marker name, and a reference
@@ -47,18 +53,17 @@ mixin template PayLoad()
 
 class Marker {
   mixin PayLoad;
-  const MARKER_POSITION_UNKNOWN = double.nan;
   bool is_pseudo() { return false; }; // I would like to get this from the type system
   Chromosome chromosome;
-  double position;          /// Marker position - content depends on map
-  this(uint _id=0, double _position = MARKER_POSITION_UNKNOWN, string _name = "unknown") { 
+  Position position;          /// Marker position - content depends on map
+  this(double _position = MARKER_POSITION_UNKNOWN, uint _id=ID_UNKNOWN, string _name = MARKER_NAME_UNKNOWN) { 
     name = _name, position = _position, id = _id ;
   }
 }
 
 class PseudoMarker : Marker {
   override bool is_pseudo() { return true; };
-  this(uint _id=0, double _position = MARKER_POSITION_UNKNOWN, string _name = "unknown") { super(_id, _position, _name); }
+  this(double _position = MARKER_POSITION_UNKNOWN, uint _id=0, string _name = "unknown") { super(_position, _id, _name); }
 }
 
 /**
@@ -171,10 +176,18 @@ class Individuals {
  * more pseudomarkers can exist.
  */
 
-struct MarkerRef(T) {
+class MarkerRef(T) {
   Marker marker;
-  // Genotype!T[][] genotype_matrix;
+  Genotype!T[][] genotype_matrix;
   uint column;
+  this(double _position, uint _id=ID_UNKNOWN, string _name = MARKER_NAME_UNKNOWN) { 
+    marker = new Marker(_position, _id, _name); }
+  this(double _position, string _name) { 
+    marker = new Marker(_position, ID_UNKNOWN, _name);
+  }
+  this(Marker m) {
+    marker = m;
+  }
 }
 
 /**
@@ -186,6 +199,7 @@ interface MarkerContainer {
 
 class Markers(T) : MarkerContainer {
   MarkerRef!T[] list;  // Will probably become a List.
+  auto markercontainer() { return list; }
 }
 
 /**
@@ -217,11 +231,11 @@ import std.stdio;
 unittest {
   writeln("Unit test " ~ __FILE__);
   // test marker
-  Marker m1 = new Marker(1,4.6);
+  Marker m1 = new Marker(4.6,1);
   assert(m1.id == 1);
   assert(m1.attrib_list == null);
   assert(m1.attrib_list.length == 0);
-  Marker m2 = new Marker(2,4.8);
+  Marker m2 = new Marker(4.8,2);
   m2.chromosome = new Autosome("1",1);
   m2.attrib_list = new Attribute[1];
   assert(m2.attrib_list.length == 1);
@@ -253,15 +267,15 @@ unittest {
 
 unittest {
   // Test list of markers and pseudomarkers
-  Marker m1 = new Marker(1,4.6);
-  Marker m2 = new Marker(2,4.8);
+  Marker m1 = new Marker(4.6,1);
+  Marker m2 = new Marker(4.8,2);
   m2.chromosome = new Autosome("1",1);
   m2.attrib_list = new Attribute[1];
-  MarkerRef!uint mref1 = { marker:m1 };
-  MarkerRef!uint mref2 = { marker:m2 };
-  PseudoMarker pm1 = new PseudoMarker(3, 4.7);
-  MarkerRef!uint pmref1 = { marker:pm1 };
-  Markers!uint markers = new Markers!uint();
+  auto mref1 = new MarkerRef!uint(m1);
+  auto mref2 = new MarkerRef!uint(m2);
+  PseudoMarker pm1 = new PseudoMarker(4.7,3);
+  auto pmref1 = new MarkerRef!uint(pm1);
+  auto markers = new Markers!uint();
   markers.list ~= mref1;
   markers.list ~= mref2;
   markers.list ~= pmref1;

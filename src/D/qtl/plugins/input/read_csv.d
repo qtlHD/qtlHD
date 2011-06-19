@@ -46,7 +46,7 @@ class ReadSimpleCSV(XType) {
     foreach (i, mname; header)
     {
        // writeln(mname);
-       Marker m = new Marker(i-1,Marker.MARKER_POSITION_UNKNOWN,mname); 
+       Marker m = new Marker(MARKER_POSITION_UNKNOWN,i-1,mname); 
        ms ~= m;
     }
 
@@ -119,7 +119,7 @@ unittest {
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
   writeln("  - reading CSV " ~ fn);
-  Marker m2 = new Marker(2, 4.8);
+  Marker m2 = new Marker(4.8,2);
   assert(m2.id == 2);
   auto markers = [ m2 ];
   auto data = new ReadSimpleCSV!F2(fn);
