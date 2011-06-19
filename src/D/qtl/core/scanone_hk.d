@@ -99,7 +99,7 @@ unittest {
   writeln("  - reading CSV " ~ fn);
   auto data = new ReadSimpleCSV!XType(fn);
   assert(data.markers.length == 133, to!string(data.markers.length));
-  auto covariates = new Covariates!double;
+  // auto covariates = new Covariates!double;
   Scanner!F2.Mref[] markerrefs;
   auto result = Scanner!F2.scanone_hk(markerrefs); // ,data.phenotypes,data.individuals,covariates);
 }

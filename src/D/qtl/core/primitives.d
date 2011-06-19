@@ -28,7 +28,8 @@ class Attribute {
 
 mixin template PayLoad()
 {
-  const uint id;            /// Unique identifier (maybe we don't need this)
+  const uint id;            /// Unique identifier (maybe we don't need this as 
+                            /// the memory address is also a unique number)
   const string name;        /// Name
   Attribute[] attrib_list;  /// Ref. to list of attributes
 }
@@ -45,9 +46,9 @@ mixin template PayLoad()
  */
 
 class Marker {
-  const MARKER_POSITION_UNKNOWN = double.nan;
-  bool is_pseudo = false; 
   mixin PayLoad;
+  const MARKER_POSITION_UNKNOWN = double.nan;
+  bool is_pseudo() { return false; }; // I would like to get this from the type system
   Chromosome chromosome;
   double position;          /// Marker position - content depends on map
   this(uint _id=0, double _position = MARKER_POSITION_UNKNOWN, string _name = "unknown") { 
@@ -56,7 +57,7 @@ class Marker {
 }
 
 class PseudoMarker : Marker {
-  bool is_pseudo = true;
+  override bool is_pseudo() { return true; };
   this(uint _id=0, double _position = MARKER_POSITION_UNKNOWN, string _name = "unknown") { super(_id, _position, _name); }
 }
 
@@ -65,7 +66,8 @@ class PseudoMarker : Marker {
  * can be any type T (normally char or uint, but other objects may be
  * possible).
  *
- * Note the primitive should be small, there may be many genotypes!
+ * Note the primitive should be small, there may be many genotypes! Therefore
+ * it is a struct.
  */
 
 struct Genotype(T) {
@@ -76,12 +78,18 @@ struct Genotype(T) {
  * Phenotype is the most primitive representation of a phenotype. The type
  * can be any type T (normally a double, but can potentially be any Object).
  *
- * Note the primitive should be small, there may be many phenotypes!
+ * Note the primitive should be small, there may be many phenotypes! Therefore 
+ * it is a struct.
  */
 
 struct Phenotype(T) {
   T value;
 }
+
+/** 
+ * Phenotype objects.
+ *
+ *
 
 interface PhenotypeContainer {
 }
@@ -89,17 +97,21 @@ interface PhenotypeContainer {
 class Phenotypes(T) : PhenotypeContainer {
   Phenotype!T[] list;
 }
+*/
 
 struct Covariate(T) {
   T value;
 }
 
+/*
 interface CovariateContainer {
 }
 
 class Covariates(T) : CovariateContainer {
   Covariate!T[] list;
 }
+
+*/
 
 import std.conv;
 
