@@ -249,7 +249,7 @@ in {
     assert(step>0);
   }
 body {
-  auto new_markers = new Markers!T(markers.list.dup);
+  auto new_markers = new Markers!T(markers.list);
   if (markers.list.length == 1) {
     auto marker = markers.list[0].marker;
     auto position = marker.position + step;

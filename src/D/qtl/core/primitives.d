@@ -201,7 +201,7 @@ class Markers(T) : MarkerContainer {
   MarkerRef!T[] list;  // Will probably become a List.
   auto markercontainer() { return list; }
   this() {}
-  this(MarkerRef!T[] _list) {
+  this(in MarkerRef!T[] _list) {
     list = _list.dup;
   }
 }
