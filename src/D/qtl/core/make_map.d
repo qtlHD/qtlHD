@@ -27,14 +27,15 @@ import qtl.core.genotype;
 
 Markers!T make_fixed_map(T)(in Markers!T markers, Position step, Position off_end)
   in {
-    assert(step>=0);
+    assert(step>0);
     assert(off_end>=0);
   }
   body {
-  /// if step is zero, the purpose is to add a marker if there is only one.
+  // if step is zero, the purpose was to add a marker if there is only one.
+  // This is no longer the case, use add_marker_if_single instead.
 
 /*
- Non sex specicic map:
+ Non sex specific map:
   if(!is.matrix(map)) { # sex-ave map
     if(length(map) == 1) { # just one marker!
       if(off.end==0) {
@@ -265,7 +266,8 @@ in {
 body {
   if (markers.list.length == 1) {
     auto marker = markers.list[0].marker;
-    auto pm = new Marker(marker.position+step);
+    auto position = marker.position + step;
+    auto pm = new Marker(position,ID_UNKNOWN,"loc" ~ to!string(position));
     markers.list ~= new MarkerRef!T(pm);
     return markers;
   }
@@ -280,5 +282,6 @@ unittest {
   auto new_markers = add_if_single_marker!F2(markers,100.0);
   assert(new_markers.list.length == 2, "Length is " ~ to!string(new_markers.list.length));
   assert(new_markers.list[1].marker.position == 110.0);
+  assert(new_markers.list[1].marker.name == "loc110", new_markers.list[1].marker.name);
 }
 
