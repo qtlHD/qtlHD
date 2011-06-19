@@ -251,6 +251,7 @@ in {
 body {
   auto new_markers = new Markers!T(markers);
   if (markers.list.length == 1) {
+    // create a single new marker to the right
     auto marker = markers.list[0].marker;
     auto position = marker.position + step;
     auto pm = new Marker(position,ID_UNKNOWN,"loc" ~ to!string(position));
@@ -261,11 +262,10 @@ body {
 }
 
 /**
- * Add a marker if there is only one
+ * Add a range of markers if there is only one
  *
- * off_end:   If non zero the chromosome is filled with stepped markers from
- *            marker.position-off_end to marker.position+off_end. Otherwise
- *            a single marker is added as marker.position + step.
+ * off_end:   The map is filled with stepped markers from
+ *            marker.position-off_end to marker.position+off_end. 
  */
 
 Markers!T add_if_single_marker(T)(Markers!T markers, Position step=1.0, Position off_end=0.0)
