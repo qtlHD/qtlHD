@@ -278,7 +278,7 @@ body {
     auto marker = markers.list[0].marker;
     auto position = marker.position + step;
     auto pm = new Marker(position,ID_UNKNOWN,"loc" ~ to!string(position));
-    Markers!T new_markers = new Markers!T(markers.list.dup);
+    Markers!T new_markers = new Markers!T(markers);
     new_markers.list ~= new MarkerRef!T(pm);
     return new_markers;
   /*
