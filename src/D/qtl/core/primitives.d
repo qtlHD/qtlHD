@@ -68,11 +68,11 @@ mixin template MarkerInfo() {
 class Marker {
   mixin MarkerInfo;
   // Constructors for Marker
-  this(double _position = MARKER_POSITION_UNKNOWN, uint _id=ID_UNKNOWN, string _name = MARKER_NAME_UNKNOWN) { 
+  this(double _position = MARKER_POSITION_UNKNOWN, string _name = MARKER_NAME_UNKNOWN, uint _id=ID_UNKNOWN) { 
     name = _name, position = _position, id = _id ;
   }
   this(in Marker m) {
-    this(m.position, m.id, m.name);
+    this(m.position, m.name, m.id);
   }
 
   // Information for Marker
@@ -86,9 +86,9 @@ class Marker {
 
 class PseudoMarker : Marker {
   // constructors
-  this(double _position = MARKER_POSITION_UNKNOWN, uint _id=0, string _name = "unknown") { super(_position, _id, _name); }
+  this(double _position = MARKER_POSITION_UNKNOWN, string _name = "unknown", uint _id=ID_UNKNOWN) { super(_position, _name, _id); }
   this(in PseudoMarker m) {
-    this(m.position, m.id, m.name);
+    this(m.position, m.name, m.id);
   }
   // info
   override bool is_pseudo() { return true; };
@@ -140,7 +140,7 @@ struct Covariate(T) {
 class Chromosome {
   mixin Identity;
   // constructor
-  this(string _name, uint _id = -1) {
+  this(string _name, uint _id = ID_UNKNOWN) {
     id = _id;
     name = _name;
   }
@@ -153,7 +153,7 @@ class Autosome : Chromosome {
 }
 
 class SexChromosome : Chromosome {
-  this(string _name, uint _id=0) { super(_name,_id); assert(is_sex); };
+  this(string _name, uint _id=ID_UNKNOWN) { super(_name,_id); assert(is_sex); };
   override bool is_sex() { return true; };
 }
 
@@ -190,16 +190,13 @@ class MarkerRef(T) {
   Genotype!T[][] genotype_matrix;
   uint column;
 
-  this(double _position, uint _id=ID_UNKNOWN, string _name = MARKER_NAME_UNKNOWN) { 
-    marker = new Marker(_position, _id, _name); }
-  this(double _position, string _name) { 
-    marker = new Marker(_position, ID_UNKNOWN, _name);
-  }
+  this(double _position, string _name = MARKER_NAME_UNKNOWN, uint _id=ID_UNKNOWN) { 
+    marker = new Marker(_position, _name, _id); }
   this(in MarkerRef!T mr) {
     this(mr.marker);
   }
   this(in Marker m) {
-    marker = new Marker(m.position, m.id, m.name);
+    marker = new Marker(m.position, m.name, m.id);
   }
 
   Position get_position() { return marker.get_position(); }
@@ -250,11 +247,11 @@ import std.stdio;
 unittest {
   writeln("Unit test " ~ __FILE__);
   // test marker
-  Marker m1 = new Marker(4.6,1);
+  Marker m1 = new Marker(4.6,"m1",1);
   assert(m1.id == 1);
   assert(m1.attrib_list == null);
   assert(m1.attrib_list.length == 0);
-  Marker m2 = new Marker(4.8,2);
+  Marker m2 = new Marker(4.8);
   m2.chromosome = new Autosome("1",1);
   m2.attrib_list = new Attribute[1];
   assert(m2.attrib_list.length == 1);
@@ -288,13 +285,13 @@ unittest {
 
 unittest {
   // Test list of markers and pseudomarkers
-  Marker m1 = new Marker(4.6,1);
-  Marker m2 = new Marker(4.8,2);
+  Marker m1 = new Marker(4.6,"m1",1);
+  Marker m2 = new Marker(4.8,"m2",2);
   m2.chromosome = new Autosome("1",1);
   m2.attrib_list = new Attribute[1];
   auto mref1 = new MarkerRef!uint(m1);
   auto mref2 = new MarkerRef!uint(m2);
-  PseudoMarker pm1 = new PseudoMarker(4.7,3);
+  PseudoMarker pm1 = new PseudoMarker(4.7,"m3",3);
   auto pmref1 = new MarkerRef!uint(pm1);
   auto markers = new Markers!(MarkerRef!uint)();
   markers.list ~= mref1;

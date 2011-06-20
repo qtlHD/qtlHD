@@ -256,9 +256,8 @@ body {
     // create a single new marker to the right
     auto marker = new_markers.list[0];
     auto position = marker.get_position() + step_right;
-    auto pm = new PseudoMarker(position,ID_UNKNOWN,"loc" ~ to!string(position));
+    auto pm = new PseudoMarker(position,"loc" ~ to!string(position));
     new_markers.add(pm);
-    return new_markers;
   }
   return new_markers;
 }
@@ -319,6 +318,8 @@ unittest {
   assert(markers1.list.length == 1, "Length is " ~ to!string(markers.list.length));
   // now test the new list
   assert(new_markers1.list.length == 2, "Length is " ~ to!string(new_markers.list.length));
+  assert(new_markers1.list[1].position == 12.0);
+  assert(new_markers1.list[1].name == "loc12", new_markers1.list[1].name);
 
   // auto new_markers2 = add_if_single_marker!F2(markers,1.0,5.0);
   // assert(new_markers2.list.length == 7, "Length is " ~ to!string(new_markers2.list.length));

@@ -46,7 +46,7 @@ class ReadSimpleCSV(XType) {
     foreach (i, mname; header)
     {
        // writeln(mname);
-       Marker m = new Marker(MARKER_POSITION_UNKNOWN,i-1,mname); 
+       Marker m = new Marker(MARKER_POSITION_UNKNOWN,mname,i-1); 
        ms ~= m;
     }
 
@@ -119,8 +119,7 @@ unittest {
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
   writeln("  - reading CSV " ~ fn);
-  Marker m2 = new Marker(4.8,2);
-  assert(m2.id == 2);
+  Marker m2 = new Marker(4.8);
   auto markers = [ m2 ];
   auto data = new ReadSimpleCSV!F2(fn);
   assert(data.markers.length == 133, to!string(data.markers.length));
@@ -130,7 +129,7 @@ unittest {
   assert(data.markers[1].id == 1);
   // Check chromosomes
   assert(data.chromosomes.length == 20, to!string(data.chromosomes.length));
-  assert(data.chromosomes["X"].id == 0);
+  assert(data.chromosomes["X"].id == ID_UNKNOWN);
   assert(data.chromosomes["7"].id == 7);
   assert(data.markers[2].position == 24.84773, "Marker position not matching");
   // Check phenotype
@@ -156,7 +155,7 @@ unittest {
   assert(data.markers[4].id == 5);
   // Check chromosomes
   assert(data.chromosomes.length == 20, to!string(data.chromosomes.length));
-  assert(data.chromosomes["X"].id == 0);
+  assert(data.chromosomes["X"].id == ID_UNKNOWN);
   assert(data.chromosomes["7"].id == 7);
   assert(data.markers[2].position == 32.8000000002, "Marker position not matching");
   // Check phenotype
