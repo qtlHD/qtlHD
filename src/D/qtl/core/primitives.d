@@ -9,7 +9,9 @@
 module qtl.core.primitives;
 
 import std.container; 
+import std.conv;
 
+// Default values for undefined types
 immutable MARKER_POSITION_UNKNOWN = double.nan;
 immutable MARKER_NAME_UNKNOWN = "unknown";
 immutable ID_UNKNOWN = uint.max;
@@ -47,7 +49,7 @@ alias double Position;
 mixin template MarkerInfo() {
   mixin Identity;
   mixin Attributes;
-  Chromosome chromosome;
+  Chromosome chromosome;      /// Reference to Chromosome
   Position position;          /// Marker position - content depends on map
 }
 
@@ -57,14 +59,15 @@ mixin template MarkerInfo() {
  * the marker ID, the position, a reference to the marker name, and a reference
  * to a list of attributes - where an attribute can be any object. The
  * attrib_list gives a flexible way of tracking state. Arguably chromosome and 
- * name are attributes, but they are pretty standard.
+ * name are attributes, but they are considered to be standard.
  *
- * The Marker object does not keep track of the parent container. Normally
- * a Marker list is maintained in a parent container.
+ * The Marker object does not keep track of the parent container (apart from
+ * Chromosome). Normally a Marker list is maintained in a parent container.
  */
 
 class Marker {
   mixin MarkerInfo;
+  // Constructors for Marker
   this(double _position = MARKER_POSITION_UNKNOWN, uint _id=ID_UNKNOWN, string _name = MARKER_NAME_UNKNOWN) { 
     name = _name, position = _position, id = _id ;
   }
@@ -72,16 +75,23 @@ class Marker {
     this(m.position, m.id, m.name);
   }
 
+  // Information for Marker
   bool is_pseudo() { return false; }; // I would like to get this from the type system
   Position get_position() { return position; }
 }
 
+/** 
+ * PseudoMarker is a special marker
+ */
+
 class PseudoMarker : Marker {
-  override bool is_pseudo() { return true; };
+  // constructors
   this(double _position = MARKER_POSITION_UNKNOWN, uint _id=0, string _name = "unknown") { super(_position, _id, _name); }
   this(in PseudoMarker m) {
     this(m.position, m.id, m.name);
   }
+  // info
+  override bool is_pseudo() { return true; };
 }
 
 /**
@@ -89,8 +99,8 @@ class PseudoMarker : Marker {
  * can be any type T (normally char or uint, but other objects may be
  * possible).
  *
- * Note the primitive should be small, there may be many genotypes! Therefore
- * it is a struct.
+ * Note the primitive should be as small as possible, there may be many 
+ * genotypes! Therefore it is a struct.
  */
 
 struct Genotype(T) {
@@ -101,48 +111,27 @@ struct Genotype(T) {
  * Phenotype is the most primitive representation of a phenotype. The type
  * can be any type T (normally a double, but can potentially be any Object).
  *
- * Note the primitive should be small, there may be many phenotypes! Therefore 
- * it is a struct.
+ * Note the primitive should be small as small as possible, there may be many
+ * phenotypes! Therefore it is a struct.
  */
 
 struct Phenotype(T) {
   T value;
 }
 
-/** 
- * Phenotype objects.
- *
- *
-
-interface PhenotypeContainer {
-}
-
-class Phenotypes(T) : PhenotypeContainer {
-  Phenotype!T[] list;
-}
-*/
+/**
+ * Covariate representation
+ */
 
 struct Covariate(T) {
   T value;
 }
 
-/*
-interface CovariateContainer {
-}
-
-class Covariates(T) : CovariateContainer {
-  Covariate!T[] list;
-}
-
-*/
-
-import std.conv;
 
 /**
- * Chromosome is the most primitive representation of a chromosome.
- * Autosome and sex chromosomes are known via their type. Since these
- * chromoses are 'shared' between markers, we use them by reference (i.e. a
- * class).  
+ * Chromosome is the most primitive representation of a chromosome.  Autosome
+ * and sex chromosomes are known via their type. Since these chromoses are
+ * 'shared' between markers, we use them by reference (i.e. a class).  
  *
  * To maintain a list of markers with a chromosome, use a shared object,
  * for example ChromosomeMarkers below.
@@ -150,11 +139,13 @@ import std.conv;
 
 class Chromosome {
   mixin Identity;
-  bool is_sex() { return false; };
+  // constructor
   this(string _name, uint _id = -1) {
     id = _id;
     name = _name;
   }
+  // information
+  bool is_sex() { return false; };
 }
 
 class Autosome : Chromosome {
@@ -162,8 +153,8 @@ class Autosome : Chromosome {
 }
 
 class SexChromosome : Chromosome {
-  override bool is_sex() { return true; };
   this(string _name, uint _id=0) { super(_name,_id); assert(is_sex); };
+  override bool is_sex() { return true; };
 }
 
 /**
@@ -219,11 +210,11 @@ class MarkerRef(T) {
  */
 
 class Markers(M) {
-  M[] list;  // Will probably become a List.
+  M[] list;  // Will probably become an SList.
   auto markercontainer() { return list; }
   this() {}
   this(in Markers!M markers) {
-    list = markers.list.dup;
+    list = markers.list.dup;  // make sure to clone all data
   }
   void add(in Marker m) {
     list ~= new M(m);
