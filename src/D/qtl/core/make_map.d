@@ -298,11 +298,11 @@ body {
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-  auto markers = new Markers!F2();
+  auto markers = new Markers!(MarkerRef!F2)();
   markers.list ~= new MarkerRef!F2(10.0);
   assert(markers.list.length == 1);
   // auto new_markers = add_one_if_single_marker!(Markers!F2,MarkerRef!F2)(markers,2.0);
-  auto new_markers = add_one_if_single_marker!(Markers!F2)(markers,2.0);
+  auto new_markers = add_one_if_single_marker(markers,2.0);
   // make sure the original list did not change...
   assert(markers.list.length == 1, "Length is " ~ to!string(markers.list.length));
   // now test the new list
@@ -311,7 +311,7 @@ unittest {
   assert(new_markers.list[1].marker.name == "loc12", new_markers.list[1].marker.name);
   // It should work for any list of markers
 
-  auto new_markers2 = add_if_single_marker!F2(markers,1.0,5.0);
+  // auto new_markers2 = add_if_single_marker!F2(markers,1.0,5.0);
   // assert(new_markers2.list.length == 7, "Length is " ~ to!string(new_markers2.list.length));
 }
 

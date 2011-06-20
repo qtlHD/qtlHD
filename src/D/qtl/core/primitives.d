@@ -185,24 +185,27 @@ class MarkerRef(T) {
   this(double _position, string _name) { 
     marker = new Marker(_position, ID_UNKNOWN, _name);
   }
+  this(in MarkerRef!T mr) {
+    this(mr.marker);
+  }
   this(in Marker m) {
     marker = new Marker(m.position, m.id, m.name);
   }
 }
 
 /**
- * The ordered Marker list keeps track of MarkerRefs.
+ * The ordered Marker list keeps track of Markers.
  */
 
-class Markers(X) {
-  MarkerRef!X[] list;  // Will probably become a List.
+class Markers(M) {
+  M[] list;  // Will probably become a List.
   auto markercontainer() { return list; }
   this() {}
-  this(in Markers!X markers) {
+  this(in Markers!M markers) {
     list = markers.list.dup;
   }
   void add(in Marker m) {
-    list ~= new MarkerRef!X(m);
+    list ~= new M(m);
   }
 }
 
@@ -212,7 +215,7 @@ class Markers(X) {
 
 class ChromosomeMap(T) {
   Chromosome chromosome;
-  Markers!T markers;
+  // Markers!(MarkerRef!T) markers;
 }
 
 /**
@@ -263,9 +266,11 @@ unittest {
   // this should also compile:
   auto map = new FullMap!uint();
   foreach ( c ; map.chromosome_map ) {
+  /*
     auto markers = c.markers;
     foreach ( m ; markers.list ) {
     }
+  */
   }
 }
 
@@ -279,7 +284,7 @@ unittest {
   auto mref2 = new MarkerRef!uint(m2);
   PseudoMarker pm1 = new PseudoMarker(4.7,3);
   auto pmref1 = new MarkerRef!uint(pm1);
-  auto markers = new Markers!uint();
+  auto markers = new Markers!(MarkerRef!uint)();
   markers.list ~= mref1;
   markers.list ~= mref2;
   markers.list ~= pmref1;
