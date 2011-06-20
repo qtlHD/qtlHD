@@ -41,8 +41,8 @@ class ReadSimpleCSV(XType) {
     // read markers
     Marker[] ms;
     auto header = split(f.readln(),",");
-    immutable n_markers = header.length;
-    ms.reserve(n_markers);  // pre-allocate memory (just good practise)
+    immutable n_columns = header.length;
+    ms.reserve(n_columns);  // pre-allocate memory (just good practise)
     foreach (i, mname; header)
     {
        // writeln(mname);
@@ -52,7 +52,7 @@ class ReadSimpleCSV(XType) {
 
     // read chromosome info
     auto cnames = split(f.readln(),",");
-    if (cnames.length != n_markers) throw new Exception("# Chromosomes out of range");
+    if (cnames.length != n_columns) throw new Exception("# Chromosomes out of range");
 
     // find first non-blank (indicating last phenotype columns)
     size_t n_phenotypes;
@@ -82,7 +82,7 @@ class ReadSimpleCSV(XType) {
 
     // read position info
     auto positions = split(f.readln(),",");
-    if (positions.length != n_markers) throw new Exception("Positions out of range");
+    if (positions.length != n_columns) throw new Exception("Positions out of range");
     positions = positions[n_phenotypes..$];
     foreach (i, pos; positions)
     {
@@ -94,16 +94,16 @@ class ReadSimpleCSV(XType) {
     uint individual = 0;
     while (f.readln(buf)) {
       auto fields = split(buf,",");
-      if (fields.length != n_markers) throw new Exception("Field # out of range in ", buf);
+      if (fields.length != n_columns) throw new Exception("Field # out of range in ", buf);
       Phenotype!double[] ps;
-      ps.reserve(n_markers);
+      ps.reserve(n_columns);
       foreach(field; fields[0..n_phenotypes]) {
 	ps ~= set_phenotype!double(field);
       }
       phenotypes ~= ps;
       // set genotype
       Genotype!XType[] gs;
-      gs.reserve(n_markers);  // pre-allocate memory (just good practise)
+      gs.reserve(n_columns);  // pre-allocate memory (just good practise)
       foreach (field; fields[n_phenotypes..$]) {
         gs ~= set_genotype!XType(strip(field));
       }
