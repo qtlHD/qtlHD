@@ -194,10 +194,7 @@ class MarkerRef(T) {
  * The ordered Marker list keeps track of MarkerRefs.
  */
 
-interface MarkerContainer {
-}
-
-class Markers(X) : MarkerContainer {
+class Markers(X) {
   MarkerRef!X[] list;  // Will probably become a List.
   auto markercontainer() { return list; }
   this() {}
