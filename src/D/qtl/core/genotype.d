@@ -118,9 +118,11 @@ unittest {
 unittest {
   // This should compile
   auto map = new FullMap!F2();
+  /*
   foreach ( c ; map.chromosome_map ) {
     auto markers = c.markers;
-    foreach ( m ; markers.marker_list ) {
+    foreach ( m ; markers.list ) {
     }
   }
+  */
 }

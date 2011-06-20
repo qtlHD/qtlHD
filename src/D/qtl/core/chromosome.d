@@ -58,7 +58,7 @@ unittest {
   immutable X = "X";
   auto cx = get_chromosome_with_id(X);
   chromosomes[X] = cx;
-  assert(cx.id == 0);
+  assert(cx.id == ID_UNKNOWN);
   assert(cx.name == "X");
 
   // test for sex
