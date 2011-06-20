@@ -30,11 +30,15 @@ class Attribute {
  * Primitives have an id, an optional name, and an attribute list.
  */
 
-mixin template PayLoad()
+mixin template Identity()
 {
   const uint id;            /// Unique identifier (maybe we don't need this as 
                             /// the memory address is also a unique number)
   const string name;        /// Name
+}
+
+mixin template Attributes()
+{
   Attribute[] attrib_list;  /// Ref. to list of attributes
 }
 
@@ -52,12 +56,18 @@ alias double Position;
  */
 
 class Marker {
-  mixin PayLoad;
+  mixin Identity;
+  mixin Attributes;
+  auto marker() { return this; }
   bool is_pseudo() { return false; }; // I would like to get this from the type system
   Chromosome chromosome;
   Position position;          /// Marker position - content depends on map
+
   this(double _position = MARKER_POSITION_UNKNOWN, uint _id=ID_UNKNOWN, string _name = MARKER_NAME_UNKNOWN) { 
     name = _name, position = _position, id = _id ;
+  }
+  this(in Marker m) {
+    new Marker(m.position, m.id, m.name);
   }
 }
 
@@ -131,7 +141,7 @@ import std.conv;
  */
 
 class Chromosome {
-  mixin PayLoad;
+  mixin Identity;
   bool is_sex() { return false; };
   this(string _name, uint _id = -1) {
     id = _id;
@@ -155,7 +165,7 @@ class SexChromosome : Chromosome {
  */
 
 class Individual {
-  mixin PayLoad;
+  mixin Identity;
 }
 
 class Individuals {
@@ -180,6 +190,7 @@ class MarkerRef(T) {
   Marker marker;
   Genotype!T[][] genotype_matrix;
   uint column;
+
   this(double _position, uint _id=ID_UNKNOWN, string _name = MARKER_NAME_UNKNOWN) { 
     marker = new Marker(_position, _id, _name); }
   this(double _position, string _name) { 

@@ -310,6 +310,15 @@ unittest {
   assert(new_markers.list[1].marker.position == 12.0);
   assert(new_markers.list[1].marker.name == "loc12", new_markers.list[1].marker.name);
   // It should work for any list of markers
+  auto markers1 = new Markers!(Marker)();
+  markers1.list ~= new Marker(10.0);
+  assert(markers1.list.length == 1);
+  // auto new_markers = add_one_if_single_marker!(Markers!F2,MarkerRef!F2)(markers,2.0);
+  auto new_markers1 = add_one_if_single_marker(markers1,2.0);
+  // make sure the original list did not change...
+  assert(markers1.list.length == 1, "Length is " ~ to!string(markers.list.length));
+  // now test the new list
+  assert(new_markers1.list.length == 2, "Length is " ~ to!string(new_markers.list.length));
 
   // auto new_markers2 = add_if_single_marker!F2(markers,1.0,5.0);
   // assert(new_markers2.list.length == 7, "Length is " ~ to!string(new_markers2.list.length));
