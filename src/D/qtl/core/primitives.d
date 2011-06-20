@@ -70,6 +70,9 @@ class Marker {
   // Constructors for Marker
   this(double _position = MARKER_POSITION_UNKNOWN, string _name = MARKER_NAME_UNKNOWN, uint _id=ID_UNKNOWN) { 
     name = _name, position = _position, id = _id ;
+    if (name == MARKER_NAME_UNKNOWN && position != MARKER_POSITION_UNKNOWN) 
+      // default to 'loc\d\d\d\.\d' name
+      name = "loc" ~ to!string(position);
   }
   this(in Marker m) {
     this(m.position, m.name, m.id);
@@ -86,7 +89,9 @@ class Marker {
 
 class PseudoMarker : Marker {
   // constructors
-  this(double _position = MARKER_POSITION_UNKNOWN, string _name = "unknown", uint _id=ID_UNKNOWN) { super(_position, _name, _id); }
+  this(double _position = MARKER_POSITION_UNKNOWN, string _name = MARKER_NAME_UNKNOWN, uint _id=ID_UNKNOWN) { 
+    super(_position, _name, _id); 
+  }
   this(in PseudoMarker m) {
     this(m.position, m.name, m.id);
   }

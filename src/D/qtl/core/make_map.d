@@ -255,8 +255,8 @@ body {
   if (markers.list.length == 1) {
     // create a single new marker to the right
     auto marker = new_markers.list[0];
-    auto position = marker.get_position() + step_right;
-    auto pm = new PseudoMarker(position,"loc" ~ to!string(position));
+    auto npos = marker.get_position() + step_right;
+    auto pm = new PseudoMarker(npos);
     new_markers.add(pm);
   }
   return new_markers;
@@ -269,19 +269,23 @@ body {
  *            marker.position-off_end to marker.position+off_end. 
  */
 
-Markers!T add_if_single_marker(T)(Markers!T markers, Position step=1.0, Position off_end=0.0)
+Ms add_stepped_if_single_marker(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0)
 in {
     assert(step>0);
     assert(off_end>=0);
   }
 body {
+  auto new_markers = new Ms(markers);
   if (markers.list.length == 1) {
-    auto marker = markers.list[0].marker;
-    auto position = marker.position + step;
-    auto pm = new Marker(position,ID_UNKNOWN,"loc" ~ to!string(position));
-    Markers!T new_markers = new Markers!T(markers);
-    new_markers.list ~= new MarkerRef!T(pm);
-    return new_markers;
+    auto marker = new_markers.list[0];
+    auto position = marker.get_position();
+    for (auto npos = position-off_end ; npos < position+off_end ; npos += step) {
+      auto pm = new PseudoMarker(position,"loc" ~ to!string(npos));
+      new_markers.add(pm);
+    }
+  }
+  return new_markers;
+}
   /*
      m is a list of step sizes:
         if(step==0) m <- c(-off.end,off.end)
@@ -291,9 +295,6 @@ body {
         map <- sort(c(m+map,map)) // sort the list of new and existing locs
       return(map)
   */
-  }
-  return markers;
-}
 
 unittest {
   writeln("Unit test " ~ __FILE__);
@@ -321,7 +322,7 @@ unittest {
   assert(new_markers1.list[1].position == 12.0);
   assert(new_markers1.list[1].name == "loc12", new_markers1.list[1].name);
 
-  // auto new_markers2 = add_if_single_marker!F2(markers,1.0,5.0);
-  // assert(new_markers2.list.length == 7, "Length is " ~ to!string(new_markers2.list.length));
+  auto new_markers2 = add_stepped_if_single_marker(markers,1.0,5.0);
+  assert(new_markers2.list.length == 11, "Length is " ~ to!string(new_markers2.list.length));
 }
 
