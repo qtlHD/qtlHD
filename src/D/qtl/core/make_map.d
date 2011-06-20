@@ -301,7 +301,7 @@ unittest {
   auto markers = new Markers!(MarkerRef!F2)();
   markers.list ~= new MarkerRef!F2(10.0);
   assert(markers.list.length == 1);
-  // auto new_markers = add_one_if_single_marker!(Markers!F2,MarkerRef!F2)(markers,2.0);
+  // call function. Note we don't have to give the type!
   auto new_markers = add_one_if_single_marker(markers,2.0);
   // make sure the original list did not change...
   assert(markers.list.length == 1, "Length is " ~ to!string(markers.list.length));
@@ -313,7 +313,7 @@ unittest {
   auto markers1 = new Markers!(Marker)();
   markers1.list ~= new Marker(10.0);
   assert(markers1.list.length == 1);
-  // auto new_markers = add_one_if_single_marker!(Markers!F2,MarkerRef!F2)(markers,2.0);
+  // call function. Note we don't have to give the type!
   auto new_markers1 = add_one_if_single_marker(markers1,2.0);
   // make sure the original list did not change...
   assert(markers1.list.length == 1, "Length is " ~ to!string(markers.list.length));
