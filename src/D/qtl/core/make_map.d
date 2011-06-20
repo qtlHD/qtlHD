@@ -25,7 +25,7 @@ import qtl.core.genotype;
  * off_end:        Max distance (in cM) past the terminal marker
  */
 
-Markers!T make_fixed_map(T)(in Markers!T markers, Position step, Position off_end)
+Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0)
   in {
     assert(step>0);
     assert(off_end>=0);
@@ -74,7 +74,7 @@ Markers!T make_fixed_map(T)(in Markers!T markers, Position step, Position off_en
   return null;
 }
 
-Markers!T make_fixed_map_sex(T)(in Markers!T markers, Position step, Position off_end)
+Ms add_stepped_markers_sex(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0)
 {
   /*
   else { # sex-specific map
@@ -263,7 +263,7 @@ body {
 }
 
 /**
- * Add a range of markers if there is only one
+ * Add a range of markers if there is only one in the list
  *
  * off_end:   The map is filled with stepped markers from
  *            marker.position-off_end to marker.position+off_end. 
@@ -286,15 +286,6 @@ body {
   }
   return new_markers;
 }
-  /*
-     m is a list of step sizes:
-        if(step==0) m <- c(-off.end,off.end)
-        else m <- seq(-off.end,off.end,by=step)
-        m <- m[m!=0]  // remove zero locations (why?)
-        names(m) <- paste("loc",m,sep="") // names
-        map <- sort(c(m+map,map)) // sort the list of new and existing locs
-      return(map)
-  */
 
 unittest {
   writeln("Unit test " ~ __FILE__);
