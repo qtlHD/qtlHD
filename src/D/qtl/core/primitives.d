@@ -44,6 +44,14 @@ mixin template Attributes()
 
 alias double Position;
 
+mixin template MarkerInfo() {
+  mixin Identity;
+  mixin Attributes;
+  Chromosome chromosome;
+  Position position;          /// Marker position - content depends on map
+}
+
+
 /** 
  * The Marker struct is the most primitive representation of a marker, i.e.
  * the marker ID, the position, a reference to the marker name, and a reference
@@ -56,24 +64,24 @@ alias double Position;
  */
 
 class Marker {
-  mixin Identity;
-  mixin Attributes;
-  auto marker() { return this; }
-  bool is_pseudo() { return false; }; // I would like to get this from the type system
-  Chromosome chromosome;
-  Position position;          /// Marker position - content depends on map
-
+  mixin MarkerInfo;
   this(double _position = MARKER_POSITION_UNKNOWN, uint _id=ID_UNKNOWN, string _name = MARKER_NAME_UNKNOWN) { 
     name = _name, position = _position, id = _id ;
   }
   this(in Marker m) {
-    new Marker(m.position, m.id, m.name);
+    this(m.position, m.id, m.name);
   }
+
+  bool is_pseudo() { return false; }; // I would like to get this from the type system
+  Position get_position() { return position; }
 }
 
 class PseudoMarker : Marker {
   override bool is_pseudo() { return true; };
   this(double _position = MARKER_POSITION_UNKNOWN, uint _id=0, string _name = "unknown") { super(_position, _id, _name); }
+  this(in PseudoMarker m) {
+    this(m.position, m.id, m.name);
+  }
 }
 
 /**
@@ -202,6 +210,8 @@ class MarkerRef(T) {
   this(in Marker m) {
     marker = new Marker(m.position, m.id, m.name);
   }
+
+  Position get_position() { return marker.get_position(); }
 }
 
 /**

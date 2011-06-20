@@ -246,7 +246,7 @@ Markers!T make_fixed_map_sex(T)(in Markers!T markers, Position step, Position of
  *
  */
 
-Ms add_one_if_single_marker(Ms)(in Ms markers, Position step_right=1.0)
+Ms add_one_if_single_marker(Ms)(Ms markers, Position step_right=1.0)
 in {
     assert(step_right>0);
   }
@@ -254,8 +254,8 @@ body {
   auto new_markers = new Ms(markers);
   if (markers.list.length == 1) {
     // create a single new marker to the right
-    auto marker = markers.list[0].marker;
-    auto position = marker.position + step_right;
+    auto marker = markers.list[0];
+    auto position = marker.get_position() + step_right;
     auto pm = new PseudoMarker(position,ID_UNKNOWN,"loc" ~ to!string(position));
     new_markers.add(pm);
     return new_markers;
