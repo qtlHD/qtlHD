@@ -240,22 +240,24 @@ Markers!T make_fixed_map_sex(T)(in Markers!T markers, Position step, Position of
 }
 
 /**
- * Add a marker if there is only one
+ * Add a marker if there is only one. Ms is a list of markers, and 
+ * this function works as long as there is a markers.list and an 
+ * markers.add function.
  *
  */
 
-Markers!T add_one_if_single_marker(T)(in Markers!T markers, Position step=1.0)
+Ms add_one_if_single_marker(Ms)(in Ms markers, Position step_right=1.0)
 in {
-    assert(step>0);
+    assert(step_right>0);
   }
 body {
-  auto new_markers = new Markers!T(markers);
+  auto new_markers = new Ms(markers);
   if (markers.list.length == 1) {
     // create a single new marker to the right
     auto marker = markers.list[0].marker;
-    auto position = marker.position + step;
-    auto pm = new Marker(position,ID_UNKNOWN,"loc" ~ to!string(position));
-    new_markers.list ~= new MarkerRef!T(pm);
+    auto position = marker.position + step_right;
+    auto pm = new PseudoMarker(position,ID_UNKNOWN,"loc" ~ to!string(position));
+    new_markers.add(pm);
     return new_markers;
   }
   return new_markers;
@@ -299,11 +301,16 @@ unittest {
   auto markers = new Markers!F2();
   markers.list ~= new MarkerRef!F2(10.0);
   assert(markers.list.length == 1);
-  auto new_markers = add_one_if_single_marker!F2(markers,2.0);
-  assert(new_markers.list.length == 2, "Length is " ~ to!string(new_markers.list.length));
+  // auto new_markers = add_one_if_single_marker!(Markers!F2,MarkerRef!F2)(markers,2.0);
+  auto new_markers = add_one_if_single_marker!(Markers!F2)(markers,2.0);
+  // make sure the original list did not change...
   assert(markers.list.length == 1, "Length is " ~ to!string(markers.list.length));
+  // now test the new list
+  assert(new_markers.list.length == 2, "Length is " ~ to!string(new_markers.list.length));
   assert(new_markers.list[1].marker.position == 12.0);
   assert(new_markers.list[1].marker.name == "loc12", new_markers.list[1].marker.name);
+  // It should work for any list of markers
+
   auto new_markers2 = add_if_single_marker!F2(markers,1.0,5.0);
   // assert(new_markers2.list.length == 7, "Length is " ~ to!string(new_markers2.list.length));
 }

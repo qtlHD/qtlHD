@@ -185,8 +185,8 @@ class MarkerRef(T) {
   this(double _position, string _name) { 
     marker = new Marker(_position, ID_UNKNOWN, _name);
   }
-  this(Marker m) {
-    marker = m;
+  this(in Marker m) {
+    marker = new Marker(m.position, m.id, m.name);
   }
 }
 
@@ -197,12 +197,15 @@ class MarkerRef(T) {
 interface MarkerContainer {
 }
 
-class Markers(T) : MarkerContainer {
-  MarkerRef!T[] list;  // Will probably become a List.
+class Markers(X) : MarkerContainer {
+  MarkerRef!X[] list;  // Will probably become a List.
   auto markercontainer() { return list; }
   this() {}
-  this(in Markers!T markers) {
+  this(in Markers!X markers) {
     list = markers.list.dup;
+  }
+  void add(in Marker m) {
+    list ~= new MarkerRef!X(m);
   }
 }
 
