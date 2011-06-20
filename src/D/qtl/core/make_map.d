@@ -33,45 +33,26 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
   body {
   // With R/qtl, if step is zero, the purpose was to add a marker if there is
   // only one.  This is no longer the case, use add_marker_if_single instead.
-
-/*
- Non sex specific map:
-
-  with multiple markers:
-    minloc <- min(map)
-    map <- map-minloc
-
-    if(step==0 && off.end==0) return(map+minloc)
-    else if(step==0 && off.end > 0) {
-      a <- c(floor(min(map)-off.end),ceiling(max(map)+off.end))
-      names(a) <- paste("loc", a, sep="")
-      return(sort(c(a,map))+minloc)
+  // Adding markers (at off_end) with step=0 is not supported here. That 
+  // should also be a separate function.
+  auto new_markers = new Ms(markers);
+  // FIXME sort markers
+  if (markers.list.length > 1) {
+    auto first_marker = new_markers.list[0];
+    auto minpos = first_marker.get_position();
+    auto last_marker = new_markers.list[$];
+    auto maxpos = last_marker.get_position();
+    for (auto npos = minpos ; npos < maxpos ; npos += step) {
+      new_markers.add(new PseudoMarker(npos));
     }
-    else if(step>0 && off.end == 0) {
-      a <- seq(floor(min(map)),max(map),
-               by = step)
-      if(any(is.na(match(a, map)))) {
-        a <- a[is.na(match(a,map))]
-        names(a) <- paste("loc",a,sep="")
-        return(sort(c(a,map))+minloc)
-      }
-      else return(map+minloc)
-    }
-    else {
-      a <- seq(floor(min(map)-off.end),ceiling(max(map)+off.end+step),
-               by = step)
-      a <- a[is.na(match(a,map))]
-
-      # no more than one point above max(map)+off.end
-      z <- (seq(along=a))[a >= max(map)+off.end]
-      if(length(z) > 1) a <- a[-z[-1]]
-
-      names(a) <- paste("loc",a,sep="")
-      return(sort(c(a,map))+minloc)
-    }
-  } # end sex-ave map
- */
-  return null;
+    // only one marker beyond each end
+    new_markers.add(new PseudoMarker(minpos - off_end));
+    new_markers.add(new PseudoMarker(maxpos + off_end));
+    // FIXME sort markers
+    // FIXME remove duplicate positions
+    // FIXME remove Pseudo markers too close to other markers
+  }
+  return new_markers;
 }
 
 Ms add_stepped_markers_sex(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0)
@@ -280,7 +261,7 @@ body {
     auto marker = new_markers.list[0];
     auto position = marker.get_position();
     for (auto npos = position-off_end ; npos < position+off_end ; npos += step) {
-      auto pm = new PseudoMarker(position,"loc" ~ to!string(npos));
+      auto pm = new PseudoMarker(npos);
       new_markers.add(pm);
     }
   }
