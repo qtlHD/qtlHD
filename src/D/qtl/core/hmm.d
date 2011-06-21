@@ -56,7 +56,7 @@ body {
 
 	
     // backward equations
-    foreach(pos; n_markers-2 .. 0) {
+    for(auto pos = n_markers-2; pos >= 0; pos--) {
       foreach(true_geno_left; all_true_geno) {
 	beta[true_geno_left][pos] = beta[all_true_geno[0]][pos+1] + 
 	  stepF2(true_geno_left, all_true_geno[0], rec_frac[pos]) + 
