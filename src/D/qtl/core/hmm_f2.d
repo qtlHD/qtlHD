@@ -10,14 +10,14 @@ import qtl.plugins.input.read_csv;
 import std.math, std.stdio, std.path;
 
 // marginal genotype probability
-double initF2(Genotype!F2 true_gen)
+double initF2(F2 true_gen)
 in {
-  assert(true_gen.value == F2.A || 
-	 true_gen.value == F2.H || 
-	 true_gen.value == F2.B);
+  assert(true_gen == F2.A || 
+	 true_gen == F2.H || 
+	 true_gen == F2.B);
 }
 body {
-  switch(true_gen.value) {
+  switch(true_gen) {
     case F2.H:
       return(-LN2);
     case F2.A: case F2.B: 
@@ -29,7 +29,7 @@ body {
 unittest {
   writeln("Unit test " ~ __FILE__);
   writeln("    unit test initFC");
-  auto gen = [set_genotype!F2("A"), set_genotype!F2("H"), set_genotype!F2("B")];
+  auto gen = [F2.A, F2.H, F2.B];
   assert(abs(initF2(gen[0]) - log(0.25)) < 1e-12);
   assert(abs(initF2(gen[1]) - log(0.5)) < 1e-12);
   assert(abs(initF2(gen[2]) - log(0.25)) < 1e-12);
@@ -37,30 +37,30 @@ unittest {
 
 
 // emission probability (marker genotype "penetrance")
-double emitF2(Genotype!F2 obs_gen, Genotype!F2 true_gen, double error_prob) 
+double emitF2(Genotype!F2 obs_gen, F2 true_gen, double error_prob) 
 in {
-  assert(true_gen.value == F2.A || 
-	 true_gen.value == F2.H || 
-	 true_gen.value == F2.B);
+  assert(true_gen == F2.A || 
+	 true_gen == F2.H || 
+	 true_gen == F2.B);
   assert(error_prob >= 0 && error_prob <= 1.0);
 }
 body {
   switch(obs_gen.value) {
   case F2.NA: return(0.0);
   case F2.A: case F2.H: case F2.B:
-    if(obs_gen.value == true_gen.value) {
+    if(obs_gen.value == true_gen) {
       return(log(1.0-error_prob));
     } else {
       return(log(error_prob)-LN2);
     }
   case F2.HorB:
-    if(true_gen.value == F2.A) {
+    if(true_gen == F2.A) {
       return(log(error_prob));
     } else {
       return(log(1.0-error_prob/2.0));
     }
   case F2.HorA:
-    if(true_gen.value == F2.B) {
+    if(true_gen == F2.B) {
       return(log(error_prob));
     } else {
       return(log(1.0-error_prob/2.0));
@@ -71,7 +71,7 @@ body {
 
 unittest {
   writeln("    unit test emitFC");
-  auto gen = [set_genotype!F2("A"), set_genotype!F2("H"), set_genotype!F2("B")];
+  auto gen = [F2.A, F2.H, F2.B];
   auto ogen = [set_genotype!F2("-"), 
 	       set_genotype!F2("A"), set_genotype!F2("H"), set_genotype!F2("B"),
 	       set_genotype!F2("D"), set_genotype!F2("C")];
@@ -110,32 +110,32 @@ unittest {
 
 
 // transition probabilities 
-double stepF2(Genotype!F2 true_gen_left, Genotype!F2 true_gen_right, 
+double stepF2(F2 true_gen_left, F2 true_gen_right, 
 	      double rec_frac) 
 in {
-  assert(true_gen_left.value == F2.A || 
-	 true_gen_left.value == F2.H || 
-	 true_gen_left.value == F2.B);
-  assert(true_gen_right.value == F2.A || 
-	 true_gen_right.value == F2.H || 
-	 true_gen_right.value == F2.B);
+  assert(true_gen_left == F2.A || 
+	 true_gen_left == F2.H || 
+	 true_gen_left == F2.B);
+  assert(true_gen_right == F2.A || 
+	 true_gen_right == F2.H || 
+	 true_gen_right == F2.B);
   assert(rec_frac >= 0 && rec_frac <= 0.5);
 }
 body {
-  switch(true_gen_left.value) {
+  switch(true_gen_left) {
     case F2.A:
-      switch(true_gen_right.value) {
+      switch(true_gen_right) {
       case F2.A: return(2.0*log(1.0-rec_frac));
       case F2.H: return(LN2 + log(1.0-rec_frac) + log(rec_frac));
       case F2.B: return(2.0*log(rec_frac));
       }
     case F2.H:
-      switch(true_gen_right.value) {
+      switch(true_gen_right) {
       case F2.A: case F2.B: return(log(rec_frac) + log(1.0-rec_frac));
       case F2.H: return(log((1.0-rec_frac)^^2 + rec_frac^^2));
       }
     case F2.B:
-      switch(true_gen_right.value) {
+      switch(true_gen_right) {
       case F2.A: return(2.0*log(rec_frac));
       case F2.H: return(LN2 + log(1.0-rec_frac) + log(rec_frac));
       case F2.B: return(2.0*log(1.0-rec_frac));
@@ -146,7 +146,7 @@ body {
 
 unittest {
   writeln("    unit test stepFC");
-  auto gen = [set_genotype!F2("A"), set_genotype!F2("H"), set_genotype!F2("B")];
+  auto gen = [F2.A, F2.H, F2.B];
   double rf = 0.01;
 
   assert( abs( stepF2(gen[0], gen[0], rf) - log((1-rf)^^2) ) < 1e-12);

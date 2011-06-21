@@ -10,9 +10,9 @@ import qtl.plugins.input.read_csv;
 import std.math, std.stdio, std.path;
 
 // marginal genotype probability
-double initBC(Genotype!BC true_gen)
+double initBC(BC true_gen)
 in {
-  assert(true_gen.value == BC.A || true_gen.value == BC.H);
+  assert(true_gen == BC.A || true_gen == BC.H);
 }
 body {
   return(-LN2);
@@ -21,22 +21,22 @@ body {
 unittest {
   writeln("Unit test " ~ __FILE__);
   writeln("    unit test initBC");
-  auto gen = [set_genotype!BC("A"), set_genotype!BC("H")];
+  auto gen = [BC.A, BC.H];
   assert(abs(initBC(gen[0]) - log(0.5)) < 1e-12);
   assert(abs(initBC(gen[1]) - log(0.5)) < 1e-12);
 }
 
 // emission probability (marker genotype "penetrance")
-double emitBC(Genotype!BC obs_gen, Genotype!BC true_gen, double error_prob) 
+double emitBC(Genotype!BC obs_gen, BC true_gen, double error_prob) 
 in {
   assert(error_prob >= 0 && error_prob <= 1.0);
-  assert(true_gen.value == BC.A || true_gen.value == BC.H);
+  assert(true_gen == BC.A || true_gen == BC.H);
 }
 body {
   switch(obs_gen.value) {
     case BC.NA: return(0.0);
     case BC.A: case BC.H:
-      if(obs_gen.value == true_gen.value) {
+      if(obs_gen.value == true_gen) {
         return(log(1.0-error_prob));
       } else {
         return(log(error_prob));
@@ -47,7 +47,7 @@ body {
 
 unittest {
   writeln("    unit test emitBC");
-  auto gen = [set_genotype!BC("A"), set_genotype!BC("H")];
+  auto gen = [BC.A, BC.H];
   auto ogen = [set_genotype!BC("-"), set_genotype!BC("A"), set_genotype!BC("H")];
   double err = 0.001;
 
@@ -61,15 +61,15 @@ unittest {
 }
 
 // transition probabilities 
-double stepBC(Genotype!BC true_gen_left, Genotype!BC true_gen_right, 
+double stepBC(BC true_gen_left, BC true_gen_right, 
 	      double rec_frac)
 in {
-  assert(true_gen_left.value == BC.A || true_gen_left.value == BC.H);
-  assert(true_gen_right.value == BC.A || true_gen_right.value == BC.H);
+  assert(true_gen_left == BC.A || true_gen_left == BC.H);
+  assert(true_gen_right == BC.A || true_gen_right == BC.H);
   assert(rec_frac >= 0.0 && rec_frac <= 0.5);
 }
 body {
-  if(true_gen_left.value == true_gen_right.value) {
+  if(true_gen_left == true_gen_right) {
     return(log(1.0-rec_frac));
   }
   else {
@@ -80,7 +80,7 @@ body {
 
 unittest {
   writeln("    unit test stepBC");
-  auto gen = [set_genotype!BC("A"), set_genotype!BC("H")];
+  auto gen = [BC.A, BC.H];
   double rf = 0.01;
   assert(abs( stepBC(gen[0], gen[0], rf) - log(1-rf) ) < 1e-12);
   assert(abs( stepBC(gen[0], gen[1], rf) - log(rf) ) < 1e-12);

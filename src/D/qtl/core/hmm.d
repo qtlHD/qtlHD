@@ -17,23 +17,73 @@ import std.path;
 
 
 // calculate QTL genotype probabilities
-double[int][int][T] calcGenoprob(T)(T[int][int] genotypes, double[] rec_frac, double error_prob)
+double[F2][int][int] calcGenoprobF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_prob)
 in {
   assert(genotypes.length == rec_frac.length-1);
+  assert(error_prob >= 0 && error_prob <= 1);
  }
 body {
-  double[int][T] alpha, beta;
-  double[int][int][T] genoprobs;
+  int n_individuals = genotypes.length;
+  int n_markers = genotypes[0].length;
+  F2[] all_true_geno = [F2.A, F2.H, F2.B];
 
-  auto n_markers = geno[0].length;
+  double[int][F2] alpha, beta;
+  double[F2][int][int] genoprobs;
 
-  foreach(i; 0..geno.length) {
-
+  foreach(ind; 0..n_individuals) {
     // initialize alpha and beta
-    //    foreach(true_gen; cross.possible_true_genotypes) {
-    //      alpha[true_gen][0] = cross.init(true_gen) + cross.emit(geno[i][0], true_gen, error_prob);
-    //      beta[true_gen][n_marekrs-1] = 0.0;
-    //    }
+    foreach(true_geno; all_true_geno) {
+      alpha[true_geno][0] = initF2(true_geno) + emitF2(genotypes[ind][0], true_geno, error_prob);
+      beta[true_geno][n_markers-1] = 0.0;
+    }
+
+
+    // forward equations 
+    foreach(pos; 1 .. n_markers) {
+      foreach(true_geno_right; all_true_geno) {
+
+	alpha[true_geno_right][pos] = alpha[all_true_geno[0]][pos-1] + 
+	  stepF2(all_true_geno[0], true_geno_right, rec_frac[pos-1]);
+
+	foreach(true_geno_left; all_true_geno[1..$]) {
+	  alpha[true_geno_right][pos] = addlog(alpha[true_geno_right][pos], 
+					       alpha[true_geno_left][pos-1] + 
+					       stepF2(true_geno_left, true_geno_right, rec_frac[pos-1]));
+	}
+	alpha[true_geno_right][pos] += emitF2(genotypes[ind][pos], true_geno_right, error_prob);
+      }
+    }
+
+	
+    // backward equations
+    foreach(pos; n_markers-2 .. 0) {
+      foreach(true_geno_left; all_true_geno) {
+	beta[true_geno_left][pos] = beta[all_true_geno[0]][pos+1] + 
+	  stepF2(true_geno_left, all_true_geno[0], rec_frac[pos]) + 
+	  emitF2(genotypes[ind][pos+1], all_true_geno[0], error_prob);
+
+	foreach(true_geno_right; all_true_geno[1..$]) {
+	  beta[true_geno_left][pos] = addlog(beta[true_geno_left][pos], 
+					     beta[true_geno_right][pos+1] + 
+					     stepF2(true_geno_left, true_geno_right, rec_frac[pos])+
+					     emitF2(genotypes[ind][pos+1], true_geno_right, error_prob));
+	}
+
+      }
+    }
+
+    /* calculate genotype probabilities */
+    double sum_at_pos;
+    foreach(pos; 0..n_markers) {
+      sum_at_pos = genoprobs[ind][pos][all_true_geno[0]] = alpha[all_true_geno[0]][pos] + beta[all_true_geno[0]][pos];
+      foreach(true_geno; all_true_geno[1..$]) {
+	genoprobs[ind][pos][true_geno] = alpha[true_geno][pos] + beta[true_geno][pos];
+	sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][true_geno]);
+      }
+      foreach(true_geno; all_true_geno) {
+	genoprobs[ind][pos][true_geno] = exp(genoprobs[ind][pos][true_geno] - sum_at_pos);
+      }
+    }
   }
   return genoprobs;
 }
@@ -51,3 +101,28 @@ unittest {
 
 
 
+
+// Calculate addlog(a,b) = log[exp(a) + exp(b)]
+double addlog(double a, double b)
+{
+  enum TOL = 200.0;
+
+  if(b > a + TOL) return(b);
+  else if(a > b + TOL) return(a);
+  else return(a + log1p(exp(b-a)));
+}
+
+unittest {
+  writeln("    unit test addlog");
+  double a=50, b=60, d=2;
+  assert(abs(addlog(a,b) - log(exp(a)+exp(b))) < 1e-16);
+  assert(abs(addlog(b,a) - log(exp(a)+exp(b))) < 1e-16);
+  assert(abs(addlog(a,d) - log(exp(a)+exp(d))) < 1e-16);
+  assert(abs(addlog(d,a) - log(exp(a)+exp(d))) < 1e-16);
+  assert(abs(addlog(b,d) - log(exp(b)+exp(d))) < 1e-16);
+  assert(abs(addlog(d,b) - log(exp(b)+exp(d))) < 1e-16);
+  assert(addlog(a,a+300) == a+300);
+  assert(addlog(a,a-300) == a);
+  assert(addlog(a+300,a) == a+300);
+  assert(addlog(a-300,a) == a);
+}
