@@ -10,13 +10,14 @@ import std.numeric; // contains findRoot()
 
 // convert cM distance to recombination fraction
 double[] mapFunction(double[] dist_cM, string which_mapFunction)
-{
+in {
+  foreach(dist; dist_cM) {
+    assert(dist >= 0, "dist_cM must be >= 0");
+  }
+}
+body {
   auto rec_frac = new double[dist_cM.length];
   enum TOL = 1e-14;
-
-  foreach(dist; dist_cM) {
-    assert(dist >= 0);
-  }
 
   double mfcfsub_dist;
   double mfcfsub(double rf)
@@ -104,13 +105,14 @@ unittest {
 
 // convert recombination fraction to cM distance
 double[] inverseMapFunction(double[] rec_frac, string which_mapFunction)
-{
+in {
+  foreach(rf; rec_frac) {
+    assert(rf >= 0.0 && rf <= 0.5, "rec_frac must be >= 0 and <= 0.5");
+  }
+}
+body {
   auto dist_cM = new double[rec_frac.length];
   enum TOL = 1e-14;
-
-  foreach(rf; rec_frac) {
-    assert(rf >= 0.0 && rf <= 0.5);
-  }
 
   foreach(i, rf; rec_frac) {
     if(rf >= 0.5-TOL) { rf = 0.5 - TOL; }
