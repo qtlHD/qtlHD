@@ -14,7 +14,8 @@ double initF2(F2 true_gen)
 in {
   assert(true_gen == F2.A || 
 	 true_gen == F2.H || 
-	 true_gen == F2.B);
+	 true_gen == F2.B, 
+	 "true_gen not among the possible true genotypes");
 }
 body {
   switch(true_gen) {
@@ -41,8 +42,10 @@ double emitF2(Genotype!F2 obs_gen, F2 true_gen, double error_prob)
 in {
   assert(true_gen == F2.A || 
 	 true_gen == F2.H || 
-	 true_gen == F2.B);
-  assert(error_prob >= 0 && error_prob <= 1.0);
+	 true_gen == F2.B, 
+	 "true_gen not among the possible true genotypes");
+  assert(error_prob >= 0 && error_prob <= 1.0, 
+	 "error_prob must be >= 0 and <= 1");
 }
 body {
   switch(obs_gen.value) {
@@ -115,11 +118,14 @@ double stepF2(F2 true_gen_left, F2 true_gen_right,
 in {
   assert(true_gen_left == F2.A || 
 	 true_gen_left == F2.H || 
-	 true_gen_left == F2.B);
+	 true_gen_left == F2.B, 
+	 "true_gen_left not among the possible true genotypes");
   assert(true_gen_right == F2.A || 
 	 true_gen_right == F2.H || 
-	 true_gen_right == F2.B);
-  assert(rec_frac >= 0 && rec_frac <= 0.5);
+	 true_gen_right == F2.B, 
+	 "true_gen_right not among the possible true genotypes");
+  assert(rec_frac >= 0 && rec_frac <= 0.5,
+	 "rec_frac must be >= 0 and <= 0.5");
 }
 body {
   switch(true_gen_left) {

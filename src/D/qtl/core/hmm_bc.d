@@ -12,7 +12,8 @@ import std.math, std.stdio, std.path;
 // marginal genotype probability
 double initBC(BC true_gen)
 in {
-  assert(true_gen == BC.A || true_gen == BC.H);
+  assert(true_gen == BC.A || true_gen == BC.H,
+	 "true_gen not among the possible true genotypes");
 }
 body {
   return(-LN2);
@@ -29,8 +30,10 @@ unittest {
 // emission probability (marker genotype "penetrance")
 double emitBC(Genotype!BC obs_gen, BC true_gen, double error_prob) 
 in {
-  assert(error_prob >= 0 && error_prob <= 1.0);
-  assert(true_gen == BC.A || true_gen == BC.H);
+  assert(true_gen == BC.A || true_gen == BC.H,
+	 "true_gen not among the possible true genotypes");
+  assert(error_prob >= 0 && error_prob <= 1.0,
+	 "error_prob must be >= 0 and <= 1");
 }
 body {
   switch(obs_gen.value) {
@@ -64,9 +67,12 @@ unittest {
 double stepBC(BC true_gen_left, BC true_gen_right, 
 	      double rec_frac)
 in {
-  assert(true_gen_left == BC.A || true_gen_left == BC.H);
-  assert(true_gen_right == BC.A || true_gen_right == BC.H);
-  assert(rec_frac >= 0.0 && rec_frac <= 0.5);
+  assert(true_gen_left == BC.A || true_gen_left == BC.H,
+	 "true_gen_left not among the possible true genotypes");
+  assert(true_gen_right == BC.A || true_gen_right == BC.H,
+	 "true_gen_right not among the possible true genotypes");
+  assert(rec_frac >= 0.0 && rec_frac <= 0.5,
+	 "rec_frac must be >= 0 and <= 1");
 }
 body {
   if(true_gen_left == true_gen_right) {
