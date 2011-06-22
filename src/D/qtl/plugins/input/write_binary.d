@@ -1,5 +1,5 @@
 /**
- * \file write_binary.d - Plugin for converting CSVR files to XBIN
+ * \file write_binary.d - Plugin for writing XBIN files
  *
  * Copyright (c) 2011 Danny Arends
  * Part of the qtlHD package
@@ -18,7 +18,14 @@
  *
  * Written in the D Programming Language (http://www.digitalmars.com/d)
  *
- * Test: dmd -unittest qtl/plugins/input/write_binary.d qtl/core/*.d
+ * - Mac / Linux Unittest:
+ * dmd -unittest qtl/plugins/input/write_binary.d qtl/core/*.d  
+ *
+ * - Win32 (No circular dependancies, or multiple definitions of main allowed):
+ *
+ * dmd -run cdc.d -lib qtl/core/ -ofCore.lib
+ * dmd -run cdc.d -unittest qtl/plugins/input/write_binary.d Core.lib
+ *
  *
  **/
 
@@ -42,7 +49,7 @@ import qtl.plugins.input.read_csvr;
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
-class binaryWriter {
+class BinaryWriter {
   private File f;
   CsvrReader data;
   
@@ -92,6 +99,7 @@ unittest {
   auto outfn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin");
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
   auto data = new CsvrReader(infn);
+  BinaryWriter(data,outfn);
 }
 
 void main(string[] args){ 
@@ -100,6 +108,7 @@ void main(string[] args){
   }else{
     writeln("reading CSVR (" ~ args[1] ~ ") to XBIN (" ~ args[2] ~ ")");
     auto data = new CsvrReader(args[1]);
+    BinaryWriter(data,args[2]);
   }
 }
 

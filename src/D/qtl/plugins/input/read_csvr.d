@@ -1,5 +1,5 @@
 /**
- * \file read_csvr.d - Plugin for converting CSVR files to XBIN
+ * \file read_csvr.d - Plugin for reading CSVR files
  *
  * Copyright (c) 2011 Danny Arends
  * Part of the qtlHD package
@@ -18,7 +18,13 @@
  *
  * Written in the D Programming Language (http://www.digitalmars.com/d)
  *
- * Test: dmd -unittest qtl/plugins/input/read_csvr.d qtl/core/*.d
+ * - Mac / Linux Unittest:
+ * dmd -unittest qtl/plugins/input/read_csvr.d qtl/core/*.d  
+ *
+ * - Win32 (No circular dependancies, or multiple definitions of main allowed):
+ *
+ * dmd -run cdc.d -lib qtl/core/ -ofCore.lib
+ * dmd -run cdc.d -unittest qtl/plugins/input/read_csvr.d Core.lib
  *
  **/
 
@@ -35,7 +41,7 @@ import std.string;
 import std.path;
 
 /** 
- * Convert a simple CSVR file containing marker names, chromosome nrs, position, 
+ * Loads a simple CSVR file containing marker names, chromosome nrs, position, 
  * phenotype and genotype - such as the multitrait.csvr file used in R/qtl.
  *
  * The file is parsed once on class instantiation. Elements can be queried.
