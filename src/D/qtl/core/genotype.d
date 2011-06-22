@@ -24,8 +24,14 @@ Genotype!T set_genotype(T)(in string s) {
       case "A":
         g.value = T.A;
         break;
+      case "AA":
+        g.value = T.A;
+        break;        
       case "B":
         g.value = T.B;
+        break;
+      case "BB":
+        g.value = T.A;
         break;
       default:
         throw new Exception("Unknown genotype " ~ s ~ " for " ~ T.stringof);
