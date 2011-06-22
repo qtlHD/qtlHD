@@ -99,6 +99,8 @@ class PseudoMarker : Marker {
   override bool is_pseudo() { return true; };
 }
 
+immutable GENOTYPE_NA = -1;
+
 /**
  * Genotype is the most primitive representation of a genotype. The type
  * can be any type T (normally char or uint, but other objects may be
@@ -110,7 +112,17 @@ class PseudoMarker : Marker {
 
 struct Genotype(T) {
   T value;
+  
+  string toString(){
+    if(value != GENOTYPE_NA){
+      return to!string(value);
+    }else{
+      return "NA";
+    }
+  }
 }
+
+immutable PHENOTYPE_NA = double.max;
 
 /**
  * Phenotype is the most primitive representation of a phenotype. The type
@@ -122,6 +134,14 @@ struct Genotype(T) {
 
 struct Phenotype(T) {
   T value;
+  
+  string toString(){
+    if(value != PHENOTYPE_NA){
+      return to!string(value);
+    }else{
+      return "NA";
+    }
+  }
 }
 
 /**

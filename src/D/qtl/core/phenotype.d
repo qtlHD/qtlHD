@@ -8,8 +8,6 @@ import qtl.core.primitives;
 import std.conv;
 import std.stdio;
 
-immutable PHENOTYPE_NA = double.max;
-
 Phenotype!T set_phenotype(T)(in string s) {
   // writeln(s);
   Phenotype!T p;

@@ -8,8 +8,6 @@ import qtl.core.primitives;
 import std.conv;
 import std.stdio;
 
-immutable GENOTYPE_NA = -1;
-
 enum RIL { NA, A, B };
 enum F2  { NA, A, H, B, HorB, HorA }; 
 enum BC  { NA, A, H };
