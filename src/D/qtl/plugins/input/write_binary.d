@@ -49,9 +49,9 @@ import qtl.plugins.input.read_csvr;
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
-class BinaryWriter {
+class BinaryWriter(XType) {
   private File f;
-  CsvrReader data;
+  CsvrReader!XType data;
   
   byte[2] b_footprint = [ 0, 5 ];
   byte[3] b_version = [ 0, 0, 1 ];
@@ -64,11 +64,11 @@ class BinaryWriter {
     }
   }
   
-  void write_matrix(T)(T[] towrite, File to){
-    uint[2] sizes =[towrite.length,towrite[0].values.length];
+  void write_matrix(T)(T[][] towrite, File to){
+    uint[2] sizes =[towrite.length,towrite[0].length];
     myWrite(sizes,to);
-    foreach(T e;towrite){
-      myWrite(e.values,to);
+    foreach(T[] e;towrite){
+      myWrite(e,to);
     }
   }
   
@@ -79,15 +79,15 @@ class BinaryWriter {
     myWrite(b_footprint,f);
     uint[1] nmatrix = [ 2 ];
     myWrite(nmatrix,f);
-    write_matrix!(NPhenotype!double)(data.phenotypes,f);
+    write_matrix!(Phenotype!double)(data.phenotypes,f);
     myWrite(b_footprint,f);
-    write_matrix!(GeneticMarker!string)(data.genotypes,f);
+    write_matrix!(Genotype!XType)(data.genotypes,f);
     myWrite(b_footprint,f);
     f.close();
   }
 
-  this(CsvrReader indata, in string outfilename){
-    data = indata
+  this(CsvrReader!XType indata, in string outfilename){
+    data = indata;
     write_binary(outfilename);
   }
 }
@@ -98,8 +98,8 @@ unittest {
   auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.csvr");
   auto outfn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin");
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
-  auto data = new CsvrReader(infn);
-  BinaryWriter(data,outfn);
+  auto data = new CsvrReader!RIL(infn);
+  auto result = new BinaryWriter!RIL(data,outfn);
 }
 
 void main(string[] args){ 
@@ -107,8 +107,8 @@ void main(string[] args){
     writeln("Usage: convert in.csvr out.xbin");
   }else{
     writeln("reading CSVR (" ~ args[1] ~ ") to XBIN (" ~ args[2] ~ ")");
-    auto data = new CsvrReader(args[1]);
-    BinaryWriter(data,args[2]);
+    auto data = new CsvrReader!RIL(args[1]);
+    auto result = new BinaryWriter!RIL(data,args[2]);
   }
 }
 

@@ -25,5 +25,6 @@
 tags
 tmp
 *.aux
+*.xbin
 cdc.d
 read_csv
