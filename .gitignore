@@ -9,6 +9,7 @@
 *.bbl
 *.out
 *.blg
+*.lib
 *.dvi
 *.log
 *.pdf
