@@ -63,7 +63,7 @@ class BinaryWriter(XType) {
   }
   
   void write_matrix(T)(T[][] towrite, File outfile, MatrixType t = MatrixType.EMPTY){
-    uint[1] type = [10];
+    uint[1] type = [t];
     uint[] sizes =[towrite.length,towrite[0].length];
     switch(t){
       case MatrixType.EMPTY:

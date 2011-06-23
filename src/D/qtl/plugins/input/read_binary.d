@@ -50,10 +50,16 @@ class XbinReader(XType){
   int nphenotypes = 0;
   int nmarkers = 0;
   
+  
+  bool checkFootprint(ubyte[] buffer){
+    if(b_footprint == buffer) return true;
+    return false;
+  }
+  
   bool checkBuffer(ubyte[] buffer){
     ubyte[] startprint = buffer[0..2];
     ubyte[] endprint = buffer[buffer.length-2..$];
-    if(startprint == b_footprint && endprint == b_footprint){
+    if(checkFootprint(startprint) && checkFootprint(endprint)){
       return true;
     }
     return false;
@@ -94,8 +100,8 @@ class XbinReader(XType){
     int nrow = byteToInt(buffer[(skip+4)..(skip+8)]);
     int ncol = byteToInt(buffer[(skip+8)..(skip+12)]);
     int elem = byteToInt(buffer[(skip+12)..(skip+16)]);
-    writefln("matrix %d %d %d %d", matrix, type, nrow, ncol);
-    return 100;
+    writefln("Matrix %d, type=%d\nrows: %d\tcols: %d\telementsize: %d skip: %d", matrix, type, nrow, ncol, elem,(nrow*ncol*elem));
+    return 16+(nrow*ncol*elem);
   }
   
   this(in string filename){
@@ -113,6 +119,8 @@ class XbinReader(XType){
     int skip = 9;
     for(int m=0; m<getNumberOfMatrices(inputbuffer); m++){
       skip += getMatrix(inputbuffer, m, skip);
+      assert(checkFootprint(inputbuffer[(skip)..(skip+2)]));
+      skip += 2; // 
     }
   }
 }
