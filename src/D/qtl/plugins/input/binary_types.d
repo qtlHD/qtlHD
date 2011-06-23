@@ -21,7 +21,7 @@
  **/
 module qtl.plugins.input.binary_types; 
  
- enum MatrixType : int { 
+ enum MatrixType : uint { 
   EMPTY = 0, 
   INTMATRIX = 1, 
   DOUBLEMATRIX = 2, 

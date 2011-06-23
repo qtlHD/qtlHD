@@ -63,11 +63,11 @@ class BinaryWriter(XType) {
   }
   
   void write_matrix(T)(T[][] towrite, File outfile, MatrixType t = MatrixType.EMPTY){
-    uint[] type = [t];
+    uint[1] type = [10];
     uint[] sizes =[towrite.length,towrite[0].length];
     switch(t){
       case MatrixType.EMPTY:
-        sizes ~= 0;
+        sizes ~= cast(uint)0;
         break;
       case MatrixType.INTMATRIX:
         sizes ~= int.sizeof;
@@ -112,8 +112,7 @@ class BinaryWriter(XType) {
     f = File(filename,"wb");
     myWrite(b_footprint,f);
     myWrite(b_version,f);
-    myWrite(b_footprint,f);
-    uint[1] nmatrix = [ 2 ];
+    uint[1] nmatrix = [ 3 ];
     myWrite(nmatrix,f);
     write_matrix!(Phenotype!double)(data.phenotypes, f, MatrixType.DOUBLEMATRIX);
     myWrite(b_footprint,f);
