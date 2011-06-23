@@ -50,16 +50,28 @@ class XbinReader(XType){
   int nphenotypes = 0;
   int nmarkers = 0;
   
-  bool checkBuffer(byte[] buffer){
-    byte[] startprint = buffer[0..2];
-    byte[] endprint = buffer[buffer.length-2..$];
+  bool checkBuffer(ubyte[] buffer){
+    ubyte[] startprint = buffer[0..2];
+    ubyte[] endprint = buffer[buffer.length-2..$];
     if(startprint == b_footprint && endprint == b_footprint){
       return true;
     }
     return false;
   }
   
-  T[] toType(T)(byte[] buffer){
+  int byteToInt(ubyte[] bits, bool little_endian = true ){
+    int result = 0;
+    if(little_endian){
+      for(int n = bits.length-1; n >= 0; n--)
+        result = (result << 8) +bits[ n ];
+    }else{
+      for(int n = 0; n < bits.length; n++)
+        result = (result << 8) +bits[ n ];
+    }
+    return result;
+  }
+  
+  T[] toType(T)(ubyte[] buffer){
     T[] returnbuffer;
     foreach(int i, byte b ; buffer){
       returnbuffer ~= to!T(b);
@@ -67,28 +79,28 @@ class XbinReader(XType){
     return returnbuffer;
   }
   
-  int[] getVersion(byte[] buffer){
+  int[] getVersion(ubyte[] buffer){
     int[] fileversion = toType!int(buffer[2..5]);
     return fileversion;
   }
   
-  int getNumberOfMatrices(byte[] buffer){
-    int[] nmatrix = toType!int(buffer[5..6]);
-    return nmatrix[0];
+  int getNumberOfMatrices(ubyte[] buffer){
+    int nmatrix = byteToInt(buffer[5..9]);
+    return nmatrix;
   }
   
-  int getMatrix(byte[] buffer, int matrix, int skip){
-    int[] type = toType!int(buffer[skip..skip+100]);
-    int[] nrow = toType!int(buffer[(skip+1)..(skip+2)]);
-    int[] ncol = toType!int(buffer[(skip+2)..(skip+3)]);
-    int[] elem = toType!int(buffer[(skip+3)..(skip+4)]);
+  int getMatrix(ubyte[] buffer, int matrix, int skip){
+    int type = byteToInt(buffer[skip..skip+4]);
+    int nrow = byteToInt(buffer[(skip+4)..(skip+8)]);
+    int ncol = byteToInt(buffer[(skip+8)..(skip+12)]);
+    int elem = byteToInt(buffer[(skip+12)..(skip+16)]);
     writefln("matrix %d %d %d %d", matrix, type, nrow, ncol);
     return 100;
   }
   
   this(in string filename){
     assert(getSize(filename) < uint.max);
-    byte[] inputbuffer = new byte[cast(uint)getSize(filename)];
+    ubyte[] inputbuffer = new ubyte[cast(uint)getSize(filename)];
     auto f = new File(filename,"rb");
 
     f.rawRead(inputbuffer);
@@ -98,7 +110,7 @@ class XbinReader(XType){
     writeln("Version: " ~ to!string(getVersion(inputbuffer)));
     writeln("Matrices: " ~ to!string(getNumberOfMatrices(inputbuffer)));
     //Loop through the matrices
-    int skip = 5;
+    int skip = 9;
     for(int m=0; m<getNumberOfMatrices(inputbuffer); m++){
       skip += getMatrix(inputbuffer, m, skip);
     }
