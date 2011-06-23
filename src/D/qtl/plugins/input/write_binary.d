@@ -41,16 +41,8 @@ import std.conv;
 import std.string;
 import std.path;
 
+import qtl.plugins.input.binary_types;
 import qtl.plugins.input.read_csvr;
-
-
-enum MatrixType : int { 
-  EMPTY = 0, 
-  INTMATRIX = 1, 
-  DOUBLEMATRIX = 2, 
-  FIXEDCHARMATRIX = 3, 
-  VARCHARMATRIX = 4
-};
 
 /** 
  * Convert a simple CSVR file containing marker names, chromosome nrs, position, 
@@ -61,11 +53,8 @@ enum MatrixType : int {
 class BinaryWriter(XType) {
   private File f;
   CsvrReader!XType data;
-  
-  byte[2] b_footprint = [ 0, 5 ];
-  byte[3] b_version = [ 0, 0, 1 ];
-  
-  void myWrite(T)(T x,File f,bool bin = false, MatrixType t = MatrixType.EMPTY){
+ 
+  void myWrite(T)(T x,File f,bool bin = true, MatrixType t = MatrixType.EMPTY){
     if(bin){
       f.rawWrite(x);
     }else{

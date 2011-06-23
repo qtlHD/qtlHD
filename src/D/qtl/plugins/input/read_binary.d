@@ -40,6 +40,9 @@ import std.stdio;
 import std.conv;
 import std.string;
 import std.path;
+import std.file;
+
+import qtl.plugins.input.binary_types;
 
 class XbinReader(XType){
   private File f;
@@ -47,8 +50,39 @@ class XbinReader(XType){
   int nphenotypes = 0;
   int nmarkers = 0;
   
-  this(in string filename){
+  bool checkBuffer(byte[] buffer){
+    byte[] startprint = buffer[0..2];
+    byte[] endprint = buffer[buffer.length-2..$];
+    if(startprint == b_footprint && endprint == b_footprint){
+      return true;
+    }
+    return false;
+  }
   
+  T[] toType(T)(in byte[] buffer){
+    T[] returnbuffer;
+    foreach(int i, byte b ; buffer){
+      returnbuffer ~= to!T(b);
+    }
+    return returnbuffer;
+  }
+  
+  int[] getVersion(byte[] buffer){
+    int[] fileversion = toType!int(buffer[2..5]);
+    return fileversion;
+  }
+  
+  this(in string filename){
+    assert(getSize(filename) < uint.max);
+    byte[] inputbuffer = new byte[cast(uint)getSize(filename)];
+    auto f = new File(filename,"rb");
+    int byte_cnt=0;
+    int buffer_cnt=0;
+    f.rawRead(inputbuffer);
+    writeln("Read: " ~ to!string(getSize(filename)) ~ " bytes");
+    writeln("File OK? " ~ to!string(checkBuffer(inputbuffer)));
+    writeln("Version: " ~ to!string(getVersion(inputbuffer)));
+    
   }
 }
 
@@ -57,5 +91,7 @@ unittest{
   alias std.path.join join;
   auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin");
   writeln("  - reading XBIN " ~ infn);
-  auto data = new XbinReader(infn);
+  auto data = new XbinReader!RIL(infn);
 }
+
+void main() { }
