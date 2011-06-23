@@ -43,6 +43,15 @@ import std.path;
 
 import qtl.plugins.input.read_csvr;
 
+
+enum MatrixType : int { 
+  EMPTY = 0, 
+  INTMATRIX = 1, 
+  DOUBLEMATRIX = 2, 
+  FIXEDCHARMATRIX = 3, 
+  VARCHARMATRIX = 4
+};
+
 /** 
  * Convert a simple CSVR file containing marker names, chromosome nrs, position, 
  * phenotype and genotype - such as the multitrait.csvr file used in R/qtl.
@@ -56,7 +65,7 @@ class BinaryWriter(XType) {
   byte[2] b_footprint = [ 0, 5 ];
   byte[3] b_version = [ 0, 0, 1 ];
   
-  void myWrite(T)(T x,File f,bool bin=true){
+  void myWrite(T)(T x,File f,bool bin = false, MatrixType t = MatrixType.EMPTY){
     if(bin){
       f.rawWrite(x);
     }else{
@@ -64,12 +73,50 @@ class BinaryWriter(XType) {
     }
   }
   
-  void write_matrix(T)(T[][] towrite, File to){
-    uint[2] sizes =[towrite.length,towrite[0].length];
-    myWrite(sizes,to);
-    foreach(T[] e;towrite){
-      myWrite(e,to);
+  void write_matrix(T)(T[][] towrite, File outfile, MatrixType t = MatrixType.EMPTY){
+    uint[] type = [t];
+    uint[] sizes =[towrite.length,towrite[0].length];
+    switch(t){
+      case MatrixType.EMPTY:
+        sizes ~= 0;
+        break;
+      case MatrixType.INTMATRIX:
+        sizes ~= int.sizeof;
+        break;        
+      case MatrixType.DOUBLEMATRIX:
+        sizes ~= double.sizeof;
+        break;        
+      case MatrixType.FIXEDCHARMATRIX:
+        string s = to!string(towrite[0][0]);
+        sizes ~= char.sizeof * s.length;
+        break;        
+      case MatrixType.VARCHARMATRIX:
+        for(int r=0;r < towrite.length;r++){
+          for(int c=0;c < towrite[r].length;c++){
+            sizes ~= char.sizeof * to!string(towrite[r][c]).length;
+          }
+        }
+        break;        
+      default:
+        break;
     }
+    myWrite(type,outfile);
+    myWrite(sizes,outfile);
+    foreach(T[] e;towrite){
+      myWrite(e,outfile);
+    }
+  }
+  
+  string[][] getMarkerInfoMatrix(Marker[] markers){
+    string[][] return_matrix;
+    foreach(Marker m;markers){
+      string[] row;
+      row ~= m.name;
+      row ~= m.chromosome.name;
+      row ~= to!string(m.position);
+      return_matrix ~= row;
+    }
+    return return_matrix;
   }
   
   void write_binary(in string filename){
@@ -79,9 +126,12 @@ class BinaryWriter(XType) {
     myWrite(b_footprint,f);
     uint[1] nmatrix = [ 2 ];
     myWrite(nmatrix,f);
-    write_matrix!(Phenotype!double)(data.phenotypes,f);
+    write_matrix!(Phenotype!double)(data.phenotypes, f, MatrixType.DOUBLEMATRIX);
     myWrite(b_footprint,f);
-    write_matrix!(Genotype!XType)(data.genotypes,f);
+    write_matrix!(Genotype!XType)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX);
+    myWrite(b_footprint,f);
+    auto markermatrix = getMarkerInfoMatrix(data.markers);
+    write_matrix!(string)(markermatrix,f, MatrixType.VARCHARMATRIX);
     myWrite(b_footprint,f);
     f.close();
   }

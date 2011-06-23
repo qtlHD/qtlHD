@@ -19,6 +19,8 @@
 *.bak
 *.new
 *.tmp
+*.map
+*.obj
 *.o
 *.so
 *.doc
