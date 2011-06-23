@@ -117,7 +117,7 @@ struct Genotype(T) {
     if(value != GENOTYPE_NA){
       return to!string(value);
     }else{
-      return "NA";
+      return "-";
     }
   }
 }

@@ -8,9 +8,9 @@ import qtl.core.primitives;
 import std.conv;
 import std.stdio;
 
-enum RIL { NA, A, B };
-enum F2  { NA, A, H, B, HorB, HorA }; 
-enum BC  { NA, A, H };
+enum RIL { NA = GENOTYPE_NA, A, B };
+enum F2  { NA = GENOTYPE_NA, A, H, B, HorB, HorA }; 
+enum BC  { NA = GENOTYPE_NA, A, H };
 
 Genotype!T set_genotype(T)(in string s) {
   Genotype!T g;
