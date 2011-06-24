@@ -101,16 +101,18 @@ class XbinReader(XType){
     int ncol = byteToInt(buffer[(skip+8)..(skip+12)]);
     int elem=0;
     int matrix_skip;
+    writefln("Matrix %d, type=%d, rows: %d, columns: %d", matrix, type, nrow, ncol);
     if(type == MatrixType.VARCHARMATRIX){
       for(int x=0;x<(nrow*ncol);x++){
         elem += byteToInt(buffer[(skip+12+(x*4))..(skip+16+(x*4))]);
       }
       matrix_skip = elem+(4*((nrow*ncol)-1));
+      writefln("Item size: %.2f, skip: %d", cast(double)elem/(nrow*ncol), matrix_skip);
     }else{
       elem = byteToInt(buffer[(skip+12)..(skip+16)]);
       matrix_skip = (nrow*ncol*elem);
+      writefln("Item size: %d, skip: %d", elem, matrix_skip);
     }
-    writefln("Matrix %d, type=%d\nrows: %d\tcols: %d\telementsize: %d skip: %d", matrix, type, nrow, ncol, elem, matrix_skip);
     return 16+matrix_skip;
   }
   
@@ -129,10 +131,8 @@ class XbinReader(XType){
     int skip = 9;
     for(int m=0; m<getNumberOfMatrices(inputbuffer); m++){
       skip += getMatrix(inputbuffer, m, skip);
-      if(!checkFootprint(inputbuffer[(skip)..(skip+2)])){
-        writeln("weird:" ~to!string(inputbuffer[skip-5..skip+5]));
-      }
-      skip += 2; // 
+      assert(checkFootprint(inputbuffer[(skip)..(skip+2)]),"File corrupted ? No footprint at:" ~to!string(skip));
+      skip += 2; //Skip the footprint
     }
   }
 }
