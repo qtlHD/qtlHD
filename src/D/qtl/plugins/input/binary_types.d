@@ -21,7 +21,7 @@
  **/
 module qtl.plugins.input.binary_types; 
  
- enum MatrixType : uint { 
+enum MatrixType : uint { 
   EMPTY = 0, 
   INTMATRIX = 1, 
   DOUBLEMATRIX = 2, 
@@ -29,6 +29,6 @@ module qtl.plugins.input.binary_types;
   VARCHARMATRIX = 4
 };
 
-byte[2] b_footprint = [ 0, 5 ];
-byte[3] b_version = [ 0, 0, 1 ];
+immutable byte[2] b_footprint = [ 0, 5 ];
+immutable byte[3] b_version = [ 0, 0, 1 ];
 

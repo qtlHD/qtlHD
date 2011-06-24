@@ -51,7 +51,7 @@ class XbinReader(XType){
   int nmarkers = 0;
   
   
-  bool checkFootprint(ubyte[] buffer){
+  bool checkFootprint(in ubyte[] buffer){
     if(b_footprint == buffer) return true;
     return false;
   }
@@ -99,9 +99,19 @@ class XbinReader(XType){
     int type = byteToInt(buffer[skip..skip+4]);
     int nrow = byteToInt(buffer[(skip+4)..(skip+8)]);
     int ncol = byteToInt(buffer[(skip+8)..(skip+12)]);
-    int elem = byteToInt(buffer[(skip+12)..(skip+16)]);
-    writefln("Matrix %d, type=%d\nrows: %d\tcols: %d\telementsize: %d skip: %d", matrix, type, nrow, ncol, elem,(nrow*ncol*elem));
-    return 16+(nrow*ncol*elem);
+    int elem=0;
+    int matrix_skip;
+    if(type == MatrixType.VARCHARMATRIX){
+      for(int x=0;x<(nrow*ncol);x++){
+        elem += byteToInt(buffer[(skip+12+(x*4))..(skip+16+(x*4))]);
+      }
+      matrix_skip = elem+(4*((nrow*ncol)-1));
+    }else{
+      elem = byteToInt(buffer[(skip+12)..(skip+16)]);
+      matrix_skip = (nrow*ncol*elem);
+    }
+    writefln("Matrix %d, type=%d\nrows: %d\tcols: %d\telementsize: %d skip: %d", matrix, type, nrow, ncol, elem, matrix_skip);
+    return 16+matrix_skip;
   }
   
   this(in string filename){
@@ -119,7 +129,9 @@ class XbinReader(XType){
     int skip = 9;
     for(int m=0; m<getNumberOfMatrices(inputbuffer); m++){
       skip += getMatrix(inputbuffer, m, skip);
-      assert(checkFootprint(inputbuffer[(skip)..(skip+2)]));
+      if(!checkFootprint(inputbuffer[(skip)..(skip+2)])){
+        writeln("weird:" ~to!string(inputbuffer[skip-5..skip+5]));
+      }
       skip += 2; // 
     }
   }

@@ -54,9 +54,15 @@ class BinaryWriter(XType) {
   private File f;
   CsvrReader!XType data;
  
-  void myWrite(T)(T x,File f,bool bin = true, MatrixType t = MatrixType.EMPTY){
+  void myWrite(T)(T[] x,File f, MatrixType t = MatrixType.EMPTY, bool bin = true){
     if(bin){
-      f.rawWrite(x);
+      if(t == MatrixType.FIXEDCHARMATRIX || t == MatrixType.VARCHARMATRIX){
+        foreach(T c;x){
+          f.write(c);
+        }
+      }else{
+        f.rawWrite(x);
+      }
     }else{
       f.writeln(x);
     }
@@ -92,7 +98,7 @@ class BinaryWriter(XType) {
     myWrite(type,outfile);
     myWrite(sizes,outfile);
     foreach(T[] e;towrite){
-      myWrite(e,outfile);
+      myWrite(e,outfile,t);
     }
   }
   
@@ -140,7 +146,7 @@ unittest {
   auto result = new BinaryWriter!RIL(data,outfn);
 }
 
-void main(string[] args){ 
+void main(string[] args){
   if(args.length != 3){
     writeln("Usage: convert in.csvr out.xbin");
   }else{
