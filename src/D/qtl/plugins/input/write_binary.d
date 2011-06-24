@@ -40,9 +40,11 @@ import std.stdio;
 import std.conv;
 import std.string;
 import std.path;
+import std.file;
 
 import qtl.plugins.input.binary_types;
 import qtl.plugins.input.read_csvr;
+import qtl.plugins.input.read_csv;
 
 /** 
  * Convert a simple CSVR file containing marker names, chromosome nrs, position, 
@@ -50,9 +52,9 @@ import qtl.plugins.input.read_csvr;
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
-class BinaryWriter(XType) {
+class BinaryWriter(Reader, XType) {
   private File f;
-  CsvrReader!XType data;
+  Reader data;
  
   void myWrite(T)(T[] x,File f, MatrixType t = MatrixType.EMPTY, bool bin = true){
     if(bin){
@@ -130,7 +132,7 @@ class BinaryWriter(XType) {
     f.close();
   }
 
-  this(CsvrReader!XType indata, in string outfilename){
+  this(Reader indata, in string outfilename){
     data = indata;
     write_binary(outfilename);
   }
@@ -143,7 +145,15 @@ unittest {
   auto outfn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin");
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
   auto data = new CsvrReader!RIL(infn);
-  auto result = new BinaryWriter!RIL(data,outfn);
+  auto result = new BinaryWriter!(CsvrReader!RIL,RIL)(data,outfn);
+  writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn), toKb(outfn));
+  
+  auto infn1 = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
+  auto outfn1 = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.xbin");
+  writeln("  - reading CSVR " ~ infn1 ~" to " ~ outfn1);
+  auto data1 = new ReadSimpleCSV!F2(infn1);
+  auto result1 = new BinaryWriter!(ReadSimpleCSV!F2,F2)(data1,outfn1);
+  writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn1), toKb(outfn1));
 }
 
 void main(string[] args){
@@ -152,7 +162,8 @@ void main(string[] args){
   }else{
     writeln("reading CSVR (" ~ args[1] ~ ") to XBIN (" ~ args[2] ~ ")");
     auto data = new CsvrReader!RIL(args[1]);
-    auto result = new BinaryWriter!RIL(data,args[2]);
+    auto result = new BinaryWriter!(CsvrReader!RIL,RIL)(data,args[2]);
+    writefln("Reduced from: %.2f Kb to %.2f Kb", toKb(args[1]), toKb(args[2]));
   }
 }
 

@@ -19,7 +19,9 @@
  * Written in the D Programming Language (http://www.digitalmars.com/d)
  *
  **/
-module qtl.plugins.input.binary_types; 
+module qtl.plugins.input.binary_types;
+
+import std.file;
  
 enum MatrixType : uint { 
   EMPTY = 0, 
@@ -32,3 +34,9 @@ enum MatrixType : uint {
 immutable byte[2] b_footprint = [ 0, 5 ];
 immutable byte[3] b_version = [ 0, 0, 1 ];
 
+/*
+ * Helper function to go from sizes in bytes to KBs
+ */
+double toKb(in string filename){
+  return cast(double) getSize(filename)/1024;
+}

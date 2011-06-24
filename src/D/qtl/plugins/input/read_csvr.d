@@ -82,7 +82,7 @@ class CsvrReader(XType){
       if(!check_individuals(items))throw new Exception("Not enough items on line " ~ to!(string)(linecount));
       if(is_phenotype(items)){
         //Phenotype
-        writeln("Phenotype: " ~ items[0]);
+        debug writeln("Phenotype: " ~ items[0]);
         Phenotype!double[] ps;
         phenotypenames ~= items[0];
         for(uint i=0;i<nindividuals;i++){
@@ -91,7 +91,7 @@ class CsvrReader(XType){
         phenotypes ~= ps;
         nphenotypes++;
       }else{
-        writeln("Marker: " ~ items[0]);
+        debug writeln("Marker: " ~ items[0]);
         //CHR
         if (!(items[1] in chromosomes)){
           chromosomes[items[1]] = get_chromosome_with_id(items[1]);
