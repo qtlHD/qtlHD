@@ -1,4 +1,13 @@
-R/qtlHD
+# R/qtlHD
 
-A re-implementation of R/qtl, with clean code, aimed at high-density,
-high-throughput data.
+R/qtlHD (or qtlHD) is a next generation implementation of
+[R/qtl][rqtl], aimed
+at high-density, high-throughput data, such as RNA-seq.
+
+## Contributors:
+
+Karl W. Broman
+Pjotr Prins
+Danny Arends
+
+[rqtl]: http://www.rqtl.org/
