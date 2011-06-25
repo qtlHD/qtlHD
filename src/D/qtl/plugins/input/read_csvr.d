@@ -129,4 +129,3 @@ unittest{
   auto data = new CsvrReader!RIL(infn);
 }
 
-void main() { }

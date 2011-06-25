@@ -1,7 +1,18 @@
+#! /usr/bin/rake
+#
+# Rake file for building qtlHD binaries, libraries and unit tests.
+#
 
+core_dfiles = Dir.glob("./qtl/core/*.d")
 
-file "readcsv" => %w[qtl/core/chromosome.d qtl/core/hmm_f2.d qtl/core/primitives.d qtl/core/genotype.d qtl/core/make_map.d qtl/core/scanone_hk.d qtl/core/hmm_bc.d qtl/core/map_functions.d qtl/core/hmm.d qtl/core/phenotype.d ] do
-  sh "dmd -unittest -ofread_csv qtl/core/*.d qtl/plugins/input/read_csv.d"
+file "readcsv" => core_dfiles do
+  sh "dmd -unittest -ofread_csv #{core_dfiles.join(" ")} qtl/plugins/input/read_csv.d test/main.d"
 end
+
+file "readcsvr" => core_dfiles do
+  sh "dmd -unittest -ofread_csvr #{core_dfiles.join(" ")} qtl/plugins/input/read_csvr.d qtl/plugins/input/read_csv.d test/main.d"
+end
+
+
 
 

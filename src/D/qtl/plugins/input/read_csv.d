@@ -170,4 +170,3 @@ unittest {
   assert(data.genotypes[2][4].value == F2.B);
 }
 
-void main() { }
