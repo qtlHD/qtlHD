@@ -2,17 +2,43 @@
 #
 # Rake file for building qtlHD binaries, libraries and unit tests.
 #
+# Examples:
+#
+#   rake                 # default build and test
+#   rake -T              # list all defined rake tasks
+#   rake build          
+#   rake run
+#   rake test
+#   rake read_csv        # CSV unit tests
+#   rake read_csvr       # CSVr unit tests
+
+PROG = 'read_csv'  # this will change 
 
 core_dfiles = Dir.glob("./qtl/core/*.d")
 
-file "readcsv" => core_dfiles do
+file "read_csv" => core_dfiles do
   sh "dmd -unittest -ofread_csv #{core_dfiles.join(" ")} qtl/plugins/input/read_csv.d test/main.d"
 end
 
-file "readcsvr" => core_dfiles do
+file "read_csvr" => core_dfiles do
   sh "dmd -unittest -ofread_csvr #{core_dfiles.join(" ")} qtl/plugins/input/read_csvr.d qtl/plugins/input/read_csv.d test/main.d"
 end
 
+desc "Default builds and tests #{PROG}"
+task :default => [:build, :test]
 
+desc "Build #{PROG}"
+task :build => [PROG]
 
+desc "Run #{PROG}"
+task :run => [PROG] do
+  print "Running #{PROG}\n"
+  sh "./#{PROG}" 
+end
+
+desc "Test #{PROG}"
+task :test => [PROG] do
+  print "Testing #{PROG}\n"
+  sh "./#{PROG}" 
+end
 
