@@ -18,10 +18,9 @@ import std.file;
 
 class XbinReader(XType){
   private File f;
-  int nindividuals = 0;
-  int nphenotypes = 0;
-  int nmarkers = 0;
-  
+  bool correct;
+  int[] fileversion;
+  int nmatrices;
   
   bool checkFootprint(in ubyte[] buffer){
     if(b_footprint == buffer) return true;
@@ -32,9 +31,11 @@ class XbinReader(XType){
     ubyte[] startprint = buffer[0..2];
     ubyte[] endprint = buffer[buffer.length-2..$];
     if(checkFootprint(startprint) && checkFootprint(endprint)){
-      return true;
+      correct = true;
+    }else{
+      correct = false;
     }
-    return false;
+    return correct;
   }
   
   int byteToInt(ubyte[] bits, bool little_endian = true ){
@@ -58,13 +59,13 @@ class XbinReader(XType){
   }
   
   int[] getVersion(ubyte[] buffer){
-    int[] fileversion = toType!int(buffer[2..5]);
+    fileversion = toType!int(buffer[2..5]);
     return fileversion;
   }
   
   int getNumberOfMatrices(ubyte[] buffer){
-    int nmatrix = byteToInt(buffer[5..9]);
-    return nmatrix;
+    nmatrices = byteToInt(buffer[5..9]);
+    return nmatrices;
   }
   
   int getMatrix(ubyte[] buffer, int matrix, int skip){
@@ -73,32 +74,39 @@ class XbinReader(XType){
     int ncol = byteToInt(buffer[(skip+8)..(skip+12)]);
     int elem=0;
     int matrix_skip;
-    writefln("Matrix %d, type=%d, rows: %d, columns: %d", matrix, type, nrow, ncol);
+    writef("      Matrix %d, type=%d, rows: %d, columns: %d", matrix, type, nrow, ncol);
     if(type == MatrixType.VARCHARMATRIX){
       for(int x=0;x<(nrow*ncol);x++){
         elem += byteToInt(buffer[(skip+12+(x*4))..(skip+16+(x*4))]);
       }
       matrix_skip = elem+(4*((nrow*ncol)-1));
-      writefln("Item size: %.2f, skip: %d", cast(double)elem/(nrow*ncol), matrix_skip);
+      writefln(", isize: %.2f, skip: %d", cast(double)elem/(nrow*ncol), matrix_skip);
     }else{
       elem = byteToInt(buffer[(skip+12)..(skip+16)]);
       matrix_skip = (nrow*ncol*elem);
-      writefln("Item size: %d, skip: %d", elem, matrix_skip);
+      writefln(", isize: %d, skip: %d", elem, matrix_skip);
     }
     return 16+matrix_skip;
   }
   
-  this(in string filename){
+  bool parseHeader(ubyte[] inputbuffer, bool verbose){
+    writeln("    File OK? " ~ to!string(checkBuffer(inputbuffer)));
+    writeln("    Version: " ~ to!string(getVersion(inputbuffer)));
+    writeln("    Matrices: " ~ to!string(getNumberOfMatrices(inputbuffer)));
+    assert(correct,"Footprint failed");
+    assert(fileversion[0]==0 && fileversion[1]==0 && fileversion[2]==1,"Version incorrect");
+    return correct;
+  }
+  
+  this(in string filename,in bool verbose = false){
     assert(getSize(filename) < uint.max);
     ubyte[] inputbuffer = new ubyte[cast(uint)getSize(filename)];
     auto f = new File(filename,"rb");
 
     f.rawRead(inputbuffer);
     //Header
-    writeln("Read: " ~ to!string(getSize(filename)) ~ " bytes");
-    writeln("File OK? " ~ to!string(checkBuffer(inputbuffer)));
-    writeln("Version: " ~ to!string(getVersion(inputbuffer)));
-    writeln("Matrices: " ~ to!string(getNumberOfMatrices(inputbuffer)));
+    writeln("    Read: " ~ to!string(getSize(filename)) ~ " bytes");
+    parseHeader(inputbuffer,verbose);
     //Loop through the matrices
     int skip = 9;
     for(int m=0; m<getNumberOfMatrices(inputbuffer); m++){
