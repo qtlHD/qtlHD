@@ -11,6 +11,8 @@ import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 
+import qtl.plugins.input.read_interface;
+
 import std.stdio;
 import std.conv;
 import std.string;
@@ -26,14 +28,8 @@ import std.path;
  * The file is parsed once on class instantiation. Elements can be queried.
  */
 
-class ReadSimpleCSV(XType) {
-
+class ReadSimpleCSV(XType) : GenericReader!XType {
   private File f;
-  string[] phenotypenames;
-  Marker[] markers;
-  Chromosome[string] chromosomes;
-  Phenotype!double[][] phenotypes;
-  Genotype!XType[][] genotypes;
   Individuals individuals;
 
   this(in string fn) {
