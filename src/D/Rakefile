@@ -6,12 +6,14 @@
 #
 #   rake                 # default build and test
 #   rake -T              # list all defined rake tasks
+#   rake clean
 #   rake build          
 #   rake run
 #   rake test
 #   rake csv2xgap        # build utility
 #   rake read_csv        # CSV unit tests
 #   rake read_csvr       # CSVr unit tests
+#   etc. etc. (see rake -T).
 
 require 'rake/clean'
 
@@ -79,9 +81,7 @@ task :test_xgap => [ 'write_xgapbin' ] do
 end
 
 desc "Test all"
-task :test_all => [ :read_csvr, :write_xgapbin, :read_csv ] do 
+task :test_all => [ :test_csvr, :test_xgap, :test ] do 
   sh "./read_csv"
-  sh "./read_csvr" 
-  sh "./write_xgapbin" 
 end
 
