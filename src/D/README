@@ -1,0 +1,7 @@
+This directory contains all the D code for qtlHD.
+
+To create binaries run rake. Rake tasks ar listed with
+
+  rake -T
+
+See also the Rakefile.
