@@ -24,6 +24,10 @@ file "read_csvr" => core_dfiles do
   sh "dmd -unittest -ofread_csvr #{core_dfiles.join(" ")} qtl/plugins/input/read_csvr.d qtl/plugins/input/read_csv.d test/main.d"
 end
 
+file "write_xgapbin" => core_dfiles do
+  sh "dmd -unittest -ofwrite_xgapbin #{core_dfiles.join(" ")} qtl/plugins/output/write_xgapbin.d qtl/plugins/input/read_csv.d qtl/plugins/input/read_csvr.d test/main.d"
+end
+
 # ---- Standard tasks
 
 desc "Default builds and tests #{PROG}"

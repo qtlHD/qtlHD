@@ -8,6 +8,7 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
+import qtl.core.xgap;
 
 import std.stdio;
 import std.conv;
@@ -15,7 +16,6 @@ import std.string;
 import std.path;
 import std.file;
 
-import qtl.plugins.input.binary_types;
 import qtl.plugins.input.read_csvr;
 import qtl.plugins.input.read_csv;
 
@@ -129,14 +129,4 @@ unittest {
   writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn1), toKb(outfn1));
 }
 
-void main(string[] args){
-  if(args.length != 3){
-    writeln("Usage: convert in.csvr out.xbin");
-  }else{
-    writeln("reading CSVR (" ~ args[1] ~ ") to XBIN (" ~ args[2] ~ ")");
-    auto data = new CsvrReader!RIL(args[1]);
-    auto result = new BinaryWriter!(CsvrReader!RIL,RIL)(data,args[2]);
-    writefln("Reduced from: %.2f Kb to %.2f Kb", toKb(args[1]), toKb(args[2]));
-  }
-}
 
