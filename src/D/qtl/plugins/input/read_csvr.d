@@ -2,7 +2,7 @@
  * Read CSVR format
  **/
 
-module qtl.plugins.input.read_CSVr;
+module qtl.plugins.input.read_csvr;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
@@ -16,7 +16,7 @@ import std.path;
 
 /** 
  * Loads a simple CSVR file containing marker names, chromosome nrs, position, 
- * phenotype and genotype - such as the multitrait.CSVr file used in R/qtl.
+ * phenotype and genotype - such as the multitrait.csvr file used in R/qtl.
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
