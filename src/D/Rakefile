@@ -42,7 +42,7 @@ file "write_xgapbin" => core_dfiles_list do
 end
 
 file "csv2xgap" => core_dfiles_list + ["qtl/util/csv2xgap.d"] do
-  sh "dmd -ofcsv2xgap #{core_dfiles} qtl/plugins/output/write_xgapbin.d qtl/plugins/input/read_csv.d qtl/plugins/input/read_csvr.d"
+  sh "dmd -ofcsv2xgap #{core_dfiles} qtl/util/csv2xgap.d qtl/plugins/output/write_xgapbin.d qtl/plugins/input/read_interface.d qtl/plugins/input/read_csv.d qtl/plugins/input/read_csvr.d"
 end
 
 # ---- Standard tasks
