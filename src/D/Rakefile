@@ -16,7 +16,7 @@
 require 'rake/clean'
 
 PROG = 'read_csv'  # this will change 
-BINARIES = [PROG, 'csv2xgap']
+BINARIES = [PROG, :csv2xgap ]
 
 core_dfiles = Dir.glob("./qtl/core/*.d")
 
@@ -37,7 +37,7 @@ file "write_xgapbin" => core_dfiles do
   sh "dmd -unittest -ofwrite_xgapbin #{core_dfiles.join(" ")} qtl/plugins/output/write_xgapbin.d qtl/plugins/input/read_csv.d qtl/plugins/input/read_csvr.d test/main.d"
 end
 
-file "csv2xgap" => core_dfiles << "qtl/util/csv2xgap.d" do
+file "csv2xgap" => core_dfiles + ["qtl/util/csv2xgap.d"] do
   sh "dmd -ofcsv2xgap #{core_dfiles.join(" ")} qtl/plugins/output/write_xgapbin.d qtl/plugins/input/read_csv.d qtl/plugins/input/read_csvr.d"
 end
 
@@ -47,7 +47,7 @@ desc "Default builds and tests #{PROG}"
 task :default => [:build, :test]
 
 desc "Build default binaries"
-task :build => BINARIES
+task :build => PROG
 
 desc "Run #{PROG}"
 task :run => [PROG] do

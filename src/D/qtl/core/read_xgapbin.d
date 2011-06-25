@@ -112,7 +112,7 @@ class XbinReader(XType){
 unittest{
   writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
-  auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin");
+  auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","multitrait.xbin");
   writeln("  - reading XBIN " ~ infn);
   auto data = new XbinReader!RIL(infn);
 }
