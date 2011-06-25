@@ -9,6 +9,7 @@
 #   rake build          
 #   rake run
 #   rake test
+#   rake csv2xgap        # build utility
 #   rake read_csv        # CSV unit tests
 #   rake read_csvr       # CSVr unit tests
 
@@ -28,13 +29,17 @@ file "write_xgapbin" => core_dfiles do
   sh "dmd -unittest -ofwrite_xgapbin #{core_dfiles.join(" ")} qtl/plugins/output/write_xgapbin.d qtl/plugins/input/read_csv.d qtl/plugins/input/read_csvr.d test/main.d"
 end
 
+file "csv2xgap" => core_dfiles << "qtl/util/csv2xgap.d" do
+  sh "dmd -ofcsv2xgap #{core_dfiles.join(" ")} qtl/plugins/output/write_xgapbin.d qtl/plugins/input/read_csv.d qtl/plugins/input/read_csvr.d"
+end
+
 # ---- Standard tasks
 
 desc "Default builds and tests #{PROG}"
 task :default => [:build, :test]
 
-desc "Build #{PROG}"
-task :build => [PROG]
+desc "Build default binaries"
+task :build => [PROG, :csv2xgap ]
 
 desc "Run #{PROG}"
 task :run => [PROG] do
@@ -47,6 +52,9 @@ task :test => [PROG] do
   print "Testing #{PROG}\n"
   sh "./#{PROG}" 
 end
+
+# ---- Utilities
+
 
 # ---- Unit tests
 
