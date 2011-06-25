@@ -1,5 +1,5 @@
 /**
- * \file read_csvr.d - Plugin for reading CSVR files
+ * \file read_CSVr.d - Plugin for reading CSVR files
  *
  * Copyright (c) 2011 Danny Arends
  * Part of the qtlHD package
@@ -19,16 +19,16 @@
  * Written in the D Programming Language (http://www.digitalmars.com/d)
  *
  * - Mac / Linux Unittest:
- * dmd -unittest qtl/plugins/input/read_csvr.d qtl/core/*.d  
+ * dmd -unittest qtl/plugins/input/read_CSVr.d qtl/core/*.d  
  *
  * - Win32 (No circular dependancies, or multiple definitions of main allowed):
  *
  * dmd -run cdc.d -lib qtl/core/ -ofCore.lib
- * dmd -run cdc.d -unittest qtl/plugins/input/read_csvr.d Core.lib
+ * dmd -run cdc.d -unittest qtl/plugins/input/read_CSVr.d Core.lib
  *
  **/
 
-module qtl.plugins.input.read_csvr;
+module qtl.plugins.input.read_CSVr;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
@@ -42,11 +42,11 @@ import std.path;
 
 /** 
  * Loads a simple CSVR file containing marker names, chromosome nrs, position, 
- * phenotype and genotype - such as the multitrait.csvr file used in R/qtl.
+ * phenotype and genotype - such as the multitrait.CSVr file used in R/qtl.
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
-class CsvrReader(XType){
+class CSVrReader(XType){
   private File f;
   int nindividuals = 0;
   int nphenotypes = 0;
@@ -72,7 +72,7 @@ class CsvrReader(XType){
    return(items[1] == "" && items[2] == "");
   }
   
-  void read_csvr(in string filename){
+  void read_CSVr(in string filename){
     f = File(filename,"r");
     string line;
     int linecount;
@@ -117,7 +117,7 @@ class CsvrReader(XType){
   }
 
   this(in string infilename){
-    read_csvr(infilename);
+    read_CSVr(infilename);
   }
 }
 
@@ -126,6 +126,6 @@ unittest{
   alias std.path.join join;
   auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.csvr");
   writeln("  - reading CSVR " ~ infn);
-  auto data = new CsvrReader!RIL(infn);
+  auto data = new CSVrReader!RIL(infn);
 }
 
