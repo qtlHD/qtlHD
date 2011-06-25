@@ -13,9 +13,17 @@
 #   rake read_csv        # CSV unit tests
 #   rake read_csvr       # CSVr unit tests
 
+require 'rake/clean'
+
 PROG = 'read_csv'  # this will change 
+BINARIES = [PROG, 'csv2xgap']
 
 core_dfiles = Dir.glob("./qtl/core/*.d")
+
+CLEAN.include('*.o')
+CLEAN.include('test.*')
+CLEAN.include(%w[ csv2xgap read_csv read_csvr test.xbin write_xgapbin])
+
 
 file "read_csv" => core_dfiles do
   sh "dmd -unittest -ofread_csv #{core_dfiles.join(" ")} qtl/plugins/input/read_csv.d test/main.d"
@@ -39,7 +47,7 @@ desc "Default builds and tests #{PROG}"
 task :default => [:build, :test]
 
 desc "Build default binaries"
-task :build => [PROG, :csv2xgap ]
+task :build => BINARIES
 
 desc "Run #{PROG}"
 task :run => [PROG] do
