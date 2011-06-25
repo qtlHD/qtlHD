@@ -1,0 +1,7 @@
+
+
+file "readcsv" => %w[qtl/core/chromosome.d qtl/core/hmm_f2.d qtl/core/primitives.d qtl/core/genotype.d qtl/core/make_map.d qtl/core/scanone_hk.d qtl/core/hmm_bc.d qtl/core/map_functions.d qtl/core/hmm.d qtl/core/phenotype.d ] do
+  sh "dmd -unittest -ofread_csv qtl/core/*.d qtl/plugins/input/read_csv.d"
+end
+
+
