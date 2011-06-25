@@ -24,6 +24,8 @@ file "read_csvr" => core_dfiles do
   sh "dmd -unittest -ofread_csvr #{core_dfiles.join(" ")} qtl/plugins/input/read_csvr.d qtl/plugins/input/read_csv.d test/main.d"
 end
 
+# ---- Standard tasks
+
 desc "Default builds and tests #{PROG}"
 task :default => [:build, :test]
 
