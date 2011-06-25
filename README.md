@@ -1,13 +1,16 @@
 # R/qtlHD
 
-R/qtlHD (or qtlHD) is a next generation implementation of
-[R/qtl][rqtl], aimed
-at high-density, high-throughput data, such as RNA-seq.
+R/qtlHD (or qtlHD) is the next generation implementation of
+[R/qtl][rqtl]. qtlHD is aimed at QTL analysis of high-density,
+high-throughput data; for example for RNA-seq.
 
 ## Compiling qtlHD
 
-To compile qtlHD a recent version of the [D compiler][D] is needed.
-After intallation try the build and test script:
+To compile qtlHD a recent edition of the [D compiler][D] is needed:
+
+    DMD32 D Compiler v2.053
+
+After D installation, try the build and test script:
 
     ./test_all.sh
 
