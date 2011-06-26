@@ -2,7 +2,7 @@
  * Map function module
  **/
 
-module qtl.core.mapFunctions;
+module qtl.core.map_functions;
 
 import std.stdio;
 import std.math;

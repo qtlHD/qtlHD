@@ -7,7 +7,7 @@ module qtl.core.hmm;
 // things I think I really need
 import qtl.core.primitives;
 import qtl.core.genotype;
-import qtl.core.mapFunctions;
+import qtl.core.map_functions;
 import std.stdio;
 import std.math;
 import qtl.core.hmm_f2;
