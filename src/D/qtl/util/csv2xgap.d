@@ -1,5 +1,5 @@
 /**
- * Program for converting CSV/CSVr file to XGAP and XGAP binary (xbin)
+ * Program for converting CSV/CSVr file formats to XGAP and XGAP binary (xbin)
  */
 
 module qtl.util.csv2xgap;
@@ -21,15 +21,17 @@ import std.path;
 import std.file;
 
 void print_help(){
-    writeln("Usage: convert type in.csv out.xbin");
-    writeln("Supported input files: CSV, CSVr");
-    writeln("Supported cross types: RIL, F2, BC");
+    writeln("Usage: cvs2xgap type infile outfile");
+    writeln("  infile: CSV (.csv), CSVr (.csvr)");
+    writeln("  type:   RIL, F2, BC");
     writeln("  e.g. csv2xgap RIL ../../test/data/input/multitrait.csvr multitrait.xbin");
-    writeln("  e.g. csv2xgap F2 ../../test/data/input/hyper.csv hyper.xbin");
+    writeln("       csv2xgap F2 ../../test/data/input/hyper.csv hyper.xbin");
 }
+
 /*
  * Function that creates a reader (csv or csvr) and provides a template for using different genotype enums
  */
+
 void read_type(XType)(string filein, string fileout){
   if(filein.lastIndexOf(".") > 0){
     string extension = filein[filein.lastIndexOf(".")+1..$];
