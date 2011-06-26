@@ -13,9 +13,9 @@ import std.exception;
 
 // marginal genotype probability
 double initBC(BC true_gen) {
-  enforce(true_gen == BC.A || true_gen == BC.H,
-	 "true_gen not among the possible true genotypes");
-  return(-LN2);
+  if (true_gen == BC.A || true_gen == BC.H)
+    return(-LN2);
+	throw new Exception("true_gen not among the possible true genotypes");
 }
 
 unittest {
