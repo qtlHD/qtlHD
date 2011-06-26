@@ -8,14 +8,13 @@ import qtl.core.genotype;
 import qtl.core.primitives;
 import qtl.plugins.input.read_csv;
 import std.math, std.stdio, std.path;
+import std.exception;
+
 
 // marginal genotype probability
-double initBC(BC true_gen)
-in {
-  assert(true_gen == BC.A || true_gen == BC.H,
+double initBC(BC true_gen) {
+  enforce(true_gen == BC.A || true_gen == BC.H,
 	 "true_gen not among the possible true genotypes");
-}
-body {
   return(-LN2);
 }
 
