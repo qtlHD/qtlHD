@@ -2,3 +2,5 @@ csv2xgap
 read_csv
 read_csvr
 write_xgapbin
+*.c
+*.h
