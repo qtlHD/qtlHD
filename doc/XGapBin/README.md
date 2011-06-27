@@ -3,8 +3,8 @@ Xgap Binary Format
 Version: 0.0.1
 
 Xgap binary is a format to store genotype phenotype and other information. The format saves matrices of different types into a single binary file.
-A block structure separated by footprints is used as easy consistency check of the file, and provides a way to load specific partys of the data from 
-file to memory.
+A block structure separated by footprints is used to structure the file. This structure allows easy consistency checking of the file, and provides 
+a way to load specific parts of the data from file to memory.
 
 Header
 ------
