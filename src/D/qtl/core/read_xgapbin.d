@@ -39,15 +39,7 @@ class XbinReader(XType){
   }
   
   int byteToInt(ubyte[] bits, bool little_endian = true ){
-    int result = 0;
-    if(little_endian){
-      for(int n = bits.length-1; n >= 0; n--)
-        result = (result << 8) +bits[ n ];
-    }else{
-      for(int n = 0; n < bits.length; n++)
-        result = (result << 8) +bits[ n ];
-    }
-    return result;
+    return *cast(int*)bits;
   }
   
   double byteToDouble(ubyte[] bits){
