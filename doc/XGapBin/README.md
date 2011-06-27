@@ -46,5 +46,5 @@ not a single entry but a list of entries.
 Binary Cross Object
 -------------------
 Converting an existsing cross object (stored as CSV or CSVr) can be done using the csv2xgap utility. This will create an XGAP 
-binary file with 3 matrices: the first one storing: phenotype information in a DOUBLEMATRIX, next the genotypes using a FIXEDCHARMATRIX.
-Last is the marker map, stored as a VARCHARMATRIX each row containing markername, chromosome, location.
+binary file with 3 matrices. The first matrix stores: phenotype information in a DOUBLEMATRIX, next is the genotype information 
+using a FIXEDCHARMATRIX. Last is the marker map, stored as a VARCHARMATRIX each row containing markername, chromosome, location.
