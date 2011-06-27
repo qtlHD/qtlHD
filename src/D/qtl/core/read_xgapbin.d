@@ -108,7 +108,7 @@ class XbinReader(XType){
     writeln("    Read: " ~ to!string(getSize(filename)) ~ " bytes");
     parseHeader(inputbuffer,verbose);
     //Loop through the matrices
-    int skip = 9;
+    int skip = 11;
     for(int m=0; m<getNumberOfMatrices(inputbuffer); m++){
       skip += getMatrix(inputbuffer, m, skip);
       assert(checkFootprint(inputbuffer[(skip)..(skip+2)]),"File corrupted ? No footprint at:" ~to!string(skip));

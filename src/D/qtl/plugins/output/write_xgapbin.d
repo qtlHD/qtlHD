@@ -95,6 +95,7 @@ class BinaryWriter(Reader, XType) {
     myWrite(b_version,f);
     uint[1] nmatrix = [ 3 ];
     myWrite(nmatrix,f);
+    myWrite(b_footprint,f);
     write_matrix!(Phenotype!double)(data.phenotypes, f, MatrixType.DOUBLEMATRIX);
     myWrite(b_footprint,f);
     write_matrix!(Genotype!XType)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX);
