@@ -10,17 +10,20 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.xgap;
 
+import qtl.plugins.input.read_interface;
+
 import std.stdio;
 import std.conv;
 import std.string;
 import std.path;
 import std.file;
 
-class XbinReader(XType){
+class XbinReader(XType) : GenericReader!XType{
   private File f;
-  bool correct;
-  int[] fileversion;
-  int nmatrices;
+  bool correct;       //Is the file correct?
+  int[] fileversion;  //Version of the file
+  int nmatrices;      //Number of matrices
+  int[] skips;        //Stores the matrix skips, to get to the start of a matrix
   
   bool checkFootprint(in ubyte[] buffer){
     if(b_footprint == buffer) return true;
@@ -36,14 +39,6 @@ class XbinReader(XType){
       correct = false;
     }
     return correct;
-  }
-  
-  int byteToInt(ubyte[] bits, bool little_endian = true ){
-    return *cast(int*)bits;
-  }
-  
-  double byteToDouble(ubyte[] bits){
-    return *cast(double*)bits;
   }
   
   T[] toType(T)(ubyte[] buffer){
@@ -64,7 +59,10 @@ class XbinReader(XType){
     return nmatrices;
   }
   
-  int getMatrix(ubyte[] buffer, int matrix, int skip){
+ /*
+  *Parses the matrix header, reading type, dimensions and element sizes
+  */
+  int parseMatrix(ubyte[] buffer, int matrix, int skip){
     int type = byteToInt(buffer[skip..skip+4]);
     int nrow = byteToInt(buffer[(skip+4)..(skip+8)]);
     int ncol = byteToInt(buffer[(skip+8)..(skip+12)]);
@@ -85,7 +83,10 @@ class XbinReader(XType){
     return 16+matrix_skip;
   }
   
-  bool parseHeader(ubyte[] inputbuffer, bool verbose){
+ /*
+  *Parses the file header, versions and # of matrices
+  */
+  bool parseFileHeader(ubyte[] inputbuffer, bool verbose){
     writeln("    File OK? " ~ to!string(checkBuffer(inputbuffer)));
     writeln("    Version: " ~ to!string(getVersion(inputbuffer)));
     writeln("    Matrices: " ~ to!string(getNumberOfMatrices(inputbuffer)));
@@ -101,11 +102,12 @@ class XbinReader(XType){
     f.rawRead(inputbuffer);
     //Header
     writeln("    Read: " ~ to!string(getSize(filename)) ~ " bytes");
-    parseHeader(inputbuffer,verbose);
+    parseFileHeader(inputbuffer,verbose);
     //Loop through the matrices
     int skip = 11;
     for(int m=0; m<getNumberOfMatrices(inputbuffer); m++){
-      skip += getMatrix(inputbuffer, m, skip);
+      skips ~= skip;
+      skip += parseMatrix(inputbuffer, m, skip);
       assert(checkFootprint(inputbuffer[(skip)..(skip+2)]),"File corrupted ? No footprint at:" ~to!string(skip));
       skip += 2; //Skip the footprint
     }
@@ -118,5 +120,8 @@ unittest{
   auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","multitrait.xbin");
   writeln("  - reading XBIN " ~ infn);
   auto data = new XbinReader!RIL(infn);
+  assert(data.correct == true);
+  assert(data.nmatrices == 3);
+  assert(data.getVersion() == [0,0,1]);
 }
 

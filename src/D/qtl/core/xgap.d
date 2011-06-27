@@ -23,3 +23,17 @@ immutable byte[3] b_version = [ 0, 0, 1 ];
 double toKb(in string filename){
   return cast(double) getSize(filename)/1024;
 }
+
+/*
+ * Helper function to go from byte[] to int
+ */
+int byteToInt(ubyte[] bits, bool little_endian = true ){
+  return *cast(int*)bits;
+}
+
+/*
+ * Helper function to go from byte[] to double
+ */  
+double byteToDouble(ubyte[] bits){
+  return *cast(double*)bits;
+}
