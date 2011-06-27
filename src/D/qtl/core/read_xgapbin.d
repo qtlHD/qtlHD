@@ -51,7 +51,7 @@ class XbinReader(XType){
   }
   
   double byteToDouble(ubyte[] bits){
-    return cast(double)bits;
+    return *cast(double*)bits;
   }
   
   T[] toType(T)(ubyte[] buffer){
@@ -106,7 +106,6 @@ class XbinReader(XType){
     assert(getSize(filename) < uint.max);
     ubyte[] inputbuffer = new ubyte[cast(uint)getSize(filename)];
     auto f = new File(filename,"rb");
-    writeln("    Prereading");
     f.rawRead(inputbuffer);
     //Header
     writeln("    Read: " ~ to!string(getSize(filename)) ~ " bytes");
