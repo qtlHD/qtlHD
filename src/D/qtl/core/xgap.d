@@ -25,14 +25,14 @@ double toKb(in string filename){
 }
 
 /*
- * Helper function to go from byte[] to int
+ * Helper function to go from ubyte[] to int
  */
 int byteToInt(ubyte[] bits, bool little_endian = true ){
   return *cast(int*)bits;
 }
 
 /*
- * Helper function to go from byte[] to double
+ * Helper function to go from ubyte[] to double
  */  
 double byteToDouble(ubyte[] bits){
   return *cast(double*)bits;
