@@ -18,12 +18,22 @@ import std.string;
 import std.path;
 import std.file;
 
+struct Matrix{
+  MatrixType type;
+  int skip;
+  int nrow;
+  int ncol;
+  int[] lengths;
+}
+
 class XbinReader(XType) : GenericReader!XType{
   private File f;
   bool correct;       //Is the file correct?
   int[] fileversion;  //Version of the file
   int nmatrices;      //Number of matrices
   int[] skips;        //Stores the matrix skips, to get to the start of a matrix
+  Matrix[] matrices;
+  ubyte[] inputbuffer;
   
   bool checkFootprint(in ubyte[] buffer){
     if(b_footprint == buffer) return true;
@@ -59,6 +69,43 @@ class XbinReader(XType) : GenericReader!XType{
     return nmatrices;
   }
   
+  void loadPhenotypes(Matrix m){
+    for(int c=0;c<m.ncol;c++){
+      Phenotype!double[] ps;
+      for(int r=0;r<m.nrow;r++){
+        string pheno = to!string(byteToDouble(inputbuffer[m.skip+(r*c)*m.lengths[0]..m.skip+m.lengths[0]+(r*c)*m.lengths[0]]));
+        writefln("%d %d %s",r,c,pheno);
+        ps ~= set_phenotype!double(pheno);
+      }
+      phenotypes ~= ps;
+    }
+  }
+
+  void loadGenotypes(Matrix m){
+    for(int r=0;r<m.nrow;r++){
+      Genotype!XType[] gs;
+        for(int c=0;c<m.ncol;c++){  
+        string geno = to!string(*cast(char*)inputbuffer[m.skip+(r*c)*m.lengths[0]..m.skip+m.lengths[0]+(r*c)*m.lengths[0]]);
+        //writefln("%d %d %s",r,c,geno);
+        gs ~= set_genotype!XType(geno);
+      }
+      genotypes ~= gs;
+    }
+  }
+  
+  void loadMarkers(Matrix m){
+    int sofar=0;
+    for(int r=0;r<m.nrow;r++){
+      for(int c=0;c<m.ncol;c++){
+        int s = m.lengths[(r*m.ncol)+c];
+        string pheno = byteToString(inputbuffer[m.skip+sofar..m.skip+sofar+s]);
+        writefln("%d %d %s",r,c,pheno);
+        sofar += s;
+      }
+    }
+  }
+
+  
  /*
   *Parses the matrix header, reading type, dimensions and element sizes
   */
@@ -66,27 +113,36 @@ class XbinReader(XType) : GenericReader!XType{
     int type = byteToInt(buffer[skip..skip+4]);
     int nrow = byteToInt(buffer[(skip+4)..(skip+8)]);
     int ncol = byteToInt(buffer[(skip+8)..(skip+12)]);
+    
+    int[] lengths;
     int elem=0;
     int matrix_skip;
+    int length_skip=0;
     writef("      Matrix %d, type=%d, rows: %d, columns: %d", matrix, type, nrow, ncol);
-    if(type == MatrixType.VARCHARMATRIX){
+    if(cast(MatrixType)type == MatrixType.VARCHARMATRIX){
       for(int x=0;x<(nrow*ncol);x++){
-        elem += byteToInt(buffer[(skip+12+(x*4))..(skip+16+(x*4))]);
+        int l = byteToInt(buffer[(skip+12+(x*4))..(skip+16+(x*4))]);
+        lengths ~= l;
+        elem += l;
       }
       matrix_skip = elem+(4*((nrow*ncol)-1));
+      length_skip = (4*((nrow*ncol)-1));
       writefln(", isize: %.2f, skip: %d", cast(double)elem/(nrow*ncol), matrix_skip);
     }else{
-      elem = byteToInt(buffer[(skip+12)..(skip+16)]);
+      int l = byteToInt(buffer[(skip+12)..(skip+16)]);
+      lengths ~= l;
+      elem = l;
       matrix_skip = (nrow*ncol*elem);
       writefln(", isize: %d, skip: %d", elem, matrix_skip);
     }
+    matrices ~= Matrix(cast(MatrixType)type,skip+16+length_skip,nrow,ncol,lengths);
     return 16+matrix_skip;
   }
   
  /*
   *Parses the file header, versions and # of matrices
   */
-  bool parseFileHeader(ubyte[] inputbuffer, bool verbose){
+  bool parseFileHeader(bool verbose){
     writeln("    File OK? " ~ to!string(checkBuffer(inputbuffer)));
     writeln("    Version: " ~ to!string(getVersion(inputbuffer)));
     writeln("    Matrices: " ~ to!string(getNumberOfMatrices(inputbuffer)));
@@ -97,12 +153,13 @@ class XbinReader(XType) : GenericReader!XType{
   
   this(in string filename,in bool verbose = false){
     assert(getSize(filename) < uint.max);
-    ubyte[] inputbuffer = new ubyte[cast(uint)getSize(filename)];
+    inputbuffer = new ubyte[cast(uint)getSize(filename)];
     auto f = new File(filename,"rb");
     f.rawRead(inputbuffer);
     //Header
     writeln("    Read: " ~ to!string(getSize(filename)) ~ " bytes");
-    parseFileHeader(inputbuffer,verbose);
+    parseFileHeader(verbose);
+
     //Loop through the matrices
     int skip = 11;
     for(int m=0; m<getNumberOfMatrices(inputbuffer); m++){
@@ -122,6 +179,9 @@ unittest{
   auto data = new XbinReader!RIL(infn);
   assert(data.correct == true);
   assert(data.nmatrices == 3);
-  assert(data.getVersion() == [0,0,1]);
+  assert(data.fileversion == [0,0,1]);
+  data.loadPhenotypes(data.matrices[0]);
+  data.loadGenotypes(data.matrices[1]);
+  data.loadMarkers(data.matrices[2]);
 }
 

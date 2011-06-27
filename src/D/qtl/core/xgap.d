@@ -5,6 +5,7 @@
 module qtl.core.xgap;
 
 import std.file;
+import std.conv;
  
 enum MatrixType : uint { 
   EMPTY = 0, 
@@ -36,4 +37,16 @@ int byteToInt(ubyte[] bits, bool little_endian = true ){
  */  
 double byteToDouble(ubyte[] bits){
   return *cast(double*)bits;
+}
+
+/*
+ * Helper function to go from ubyte[] to string
+ */  
+string byteToString(ubyte[] bits){
+  char[] r;
+  foreach(ubyte b;bits){
+    r ~= cast(char)b;
+  }
+  r ~= '\0';
+  return to!string(r);
 }
