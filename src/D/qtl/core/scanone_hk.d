@@ -1,10 +1,7 @@
 /**
  * Module for Haley-Knott scanone (single QTL mapping by HK regression).
  *
- * Run unit tests with:
- *
- *   rm read_csv ; dmd -unittest qtl/plugins/input/read_csv.d qtl/core/*.d ; time ./read_csv
- * 
+ * NOTE: this module is under development
  */
 
 module qtl.core.scaneone_hk;
@@ -73,19 +70,18 @@ interface MContained {
 
 template Scanner(T) {
 
-        class Mref : MContained {
-          Genotype!T[][] genotypes;
-        }
+  class Mref : MContained {
+    Genotype!T[][] genotypes;
+  }
 
-        MappedQTLs scanone_hk(Mref[] markers) /*
-                              in PhenotypeContainer phenotypes, 
-                              in Individual[] individuals,
-                              in CovariateContainer covariates) */
-        {
-          return null;
-        }
+  MappedQTLs scanone_hk(Mref[] markers) /*
+                        in PhenotypeContainer phenotypes, 
+                        in Individual[] individuals,
+                        in CovariateContainer covariates) */
+  {
+    return null;
+  }
 }
-
 
 unittest {
   writeln("Unit test " ~ __FILE__);

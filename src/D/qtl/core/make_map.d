@@ -9,11 +9,14 @@ import std.stdio;
 import std.conv;
 import std.string;
 import std.path;
+import std.exception;
 
 import qtl.core.primitives;
 import qtl.core.genotype;
 
 /**
+ * This function is incomplete FIXME
+ *
  * The make_fixed_map function creates a new map for a chromosome, and 
  * inserts Pseudo markers at fixed positions.
  *
@@ -25,27 +28,28 @@ import qtl.core.genotype;
  * off_end:        Max distance (in cM) past the terminal marker
  */
 
-Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0)
-  in {
-    assert(step>0);
-    assert(off_end>=0);
-  }
-  body {
+Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0) {
+  enforce(step>0);
+  enforce(off_end>=0);
   // With R/qtl, if step is zero, the purpose was to add a marker if there is
-  // only one.  This is no longer the case, use add_marker_if_single instead.
-  // Adding markers (at off_end) with step=0 is not supported here. That 
-  // should also be a separate function.
-  auto new_markers = new Ms(markers);
+  // only one. Now, use the function add_marker_if_single instead. Adding
+  // markers (at off_end) with step=0 is not supported here. That should also
+  // be a separate function.
+  // auto new_markers = new Ms(markers);
+  auto sorted_markers = markers.sort();
   // FIXME sort markers
   if (markers.list.length > 1) {
     auto first_marker = new_markers.list[0];
     auto minpos = first_marker.get_position();
     auto last_marker = new_markers.list[$];
     auto maxpos = last_marker.get_position();
+    // between minpos and maxpos add markers at fixed
+    // positions
     for (auto npos = minpos ; npos < maxpos ; npos += step) {
       new_markers.add(new PseudoMarker(npos));
     }
-    // only one marker beyond each end
+    // always add one marker beyond each end (no matter
+    // the fixed position distance)
     new_markers.add(new PseudoMarker(minpos - off_end));
     new_markers.add(new PseudoMarker(maxpos + off_end));
     // FIXME sort markers
@@ -54,6 +58,10 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
   }
   return new_markers;
 }
+
+/**
+ * NYI FIXME
+ */
 
 Ms add_stepped_markers_sex(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0)
 {
@@ -222,16 +230,12 @@ Ms add_stepped_markers_sex(Ms)(in Ms markers, Position step=1.0, Position off_en
 
 /**
  * Add a marker if there is only one. Ms is a list of markers, and 
- * this function works as long as there is a markers.list and an 
- * markers.add function.
- *
+ * this function works as long as there markers.list and a
+ * markers.add function are defined in the Ms type(!)
  */
 
-Ms add_one_if_single_marker(Ms)(in Ms markers, Position step_right=1.0)
-in {
-    assert(step_right>0);
-  }
-body {
+Ms add_one_if_single_marker(Ms)(in Ms markers, Position step_right=1.0) {
+  enforce(step_right>0);
   auto new_markers = new Ms(markers);
   if (markers.list.length == 1) {
     // create a single new marker to the right
@@ -250,12 +254,9 @@ body {
  *            marker.position-off_end to marker.position+off_end. 
  */
 
-Ms add_stepped_if_single_marker(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0)
-in {
-    assert(step>0);
-    assert(off_end>=0);
-  }
-body {
+Ms add_stepped_if_single_marker(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0) {
+  enforce(step>0);
+  enforce(off_end>=0);
   auto new_markers = new Ms(markers);
   if (markers.list.length == 1) {
     auto marker = new_markers.list[0];
@@ -296,5 +297,11 @@ unittest {
 
   auto new_markers2 = add_stepped_if_single_marker(markers,1.0,5.0);
   assert(new_markers2.list.length == 11, "Length is " ~ to!string(new_markers2.list.length));
+  // --- test autosome
+  auto markers2 = new Markers!(Marker)();
+  markers2.list ~= new Marker(10.0);
+  markers2.list ~= new Marker(20.0);
+  markers2.list ~= new Marker(30.0);
+  auto result = add_stepped_markers_autosome(markers2,1.0,1.0);
 }
 
