@@ -29,15 +29,15 @@ Xgap bin stores matrices using the XGAP defined data type, the possible types to
  - FIXEDCHARMATRIX - Matrix of characters with a fixed length (e.g. "AA","AB","BB" Genotype matrices)
  - VARCHARMATRIX - Matrix of any size strings
  
-In the XGAP binary format all matrices are surrounded by footprints (see above), followed by the type encoded by 4 bytes.
+In the XGAP binary format all matrices are surrounded by footprints (see above), followed by the type encoded by 4 bytes. Note: The first 
+footprint is not printed, this is because the previous matrix/header already printed a footprint:
 
- - byte[2] footprint
  - byte[4] type
  - byte[4] nrow - number of row
  - byte[4] ncol - number of columns
  - byte[4] size || byte[4]*(nrow*ncol) sizes
  - byte[ ] DATA
- - byte[4] footprint
+ - byte[4] footprint = [ 0, 5 ]
 
 The only weird thing here is size or sizes. Size if the length of a single element when we store a INTMATRIX, DOUBLEMATRIX or 
 FIXEDCHARMATRIX. When storing a VARCHARMATRIX  we need to know the length of each individual entry in the matrix, and size is 
