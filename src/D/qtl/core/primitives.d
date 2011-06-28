@@ -10,6 +10,8 @@ module qtl.core.primitives;
 
 import std.container; 
 import std.conv;
+import std.range;
+import std.algorithm;
 
 // Default values for undefined types
 immutable MARKER_POSITION_UNKNOWN = double.nan;
@@ -210,7 +212,8 @@ class Individuals {
  * more pseudomarkers can exist.
  */
 
-class MarkerRef(T) {
+class MarkerRef(T) 
+{
   Marker marker;
   Genotype!T[][] genotype_matrix;
   uint column;
@@ -225,6 +228,9 @@ class MarkerRef(T) {
   }
 
   Position get_position() { return marker.get_position(); }
+
+  // ref T opIndex(int i) { ; }
+
 }
 
 /**
@@ -232,14 +238,18 @@ class MarkerRef(T) {
  */
 
 class Markers(M) {
-  M[] list;  // Will probably become an SList.
-  auto markercontainer() { return list; }
+  M[] list;  // May become an SList.
   this() {}
   this(in Markers!M markers) {
     list = markers.list.dup;  // make sure to clone all data
   }
   void add(in Marker m) {
     list ~= new M(m);
+  }
+  const auto sorted() { 
+    auto ms = new Markers(this); // make a copy
+    sort!("a.get_position() < b.get_position()")(ms.list);
+    return ms;
   }
 }
 
@@ -319,6 +329,7 @@ unittest {
   PseudoMarker pm1 = new PseudoMarker(4.7,"m3",3);
   auto pmref1 = new MarkerRef!uint(pm1);
   auto markers = new Markers!(MarkerRef!uint)();
+  // static assert(isForwardRange!(typeof(markers)));
   markers.list ~= mref1;
   markers.list ~= mref2;
   markers.list ~= pmref1;
@@ -327,4 +338,15 @@ unittest {
     result ~= m.marker.id;
   }
   assert(result==cast(uint[])[1,2,3]);
+  // reverse sort markers
+  auto list2 = sort!("a.get_position() > b.get_position()")(markers.list);
+  foreach ( m ; list2 ) {
+    result ~= m.marker.id;
+  }
+  assert(result==cast(uint[])[1,2,3,2,3,1],to!string(result));
+  auto ms = markers.sorted();
+  foreach ( m ; ms.list ) {
+    result ~= m.marker.id;
+  }
+  assert(result==cast(uint[])[1,2,3,2,3,1,1,3,2],to!string(result));
 }
