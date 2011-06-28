@@ -10,6 +10,7 @@ module qtl.core.primitives;
 
 import std.container; 
 import std.conv;
+import std.algorithm;
 
 // Default values for undefined types
 immutable MARKER_POSITION_UNKNOWN = double.nan;
@@ -232,14 +233,21 @@ class MarkerRef(T) {
  */
 
 class Markers(M) {
-  M[] list;  // Will probably become an SList.
-  auto markercontainer() { return list; }
+  M[] list;  // May become an SList.
+  // auto container() { return list; }
   this() {}
   this(in Markers!M markers) {
     list = markers.list.dup;  // make sure to clone all data
   }
   void add(in Marker m) {
     list ~= new M(m);
+  }
+  const M[] sorted() { 
+    // auto list2 = sort!("a.get_position() > b.get_position()")(markers.list);
+    // auto list2 = sort!("a.get_position() < b.get_position()")(list);
+    auto list2 = list;
+    // return new Markers(this);
+    return list2.dup;
   }
 }
 
@@ -327,4 +335,16 @@ unittest {
     result ~= m.marker.id;
   }
   assert(result==cast(uint[])[1,2,3]);
+  // reverse sort markers
+  auto list2 = sort!("a.get_position() > b.get_position()")(markers.list);
+  foreach ( m ; list2 ) {
+    result ~= m.marker.id;
+  }
+  assert(result==cast(uint[])[1,2,3,2,3,1]);
+  auto list3 = markers.sorted();
+  foreach ( m ; list3 ) {
+    result ~= m.marker.id;
+  }
+  writeln(result);
+  assert(result==cast(uint[])[1,2,3,2,3,1,2,3,1]);
 }

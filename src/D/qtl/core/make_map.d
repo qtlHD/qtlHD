@@ -35,13 +35,14 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
   // only one. Now, use the function add_marker_if_single instead. Adding
   // markers (at off_end) with step=0 is not supported here. That should also
   // be a separate function.
-  // auto new_markers = new Ms(markers);
-  auto sorted_markers = markers.sort();
+  auto new_markers = new Ms(markers);
+  // auto new_markers = markers.sorted(); FIXME
+  assert(new_markers.list.length == markers.list.length);
   // FIXME sort markers
   if (markers.list.length > 1) {
     auto first_marker = new_markers.list[0];
     auto minpos = first_marker.get_position();
-    auto last_marker = new_markers.list[$];
+    auto last_marker = new_markers.list[$-1];
     auto maxpos = last_marker.get_position();
     // between minpos and maxpos add markers at fixed
     // positions
