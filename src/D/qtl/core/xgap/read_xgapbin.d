@@ -2,7 +2,7 @@
  * Write binary XGap format
  **/
  
-module qtl.core.read_xgapbin;
+module qtl.core.xgap.read_xgapbin;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
@@ -11,6 +11,8 @@ import qtl.core.genotype;
 import qtl.core.xgap;
 
 import qtl.plugins.input.read_interface;
+import qtl.plugins.input.read_csvr;
+import qtl.plugins.output.write_xgapbin;
 
 import std.stdio;
 import std.conv;
@@ -173,10 +175,17 @@ class XbinReader(XType) : GenericReader!XType{
 
 unittest{
   writeln("Unit test " ~ __FILE__);
+  writeln("  - writing XBIN ");
   alias std.path.join join;
-  auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","multitrait.xbin");
-  writeln("  - reading XBIN " ~ infn);
-  auto data = new XbinReader!RIL(infn);
+  auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.csvr");
+  auto outfn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin");
+  writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
+  auto indata = new CSVrReader!RIL(infn);
+  auto result = new BinaryWriter!(CSVrReader!RIL,RIL)(indata,outfn);
+  writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn), toKb(outfn));
+  
+  writeln("  - reading XBIN " ~ outfn);
+  auto data = new XbinReader!RIL(outfn);
   assert(data.correct == true);
   assert(data.nmatrices == 3);
   assert(data.fileversion == [0,0,1]);
