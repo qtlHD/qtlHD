@@ -349,4 +349,7 @@ unittest {
     result ~= m.marker.id;
   }
   assert(result==cast(uint[])[1,2,3,2,3,1,1,3,2],to!string(result));
+  auto ulist2 = uniq!("a.get_position() == b.get_position")(ms.list);
+  auto pos_list = map!"a.get_position()"(ulist2);
+  assert(equal(pos_list,[4.6, 4.7, 4.8]));
 }
