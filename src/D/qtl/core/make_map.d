@@ -10,6 +10,7 @@ import std.conv;
 import std.string;
 import std.path;
 import std.exception;
+import std.algorithm;
 
 import qtl.core.primitives;
 import qtl.core.genotype;
@@ -300,9 +301,11 @@ unittest {
   markers2.list ~= new Marker(10.0);
   markers2.list ~= new Marker(20.0);
   markers2.list ~= new Marker(30.0);
-  auto res_ms2 = add_stepped_markers_autosome(markers2,1.0,1.0);
-  assert(res_ms2.list.length == 25, to!string(res_ms2.list.length));
-  // assert no duplicates
-
+  auto res2 = add_stepped_markers_autosome(markers2,1.0,1.0);
+  auto list = res2.list;
+  assert(list.length == 25, to!string(list.length));
+  // assert there are no duplicates
+  // auto list2 = uniq!("a.get_postion() == b.get_position()")(list);
+  
 }
 
