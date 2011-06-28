@@ -22,6 +22,7 @@ import std.file;
 
 class XbinReader(XType) : GenericReader!XType{
   XgapBinHeader   header;         //Binary file header
+  MatrixHeader[]  headers;        //Matrix headers
   int[]           skips;          //Stores the matrix skips, to get to the start of a matrix
   private File    f;              //File pointer
   ubyte[]         inputbuffer;    //Buffered file content
@@ -49,6 +50,13 @@ class XbinReader(XType) : GenericReader!XType{
     return returnbuffer;
   }
   
+ /*
+  * Loads the ith matrix of MatrixClasstype from the file
+  */
+  void load(MatrixClass, int i = 0){
+  
+  }
+  
   Version getVersion(){
     return header.fileversion;
   }
@@ -56,75 +64,15 @@ class XbinReader(XType) : GenericReader!XType{
   int getNumberOfMatrices(){
     return header.nmatrices;
   }
-  
-  void loadPhenotypes(Matrix m){
-    for(int c=0;c<m.ncol;c++){
-      Phenotype!double[] ps;
-      for(int r=0;r<m.nrow;r++){
-        string pheno = to!string(byteToDouble(inputbuffer[m.skip+(r*c)*m.lengths[0]..m.skip+m.lengths[0]+(r*c)*m.lengths[0]]));
-        //writefln("%d %d %s",r,c,pheno);
-        ps ~= set_phenotype!double(pheno);
-      }
-      phenotypes ~= ps;
-    }
-  }
-
-  void loadGenotypes(Matrix m){
-    for(int r=0;r<m.nrow;r++){
-      Genotype!XType[] gs;
-        for(int c=0;c<m.ncol;c++){  
-        string geno = to!string(*cast(char*)inputbuffer[m.skip+(r*c)*m.lengths[0]..m.skip+m.lengths[0]+(r*c)*m.lengths[0]]);
-        //writefln("%d %d %s",r,c,geno);
-        gs ~= set_genotype!XType(geno);
-      }
-      genotypes ~= gs;
-    }
-  }
-  
-  void loadMarkers(Matrix m){
-    int sofar=0;
-    for(int r=0;r<m.nrow;r++){
-      for(int c=0;c<m.ncol;c++){
-        int s = m.lengths[(r*m.ncol)+c];
-        string pheno = byteToString(inputbuffer[m.skip+sofar..m.skip+sofar+s]);
-        //writefln("%d %d %s",r,c,pheno);
-        sofar += s;
-      }
-    }
-  }
-
-  
+ 
  /*
   *Parses the matrix header, reading type, dimensions and element sizes
   */
-  int parseMatrix(ubyte[] buffer, int matrix, int skip){
-    int type = byteToInt(buffer[skip..skip+4]);
-    int nrow = byteToInt(buffer[(skip+4)..(skip+8)]);
-    int ncol = byteToInt(buffer[(skip+8)..(skip+12)]);
-    
-    int[] lengths;
-    int elem=0;
-    int matrix_skip;
-    int length_skip=0;
-    writef("      Matrix %d, type=%d, rows: %d, columns: %d", matrix, type, nrow, ncol);
-    if(cast(MatrixType)type == MatrixType.VARCHARMATRIX){
-      for(int x=0;x<(nrow*ncol);x++){
-        int l = byteToInt(buffer[(skip+12+(x*4))..(skip+16+(x*4))]);
-        lengths ~= l;
-        elem += l;
-      }
-      matrix_skip = elem+(4*((nrow*ncol)-1));
-      length_skip = (4*((nrow*ncol)-1));
-      writefln(", isize: %.2f, skip: %d", cast(double)elem/(nrow*ncol), matrix_skip);
-    }else{
-      int l = byteToInt(buffer[(skip+12)..(skip+16)]);
-      lengths ~= l;
-      elem = l;
-      matrix_skip = (nrow*ncol*elem);
-      writefln(", isize: %d, skip: %d", elem, matrix_skip);
-    }
-    matrices ~= Matrix(cast(MatrixType)type,skip+16+length_skip,nrow,ncol,lengths);
-    return 16+matrix_skip;
+  int parseMatrixHeader(ubyte[] buffer, int matrix, int start){
+    MatrixHeader header = *cast(MatrixHeader*) inputbuffer[start..start+MatrixHeader.sizeof];
+    writefln("      Matrix %d, type=%d, rows: %d, columns: %d", matrix, header.type, header.nrow, header.ncol);
+    headers ~= header;
+    return header.size;
   }
   
  /*
@@ -148,12 +96,10 @@ class XbinReader(XType) : GenericReader!XType{
     parseFileHeader(verbose);
 
     //Loop through the matrices
-    int skip = XgapBinHeader.sizeof + Footprint.sizeof;
+    int skip = XgapBinHeader.sizeof;
     for(int m=0; m<getNumberOfMatrices(); m++){
       skips ~= skip;
-      skip += parseMatrix(inputbuffer, m, skip);
-      assert(checkFootprint(inputbuffer[(skip)..(skip+Footprint.sizeof)]),"File corrupted ? No footprint at:" ~to!string(skip));
-      skip += Footprint.sizeof; //Skip the footprint
+      skip += parseMatrixHeader(inputbuffer, m, skip);
     }
   }
 }
@@ -174,8 +120,8 @@ unittest{
   assert(data.correct == true);
   assert(data.header.nmatrices == 3);
   assert(data.header.fileversion == [0,0,1, 'A']);
-  data.loadPhenotypes(data.matrices[0]);
-  data.loadGenotypes(data.matrices[1]);
-  data.loadMarkers(data.matrices[2]);
+  //data.loadPhenotypes(data.matrices[0]);
+  //data.loadGenotypes(data.matrices[1]);
+  //data.loadMarkers(data.matrices[2]);
 }
 

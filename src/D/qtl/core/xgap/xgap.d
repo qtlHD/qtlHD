@@ -44,6 +44,7 @@ struct XgapBinHeader{
 
 struct MatrixHeader{
   Footprint     magicn = xgap_footprint;
+  
   MatrixType    type;
   MatrixClass   mclass;
   
@@ -51,8 +52,7 @@ struct MatrixHeader{
   int           nrow;
   
   int           ncol;
-  int[]         elementsizes;
-  byte[]        p0;
+  byte[4]       p0= [0,0,0,0];
 }
 
 

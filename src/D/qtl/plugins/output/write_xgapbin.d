@@ -44,34 +44,43 @@ class BinaryWriter(Reader, XType) {
   }
   
   void write_matrix(T)(T[][] towrite, File outfile, MatrixType t = MatrixType.EMPTY, MatrixClass mclass = MatrixClass.EMPTY){
-    uint[1] type = [t];
-    uint[] sizes =[towrite.length,towrite[0].length];
+    MatrixHeader header = MatrixHeader(xgap_footprint, t, mclass);
+    header.nrow = towrite.length;
+    header.ncol = towrite[0].length;
+    int datasize = 0;
+    int[] elementsizes;
     switch(t){
       case MatrixType.EMPTY:
-        sizes ~= cast(uint)0;
+        elementsizes ~= cast(uint)0;
+        datasize = (0)*(header.nrow * header.ncol);
         break;
       case MatrixType.INTMATRIX:
-        sizes ~= int.sizeof;
+        elementsizes ~= int.sizeof;
+        datasize = (int.sizeof)*(header.nrow * header.ncol);
         break;        
       case MatrixType.DOUBLEMATRIX:
-        sizes ~= double.sizeof;
+        elementsizes ~= double.sizeof;
+        datasize = (double.sizeof)*(header.nrow * header.ncol);
         break;        
       case MatrixType.FIXEDCHARMATRIX:
         string s = to!string(towrite[0][0]);
-        sizes ~= char.sizeof * s.length;
+        elementsizes ~= char.sizeof * s.length;
+        datasize = (char.sizeof * s.length)*(header.nrow * header.ncol);
         break;        
       case MatrixType.VARCHARMATRIX:
         for(int r=0;r < towrite.length;r++){
           for(int c=0;c < towrite[r].length;c++){
-            sizes ~= char.sizeof * to!string(towrite[r][c]).length;
+            elementsizes ~= char.sizeof * to!string(towrite[r][c]).length;
+            datasize += char.sizeof * to!string(towrite[r][c]).length;
           }
         }
         break;        
       default:
         break;
     }
-    myWrite(type,outfile);
-    myWrite(sizes,outfile);
+    header.size = MatrixHeader.sizeof + (elementsizes.length*4) + datasize;
+    myWrite([header],outfile);
+    myWrite(elementsizes,outfile);
     foreach(T[] e;towrite){
       myWrite(e,outfile,t);
     }
@@ -93,13 +102,9 @@ class BinaryWriter(Reader, XType) {
     f = File(filename,"wb");
     XgapBinHeader h = XgapBinHeader(xgap_footprint,xgap_version,[0,0,0,0,0],3,[0,0,0,0]);
     myWrite([h],f);
-    myWrite(xgap_footprint,f);
     write_matrix!(Phenotype!double)(data.phenotypes, f, MatrixType.DOUBLEMATRIX);
-    myWrite(xgap_footprint,f);
     write_matrix!(Genotype!XType)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX);
-    myWrite(xgap_footprint,f);
-    auto markermatrix = getMarkerInfoMatrix(data.markers);
-    write_matrix!(string)(markermatrix,f, MatrixType.VARCHARMATRIX);
+    write_matrix!(string)(getMarkerInfoMatrix(data.markers),f, MatrixType.VARCHARMATRIX);
     myWrite(xgap_footprint,f);
     f.close();
   }
