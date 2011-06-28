@@ -35,14 +35,15 @@ struct Matrix{
 }
 
 struct XgapBinHeader{
-  Footprint   magicn;
-  Version     matrixversion;
-  byte[5]     p0;
+  Footprint   magicn = xgap_footprint;
+  Version     fileversion = xgap_version;
+  byte[5]     p0 = [0,0,0,0,0];
   int         nmatrices;
-  byte[4]     p1;
+  byte[4]     p1 = [0,0,0,0];
 }
 
 struct MatrixHeader{
+  Footprint     magicn = xgap_footprint;
   MatrixType    type;
   MatrixClass   mclass;
   

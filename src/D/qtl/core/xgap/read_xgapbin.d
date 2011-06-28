@@ -21,13 +21,13 @@ import std.path;
 import std.file;
 
 class XbinReader(XType) : GenericReader!XType{
-  private File f;
-  bool correct;       //Is the file correct?
-  int[] fileversion;  //Version of the file
-  int nmatrices;      //Number of matrices
-  int[] skips;        //Stores the matrix skips, to get to the start of a matrix
-  Matrix[] matrices;
-  ubyte[] inputbuffer;
+  XgapBinHeader   header;         //Binary file header
+  int[]           skips;          //Stores the matrix skips, to get to the start of a matrix
+  private File    f;              //File pointer
+  ubyte[]         inputbuffer;    //Buffered file content
+  bool            correct;        //Is the file correct?
+  
+  Matrix[]        matrices;       //MatrixHeaders
   
   bool checkFootprint(in ubyte[] buffer){
     if(xgap_footprint == buffer) return true;
@@ -35,14 +35,10 @@ class XbinReader(XType) : GenericReader!XType{
   }
   
   bool checkBuffer(ubyte[] buffer){
-    ubyte[] startprint = buffer[0..8];
-    ubyte[] endprint = buffer[buffer.length-8..$];
-    if(checkFootprint(startprint) && checkFootprint(endprint)){
-      correct = true;
-    }else{
-      correct = false;
-    }
-    return correct;
+    ubyte[] startprint = buffer[0..Footprint.sizeof];
+    ubyte[] endprint = buffer[buffer.length-Footprint.sizeof..$];
+    if(checkFootprint(startprint) && checkFootprint(endprint)) return (correct = true);
+    return (correct=false);
   }
   
   T[] toType(T)(ubyte[] buffer){
@@ -53,14 +49,12 @@ class XbinReader(XType) : GenericReader!XType{
     return returnbuffer;
   }
   
-  int[] getVersion(ubyte[] buffer){
-    fileversion = toType!int(buffer[8..12]);
-    return fileversion;
+  Version getVersion(){
+    return header.fileversion;
   }
   
-  int getNumberOfMatrices(ubyte[] buffer){
-    nmatrices = byteToInt(buffer[12..16]);
-    return nmatrices;
+  int getNumberOfMatrices(){
+    return header.nmatrices;
   }
   
   void loadPhenotypes(Matrix m){
@@ -138,10 +132,10 @@ class XbinReader(XType) : GenericReader!XType{
   */
   bool parseFileHeader(bool verbose){
     writeln("    File OK? " ~ to!string(checkBuffer(inputbuffer)));
-    writeln("    Version: " ~ to!string(getVersion(inputbuffer)));
-    writeln("    Matrices: " ~ to!string(getNumberOfMatrices(inputbuffer)));
+    header = *cast(XgapBinHeader*) inputbuffer[0..XgapBinHeader.sizeof];
+    writeln("    Version: " ~ to!string(header.fileversion));
+    writeln("    Matrices: " ~ to!string(header.nmatrices));
     assert(correct,"Footprint failed");
-    assert(fileversion[0]==0 && fileversion[1]==0 && fileversion[2]==1,"Version incorrect");
     return correct;
   }
   
@@ -151,16 +145,15 @@ class XbinReader(XType) : GenericReader!XType{
     auto f = new File(filename,"rb");
     f.rawRead(inputbuffer);
     //Header
-    writeln("    Read: " ~ to!string(getSize(filename)) ~ " bytes");
     parseFileHeader(verbose);
 
     //Loop through the matrices
-    int skip = 24;
-    for(int m=0; m<getNumberOfMatrices(inputbuffer); m++){
+    int skip = XgapBinHeader.sizeof + Footprint.sizeof;
+    for(int m=0; m<getNumberOfMatrices(); m++){
       skips ~= skip;
       skip += parseMatrix(inputbuffer, m, skip);
-      assert(checkFootprint(inputbuffer[(skip)..(skip+8)]),"File corrupted ? No footprint at:" ~to!string(skip));
-      skip += 8; //Skip the footprint
+      assert(checkFootprint(inputbuffer[(skip)..(skip+Footprint.sizeof)]),"File corrupted ? No footprint at:" ~to!string(skip));
+      skip += Footprint.sizeof; //Skip the footprint
     }
   }
 }
@@ -179,8 +172,8 @@ unittest{
   writeln("  - reading XBIN " ~ outfn);
   auto data = new XbinReader!RIL(outfn);
   assert(data.correct == true);
-  assert(data.nmatrices == 3);
-  assert(data.fileversion == [0,0,1, 'A']);
+  assert(data.header.nmatrices == 3);
+  assert(data.header.fileversion == [0,0,1, 'A']);
   data.loadPhenotypes(data.matrices[0]);
   data.loadGenotypes(data.matrices[1]);
   data.loadMarkers(data.matrices[2]);
