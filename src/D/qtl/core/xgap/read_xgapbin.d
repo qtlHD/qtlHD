@@ -180,7 +180,7 @@ unittest{
   auto data = new XbinReader!RIL(outfn);
   assert(data.correct == true);
   assert(data.nmatrices == 3);
-  assert(data.fileversion == [0,0,1]);
+  assert(data.fileversion == [0,0,1, 'A']);
   data.loadPhenotypes(data.matrices[0]);
   data.loadGenotypes(data.matrices[1]);
   data.loadMarkers(data.matrices[2]);

@@ -6,6 +6,9 @@ module qtl.core.xgap.xgap;
 
 import std.file;
 import std.conv;
+
+alias byte[8] Footprint;
+alias byte[4] Version;
  
 enum MatrixType : uint { 
   EMPTY = 0, 
@@ -42,15 +45,15 @@ struct XgapBinHeader{
 struct MatrixHeader{
   MatrixType    type;
   MatrixClass   mclass;
-  int           size;
+  
+  int           size;     //former skip
   int           nrow;
+  
   int           ncol;
-  int[]         lengths;
+  int[]         elementsizes;
   byte[]        p0;
 }
 
-alias byte[8] Footprint;
-alias byte[4] Version;
 
 immutable Footprint xgap_footprint = [ 0, 'X', 'G', 'A', 'P', 'B', 0, 1 ];
 immutable Version   xgap_version   = [ 0, 0, 1, 'A' ];
