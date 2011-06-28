@@ -35,10 +35,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
   // only one. Now, use the function add_marker_if_single instead. Adding
   // markers (at off_end) with step=0 is not supported here. That should also
   // be a separate function.
-  auto new_markers = new Ms(markers);
-  // auto new_markers = markers.sorted(); FIXME
-  assert(new_markers.list.length == markers.list.length);
-  // FIXME sort markers
+  auto new_markers = markers.sorted();
   if (markers.list.length > 1) {
     auto first_marker = new_markers.list[0];
     auto minpos = first_marker.get_position();
@@ -53,7 +50,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
     // the fixed position distance)
     new_markers.add(new PseudoMarker(minpos - off_end));
     new_markers.add(new PseudoMarker(maxpos + off_end));
-    // FIXME sort markers
+    new_markers = new_markers.sorted();
     // FIXME remove duplicate positions
     // FIXME remove Pseudo markers too close to other markers
   }
@@ -303,6 +300,9 @@ unittest {
   markers2.list ~= new Marker(10.0);
   markers2.list ~= new Marker(20.0);
   markers2.list ~= new Marker(30.0);
-  auto result = add_stepped_markers_autosome(markers2,1.0,1.0);
+  auto res_ms2 = add_stepped_markers_autosome(markers2,1.0,1.0);
+  assert(res_ms2.list.length == 25, to!string(res_ms2.list.length));
+  // assert no duplicates
+
 }
 
