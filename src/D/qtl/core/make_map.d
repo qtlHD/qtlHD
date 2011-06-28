@@ -302,10 +302,17 @@ unittest {
   markers2.list ~= new Marker(20.0);
   markers2.list ~= new Marker(30.0);
   auto res2 = add_stepped_markers_autosome(markers2,1.0,1.0);
-  auto list = res2.list;
+  auto list = res2.list; // new marker list
   assert(list.length == 25, to!string(list.length));
   // assert there are no duplicates
-  // auto list2 = uniq!("a.get_postion() == b.get_position()")(list);
-  
+  auto uniq_list = uniq!"a.get_position() == b.get_position()"(list);
+  auto pos_list = map!"a.get_position()"(uniq_list);
+  assert(equal(pos_list,[9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]), to!string(pos_list));
+  auto ts = map!"to!double(a)"(pos_list);
+  // nudge mar Result into a double[]
+  double ds[];
+  foreach (u ; pos_list) { ds ~= u; }  // this can be done better, I am sure
+  assert(ds[0] == 9);
+  assert(ds.length == 23);
 }
 
