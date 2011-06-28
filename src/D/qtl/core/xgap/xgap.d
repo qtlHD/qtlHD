@@ -32,7 +32,11 @@ struct Matrix{
 }
 
 struct XgapBinHeader{
-
+  Footprint   magicn;
+  Version     matrixversion;
+  byte[5]     p0;
+  int         nmatrices;
+  byte[4]     p1;
 }
 
 struct MatrixHeader{
@@ -42,11 +46,14 @@ struct MatrixHeader{
   int           nrow;
   int           ncol;
   int[]         lengths;
-  byte[]        pad64;
+  byte[]        p0;
 }
 
-immutable byte[2] b_footprint = [ 0, 5 ];
-immutable byte[3] b_version = [ 0, 0, 1 ];
+alias byte[8] Footprint;
+alias byte[4] Version;
+
+immutable Footprint xgap_footprint = [ 0, 'X', 'G', 'A', 'P', 'B', 0, 1 ];
+immutable Version   xgap_version   = [ 0, 0, 1, 'A' ];
 
 /*
  * Helper function to go from sizes in bytes to KBs

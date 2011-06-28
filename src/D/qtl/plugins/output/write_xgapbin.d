@@ -91,18 +91,18 @@ class BinaryWriter(Reader, XType) {
   
   void write_binary(in string filename){
     f = File(filename,"wb");
-    myWrite(b_footprint,f);
-    myWrite(b_version,f);
+    myWrite(xgap_footprint,f);
+    myWrite(xgap_version,f);
     int[1] nmatrix = [ 3 ];
     myWrite(nmatrix,f);
-    myWrite(b_footprint,f);
+    myWrite(xgap_footprint,f);
     write_matrix!(Phenotype!double)(data.phenotypes, f, MatrixType.DOUBLEMATRIX);
-    myWrite(b_footprint,f);
+    myWrite(xgap_footprint,f);
     write_matrix!(Genotype!XType)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX);
-    myWrite(b_footprint,f);
+    myWrite(xgap_footprint,f);
     auto markermatrix = getMarkerInfoMatrix(data.markers);
     write_matrix!(string)(markermatrix,f, MatrixType.VARCHARMATRIX);
-    myWrite(b_footprint,f);
+    myWrite(xgap_footprint,f);
     f.close();
   }
 

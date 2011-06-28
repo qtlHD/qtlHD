@@ -30,13 +30,13 @@ class XbinReader(XType) : GenericReader!XType{
   ubyte[] inputbuffer;
   
   bool checkFootprint(in ubyte[] buffer){
-    if(b_footprint == buffer) return true;
+    if(xgap_footprint == buffer) return true;
     return false;
   }
   
   bool checkBuffer(ubyte[] buffer){
-    ubyte[] startprint = buffer[0..2];
-    ubyte[] endprint = buffer[buffer.length-2..$];
+    ubyte[] startprint = buffer[0..8];
+    ubyte[] endprint = buffer[buffer.length-8..$];
     if(checkFootprint(startprint) && checkFootprint(endprint)){
       correct = true;
     }else{
@@ -54,12 +54,12 @@ class XbinReader(XType) : GenericReader!XType{
   }
   
   int[] getVersion(ubyte[] buffer){
-    fileversion = toType!int(buffer[2..5]);
+    fileversion = toType!int(buffer[8..12]);
     return fileversion;
   }
   
   int getNumberOfMatrices(ubyte[] buffer){
-    nmatrices = byteToInt(buffer[5..9]);
+    nmatrices = byteToInt(buffer[12..16]);
     return nmatrices;
   }
   
@@ -155,12 +155,12 @@ class XbinReader(XType) : GenericReader!XType{
     parseFileHeader(verbose);
 
     //Loop through the matrices
-    int skip = 11;
+    int skip = 24;
     for(int m=0; m<getNumberOfMatrices(inputbuffer); m++){
       skips ~= skip;
       skip += parseMatrix(inputbuffer, m, skip);
-      assert(checkFootprint(inputbuffer[(skip)..(skip+2)]),"File corrupted ? No footprint at:" ~to!string(skip));
-      skip += 2; //Skip the footprint
+      assert(checkFootprint(inputbuffer[(skip)..(skip+8)]),"File corrupted ? No footprint at:" ~to!string(skip));
+      skip += 8; //Skip the footprint
     }
   }
 }
