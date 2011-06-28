@@ -15,6 +15,36 @@ enum MatrixType : uint {
   VARCHARMATRIX = 4
 };
 
+enum MatrixClass : uint { 
+  EMPTY = 0,
+  PHENOTYPE = 1, 
+  GENOTYPE = 2, 
+  MAP = 3,
+  ANNOTATION = 4
+};
+
+struct Matrix{
+  MatrixType type;
+  int skip;
+  int nrow;
+  int ncol;
+  int[] lengths;
+}
+
+struct XgapBinHeader{
+
+}
+
+struct MatrixHeader{
+  MatrixType    type;
+  MatrixClass   mclass;
+  int           size;
+  int           nrow;
+  int           ncol;
+  int[]         lengths;
+  byte[]        pad64;
+}
+
 immutable byte[2] b_footprint = [ 0, 5 ];
 immutable byte[3] b_version = [ 0, 0, 1 ];
 

@@ -20,14 +20,6 @@ import std.string;
 import std.path;
 import std.file;
 
-struct Matrix{
-  MatrixType type;
-  int skip;
-  int nrow;
-  int ncol;
-  int[] lengths;
-}
-
 class XbinReader(XType) : GenericReader!XType{
   private File f;
   bool correct;       //Is the file correct?
