@@ -23,7 +23,6 @@ import std.file;
 class XbinReader(XType) : GenericReader!XType{
   XgapBinHeader   header;         //Binary file header
   MatrixHeader[]  headers;        //Matrix headers
-  int[]           skips;          //Stores the matrix skips, to get to the start of a matrix
   private File    f;              //File pointer
   ubyte[]         inputbuffer;    //Buffered file content
   bool            correct;        //Is the file correct?
@@ -50,11 +49,52 @@ class XbinReader(XType) : GenericReader!XType{
     return returnbuffer;
   }
   
+  void loadData(MatrixHeader h, int start){
+
+  }
+  
  /*
   * Loads the ith matrix of MatrixClasstype from the file
   */
-  void load(MatrixClass, int i = 0){
-  
+  void load(MatrixClass c, int i = 0){
+    int skip = XgapBinHeader.sizeof;
+    foreach(MatrixHeader h;headers){
+      if(h.mclass==c){
+        if(i==0){
+        //extract matrix
+        skip += MatrixHeader.sizeof;
+        int[] lengths;
+        int start;
+        if(h.type == MatrixType.VARCHARMATRIX){
+          for(int x=0;x<(h.nrow*h.ncol);x++){
+            lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
+          }
+          start = (skip + int.sizeof + ((h.nrow*h.ncol)*int.sizeof));
+        }else{
+          for(int x=0;x<(h.nrow*h.ncol);x++){
+            lengths ~= byteToInt(inputbuffer[skip..(skip+int.sizeof)]);
+          }
+          start = (skip + int.sizeof);
+        }
+        writeln(lengths);
+        switch(h.mclass){
+          case MatrixClass.EMPTY:
+          break;
+          case MatrixClass.PHENOTYPE:
+          break;
+          case MatrixClass.GENOTYPE:
+          break;
+          case MatrixClass.MAP:
+          break;
+          case MatrixClass.ANNOTATION:
+          break;
+        }
+        }else{
+          i--;
+        }
+      }
+      skip += h.size;
+    }
   }
   
   Version getVersion(){
@@ -98,7 +138,6 @@ class XbinReader(XType) : GenericReader!XType{
     //Loop through the matrices
     int skip = XgapBinHeader.sizeof;
     for(int m=0; m<getNumberOfMatrices(); m++){
-      skips ~= skip;
       skip += parseMatrixHeader(inputbuffer, m, skip);
     }
   }
@@ -120,7 +159,9 @@ unittest{
   assert(data.correct == true);
   assert(data.header.nmatrices == 3);
   assert(data.header.fileversion == [0,0,1, 'A']);
-  //data.loadPhenotypes(data.matrices[0]);
+  data.load(MatrixClass.PHENOTYPE,0);
+  data.load(MatrixClass.GENOTYPE,0);
+  data.load(MatrixClass.MAP,0);
   //data.loadGenotypes(data.matrices[1]);
   //data.loadMarkers(data.matrices[2]);
 }

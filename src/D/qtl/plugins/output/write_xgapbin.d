@@ -102,9 +102,9 @@ class BinaryWriter(Reader, XType) {
     f = File(filename,"wb");
     XgapBinHeader h = XgapBinHeader(xgap_footprint,xgap_version,[0,0,0,0,0],3,[0,0,0,0]);
     myWrite([h],f);
-    write_matrix!(Phenotype!double)(data.phenotypes, f, MatrixType.DOUBLEMATRIX);
-    write_matrix!(Genotype!XType)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX);
-    write_matrix!(string)(getMarkerInfoMatrix(data.markers),f, MatrixType.VARCHARMATRIX);
+    write_matrix!(Phenotype!double)(data.phenotypes, f, MatrixType.DOUBLEMATRIX,MatrixClass.PHENOTYPE);
+    write_matrix!(Genotype!XType)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX,MatrixClass.GENOTYPE);
+    write_matrix!(string)(getMarkerInfoMatrix(data.markers),f, MatrixType.VARCHARMATRIX,MatrixClass.MAP);
     myWrite(xgap_footprint,f);
     f.close();
   }

@@ -48,11 +48,11 @@ struct MatrixHeader{
   MatrixType    type;
   MatrixClass   mclass;
   
-  int           size;     //former skip
+  int           size;      //former skip
   int           nrow;
-  
+
   int           ncol;
-  byte[4]       p0= [0,0,0,0];
+  int           start;     //start of the matrix in the file
 }
 
 
@@ -69,16 +69,21 @@ double toKb(in string filename){
 /*
  * Helper function to go from ubyte[] to int
  */
-int byteToInt(ubyte[] bits, bool little_endian = true ){
-  return *cast(int*)bits;
+int byteToInt(ubyte[] bits){
+  return convbyte!int(bits);
 }
 
 /*
  * Helper function to go from ubyte[] to double
  */  
 double byteToDouble(ubyte[] bits){
-  return *cast(double*)bits;
+  return convbyte!double(bits);
 }
+
+T convbyte(T)(ubyte[] bits){
+  return *cast(T*)bits;
+}
+
 
 /*
  * Helper function to go from ubyte[] to string
@@ -86,7 +91,7 @@ double byteToDouble(ubyte[] bits){
 string byteToString(ubyte[] bits){
   char[] r;
   foreach(ubyte b;bits){
-    r ~= cast(char)b;
+    r ~= convbyte!char([b]);
   }
   r ~= '\0';
   return to!string(r);
