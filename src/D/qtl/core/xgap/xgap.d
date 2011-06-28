@@ -2,7 +2,7 @@
  * XGap types 
  **/
 
-module qtl.core.xgap;
+module qtl.core.xgap.xgap;
 
 import std.file;
 import std.conv;

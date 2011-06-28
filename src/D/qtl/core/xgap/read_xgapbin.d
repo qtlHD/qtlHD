@@ -8,7 +8,7 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
-import qtl.core.xgap;
+import qtl.core.xgap.xgap;
 
 import qtl.plugins.input.read_interface;
 import qtl.plugins.input.read_csvr;
@@ -76,7 +76,7 @@ class XbinReader(XType) : GenericReader!XType{
       Phenotype!double[] ps;
       for(int r=0;r<m.nrow;r++){
         string pheno = to!string(byteToDouble(inputbuffer[m.skip+(r*c)*m.lengths[0]..m.skip+m.lengths[0]+(r*c)*m.lengths[0]]));
-        writefln("%d %d %s",r,c,pheno);
+        //writefln("%d %d %s",r,c,pheno);
         ps ~= set_phenotype!double(pheno);
       }
       phenotypes ~= ps;
@@ -101,7 +101,7 @@ class XbinReader(XType) : GenericReader!XType{
       for(int c=0;c<m.ncol;c++){
         int s = m.lengths[(r*m.ncol)+c];
         string pheno = byteToString(inputbuffer[m.skip+sofar..m.skip+sofar+s]);
-        writefln("%d %d %s",r,c,pheno);
+        //writefln("%d %d %s",r,c,pheno);
         sofar += s;
       }
     }
