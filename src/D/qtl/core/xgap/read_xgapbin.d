@@ -49,8 +49,19 @@ class XbinReader(XType) : GenericReader!XType{
     return returnbuffer;
   }
   
-  void loadData(MatrixHeader h, int start){
-
+  T[][] loadData(T)(MatrixHeader h, int[] lengths, int start){
+    T[][] data;
+    int skip=start;
+    for(int r=0;r<h.nrow;r++){
+      T[] row;
+      for(int c=0;c<h.ncol;c++){
+        int s = lengths[(r*h.ncol)+c];
+        row ~= convbyte!T(inputbuffer[skip..skip+s]);
+        skip += s;
+      }
+      data ~= row;
+    }
+    return data;
   }
   
  /*
@@ -76,17 +87,58 @@ class XbinReader(XType) : GenericReader!XType{
           }
           start = (skip + int.sizeof);
         }
-        writeln(lengths);
+        /* Here we need to convert data based on mclass and type */
+        /* this should be solved by a single call, but i dun see how with all the templates going on */
         switch(h.mclass){
           case MatrixClass.EMPTY:
           break;
           case MatrixClass.PHENOTYPE:
+          switch(h.type){
+            case MatrixType.INTMATRIX:
+              int[][]  phenotypes = loadData!int(h, lengths, start);
+            break;        
+            case MatrixType.DOUBLEMATRIX:
+              double[][]  phenotypes = loadData!double(h, lengths, start);
+            break;        
+            case MatrixType.FIXEDCHARMATRIX:
+              string[][]  phenotypes = loadData!string(h, lengths, start);
+            break;        
+            case MatrixType.VARCHARMATRIX:
+              string[][]  phenotypes = loadData!string(h, lengths, start);
+            break;
+            default:
+              throw new Exception("Unsupported format for PHENOTYPES");
+            break;             
+          }
           break;
           case MatrixClass.GENOTYPE:
+          switch(h.type){
+            case MatrixType.INTMATRIX:
+              int[][] phenotypes = loadData!int(h, lengths, start);
+            break;        
+            case MatrixType.DOUBLEMATRIX:
+              double[][]  phenotypes = loadData!double(h, lengths, start);
+            break;        
+            case MatrixType.FIXEDCHARMATRIX:
+              string[][]  phenotypes = loadData!string(h, lengths, start);
+            break;        
+            default:
+              throw new Exception("Unsupported format for GENOTYPES");
+            break;   
+          }
           break;
           case MatrixClass.MAP:
+            switch(h.type){
+              case MatrixType.VARCHARMATRIX:
+                string[][]  map = loadData!string(h, lengths, start);
+              break;       
+              default:
+                throw new Exception("Unsupported format for MAP");
+              break;
+            }
           break;
           case MatrixClass.ANNOTATION:
+
           break;
         }
         }else{
