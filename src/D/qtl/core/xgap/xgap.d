@@ -42,7 +42,7 @@ class CrossFactory(){
   
   }
   
-  getCross(int phenoID, int genoID, int mapID){
+  Cross getCross(int phenoID, int genoID, int mapID){
   
   }
 }
