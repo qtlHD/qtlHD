@@ -26,6 +26,27 @@ enum MatrixClass : uint {
   ANNOTATION = 4
 };
 
+
+class Cross(Gtype,Ptype){
+  Phenotype!Ptype[][] phenotypes;
+  Genotype!Gtype[][] genotypes;
+}
+
+class CrossFactory(){
+
+  this(){
+  
+  }
+  
+  this(XbinReader source){
+  
+  }
+  
+  getCross(int phenoID, int genoID, int mapID){
+  
+  }
+}
+
 struct XgapBinHeader{
   Footprint   magicn = xgap_footprint;
   Version     fileversion = xgap_version;
