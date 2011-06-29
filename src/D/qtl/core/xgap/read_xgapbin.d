@@ -27,8 +27,6 @@ class XbinReader(XType) : GenericReader!XType{
   ubyte[]         inputbuffer;    //Buffered file content
   bool            correct;        //Is the file correct?
   
-  Matrix[]        matrices;       //MatrixHeaders
-  
   bool checkFootprint(in ubyte[] buffer){
     if(xgap_footprint == buffer) return true;
     return false;

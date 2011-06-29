@@ -26,14 +26,6 @@ enum MatrixClass : uint {
   ANNOTATION = 4
 };
 
-struct Matrix{
-  MatrixType type;
-  int skip;
-  int nrow;
-  int ncol;
-  int[] lengths;
-}
-
 struct XgapBinHeader{
   Footprint   magicn = xgap_footprint;
   Version     fileversion = xgap_version;

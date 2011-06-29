@@ -94,6 +94,6 @@ end
 
 desc "Test all"
 task :test_all => [ :test_csvr, :test_xgap ] do 
-  sh "./read_csv"
+#  sh "./read_csv"
 end
 
