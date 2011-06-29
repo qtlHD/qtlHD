@@ -32,7 +32,7 @@ core_xgapfiles = core_xgap_list.join(' ')
 
 CLEAN.include('*.o')
 CLEAN.include('test.*')
-CLEAN.include(%w[ csv2xgap read_csv read_csvr test.xbin write_xgapbin])
+CLEAN.include(%w[ csv2xgap read_csv read_csvr test.xbin write_xgapbin read_xgapbin ])
 
 # The compile targets
 

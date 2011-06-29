@@ -11,6 +11,7 @@ import std.string;
 import std.path;
 import std.exception;
 import std.algorithm;
+alias std.algorithm.find find;
 
 import qtl.core.primitives;
 import qtl.core.genotype;
@@ -42,24 +43,33 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
     auto minpos = first_marker.get_position();
     auto last_marker = new_markers.list[$-1];
     auto maxpos = last_marker.get_position();
-    // between minpos and maxpos add markers at fixed
-    // positions
+    // between minpos and maxpos add markers at fixed positions
     for (auto npos = minpos ; npos < maxpos ; npos += step) {
-      new_markers.add(new PseudoMarker(npos));
+      // if marker does not exist, add pseudo marker 
+      // (note new_markers is sorted)
+      foreach (m ; new_markers.list) {
+        if (m.get_position() == npos)
+          break;
+        if (m.get_position() > npos) {
+          auto pm = new PseudoMarker(npos);
+          new_markers.add(pm);
+          break;
+        }
+      }
     }
     // always add one marker beyond each end (no matter
     // the fixed position distance)
     new_markers.add(new PseudoMarker(minpos - off_end));
     new_markers.add(new PseudoMarker(maxpos + off_end));
     new_markers = new_markers.sorted();
-    // FIXME remove duplicate positions
     // FIXME remove Pseudo markers too close to other markers
+    // (was this in R/qtl?)
   }
   return new_markers;
 }
 
 /**
- * NYI FIXME
+ * NYI FIXME - implementation of sex chromosome will be done later
  */
 
 Ms add_stepped_markers_sex(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0)
@@ -296,15 +306,16 @@ unittest {
 
   auto new_markers2 = add_stepped_if_single_marker(markers,1.0,5.0);
   assert(new_markers2.list.length == 11, "Length is " ~ to!string(new_markers2.list.length));
-  // --- test autosome
+  // --- test autosome pseudomarker insertion
   auto markers2 = new Markers!(Marker)();
+  // start with three markers
   markers2.list ~= new Marker(10.0);
   markers2.list ~= new Marker(20.0);
   markers2.list ~= new Marker(30.0);
   auto res2 = add_stepped_markers_autosome(markers2,1.0,1.0);
   auto list = res2.list; // new marker list
-  assert(list.length == 25, to!string(list.length));
   // assert there are no duplicates
+  assert(list.length == 23, to!string(list.length)); 
   auto uniq_list = uniq!"a.get_position() == b.get_position()"(list);
   auto pos_list = map!"a.get_position()"(uniq_list);
   assert(equal(pos_list,[9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]), to!string(pos_list));
@@ -313,6 +324,6 @@ unittest {
   double ds[];
   foreach (u ; pos_list) { ds ~= u; }  // this can be done better, I am sure
   assert(ds[0] == 9);
-  assert(ds.length == 23);
+  assert(ds.length == 23); // tis proof 
 }
 
