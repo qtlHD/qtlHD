@@ -41,7 +41,7 @@ Chromosome get_chromosome(string name, uint id, bool is_sex=false) {
  */
 
 bool is_sex(Chromosome chromosome) {
-  return (chromosome.is_sex);
+  return (typeid(chromosome) == typeid(SexChromosome));
 }
 
 unittest {
@@ -62,6 +62,6 @@ unittest {
   assert(cx.name == "X");
 
   // test for sex
-  assert(!is_sex(c1));
   assert(is_sex(cx),typeof(cx).stringof ~ to!string(cx.id) ~ to!string(is_sex(cx)));
+  assert(!is_sex(c1));
 }

@@ -65,11 +65,15 @@ mixin template MarkerInfo() {
  *
  * The Marker object does not keep track of the parent container (apart from
  * Chromosome). Normally a Marker list is maintained in a parent container.
+ *
+ * Markers are compared on their position (location). I.e. markers at exactly
+ * the same location are considered equal (currently the chromosome is not
+ * checked).
  */
 
 class Marker {
   mixin MarkerInfo;
-  // Constructors for Marker
+
   this(double _position = MARKER_POSITION_UNKNOWN, string _name = MARKER_NAME_UNKNOWN, uint _id=ID_UNKNOWN) { 
     name = _name, position = _position, id = _id ;
     if (name == MARKER_NAME_UNKNOWN && position != MARKER_POSITION_UNKNOWN) 
@@ -80,13 +84,14 @@ class Marker {
     this(m.position, m.name, m.id);
   }
 
-  // Information for Marker
   Position get_position() { return position; }
-  /// Markers at the same position are considered equal
   bool opEquals(Object other) {
+    //  test for chromosome?
+    /// Markers at the same position are considered equal
     return get_position() == (cast(Marker)other).position;
   }
   int opCmp(Object other) {
+    //  test for chromosome?
     auto cmp = position - (cast(Marker)other).position;
     if (cmp > 0) return 1;
     if (cmp < 0) return -1;
@@ -122,6 +127,7 @@ immutable GENOTYPE_NA = -1;
 struct Genotype(T) {
   T value;
   
+  /// String representation of genotype.
   string toString(){
     if(value != GENOTYPE_NA){
       return to!string(value);
@@ -131,7 +137,7 @@ struct Genotype(T) {
   }
 }
 
-immutable PHENOTYPE_NA = double.max;
+immutable PHENOTYPE_NA = double.max; // FIXME: needs to be typed to T
 
 /**
  * Phenotype is the most primitive representation of a phenotype. The type
@@ -144,6 +150,7 @@ immutable PHENOTYPE_NA = double.max;
 struct Phenotype(T) {
   T value;
   
+  /// String representation of phenotype.
   string toString(){
     if(value != PHENOTYPE_NA){
       return to!string(value);
@@ -159,6 +166,15 @@ struct Phenotype(T) {
 
 struct Covariate(T) {
   T value;
+
+  /// String representation of phenotype.
+  string toString(){
+    if(value != PHENOTYPE_NA){
+      return to!string(value);
+    }else{
+      return "NA";
+    }
+  }
 }
 
 
@@ -174,22 +190,22 @@ struct Covariate(T) {
 
 class Chromosome {
   mixin Identity;
-  // constructor
+
   this(string _name, uint _id = ID_UNKNOWN) {
     id = _id;
     name = _name;
   }
-  // information
-  bool is_sex() { return false; };
+
+  // Glean from type system bool is_sex() { return false; };
 }
 
 class Autosome : Chromosome {
-  this(string _name, uint _id) { super(_name,_id); assert(!is_sex); }
+  this(string _name, uint _id) { super(_name,_id); }
 }
 
 class SexChromosome : Chromosome {
-  this(string _name, uint _id=ID_UNKNOWN) { super(_name,_id); assert(is_sex); };
-  override bool is_sex() { return true; };
+  this(string _name, uint _id=ID_UNKNOWN) { super(_name,_id); };
+  // Glean from type systme override bool is_sex() { return true; };
 }
 
 /**
