@@ -241,9 +241,7 @@ class MarkerRef(T)
     return get_position() == (cast(MarkerRef!T)other).get_position();
   }
   int opCmp(Object other) {
-    auto mref = cast(MarkerRef!T)other;
-    auto res = get_position() - mref.get_position();
-    writeln("opCmp",other," ",get_position()," ",mref.get_position()," ",res);
+    auto res = get_position() - cast(MarkerRef!T)other.get_position();
     if (res > 0) return 1;
     if (res < 0) return -1;
     return 0;
