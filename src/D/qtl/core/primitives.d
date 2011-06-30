@@ -83,6 +83,10 @@ class Marker {
   // Information for Marker
   bool is_pseudo() { return false; }; // I would like to get this from the type system
   Position get_position() { return position; }
+  /// Markers at the same position are considered equal
+  bool opEquals(Object other) {
+    return get_position() == (cast(Marker)other).get_position();
+  }
 }
 
 /** 

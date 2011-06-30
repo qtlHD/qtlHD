@@ -17,8 +17,6 @@ import qtl.core.primitives;
 import qtl.core.genotype;
 
 /**
- * This function is incomplete FIXME
- *
  * The make_fixed_map function creates a new map for a chromosome, and 
  * inserts Pseudo markers at fixed positions.
  *
@@ -28,6 +26,8 @@ import qtl.core.genotype;
  * markers:        List of markers (one chromosome)
  * step:           Step size (in cM)
  * off_end:        Max distance (in cM) past the terminal marker
+ *
+ * (status: under review)
  */
 
 Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0) {
@@ -47,15 +47,9 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
     for (auto npos = minpos ; npos < maxpos ; npos += step) {
       // if marker does not exist, add pseudo marker 
       // (note new_markers is sorted)
-      foreach (m ; new_markers.list) {
-        if (m.get_position() == npos)
-          break;
-        if (m.get_position() > npos) {
-          auto pm = new PseudoMarker(npos);
-          new_markers.add(pm);
-          break;
-        }
-      }
+      auto pm = new PseudoMarker(npos);
+      if (countUntil(new_markers.list, pm) == -1)
+        new_markers.add(pm);
     }
     // always add one marker beyond each end (no matter
     // the fixed position distance)
