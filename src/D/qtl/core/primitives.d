@@ -81,7 +81,6 @@ class Marker {
   }
 
   // Information for Marker
-  bool is_pseudo() { return false; }; // I would like to get this from the type system
   Position get_position() { return position; }
   /// Markers at the same position are considered equal
   bool opEquals(Object other) {
@@ -107,8 +106,6 @@ class PseudoMarker : Marker {
   this(in PseudoMarker m) {
     this(m.position, m.name, m.id);
   }
-  // info
-  override bool is_pseudo() { return true; };
 }
 
 immutable GENOTYPE_NA = -1;
