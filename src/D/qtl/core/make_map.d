@@ -230,7 +230,7 @@ Ms add_stepped_markers_sex(Ms)(in Ms markers, Position step=1.0, Position off_en
   }
 }
 */
-  return null;
+  throw new Exception("Function not implemented");
 }
 
 /**
