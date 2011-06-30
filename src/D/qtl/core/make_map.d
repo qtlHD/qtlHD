@@ -45,15 +45,13 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
   auto new_markers = new Ms(markers);
   auto sorted_markers = markers.sorted();
   if (markers.list.length > 1) {
-    auto first_marker = sorted_markers.list[0];
-    auto minpos = first_marker.get_position();
-    auto last_marker = sorted_markers.list[$-1];
-    auto maxpos = last_marker.get_position();
-    // between minpos and maxpos add markers at fixed positions
-    for (auto npos = minpos ; npos < maxpos ; npos += step) {
-      // if marker does not exist, add pseudo marker 
+    auto list = sorted_markers.list;
+    auto minpos = list[0].get_position();
+    auto maxpos = list[$-1].get_position();
+    for (auto npos = minpos ; npos < maxpos; npos += step) {
       auto pm = new PseudoMarker(npos);
       if (countUntil(sorted_markers.list, pm) == -1)
+        // marker does not exist: add pseudo marker 
         new_markers.add(pm);
     }
     // always add one marker beyond each end (no matter
