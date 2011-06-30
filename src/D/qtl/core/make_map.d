@@ -17,11 +17,13 @@ import qtl.core.primitives;
 import qtl.core.genotype;
 
 /**
+ * In R/qtl one function existed for create.map (in util.R), now split into
+ * fixed_distance_map, fixed_distance_map_sex and add_marker_if_single.
+ */
+
+ /**
  * The make_fixed_map function creates a new map for a chromosome, and 
  * inserts Pseudo markers at fixed positions.
- *
- * In R/qtl one function existed for fixed_distance_map, 
- * fixed_distance_map_sex and add_marker_if_single.
  *
  * markers:        List of (unsorted) markers (one chromosome)
  * step:           Step size (in cM)
@@ -41,7 +43,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
   // With R/qtl, if step is zero, the purpose was to add a marker if there is
   // only one. Now, use the function add_marker_if_single instead. Adding
   // markers (at off_end) with step=0 is not supported here. That should also
-  // be a separate function.
+  // be a separate function. Variable step size is, again, another function.
   auto new_markers = new Ms(markers);
   auto sorted_markers = markers.sorted();
   if (markers.list.length > 1) {
@@ -59,7 +61,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
     new_markers.add(new PseudoMarker(minpos - off_end));
     new_markers.add(new PseudoMarker(maxpos + off_end));
     // FIXME remove Pseudo markers too close to other markers
-    // (was this in R/qtl?)
+    // (was this in R/qtl? No, so maybe I leave this)
   }
   return new_markers;
 }
