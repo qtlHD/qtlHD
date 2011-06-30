@@ -84,10 +84,10 @@ class Marker {
   Position get_position() { return position; }
   /// Markers at the same position are considered equal
   bool opEquals(Object other) {
-    return get_position() == (cast(Marker)other).get_position();
+    return get_position() == (cast(Marker)other).position;
   }
   int opCmp(Object other) {
-    auto cmp = get_position() - (cast(Marker)other).get_position();
+    auto cmp = position - (cast(Marker)other).position;
     if (cmp > 0) return 1;
     if (cmp < 0) return -1;
     return 0;
