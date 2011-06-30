@@ -167,8 +167,9 @@ struct Covariate(T) {
 
 /**
  * Chromosome is the most primitive representation of a chromosome.  Autosome
- * and sex chromosomes are known via their type. Since these chromoses are
- * 'shared' between markers, we use them by reference (i.e. a class).  
+ * and sex chromosomes are known via their type. Since these chromosomes are
+ * 'shared', or referenced, between markers, we use them by reference 
+ * (i.e. a D class).
  *
  * To maintain a list of markers with a chromosome, use a shared object,
  * for example ChromosomeMarkers below.
@@ -209,17 +210,16 @@ class Individuals {
 }
 
 /******************************************************************************
- * The following objects are not really primitive - but are useful
- * building blocks.
+ * The following objects are not really primitive - but are the
+ * building blocks tying primitive types together.
  */
 
 /**
- * The MarkerIndex combines a Marker with a genotype matrix, where each row
- * represents the genotype of an individual.  Each MarkerRef points to a
- * Marker, a genotype matrix, and the column index in the matrix. 
+ * Combine a Marker with a genotype matrix. Each MarkerRef points to a Marker,
+ * a genotype matrix, and the column index in that matrix. 
  *
- * Multiple genotype matrices are possible. E.g. a genotype matrix for one or 
- * more pseudomarkers can exist.
+ * Different MarkerRefs can point to different genotype matrices(!) E.g. a
+ * special genotype matrix for one or more pseudomarkers can exist.
  */
 
 class MarkerRef(T) 
@@ -253,11 +253,12 @@ class MarkerRef(T)
 }
 
 /**
- * The ordered Marker list keeps track of Markers.
+ * The Marker list keeps track of Markers. Note there is no 
+ * guarantee the list is ordered.
  */
 
 class Markers(M) {
-  M[] list;  // May become an SList.
+  M[] list;  // Unordered marker list May become an SList.
   this() {}
   this(in Markers!M markers) {
     list = markers.list.dup;  // make sure to clone all data
@@ -267,8 +268,7 @@ class Markers(M) {
   }
   const auto sorted() { 
     auto ms = new Markers(this); // make a copy
-    // sort!("a.get_position() < b.get_position()")(ms.list);
-    sort(ms.list);
+    sort(ms.list); // sorts in place
     return ms;
   }
 }
