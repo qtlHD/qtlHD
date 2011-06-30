@@ -88,7 +88,10 @@ class Marker {
     return get_position() == (cast(Marker)other).get_position();
   }
   int opCmp(Object other) {
-    return cast(int)(get_position() - (cast(Marker)other).get_position());
+    auto cmp = get_position() - (cast(Marker)other).get_position();
+    if (cmp > 0) return 1;
+    if (cmp < 0) return -1;
+    return 0;
   }
 }
 
@@ -241,9 +244,9 @@ class MarkerRef(T)
     return get_position() == (cast(MarkerRef!T)other).get_position();
   }
   int opCmp(Object other) {
-    auto res = get_position() - cast(MarkerRef!T)other.get_position();
-    if (res > 0) return 1;
-    if (res < 0) return -1;
+    auto cmp = get_position() - (cast(MarkerRef!T)other).get_position();
+    if (cmp > 0) return 1;
+    if (cmp < 0) return -1;
     return 0;
   }
 
