@@ -87,6 +87,9 @@ class Marker {
   bool opEquals(Object other) {
     return get_position() == (cast(Marker)other).get_position();
   }
+  int opCmp(Object other) {
+    return cast(int)(get_position() - (cast(Marker)other).get_position());
+  }
 }
 
 /** 
@@ -233,7 +236,18 @@ class MarkerRef(T)
 
   Position get_position() { return marker.get_position(); }
 
-  // ref T opIndex(int i) { ; }
+  /// Markers at the same position are considered equal
+  bool opEquals(Object other) {
+    return get_position() == (cast(MarkerRef!T)other).get_position();
+  }
+  int opCmp(Object other) {
+    auto mref = cast(MarkerRef!T)other;
+    auto res = get_position() - mref.get_position();
+    writeln("opCmp",other," ",get_position()," ",mref.get_position()," ",res);
+    if (res > 0) return 1;
+    if (res < 0) return -1;
+    return 0;
+  }
 
 }
 
@@ -252,7 +266,8 @@ class Markers(M) {
   }
   const auto sorted() { 
     auto ms = new Markers(this); // make a copy
-    sort!("a.get_position() < b.get_position()")(ms.list);
+    // sort!("a.get_position() < b.get_position()")(ms.list);
+    sort(ms.list);
     return ms;
   }
 }
@@ -330,13 +345,12 @@ unittest {
   m2.attrib_list = new Attribute[1];
   auto mref1 = new MarkerRef!uint(m1);
   auto mref2 = new MarkerRef!uint(m2);
-  PseudoMarker pm1 = new PseudoMarker(4.7,"m3",3);
+  PseudoMarker pm1 = new PseudoMarker(4.7,"pm1",3);
   auto pmref1 = new MarkerRef!uint(pm1);
   auto markers = new Markers!(MarkerRef!uint)();
-  // static assert(isForwardRange!(typeof(markers)));
-  markers.list ~= mref1;
-  markers.list ~= mref2;
-  markers.list ~= pmref1;
+  markers.list ~= mref1;  // 1, 4.6
+  markers.list ~= mref2;  // 2, 4.8
+  markers.list ~= pmref1; // 3, 4.7
   uint[] result;
   foreach ( m ; markers.list ) {
     result ~= m.marker.id;
@@ -345,15 +359,16 @@ unittest {
   // reverse sort markers
   auto list2 = sort!("a.get_position() > b.get_position()")(markers.list);
   foreach ( m ; list2 ) {
-    result ~= m.marker.id;
+    result ~= m.marker.id; // add reverse sorted list (2,3,1)
+
   }
   assert(result==cast(uint[])[1,2,3,2,3,1],to!string(result));
-  auto ms = markers.sorted();
+  auto ms = markers.sorted(); 
   foreach ( m ; ms.list ) {
-    result ~= m.marker.id;
+    result ~= m.marker.id; // add sorted marker list (1,3,2)
   }
   assert(result==cast(uint[])[1,2,3,2,3,1,1,3,2],to!string(result));
   auto ulist2 = uniq!("a.get_position() == b.get_position")(ms.list);
   auto pos_list = map!"a.get_position()"(ulist2);
-  assert(equal(pos_list,[4.6, 4.7, 4.8]));
+  assert(equal(pos_list,[4.6, 4.7, 4.8]),to!string(pos_list));
 }
