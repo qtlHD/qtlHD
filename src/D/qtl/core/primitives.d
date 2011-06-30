@@ -148,7 +148,7 @@ struct Phenotype(T) {
   T value;
   
   string toString(){
-    if(value != PHENOTYPE_NA){
+    if(to!double(value) != PHENOTYPE_NA){
       return to!string(value);
     }else{
       return "NA";
