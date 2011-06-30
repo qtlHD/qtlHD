@@ -23,9 +23,14 @@ import qtl.core.genotype;
  * In R/qtl one function existed for fixed_distance_map, 
  * fixed_distance_map_sex and add_marker_if_single.
  *
- * markers:        List of markers (one chromosome)
+ * markers:        List of (unsorted) markers (one chromosome)
  * step:           Step size (in cM)
  * off_end:        Max distance (in cM) past the terminal marker
+ *
+ * Returns:
+ *
+ *   Marker container Ms, including pseudomarkers. Note: this list
+ *   is unsorted.
  *
  * (status: under review)
  */
@@ -37,25 +42,24 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
   // only one. Now, use the function add_marker_if_single instead. Adding
   // markers (at off_end) with step=0 is not supported here. That should also
   // be a separate function.
-  auto new_markers = markers.sorted();
+  auto new_markers = new Ms(markers);
+  auto sorted_markers = markers.sorted();
   if (markers.list.length > 1) {
-    auto first_marker = new_markers.list[0];
+    auto first_marker = sorted_markers.list[0];
     auto minpos = first_marker.get_position();
-    auto last_marker = new_markers.list[$-1];
+    auto last_marker = sorted_markers.list[$-1];
     auto maxpos = last_marker.get_position();
     // between minpos and maxpos add markers at fixed positions
     for (auto npos = minpos ; npos < maxpos ; npos += step) {
       // if marker does not exist, add pseudo marker 
-      // (note new_markers is sorted)
       auto pm = new PseudoMarker(npos);
-      if (countUntil(new_markers.list, pm) == -1)
+      if (countUntil(sorted_markers.list, pm) == -1)
         new_markers.add(pm);
     }
     // always add one marker beyond each end (no matter
     // the fixed position distance)
     new_markers.add(new PseudoMarker(minpos - off_end));
     new_markers.add(new PseudoMarker(maxpos + off_end));
-    new_markers = new_markers.sorted();
     // FIXME remove Pseudo markers too close to other markers
     // (was this in R/qtl?)
   }
@@ -312,12 +316,12 @@ unittest {
   assert(list.length == 23, to!string(list.length)); 
   auto uniq_list = uniq!"a.get_position() == b.get_position()"(list);
   auto pos_list = map!"a.get_position()"(uniq_list);
-  assert(equal(pos_list,[9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]), to!string(pos_list));
+  assert(equal(pos_list,[10, 20, 30, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 9, 31]), to!string(pos_list));
   auto ts = map!"to!double(a)"(pos_list);
   // nudge mar Result into a double[]
   double ds[];
   foreach (u ; pos_list) { ds ~= u; }  // this can be done better, I am sure
-  assert(ds[0] == 9);
+  assert(ds[0] == 10);
   assert(ds.length == 23); // tis proof 
 }
 
