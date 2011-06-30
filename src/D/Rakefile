@@ -56,6 +56,10 @@ file "csv2xgap" => core_dfiles_list do
   sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/output/write_xgapbin.d"
 end
 
+file "bindR" do
+  sh "dmd -unittest -ofbindR deps/r/r.d qtl/core/libs/libload.d test/main.d"
+end
+
 # ---- Standard tasks
 
 desc "Default builds and tests #{PROG}"
@@ -82,7 +86,8 @@ end
 # ---- Unit tests
 
 desc "Test CSVr"
-task :test_csvr => [ 'read_csvr' ] do 
+task :test_csvr => [ 'read_csv', 'read_csvr' ] do 
+  sh "./read_csv" 
   sh "./read_csvr" 
 end
 
@@ -92,8 +97,11 @@ task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do
   sh "./read_xgapbin"
 end
 
-desc "Test all"
-task :test_all => [ :test_csvr, :test_xgap ] do 
-#  sh "./read_csv"
+desc "Test binding of R.h"
+task :test_r => [ 'bindR' ] do 
+  sh "./bindR"
 end
+
+desc "Test all"
+task :test_all => [ :test_csvr, :test_xgap, :test_r ]
 
