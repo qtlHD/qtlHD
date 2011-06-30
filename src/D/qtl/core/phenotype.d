@@ -12,7 +12,7 @@ Phenotype!T set_phenotype(T)(in string s) {
   // writeln(s);
   Phenotype!T p;
   if(s == "NA" || s == "-") 
-    p.value = PHENOTYPE_NA;
+    p.value = to!T(PHENOTYPE_NA);
   else
     p.value = to!T(s);
   return p;
