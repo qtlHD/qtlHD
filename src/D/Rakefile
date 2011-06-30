@@ -57,7 +57,7 @@ file "csv2xgap" => core_dfiles_list do
 end
 
 file "bindR" do
-  sh "dmd -unittest -ofbindR deps/r/r.d qtl/core/libs/libload.d test/main.d"
+  sh "dmd -unittest -ofbindR deps/r/r.d qtl/core/libs/libload.d test/main.d -L/lib/libdl.so.2"
 end
 
 # ---- Standard tasks
