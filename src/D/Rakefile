@@ -30,8 +30,11 @@ core_iofiles = core_iofiles_list.join(' ')
 core_xgap_list = Dir.glob("./qtl/core/xgap/*.d")
 core_xgapfiles = core_xgap_list.join(' ')
 
+#Unix files
 CLEAN.include('*.o')
-CLEAN.include('test.*')
+#Win32 files
+CLEAN.include('*.obj','*.exe','*.map')
+CLEAN.include('test.*', '*.xbin')
 CLEAN.include(%w[ csv2xgap read_csv read_csvr test.xbin write_xgapbin read_xgapbin bindR ])
 
 # The compile targets
@@ -57,14 +60,15 @@ file "csv2xgap" => core_dfiles_list do
 end
 
 def windows?
-    return RUBY_PLATFORM =~ /win32/i 
+    return RUBY_PLATFORM =~ /(:?mswin|mingw)/
 end
 
 file "bindR" do
   if windows? then
+    print "Windows binding of R.dll\n"
     sh "dmd -unittest -ofbindR deps/r/r.d qtl/core/libs/libload.d test/main.d" 
   else
-    print "unix binding against libdl.so.2\n"
+    print "UNIX binding libdl.so.2\n"
     sh "dmd -unittest -ofbindR deps/r/r.d qtl/core/libs/libload.d test/main.d -L/lib/libdl.so.2" 
   end
 end
