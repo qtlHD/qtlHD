@@ -25,7 +25,7 @@ static this(){
   HXModule lib = load_library("R");
   load_function(dnorm)(lib,"Rf_dnorm4");
   load_function(qf)(lib,"Rf_qf");
-  writefln("mapped R.dll");
+  writefln("mapped R");
 }
 
 unittest {

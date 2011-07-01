@@ -32,7 +32,7 @@ core_xgapfiles = core_xgap_list.join(' ')
 
 CLEAN.include('*.o')
 CLEAN.include('test.*')
-CLEAN.include(%w[ csv2xgap read_csv read_csvr test.xbin write_xgapbin read_xgapbin ])
+CLEAN.include(%w[ csv2xgap read_csv read_csvr test.xbin write_xgapbin read_xgapbin bindR ])
 
 # The compile targets
 
@@ -56,8 +56,17 @@ file "csv2xgap" => core_dfiles_list do
   sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/output/write_xgapbin.d"
 end
 
+def windows?
+    return RUBY_PLATFORM =~ /win32/i 
+end
+
 file "bindR" do
-  sh "dmd -unittest -ofbindR deps/r/r.d qtl/core/libs/libload.d test/main.d -L/lib/libdl.so.2"
+  if windows? then
+    sh "dmd -unittest -ofbindR deps/r/r.d qtl/core/libs/libload.d test/main.d" 
+  else
+    print "unix binding against libdl.so.2\n"
+    sh "dmd -unittest -ofbindR deps/r/r.d qtl/core/libs/libload.d test/main.d -L/lib/libdl.so.2" 
+  end
 end
 
 # ---- Standard tasks
@@ -103,5 +112,5 @@ task :test_r => [ 'bindR' ] do
 end
 
 desc "Test all"
-task :test_all => [ :test_csvr, :test_xgap, :test_r ]
+task :test_all => [:clean, :test_csvr, :test_xgap, :test_r ]
 
