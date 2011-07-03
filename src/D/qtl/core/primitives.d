@@ -197,6 +197,7 @@ class Chromosome {
   }
 
   // Glean from type system bool is_sex() { return false; };
+  // e.g. typeid(chromosome) == typeid(SexChromosome)
 }
 
 class Autosome : Chromosome {
@@ -205,7 +206,6 @@ class Autosome : Chromosome {
 
 class SexChromosome : Chromosome {
   this(string _name, uint _id=ID_UNKNOWN) { super(_name,_id); };
-  // Glean from type systme override bool is_sex() { return true; };
 }
 
 /**
