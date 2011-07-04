@@ -59,18 +59,8 @@ file "csv2xgap" => core_dfiles_list do
   sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/output/write_xgapbin.d"
 end
 
-def windows?
-    return RUBY_PLATFORM =~ /(:?mswin|mingw)/
-end
-
-file "bindR" do
-  if windows? then
-    print "Windows binding of R.dll\n"
-    sh "dmd -unittest -ofbindR deps/r/r.d qtl/core/libs/libload.d test/main.d" 
-  else
-    print "UNIX binding libdl.so.2\n"
-    sh "dmd -unittest -ofbindR deps/r/r.d qtl/core/libs/libload.d test/main.d -L/lib/libdl.so.2" 
-  end
+file "test_scanone_listeria" => core_dfiles_list << 'test/scanone/test_scanone.d' do
+  sh "dmd -unittest -oftest_scanone_listeria #{core_dfiles} qtl/plugins/input/read_interface.d qtl/plugins/input/read_csv.d test/scanone/test_scanone.d test/main.d"
 end
 
 # ---- Standard tasks
@@ -110,9 +100,20 @@ task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do
   sh "./read_xgapbin"
 end
 
+<<<<<<< HEAD
 desc "Test binding of R.h"
 task :test_r => [ 'bindR' ] do 
   sh "./bindR"
+=======
+desc "Test scanone"
+task :test_scanone => [ 'test_scanone_listeria' ] do 
+  sh "./test_scanone_listeria"
+end
+
+desc "Test all"
+task :test_all => [ :test_csvr, :test_xgap ] do 
+#  sh "./read_csv"
+>>>>>>> cd700269b44e72580867f30cea035441c248306a
 end
 
 desc "Test all"
