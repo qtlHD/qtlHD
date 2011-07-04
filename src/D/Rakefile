@@ -100,11 +100,6 @@ task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do
   sh "./read_xgapbin"
 end
 
-<<<<<<< HEAD
-desc "Test binding of R.h"
-task :test_r => [ 'bindR' ] do 
-  sh "./bindR"
-=======
 desc "Test scanone"
 task :test_scanone => [ 'test_scanone_listeria' ] do 
   sh "./test_scanone_listeria"
@@ -113,7 +108,6 @@ end
 desc "Test all"
 task :test_all => [ :test_csvr, :test_xgap ] do 
 #  sh "./read_csv"
->>>>>>> cd700269b44e72580867f30cea035441c248306a
 end
 
 desc "Test all"
