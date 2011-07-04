@@ -44,23 +44,6 @@ unittest {
   assert(data.genotypes[1][1].value == F2.B);
 
 /*
-Parse the Listeria CSV file into a QTL object
-
-  >> qtl = QTL.new(LISTERIA)
-
-You can also provide the allowed genotypes for validation of the input 
-file:
-
-  >> validate = QtlValidateGenotypes.new(['A','B'],['A','H','B','D','C'],['-','NA'])
-  >> qtl = QTL.new(LISTERIA,validate)
-
-Fetch the loaded data and check the type (defaults to F2 at this point)
-R/qtl makes it an F2 intercross based on the number of genotypes
-
-  >> d = qtl.data
-  >> d.type
-  => :f2
-
 Now we can fetch information about the data object. There are two 'styles'. One
 follows Ruby's principles of least surprise. The other style is more native
 to R/qtl.
