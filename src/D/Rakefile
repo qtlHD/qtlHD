@@ -56,7 +56,7 @@ file "csv2xgap" => core_dfiles_list do
   sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/output/write_xgapbin.d"
 end
 
-file "test_scanone_listeria" => core_dfiles_list do
+file "test_scanone_listeria" => core_dfiles_list << 'test/scanone/test_scanone.d' do
   sh "dmd -unittest -oftest_scanone_listeria #{core_dfiles} qtl/plugins/input/read_interface.d qtl/plugins/input/read_csv.d test/scanone/test_scanone.d test/main.d"
 end
 

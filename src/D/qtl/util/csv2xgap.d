@@ -35,15 +35,15 @@ void print_help(){
 void read_type(XType)(string filein, string fileout){
   if(filein.lastIndexOf(".") > 0){
     string extension = filein[filein.lastIndexOf(".")+1..$];
-    GenericReader!XType data;
+    // GenericReader!XType data;
     if(extension.tolower() == "csv"){
-      data = cast(GenericReader!XType)new ReadSimpleCSV!XType(filein);
+      auto data = cast(GenericReader!XType)new ReadSimpleCSV!XType(filein);
     }
     if(extension.tolower() == "csvr"){
-      data = cast(GenericReader!XType)new CSVrReader!XType(filein);
+      auto data = cast(GenericReader!XType)new CSVrReader!XType(filein);
     }
     writeln("reading CSVR (" ~ filein ~ ") to XBIN (" ~ fileout ~ ")");
-    auto result = new BinaryWriter!(GenericReader!XType,XType)(data,fileout);
+    auto result = new BinaryWriter(data,fileout);
     writefln("Reduced from: %.2f Kb to %.2f Kb", toKb(filein), toKb(fileout));
   }
 }

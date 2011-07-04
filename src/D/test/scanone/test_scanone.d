@@ -2,13 +2,47 @@
  * Test scanone routines, using listeria set
  */
 
+module test.scanone.test_scanone;
+
+import qtl.core.primitives;
+import qtl.core.chromosome;
+import qtl.core.phenotype;
+import qtl.core.genotype;
+import qtl.plugins.input.read_interface;
+import qtl.plugins.input.read_csv;
 import std.stdio;
+import std.conv;
+import std.string;
+import std.path;
 
 // The comments are based on the Ruby/Biolib-R/qtl integration
 
 unittest {
 
   writeln("Unit test " ~ __FILE__);
+  alias std.path.join join;
+  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
+  writeln("  - reading CSV " ~ fn);
+  Marker m2 = new Marker(4.8);
+  auto markers = [ m2 ];
+  auto data = new ReadSimpleCSV!F2(fn);
+  assert(data.markers.length == 133, to!string(data.markers.length));
+  assert(data.phenotypenames[0] == "T264");
+  assert(data.markers[0].name == "D10M44");
+  assert(data.markers[0].id == 0);
+  assert(data.markers[1].id == 1);
+  // Check chromosomes
+  assert(data.chromosomes.length == 20, to!string(data.chromosomes.length));
+  assert(data.chromosomes["X"].id == ID_UNKNOWN);
+  assert(data.chromosomes["7"].id == 7);
+  assert(data.markers[2].position == 24.84773, "Marker position not matching");
+  // Check phenotype
+  assert(data.phenotypes[29][0].value == PHENOTYPE_NA, to!string(data.phenotypes[29][0].value));
+  assert(data.phenotypes[30][0].value == 74.417);
+  // Check genotype
+  assert(data.genotypes[1][0].value == F2.NA);
+  assert(data.genotypes[1][1].value == F2.B);
+
 /*
 Parse the Listeria CSV file into a QTL object
 
