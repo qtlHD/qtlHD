@@ -65,11 +65,15 @@ mixin template MarkerInfo() {
  *
  * The Marker object does not keep track of the parent container (apart from
  * Chromosome). Normally a Marker list is maintained in a parent container.
+ *
+ * Markers are compared on their position (location). I.e. markers at exactly
+ * the same location are considered equal (currently the chromosome is not
+ * checked).
  */
 
 class Marker {
   mixin MarkerInfo;
-  // Constructors for Marker
+
   this(double _position = MARKER_POSITION_UNKNOWN, string _name = MARKER_NAME_UNKNOWN, uint _id=ID_UNKNOWN) { 
     name = _name, position = _position, id = _id ;
     if (name == MARKER_NAME_UNKNOWN && position != MARKER_POSITION_UNKNOWN) 
@@ -80,15 +84,15 @@ class Marker {
     this(m.position, m.name, m.id);
   }
 
-  // Information for Marker
-  bool is_pseudo() { return false; }; // I would like to get this from the type system
   Position get_position() { return position; }
-  /// Markers at the same position are considered equal
   bool opEquals(Object other) {
-    return get_position() == (cast(Marker)other).get_position();
+    //  test for chromosome?
+    /// Markers at the same position are considered equal
+    return get_position() == (cast(Marker)other).position;
   }
   int opCmp(Object other) {
-    auto cmp = get_position() - (cast(Marker)other).get_position();
+    //  test for chromosome?
+    auto cmp = position - (cast(Marker)other).position;
     if (cmp > 0) return 1;
     if (cmp < 0) return -1;
     return 0;
@@ -107,8 +111,6 @@ class PseudoMarker : Marker {
   this(in PseudoMarker m) {
     this(m.position, m.name, m.id);
   }
-  // info
-  override bool is_pseudo() { return true; };
 }
 
 immutable GENOTYPE_NA = -1;
@@ -125,6 +127,7 @@ immutable GENOTYPE_NA = -1;
 struct Genotype(T) {
   T value;
   
+  /// String representation of genotype.
   string toString(){
     if(value != GENOTYPE_NA){
       return to!string(value);
@@ -134,7 +137,7 @@ struct Genotype(T) {
   }
 }
 
-immutable PHENOTYPE_NA = double.max;
+immutable PHENOTYPE_NA = double.max; // FIXME: needs to be typed to T
 
 /**
  * Phenotype is the most primitive representation of a phenotype. The type
@@ -147,6 +150,7 @@ immutable PHENOTYPE_NA = double.max;
 struct Phenotype(T) {
   T value;
   
+  /// String representation of phenotype.
   string toString(){
     if(to!double(value) != PHENOTYPE_NA){
       return to!string(value);
@@ -162,13 +166,23 @@ struct Phenotype(T) {
 
 struct Covariate(T) {
   T value;
+
+  /// String representation of phenotype.
+  string toString(){
+    if(value != PHENOTYPE_NA){
+      return to!string(value);
+    }else{
+      return "NA";
+    }
+  }
 }
 
 
 /**
  * Chromosome is the most primitive representation of a chromosome.  Autosome
- * and sex chromosomes are known via their type. Since these chromoses are
- * 'shared' between markers, we use them by reference (i.e. a class).  
+ * and sex chromosomes are known via their type. Since these chromosomes are
+ * 'shared', or referenced, between markers, we use them by reference 
+ * (i.e. a D class).
  *
  * To maintain a list of markers with a chromosome, use a shared object,
  * for example ChromosomeMarkers below.
@@ -176,22 +190,22 @@ struct Covariate(T) {
 
 class Chromosome {
   mixin Identity;
-  // constructor
+
   this(string _name, uint _id = ID_UNKNOWN) {
     id = _id;
     name = _name;
   }
-  // information
-  bool is_sex() { return false; };
+
+  // Glean from type system bool is_sex() { return false; };
+  // e.g. typeid(chromosome) == typeid(SexChromosome)
 }
 
 class Autosome : Chromosome {
-  this(string _name, uint _id) { super(_name,_id); assert(!is_sex); }
+  this(string _name, uint _id) { super(_name,_id); }
 }
 
 class SexChromosome : Chromosome {
-  this(string _name, uint _id=ID_UNKNOWN) { super(_name,_id); assert(is_sex); };
-  override bool is_sex() { return true; };
+  this(string _name, uint _id=ID_UNKNOWN) { super(_name,_id); };
 }
 
 /**
@@ -209,17 +223,16 @@ class Individuals {
 }
 
 /******************************************************************************
- * The following objects are not really primitive - but are useful
- * building blocks.
+ * The following objects are not really primitive - but are the
+ * building blocks tying primitive types together.
  */
 
 /**
- * The MarkerIndex combines a Marker with a genotype matrix, where each row
- * represents the genotype of an individual.  Each MarkerRef points to a
- * Marker, a genotype matrix, and the column index in the matrix. 
+ * Combine a Marker with a genotype matrix. Each MarkerRef points to a Marker,
+ * a genotype matrix, and the column index in that matrix. 
  *
- * Multiple genotype matrices are possible. E.g. a genotype matrix for one or 
- * more pseudomarkers can exist.
+ * Different MarkerRefs can point to different genotype matrices(!) E.g. a
+ * special genotype matrix for one or more pseudomarkers can exist.
  */
 
 class MarkerRef(T) 
@@ -253,11 +266,12 @@ class MarkerRef(T)
 }
 
 /**
- * The ordered Marker list keeps track of Markers.
+ * The Marker list keeps track of Markers. Note there is no 
+ * guarantee the list is ordered.
  */
 
 class Markers(M) {
-  M[] list;  // May become an SList.
+  M[] list;  // Unordered marker list May become an SList.
   this() {}
   this(in Markers!M markers) {
     list = markers.list.dup;  // make sure to clone all data
@@ -267,8 +281,7 @@ class Markers(M) {
   }
   const auto sorted() { 
     auto ms = new Markers(this); // make a copy
-    // sort!("a.get_position() < b.get_position()")(ms.list);
-    sort(ms.list);
+    sort(ms.list); // sorts in place
     return ms;
   }
 }
