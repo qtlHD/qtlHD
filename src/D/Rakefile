@@ -37,11 +37,11 @@ CLEAN.include(%w[ csv2xgap read_csv read_csvr test.xbin write_xgapbin read_xgapb
 # The compile targets
 
 file "read_csv" => core_dfiles_list do
-  sh "dmd -unittest -ofread_csv #{core_dfiles} qtl/plugins/input/read_interface.d qtl/plugins/input/read_csv.d test/main.d"
+  sh "dmd -unittest -ofread_csv #{core_dfiles} qtl/plugins/input/read_csv.d test/main.d"
 end
 
 file "read_csvr" => core_dfiles_list do
-  sh "dmd -unittest -ofread_csvr #{core_dfiles} qtl/plugins/input/read_interface.d qtl/plugins/input/read_csvr.d qtl/plugins/input/read_csv.d test/main.d"
+  sh "dmd -unittest -ofread_csvr #{core_dfiles} qtl/plugins/input/read_csvr.d qtl/plugins/input/read_csv.d test/main.d"
 end
 
 file "write_xgapbin" => core_dfiles_list do
@@ -57,7 +57,7 @@ file "csv2xgap" => core_dfiles_list do
 end
 
 file "test_scanone_listeria" => core_dfiles_list << 'test/scanone/test_scanone.d' do
-  sh "dmd -unittest -oftest_scanone_listeria #{core_dfiles} qtl/plugins/input/read_interface.d qtl/plugins/input/read_csv.d test/scanone/test_scanone.d test/main.d"
+  sh "dmd -unittest -oftest_scanone_listeria #{core_dfiles} qtl/plugins/input/read_csv.d test/scanone/test_scanone.d test/main.d"
 end
 
 # ---- Standard tasks

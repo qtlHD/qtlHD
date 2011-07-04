@@ -10,7 +10,6 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.xgap.xgap;
 
-import qtl.plugins.input.read_interface;
 import qtl.plugins.input.read_csvr;
 import qtl.plugins.output.write_xgapbin;
 
@@ -20,12 +19,19 @@ import std.string;
 import std.path;
 import std.file;
 
-class XbinReader(XType) : GenericReader!XType{
+class XbinReader(XType) {
   XgapBinHeader   header;         //Binary file header
   MatrixHeader[]  headers;        //Matrix headers
   private File    f;              //File pointer
   ubyte[]         inputbuffer;    //Buffered file content
   bool            correct;        //Is the file correct?
+  string[] phenotypenames;
+  Marker[] markers;
+  Chromosome[string] chromosomes;
+  Phenotype!double[][] phenotypes;
+  Genotype!XType[][] genotypes;
+
+
   
   bool checkFootprint(in ubyte[] buffer){
     if(xgap_footprint == buffer) return true;

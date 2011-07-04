@@ -11,8 +11,6 @@ import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 
-import qtl.plugins.input.read_interface;
-
 import std.stdio;
 import std.conv;
 import std.string;
@@ -36,7 +34,6 @@ class ReadSimpleCSV(XType) {
   Chromosome[string] chromosomes;
   Phenotype!double[][] phenotypes;
   Genotype!XType[][] genotypes;
-  
 
   this(in string fn) {
     f = File(fn,"r");

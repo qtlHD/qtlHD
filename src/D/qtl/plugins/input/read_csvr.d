@@ -14,19 +14,23 @@ import std.conv;
 import std.string;
 import std.path;
 
-import qtl.plugins.input.read_interface;
-
 /** 
  * Loads a simple CSVR file containing marker names, chromosome nrs, position, 
  * phenotype and genotype - such as the multitrait.csvr file used in R/qtl.
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
-class CSVrReader(XType) : GenericReader!XType{
+class CSVrReader(XType) {
   private File f;
   int nindividuals = 0;
   int nphenotypes = 0;
   int nmarkers = 0;
+  
+  string[] phenotypenames;
+  Marker[] markers;
+  Chromosome[string] chromosomes;
+  Phenotype!double[][] phenotypes;
+  Genotype!XType[][] genotypes;
   
   bool check_individuals(string[] items){
     if(nindividuals==0){
