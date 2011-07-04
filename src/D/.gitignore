@@ -3,5 +3,7 @@ read_csv
 read_csvr
 write_xgapbin
 read_xgapbin
+test_scanone
+test_scanone_listeria
 *.c
 *.h

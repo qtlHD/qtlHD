@@ -28,9 +28,15 @@ import std.path;
  * The file is parsed once on class instantiation. Elements can be queried.
  */
 
-class ReadSimpleCSV(XType) : GenericReader!XType {
+class ReadSimpleCSV(XType) {
   private File f;
   Individuals individuals;
+  string[] phenotypenames;
+  Marker[] markers;
+  Chromosome[string] chromosomes;
+  Phenotype!double[][] phenotypes;
+  Genotype!XType[][] genotypes;
+  
 
   this(in string fn) {
     f = File(fn,"r");

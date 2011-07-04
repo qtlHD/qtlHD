@@ -37,10 +37,10 @@ void read_type(XType)(string filein, string fileout){
     string extension = filein[filein.lastIndexOf(".")+1..$];
     // GenericReader!XType data;
     if(extension.tolower() == "csv"){
-      auto data = cast(GenericReader!XType)new ReadSimpleCSV!XType(filein);
+      auto data = new ReadSimpleCSV!XType(filein);
     }
     if(extension.tolower() == "csvr"){
-      auto data = cast(GenericReader!XType)new CSVrReader!XType(filein);
+      auto data = new CSVrReader!XType(filein);
     }
     writeln("reading CSVR (" ~ filein ~ ") to XBIN (" ~ fileout ~ ")");
     auto result = new BinaryWriter(data,fileout);
