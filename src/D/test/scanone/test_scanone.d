@@ -2,8 +2,13 @@
  * Test scanone routines, using listeria set
  */
 
+import std.stdio;
+
 // The comments are based on the Ruby/Biolib-R/qtl integration
 
+unittest {
+
+  writeln("Unit test " ~ __FILE__);
 /*
 Parse the Listeria CSV file into a QTL object
 
@@ -513,3 +518,5 @@ The Ruby equivalent is (FIXME: this is not working for some reason)
   end
 end
 */
+
+}
