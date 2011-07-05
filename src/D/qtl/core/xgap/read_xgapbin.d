@@ -82,37 +82,37 @@ class XbinReader(XType) : GenericReader!XType{
     int start; //In matrix location of start fo the data
     for(int x=0;x<(h.nrow*h.ncol);x++){
       if(h.type == MatrixType.VARCHARMATRIX){
-	lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
-	start = (skip + int.sizeof + ((h.nrow*h.ncol)*int.sizeof));      
+        lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
+        start = (skip + int.sizeof + ((h.nrow*h.ncol)*int.sizeof));      
       }else{
         lengths ~= byteToInt(inputbuffer[skip..(skip+int.sizeof)]);
-	start = (skip + int.sizeof);
+        start = (skip + int.sizeof);
       }
     }
     switch(h.type){
       case MatrixType.INTMATRIX:
-	IntegerMatrix c = new IntegerMatrix();
+        IntegerMatrix c = new IntegerMatrix();
         c.lengths = lengths;
-	c.data = loadData!int(h, lengths, start);
-	returnmatrix.data = c;
+        c.data = loadData!int(h, lengths, start);
+        returnmatrix.data = c;
       break;        
       case MatrixType.DOUBLEMATRIX:
-	DoubleMatrix c = new DoubleMatrix();
+        DoubleMatrix c = new DoubleMatrix();
         c.lengths = lengths;
         c.data = loadData!double(h, lengths, start);
-	returnmatrix.data = c;
+        returnmatrix.data = c;
       break;        
       case MatrixType.FIXEDCHARMATRIX:
-	StringMatrix c = new StringMatrix();
+        StringMatrix c = new StringMatrix();
         c.lengths = lengths;
         c.data = loadData!string(h, lengths, start);
-	returnmatrix.data = c;
+        returnmatrix.data = c;
       break;        
       case MatrixType.VARCHARMATRIX:
-	StringMatrix c = new StringMatrix();
+        StringMatrix c = new StringMatrix();
         c.lengths = lengths;
         c.data = loadData!string(h, lengths, start);
-	returnmatrix.data = c;
+        returnmatrix.data = c;
       break;
       default:
         throw new Exception("Trying to load unsupported matrix type format");
