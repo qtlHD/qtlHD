@@ -21,11 +21,11 @@ import std.path;
 import std.file;
 
 class XbinReader(XType) : GenericReader!XType{
-  XgapBinHeader   header;         //Binary file header
-  MatrixHeader[]  headers;        //Matrix headers
-  private File    f;              //File pointer
-  ubyte[]         inputbuffer;    //Buffered file content
-  bool            correct;        //Is the file correct?
+  XgapFileHeader      header;         //Binary file header
+  XgapMatrixHeader[]  headers;        //Matrix headers
+  private File        f;              //File pointer
+  ubyte[]             inputbuffer;    //Buffered file content
+  bool                correct;        //Is the file correct?
   
   bool checkFootprint(in ubyte[] buffer){
     if(xgap_footprint == buffer) return true;
@@ -47,7 +47,7 @@ class XbinReader(XType) : GenericReader!XType{
     return returnbuffer;
   }
   
-  T[][] loadData(T)(MatrixHeader h, int[] lengths, int start){
+  T[][] loadData(T)(XgapMatrixHeader h, int[] lengths, int start){
     T[][] data;
     int skip=start;
     for(int r=0;r<h.nrow;r++){
@@ -66,12 +66,12 @@ class XbinReader(XType) : GenericReader!XType{
   * Loads the ith matrix of MatrixClasstype from the file
   */
   void load(MatrixClass c, int i = 0){
-    int skip = XgapBinHeader.sizeof;
-    foreach(MatrixHeader h;headers){
+    int skip = XgapFileHeader.sizeof;
+    foreach(XgapMatrixHeader h;headers){
       if(h.mclass==c){
         if(i==0){
         //extract matrix
-        skip += MatrixHeader.sizeof;
+        skip += XgapMatrixHeader.sizeof;
         int[] lengths;
         int start;
         if(h.type == MatrixType.VARCHARMATRIX){
@@ -159,7 +159,7 @@ class XbinReader(XType) : GenericReader!XType{
   *Parses the matrix header, reading type, dimensions and element sizes
   */
   int parseMatrixHeader(ubyte[] buffer, int matrix, int start){
-    MatrixHeader header = *cast(MatrixHeader*) inputbuffer[start..start+MatrixHeader.sizeof];
+    XgapMatrixHeader header = convbyte!(XgapMatrixHeader)(inputbuffer[start..start+XgapMatrixHeader.sizeof]);
     writefln("      Matrix %d, type=%d, rows: %d, columns: %d", matrix, header.type, header.nrow, header.ncol);
     headers ~= header;
     return header.size;
@@ -170,7 +170,7 @@ class XbinReader(XType) : GenericReader!XType{
   */
   bool parseFileHeader(bool verbose){
     writeln("    File OK? " ~ to!string(checkBuffer(inputbuffer)));
-    header = *cast(XgapBinHeader*) inputbuffer[0..XgapBinHeader.sizeof];
+    header = convbyte!(XgapFileHeader)(inputbuffer[0..XgapFileHeader.sizeof]);
     writeln("    Version: " ~ to!string(header.fileversion));
     writeln("    Matrices: " ~ to!string(header.nmatrices));
     assert(correct,"Footprint failed");
@@ -186,7 +186,7 @@ class XbinReader(XType) : GenericReader!XType{
     parseFileHeader(verbose);
 
     //Loop through the matrices
-    int skip = XgapBinHeader.sizeof;
+    int skip = XgapFileHeader.sizeof;
     for(int m=0; m<getNumberOfMatrices(); m++){
       skip += parseMatrixHeader(inputbuffer, m, skip);
     }

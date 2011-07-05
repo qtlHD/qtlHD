@@ -7,9 +7,17 @@ module qtl.core.xgap.xgap;
 import std.file;
 import std.conv;
 
+//Aliasses to define Footprint and Version
 alias byte[8] Footprint;
 alias byte[4] Version;
- 
+//Aliasses to more easily refer to the different matrices
+alias XgapMatrixData!int     integermatrix;
+alias XgapMatrixData!double  doublematrix;
+alias XgapMatrixData!string  stringmatrix;
+//Current Footprint and Version
+immutable Footprint xgap_footprint = [ 0, 'X', 'G', 'A', 'P', 'B', 0, 1 ];
+immutable Version   xgap_version   = [ 0, 0, 1, 'A' ];
+
 enum MatrixType : uint { 
   EMPTY = 0, 
   INTMATRIX = 1, 
@@ -27,16 +35,9 @@ enum MatrixClass : uint {
 };
 
 /*
- * Aliasses to more easily refer to the different matrices
- */
-alias XgapBinMatrix!int    integermatrix;
-alias XgapBinMatrix!double doublematrix;
-alias XgapBinMatrix!string stringmatrix;
-
-/*
  * XgapBinary file header
  */
-struct XgapBinHeader{
+struct XgapFileHeader{
   Footprint   magicn = xgap_footprint;
   Version     fileversion = xgap_version;
   byte[5]     p0 = [0,0,0,0,0];
@@ -44,16 +45,18 @@ struct XgapBinHeader{
   byte[4]     p1 = [0,0,0,0];
 }
 
-/*
- * XgapBinary matrix structure holding a header, lengths and data
- */
-class XgapBinMatrix(T){
-  MatrixHeader  header;
+interface Container {
+
+}
+
+//XgapBinary matrix structure holding a lengths and templated data
+class XgapMatrixData(T) : Container{
   int[]         lengths;
   T[][]         data;
 }
 
-struct MatrixHeader{
+//XgapBinary matrix structure holding a lengths and templated data
+struct XgapMatrixHeader{
   Footprint     magicn = xgap_footprint;
   
   MatrixType    type;
@@ -66,9 +69,10 @@ struct MatrixHeader{
   int           start;     //start of the matrix in the file
 }
 
-
-immutable Footprint xgap_footprint = [ 0, 'X', 'G', 'A', 'P', 'B', 0, 1 ];
-immutable Version   xgap_version   = [ 0, 0, 1, 'A' ];
+class XgapMatrix {
+  XgapMatrixHeader  header;
+  Container data;
+}
 
 /*
  * Helper function to go from sizes in bytes to KBs
