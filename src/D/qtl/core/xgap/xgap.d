@@ -40,9 +40,7 @@ enum MatrixClass : uint {
 struct XgapFileHeader{
   Footprint   magicn = xgap_footprint;
   Version     fileversion = xgap_version;
-  byte[5]     p0 = [0,0,0,0,0];
   int         nmatrices;
-  byte[4]     p1 = [0,0,0,0];
 }
 
 interface Container {

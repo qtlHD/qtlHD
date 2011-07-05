@@ -100,7 +100,7 @@ class BinaryWriter(Reader, XType) {
   
   void write_binary(in string filename){
     f = File(filename,"wb");
-    XgapFileHeader h = XgapFileHeader(xgap_footprint,xgap_version,[0,0,0,0,0],3,[0,0,0,0]);
+    XgapFileHeader h = XgapFileHeader(xgap_footprint,xgap_version,3);
     myWrite([h],f);
     write_matrix!(Phenotype!double)(data.phenotypes, f, MatrixType.DOUBLEMATRIX,MatrixClass.PHENOTYPE);
     write_matrix!(Genotype!XType)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX,MatrixClass.GENOTYPE);
