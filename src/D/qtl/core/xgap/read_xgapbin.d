@@ -66,7 +66,9 @@ class XbinReader(XType) : GenericReader!XType{
   * Loads the ith matrix of MatrixClasstype from the file
   */
   XgapMatrix load(int matrixid = 0){
-    assert(matrixid >= 0 && matrixid < headers.length);
+    if(!(matrixid >= 0 && matrixid < headers.length)){
+      throw new Exception("No such matrix");
+    }
     int skip = XgapFileHeader.sizeof;
     for(int i=0;i < matrixid;i++){
       skip += headers[i].size;
@@ -86,6 +88,35 @@ class XbinReader(XType) : GenericReader!XType{
         lengths ~= byteToInt(inputbuffer[skip..(skip+int.sizeof)]);
 	start = (skip + int.sizeof);
       }
+    }
+    switch(h.type){
+      case MatrixType.INTMATRIX:
+	IntegerMatrix c = new IntegerMatrix();
+        c.lengths = lengths;
+	c.data = loadData!int(h, lengths, start);
+	returnmatrix.data = c;
+      break;        
+      case MatrixType.DOUBLEMATRIX:
+	DoubleMatrix c = new DoubleMatrix();
+        c.lengths = lengths;
+        c.data = loadData!double(h, lengths, start);
+	returnmatrix.data = c;
+      break;        
+      case MatrixType.FIXEDCHARMATRIX:
+	StringMatrix c = new StringMatrix();
+        c.lengths = lengths;
+        c.data = loadData!string(h, lengths, start);
+	returnmatrix.data = c;
+      break;        
+      case MatrixType.VARCHARMATRIX:
+	StringMatrix c = new StringMatrix();
+        c.lengths = lengths;
+        c.data = loadData!string(h, lengths, start);
+	returnmatrix.data = c;
+      break;
+      default:
+        throw new Exception("Trying to load unsupported matrix type format");
+      break;             
     }
     return returnmatrix;
   }
@@ -152,8 +183,10 @@ unittest{
   assert(data.correct == true);
   assert(data.header.nmatrices == 3);
   assert(data.header.fileversion == [0,0,1, 'A']);
-  data.load(0);
-  //data.load(MatrixClass.GENOTYPE,0);
+  XgapMatrix m1 = data.load(0);
+  XgapMatrix m2 = data.load(1);
+  XgapMatrix m3 = data.load(2);  
+//data.load(MatrixClass.GENOTYPE,0);
   //data.load(MatrixClass.MAP,0);
   //data.loadGenotypes(data.matrices[1]);
   //data.loadMarkers(data.matrices[2]);

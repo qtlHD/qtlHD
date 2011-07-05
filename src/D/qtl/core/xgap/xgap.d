@@ -11,9 +11,9 @@ import std.conv;
 alias byte[8] Footprint;
 alias byte[4] Version;
 //Aliasses to more easily refer to the different matrices
-alias XgapMatrixData!int     integermatrix;
-alias XgapMatrixData!double  doublematrix;
-alias XgapMatrixData!string  stringmatrix;
+alias XgapMatrixData!int     IntegerMatrix;
+alias XgapMatrixData!double  DoubleMatrix;
+alias XgapMatrixData!string  StringMatrix;
 //Current Footprint and Version
 immutable Footprint xgap_footprint = [ 0, 'X', 'G', 'A', 'P', 'B', 0, 1 ];
 immutable Version   xgap_version   = [ 0, 0, 1, 'A' ];
