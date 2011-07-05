@@ -111,5 +111,5 @@ task :test_all => [ :test_csvr, :test_xgap ] do
 end
 
 desc "Test all"
-task :test_all => [:clean, :test_csvr, :test_xgap, :test_r ]
+task :test_all => [:clean, :test_csvr, :test_xgap ]
 
