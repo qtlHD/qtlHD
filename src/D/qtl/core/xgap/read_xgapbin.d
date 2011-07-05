@@ -65,86 +65,8 @@ class XbinReader(XType) : GenericReader!XType{
  /*
   * Loads the ith matrix of MatrixClasstype from the file
   */
-  void load(MatrixClass c, int i = 0){
-    int skip = XgapFileHeader.sizeof;
-    foreach(XgapMatrixHeader h;headers){
-      if(h.mclass==c){
-        if(i==0){
-        //extract matrix
-        skip += XgapMatrixHeader.sizeof;
-        int[] lengths;
-        int start;
-        if(h.type == MatrixType.VARCHARMATRIX){
-          for(int x=0;x<(h.nrow*h.ncol);x++){
-            lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
-          }
-          start = (skip + int.sizeof + ((h.nrow*h.ncol)*int.sizeof));
-        }else{
-          for(int x=0;x<(h.nrow*h.ncol);x++){
-            lengths ~= byteToInt(inputbuffer[skip..(skip+int.sizeof)]);
-          }
-          start = (skip + int.sizeof);
-        }
-        /* Here we need to convert data based on mclass and type */
-        /* this should be solved by a single call, but i dun see how with all the templates going on */
-        switch(h.mclass){
-          case MatrixClass.EMPTY:
-          break;
-          case MatrixClass.PHENOTYPE:
-          switch(h.type){
-            case MatrixType.INTMATRIX:
-              int[][]  phenotypes = loadData!int(h, lengths, start);
-            break;        
-            case MatrixType.DOUBLEMATRIX:
-              double[][]  phenotypes = loadData!double(h, lengths, start);
-            break;        
-            case MatrixType.FIXEDCHARMATRIX:
-              string[][]  phenotypes = loadData!string(h, lengths, start);
-            break;        
-            case MatrixType.VARCHARMATRIX:
-              string[][]  phenotypes = loadData!string(h, lengths, start);
-            break;
-            default:
-              throw new Exception("Unsupported format for PHENOTYPES");
-            break;             
-          }
-          break;
-          case MatrixClass.GENOTYPE:
-          switch(h.type){
-            case MatrixType.INTMATRIX:
-              int[][] phenotypes = loadData!int(h, lengths, start);
-            break;        
-            case MatrixType.DOUBLEMATRIX:
-              double[][]  phenotypes = loadData!double(h, lengths, start);
-            break;        
-            case MatrixType.FIXEDCHARMATRIX:
-              string[][]  phenotypes = loadData!string(h, lengths, start);
-            break;        
-            default:
-              throw new Exception("Unsupported format for GENOTYPES");
-            break;   
-          }
-          break;
-          case MatrixClass.MAP:
-            switch(h.type){
-              case MatrixType.VARCHARMATRIX:
-                string[][]  map = loadData!string(h, lengths, start);
-              break;       
-              default:
-                throw new Exception("Unsupported format for MAP");
-              break;
-            }
-          break;
-          case MatrixClass.ANNOTATION:
+  void load(int matrixid = 0){
 
-          break;
-        }
-        }else{
-          i--;
-        }
-      }
-      skip += h.size;
-    }
   }
   
   Version getVersion(){
@@ -209,9 +131,9 @@ unittest{
   assert(data.correct == true);
   assert(data.header.nmatrices == 3);
   assert(data.header.fileversion == [0,0,1, 'A']);
-  data.load(MatrixClass.PHENOTYPE,0);
-  data.load(MatrixClass.GENOTYPE,0);
-  data.load(MatrixClass.MAP,0);
+  //data.load(MatrixClass.PHENOTYPE,0);
+  //data.load(MatrixClass.GENOTYPE,0);
+  //data.load(MatrixClass.MAP,0);
   //data.loadGenotypes(data.matrices[1]);
   //data.loadMarkers(data.matrices[2]);
 }
