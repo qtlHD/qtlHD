@@ -27,24 +27,10 @@ enum MatrixClass : uint {
 };
 
 
-class Cross(Gtype,Ptype){
-  Phenotype!Ptype[][] phenotypes;
-  Genotype!Gtype[][] genotypes;
-}
-
-class CrossFactory(){
-
-  this(){
-  
-  }
-  
-  this(XbinReader source){
-  
-  }
-  
-  Cross getCross(int phenoID, int genoID, int mapID){
-  
-  }
+class XgamBinMatrix(T){
+  MatrixHeader  header;
+  int[]         lengths;
+  T[][]         data;
 }
 
 struct XgapBinHeader{
@@ -96,7 +82,6 @@ double byteToDouble(ubyte[] bits){
 T convbyte(T)(ubyte[] bits){
   return *cast(T*)bits;
 }
-
 
 /*
  * Helper function to go from ubyte[] to string
