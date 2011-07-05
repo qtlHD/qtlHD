@@ -65,8 +65,29 @@ class XbinReader(XType) : GenericReader!XType{
  /*
   * Loads the ith matrix of MatrixClasstype from the file
   */
-  void load(int matrixid = 0){
+  XgapMatrix load(int matrixid = 0){
+    assert(matrixid >= 0 && matrixid < headers.length);
+    int skip = XgapFileHeader.sizeof;
+    for(int i=0;i < matrixid;i++){
+      skip += headers[i].size;
+    }
+    XgapMatrix returnmatrix = new XgapMatrix();
+    XgapMatrixHeader h = headers[matrixid];
+    returnmatrix.header = h;
+    skip += XgapMatrixHeader.sizeof;
 
+    int[] lengths;
+    int start; //In matrix location of start fo the data
+    for(int x=0;x<(h.nrow*h.ncol);x++){
+      if(h.type == MatrixType.VARCHARMATRIX){
+	lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
+	start = (skip + int.sizeof + ((h.nrow*h.ncol)*int.sizeof));      
+      }else{
+        lengths ~= byteToInt(inputbuffer[skip..(skip+int.sizeof)]);
+	start = (skip + int.sizeof);
+      }
+    }
+    return returnmatrix;
   }
   
   Version getVersion(){
@@ -131,7 +152,7 @@ unittest{
   assert(data.correct == true);
   assert(data.header.nmatrices == 3);
   assert(data.header.fileversion == [0,0,1, 'A']);
-  //data.load(MatrixClass.PHENOTYPE,0);
+  data.load(0);
   //data.load(MatrixClass.GENOTYPE,0);
   //data.load(MatrixClass.MAP,0);
   //data.loadGenotypes(data.matrices[1]);
