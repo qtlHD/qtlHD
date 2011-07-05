@@ -27,7 +27,7 @@ enum MatrixClass : uint {
 };
 
 
-class XgamBinMatrix(T){
+class XgapBinMatrix(T){
   MatrixHeader  header;
   int[]         lengths;
   T[][]         data;
