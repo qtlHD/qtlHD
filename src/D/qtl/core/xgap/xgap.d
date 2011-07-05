@@ -26,19 +26,31 @@ enum MatrixClass : uint {
   ANNOTATION = 4
 };
 
+/*
+ * Aliasses to more easily refer to the different matrices
+ */
+alias XgapBinMatrix!int    integermatrix;
+alias XgapBinMatrix!double doublematrix;
+alias XgapBinMatrix!string stringmatrix;
 
-class XgapBinMatrix(T){
-  MatrixHeader  header;
-  int[]         lengths;
-  T[][]         data;
-}
-
+/*
+ * XgapBinary file header
+ */
 struct XgapBinHeader{
   Footprint   magicn = xgap_footprint;
   Version     fileversion = xgap_version;
   byte[5]     p0 = [0,0,0,0,0];
   int         nmatrices;
   byte[4]     p1 = [0,0,0,0];
+}
+
+/*
+ * XgapBinary matrix structure holding a header, lengths and data
+ */
+class XgapBinMatrix(T){
+  MatrixHeader  header;
+  int[]         lengths;
+  T[][]         data;
 }
 
 struct MatrixHeader{
