@@ -95,8 +95,8 @@ T convbyte(T)(ubyte[] bits){
 string byteToString(ubyte[] bits){
   char[] r;
   foreach(ubyte b;bits){
-    r ~= convbyte!char([b]);
+    r ~= cast(char)(b);
   }
-  r ~= '\0';
+  //r ~= '\0';
   return to!string(r);
 }

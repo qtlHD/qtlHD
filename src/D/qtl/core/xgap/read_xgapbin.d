@@ -54,7 +54,11 @@ class XbinReader(XType) : GenericReader!XType{
       T[] row;
       for(int c=0;c<h.ncol;c++){
         int s = lengths[(r*h.ncol)+c];
-        row ~= convbyte!T(inputbuffer[skip..skip+s]);
+        if(h.type == MatrixType.FIXEDCHARMATRIX || h.type == MatrixType.VARCHARMATRIX){
+          row ~= byteToString(inputbuffer[skip..skip+s]);
+        }else{
+          row ~= convbyte!T(inputbuffer[skip..skip+s]);
+        }
         skip += s;
       }
       data ~= row;
@@ -184,11 +188,14 @@ unittest{
   assert(data.header.nmatrices == 3);
   assert(data.header.fileversion == [0,0,1, 'A']);
   XgapMatrix m1 = data.load(0);
+  assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[0][1])) == indata.phenotypes[0][1]);
+  assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[5][10])) == indata.phenotypes[5][10]);
+  assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[10][5])) == indata.phenotypes[10][5]);
   XgapMatrix m2 = data.load(1);
+  assert(set_genotype!RIL((cast(StringMatrix)(m2.data)).data[3][1]) == indata.genotypes[3][1]);
+  assert(set_genotype!RIL((cast(StringMatrix)(m2.data)).data[7][15]) == indata.genotypes[7][15]);
+  assert(set_genotype!RIL((cast(StringMatrix)(m2.data)).data[20][3]) == indata.genotypes[20][3]);
   XgapMatrix m3 = data.load(2);  
-//data.load(MatrixClass.GENOTYPE,0);
-  //data.load(MatrixClass.MAP,0);
-  //data.loadGenotypes(data.matrices[1]);
-  //data.loadMarkers(data.matrices[2]);
+  writeln((cast(StringMatrix)(m3.data)).data);
 }
 
