@@ -64,7 +64,7 @@ struct XgapMatrixHeader{
   int           nrow;
 
   int           ncol;
-  int           start;     //start of the matrix in the file
+  byte[4]       pad16b;
 }
 
 class XgapMatrix {
