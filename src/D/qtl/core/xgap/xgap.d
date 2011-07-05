@@ -34,26 +34,24 @@ enum MatrixClass : uint {
   ANNOTATION = 4
 };
 
-/*
- * XgapBinary file header
- */
+//XgapBinary file header, see doc/input/XGap.md
 struct XgapFileHeader{
   Footprint   magicn = xgap_footprint;
   Version     fileversion = xgap_version;
   int         nmatrices;
 }
 
+//Container interface
 interface Container {
-
 }
 
-//XgapBinary matrix structure holding a lengths and templated data
+//Xgap matrix data structure holding a lengths and templated data
 class XgapMatrixData(T) : Container{
   int[]         lengths;
   T[][]         data;
 }
 
-//XgapBinary matrix structure holding a lengths and templated data
+//Xgap matrix header strutcure, see doc/input/XGap.md
 struct XgapMatrixHeader{
   Footprint     magicn = xgap_footprint;
   
@@ -67,39 +65,33 @@ struct XgapMatrixHeader{
   byte[4]       pad16b;
 }
 
+//A matrix is defined as a header with data
 class XgapMatrix {
   XgapMatrixHeader  header;
   Container data;
 }
 
-/*
- * Helper function to go from sizes in bytes to KBs
- */
-double toKb(in string filename){
+//Helper function to go from sizes in bytes to KBs
+ double toKb(in string filename){
   return cast(double) getSize(filename)/1024;
 }
 
-/*
- * Helper function to go from ubyte[] to int
- */
+//Helper function to go from ubyte[] to int
 int byteToInt(ubyte[] bits){
   return convbyte!int(bits);
 }
 
-/*
- * Helper function to go from ubyte[] to double
- */  
+//Helper function to go from ubyte[] to double 
 double byteToDouble(ubyte[] bits){
   return convbyte!double(bits);
 }
 
+//Helper function to go from ubyte[] to any class
 T convbyte(T)(ubyte[] bits){
   return *cast(T*)bits;
 }
 
-/*
- * Helper function to go from ubyte[] to string
- */  
+//Helper function to go from ubyte[] to string
 string byteToString(ubyte[] bits){
   char[] r;
   foreach(ubyte b;bits){
