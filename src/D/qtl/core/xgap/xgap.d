@@ -51,7 +51,7 @@ class XgapMatrixData(T) : Container{
   T[][]         data;
 }
 
-//Xgap matrix header strutcure, see doc/input/XGap.md
+//Xgap matrix header structure, see doc/input/XGap.md
 struct XgapMatrixHeader{
   Footprint     magicn = xgap_footprint;
   
