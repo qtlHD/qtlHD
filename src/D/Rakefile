@@ -30,9 +30,12 @@ core_iofiles = core_iofiles_list.join(' ')
 core_xgap_list = Dir.glob("./qtl/core/xgap/*.d")
 core_xgapfiles = core_xgap_list.join(' ')
 
+#Unix files
 CLEAN.include('*.o')
-CLEAN.include('test.*')
-CLEAN.include(%w[ csv2xgap read_csv read_csvr test.xbin write_xgapbin read_xgapbin ])
+#Win32 files
+CLEAN.include('*.obj','*.exe','*.map')
+CLEAN.include('test.*', '*.xbin')
+CLEAN.include(%w[ csv2xgap read_csv read_csvr test.xbin write_xgapbin read_xgapbin bindR ])
 
 # The compile targets
 
@@ -86,7 +89,8 @@ end
 # ---- Unit tests
 
 desc "Test CSVr"
-task :test_csvr => [ 'read_csvr' ] do 
+task :test_csvr => [ 'read_csv', 'read_csvr' ] do 
+  sh "./read_csv" 
   sh "./read_csvr" 
 end
 
@@ -105,4 +109,7 @@ desc "Test all"
 task :test_all => [ :test_csvr, :test_xgap ] do 
 #  sh "./read_csv"
 end
+
+desc "Test all"
+task :test_all => [:clean, :test_csvr, :test_xgap ]
 

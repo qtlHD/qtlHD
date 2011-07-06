@@ -44,7 +44,7 @@ class BinaryWriter(Reader, XType) {
   }
   
   void write_matrix(T)(T[][] towrite, File outfile, MatrixType t = MatrixType.EMPTY, MatrixClass mclass = MatrixClass.EMPTY){
-    MatrixHeader header = MatrixHeader(xgap_footprint, t, mclass);
+    XgapMatrixHeader header = XgapMatrixHeader(xgap_footprint, t, mclass);
     header.nrow = towrite.length;
     header.ncol = towrite[0].length;
     int datasize = 0;
@@ -78,7 +78,7 @@ class BinaryWriter(Reader, XType) {
       default:
         break;
     }
-    header.size = MatrixHeader.sizeof + (elementsizes.length*4) + datasize;
+    header.size = XgapMatrixHeader.sizeof + (elementsizes.length*4) + datasize;
     myWrite([header],outfile);
     myWrite(elementsizes,outfile);
     foreach(T[] e;towrite){
@@ -100,7 +100,7 @@ class BinaryWriter(Reader, XType) {
   
   void write_binary(in string filename){
     f = File(filename,"wb");
-    XgapBinHeader h = XgapBinHeader(xgap_footprint,xgap_version,[0,0,0,0,0],3,[0,0,0,0]);
+    XgapFileHeader h = XgapFileHeader(xgap_footprint,xgap_version,3);
     myWrite([h],f);
     write_matrix!(Phenotype!double)(data.phenotypes, f, MatrixType.DOUBLEMATRIX,MatrixClass.PHENOTYPE);
     write_matrix!(Genotype!XType)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX,MatrixClass.GENOTYPE);

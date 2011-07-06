@@ -129,7 +129,7 @@ struct Genotype(T) {
   
   /// String representation of genotype.
   string toString(){
-    if(value != GENOTYPE_NA){
+    if(to!int(value) != GENOTYPE_NA){
       return to!string(value);
     }else{
       return "-";
@@ -152,7 +152,7 @@ struct Phenotype(T) {
   
   /// String representation of phenotype.
   string toString(){
-    if(value != PHENOTYPE_NA){
+    if(to!double(value) != PHENOTYPE_NA){
       return to!string(value);
     }else{
       return "NA";

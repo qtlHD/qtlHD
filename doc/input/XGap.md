@@ -11,13 +11,12 @@ Header
 The header describes the content of the rest of the file, and starts and ends with a footprint, followed by the version of the binary file 
 supplied as a byte[3] array (Major, Minor, Build):
 
- - byte[2] footprint = [ 0, 5 ]
- - byte[3] version = [ 0, 0, 1 ]
+ - byte[8] footprint = [ 0, 'X', 'G', 'A', 'P', 'B', 0, 1 ]
+ - byte[4] version = [ 0, 0, 1, 'A' ]
  - byte[4] Number of matrices
- - byte[2] footprint = [ 0, 5 ]
 
 Then 4 bytes are reserved for the number of matrices inside the file (in little endian notation), followed by a closing footprint. The size of 
-the entire header is thus: 2+3+4+2 = 11 bytes.
+the entire header is thus: 8+4+4 = 16 bytes.
 
 Matrices
 --------
@@ -28,18 +27,32 @@ Xgap bin stores matrices using the XGAP defined data type, the possible types to
  - DOUBLEMATRIX - Matrix of doubles
  - FIXEDCHARMATRIX - Matrix of characters with a fixed length (e.g. "AA","AB","BB" Genotype matrices)
  - VARCHARMATRIX - Matrix of any size strings
- 
-In the XGAP binary format all matrices are surrounded by footprints (see above), followed by the type encoded by 4 bytes. Note: The first 
-footprint is not printed, this is because the previous matrix/header already printed a footprint:
 
- - byte[4] type
+Besides types, we also store a MatrixClass, e.g. what it holds this can be one of the following:
+
+ - EMPTY -  No class defined
+ - PHENOTYPE - This matrix holds phenotype information
+ - GENOTYPE - This matrix holds genotype information
+ - MAP - Genetic map data (3 column matrix name, chromosome, location)
+ - ANNOTATION - Additional information
+
+In the XGAP binary format all matrices are surrounded by footprints (see above).
+
+ - byte[8] footprint = [ 0, 'X', 'G', 'A', 'P', 'B', 0, 1 ]
+ - byte[4] mtype
+ - byte[4] mclass 
+ - byte[4] size - size to skip this matrix
  - byte[4] nrow - number of row
  - byte[4] ncol - number of columns
- - byte[4] size || byte[4]*(nrow*ncol) sizes
- - byte[ ] DATA
- - byte[4] footprint = [ 0, 5 ]
 
-The only weird thing here is size or sizes. Size if the length of a single element when we store a INTMATRIX, DOUBLEMATRIX or 
+This is the header, after the header there is a variable size data section (byte[size]) 
+holding the element lengths and the data.
+ 
+ - byte[4] size || byte[4*(nrow*ncol)] sizes
+ - byte[ ] DATA
+ 
+
+The thing here is size or sizes. Size if the length of a single element when we store a INTMATRIX, DOUBLEMATRIX or 
 FIXEDCHARMATRIX. When storing a VARCHARMATRIX  we need to know the length of each individual entry in the matrix, and size is 
 not a single entry but a list of entries.
 

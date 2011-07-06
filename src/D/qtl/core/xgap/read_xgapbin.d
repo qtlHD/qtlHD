@@ -20,8 +20,8 @@ import std.path;
 import std.file;
 
 class XbinReader(XType) {
-  XgapBinHeader   header;         //Binary file header
-  MatrixHeader[]  headers;        //Matrix headers
+  XgapFileHeader      header;         //Binary file header
+  XgapMatrixHeader[]  headers;        //Matrix headers
   private File    f;              //File pointer
   ubyte[]         inputbuffer;    //Buffered file content
   bool            correct;        //Is the file correct?
@@ -31,8 +31,6 @@ class XbinReader(XType) {
   Phenotype!double[][] phenotypes;
   Genotype!XType[][] genotypes;
 
-
-  
   bool checkFootprint(in ubyte[] buffer){
     if(xgap_footprint == buffer) return true;
     return false;
@@ -53,14 +51,18 @@ class XbinReader(XType) {
     return returnbuffer;
   }
   
-  T[][] loadData(T)(MatrixHeader h, int[] lengths, int start){
+  T[][] loadData(T)(XgapMatrixHeader h, int[] lengths, int start){
     T[][] data;
     int skip=start;
     for(int r=0;r<h.nrow;r++){
       T[] row;
       for(int c=0;c<h.ncol;c++){
         int s = lengths[(r*h.ncol)+c];
-        row ~= convbyte!T(inputbuffer[skip..skip+s]);
+        if(h.type == MatrixType.FIXEDCHARMATRIX || h.type == MatrixType.VARCHARMATRIX){
+          row ~= byteToString(inputbuffer[skip..skip+s]);
+        }else{
+          row ~= convbyte!T(inputbuffer[skip..skip+s]);
+        }
         skip += s;
       }
       data ~= row;
@@ -71,86 +73,60 @@ class XbinReader(XType) {
  /*
   * Loads the ith matrix of MatrixClasstype from the file
   */
-  void load(MatrixClass c, int i = 0){
-    int skip = XgapBinHeader.sizeof;
-    foreach(MatrixHeader h;headers){
-      if(h.mclass==c){
-        if(i==0){
-        //extract matrix
-        skip += MatrixHeader.sizeof;
-        int[] lengths;
-        int start;
-        if(h.type == MatrixType.VARCHARMATRIX){
-          for(int x=0;x<(h.nrow*h.ncol);x++){
-            lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
-          }
-          start = (skip + int.sizeof + ((h.nrow*h.ncol)*int.sizeof));
-        }else{
-          for(int x=0;x<(h.nrow*h.ncol);x++){
-            lengths ~= byteToInt(inputbuffer[skip..(skip+int.sizeof)]);
-          }
-          start = (skip + int.sizeof);
-        }
-        /* Here we need to convert data based on mclass and type */
-        /* this should be solved by a single call, but i dun see how with all the templates going on */
-        switch(h.mclass){
-          case MatrixClass.EMPTY:
-          break;
-          case MatrixClass.PHENOTYPE:
-          switch(h.type){
-            case MatrixType.INTMATRIX:
-              int[][]  phenotypes = loadData!int(h, lengths, start);
-            break;        
-            case MatrixType.DOUBLEMATRIX:
-              double[][]  phenotypes = loadData!double(h, lengths, start);
-            break;        
-            case MatrixType.FIXEDCHARMATRIX:
-              string[][]  phenotypes = loadData!string(h, lengths, start);
-            break;        
-            case MatrixType.VARCHARMATRIX:
-              string[][]  phenotypes = loadData!string(h, lengths, start);
-            break;
-            default:
-              throw new Exception("Unsupported format for PHENOTYPES");
-            break;             
-          }
-          break;
-          case MatrixClass.GENOTYPE:
-          switch(h.type){
-            case MatrixType.INTMATRIX:
-              int[][] phenotypes = loadData!int(h, lengths, start);
-            break;        
-            case MatrixType.DOUBLEMATRIX:
-              double[][]  phenotypes = loadData!double(h, lengths, start);
-            break;        
-            case MatrixType.FIXEDCHARMATRIX:
-              string[][]  phenotypes = loadData!string(h, lengths, start);
-            break;        
-            default:
-              throw new Exception("Unsupported format for GENOTYPES");
-            break;   
-          }
-          break;
-          case MatrixClass.MAP:
-            switch(h.type){
-              case MatrixType.VARCHARMATRIX:
-                string[][]  map = loadData!string(h, lengths, start);
-              break;       
-              default:
-                throw new Exception("Unsupported format for MAP");
-              break;
-            }
-          break;
-          case MatrixClass.ANNOTATION:
-
-          break;
-        }
-        }else{
-          i--;
-        }
-      }
-      skip += h.size;
+  XgapMatrix load(int matrixid = 0){
+    if(!(matrixid >= 0 && matrixid < headers.length)){
+      throw new Exception("No such matrix");
     }
+    int skip = XgapFileHeader.sizeof;
+    for(int i=0;i < matrixid;i++){
+      skip += headers[i].size;
+    }
+    XgapMatrix returnmatrix = new XgapMatrix();
+    XgapMatrixHeader h = headers[matrixid];
+    returnmatrix.header = h;
+    skip += XgapMatrixHeader.sizeof;
+
+    int[] lengths;
+    int start; //In matrix location of start fo the data
+    for(int x=0;x<(h.nrow*h.ncol);x++){
+      if(h.type == MatrixType.VARCHARMATRIX){
+        lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
+        start = (skip + int.sizeof + ((h.nrow*h.ncol)*int.sizeof));      
+      }else{
+        lengths ~= byteToInt(inputbuffer[skip..(skip+int.sizeof)]);
+        start = (skip + int.sizeof);
+      }
+    }
+    switch(h.type){
+      case MatrixType.INTMATRIX:
+        IntegerMatrix c = new IntegerMatrix();
+        c.lengths = lengths;
+        c.data = loadData!int(h, lengths, start);
+        returnmatrix.data = c;
+      break;        
+      case MatrixType.DOUBLEMATRIX:
+        DoubleMatrix c = new DoubleMatrix();
+        c.lengths = lengths;
+        c.data = loadData!double(h, lengths, start);
+        returnmatrix.data = c;
+      break;        
+      case MatrixType.FIXEDCHARMATRIX:
+        StringMatrix c = new StringMatrix();
+        c.lengths = lengths;
+        c.data = loadData!string(h, lengths, start);
+        returnmatrix.data = c;
+      break;        
+      case MatrixType.VARCHARMATRIX:
+        StringMatrix c = new StringMatrix();
+        c.lengths = lengths;
+        c.data = loadData!string(h, lengths, start);
+        returnmatrix.data = c;
+      break;
+      default:
+        throw new Exception("Trying to load unsupported matrix type format");
+      break;             
+    }
+    return returnmatrix;
   }
   
   Version getVersion(){
@@ -165,7 +141,7 @@ class XbinReader(XType) {
   *Parses the matrix header, reading type, dimensions and element sizes
   */
   int parseMatrixHeader(ubyte[] buffer, int matrix, int start){
-    MatrixHeader header = *cast(MatrixHeader*) inputbuffer[start..start+MatrixHeader.sizeof];
+    XgapMatrixHeader header = convbyte!(XgapMatrixHeader)(inputbuffer[start..start+XgapMatrixHeader.sizeof]);
     writefln("      Matrix %d, type=%d, rows: %d, columns: %d", matrix, header.type, header.nrow, header.ncol);
     headers ~= header;
     return header.size;
@@ -176,7 +152,7 @@ class XbinReader(XType) {
   */
   bool parseFileHeader(bool verbose){
     writeln("    File OK? " ~ to!string(checkBuffer(inputbuffer)));
-    header = *cast(XgapBinHeader*) inputbuffer[0..XgapBinHeader.sizeof];
+    header = convbyte!(XgapFileHeader)(inputbuffer[0..XgapFileHeader.sizeof]);
     writeln("    Version: " ~ to!string(header.fileversion));
     writeln("    Matrices: " ~ to!string(header.nmatrices));
     assert(correct,"Footprint failed");
@@ -192,7 +168,7 @@ class XbinReader(XType) {
     parseFileHeader(verbose);
 
     //Loop through the matrices
-    int skip = XgapBinHeader.sizeof;
+    int skip = XgapFileHeader.sizeof;
     for(int m=0; m<getNumberOfMatrices(); m++){
       skip += parseMatrixHeader(inputbuffer, m, skip);
     }
@@ -215,10 +191,15 @@ unittest{
   assert(data.correct == true);
   assert(data.header.nmatrices == 3);
   assert(data.header.fileversion == [0,0,1, 'A']);
-  data.load(MatrixClass.PHENOTYPE,0);
-  data.load(MatrixClass.GENOTYPE,0);
-  data.load(MatrixClass.MAP,0);
-  //data.loadGenotypes(data.matrices[1]);
-  //data.loadMarkers(data.matrices[2]);
+  XgapMatrix m1 = data.load(0);
+  assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[0][1])) == indata.phenotypes[0][1]);
+  assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[5][10])) == indata.phenotypes[5][10]);
+  assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[10][5])) == indata.phenotypes[10][5]);
+  XgapMatrix m2 = data.load(1);
+  assert(set_genotype!RIL((cast(StringMatrix)(m2.data)).data[3][1]) == indata.genotypes[3][1]);
+  assert(set_genotype!RIL((cast(StringMatrix)(m2.data)).data[7][15]) == indata.genotypes[7][15]);
+  assert(set_genotype!RIL((cast(StringMatrix)(m2.data)).data[20][3]) == indata.genotypes[20][3]);
+  XgapMatrix m3 = data.load(2);  
+  writeln((cast(StringMatrix)(m3.data)).data);
 }
 
