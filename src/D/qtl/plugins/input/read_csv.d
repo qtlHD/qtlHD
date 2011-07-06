@@ -28,15 +28,16 @@ import std.path;
 
 class ReadSimpleCSV(XType) {
   private File f;
-  Individuals individuals;
   string[] phenotypenames;
   Marker[] markers;
+  Individuals individuals;
   Chromosome[string] chromosomes;
   Phenotype!double[][] phenotypes;
   Genotype!XType[][] genotypes;
 
   this(in string fn) {
     f = File(fn,"r");
+    individuals = new Individuals();
     // read markers
     Marker[] ms;
     auto header = split(f.readln(),",");
@@ -108,7 +109,7 @@ class ReadSimpleCSV(XType) {
         gs ~= set_genotype!XType(strip(field));
       }
       genotypes ~= gs;
-      // individuals.list ~= new Individual(n_individual);
+      individuals.list ~= new Individual(n_individual);
     }
     f.close();
   }
@@ -138,6 +139,7 @@ unittest {
   // Check genotype
   assert(data.genotypes[1][0].value == F2.NA);
   assert(data.genotypes[1][1].value == F2.B);
+  assert(data.individuals.length == 120);
 
   // foreach(name; data.chromosomes.keys.sort) {
   // }
