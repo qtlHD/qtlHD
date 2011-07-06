@@ -21,14 +21,9 @@ PROG = 'read_csv'  # this will change
 BINARIES = [PROG, :csv2xgap ]
 TESTS = [ 'read_csv' ]
 
-core_dfiles_list = Dir.glob("./qtl/core/*.d")
-core_dfiles = core_dfiles_list.join(' ')
-
-core_iofiles_list = Dir.glob("./qtl/plugins/input/*.d")
-core_iofiles = core_iofiles_list.join(' ')
-
-core_xgap_list = Dir.glob("./qtl/core/xgap/*.d")
-core_xgapfiles = core_xgap_list.join(' ')
+core_dfiles = Dir.glob("./qtl/core/*.d")
+io_dfiles = Dir.glob("./qtl/plugins/input/*.d")
+xgap_dfiles = Dir.glob("./qtl/core/xgap/*.d")
 
 #Unix files
 CLEAN.include('*.o')
@@ -44,9 +39,11 @@ CLEAN.include(clean_exe_list)
 # The compile targets
 
 exe_list = { 
-  'read_csv' => { :path => 'qtl/plugins/input', :list => core_dfiles_list },
-  'read_csvr' => { :path => 'qtl/plugins/input', :list => core_dfiles_list },
-  'test_scanone' => { :path => 'test/scanone', :list => core_dfiles_list }
+  'read_csv' => { :path => './qtl/plugins/input', :list => core_dfiles },
+  'read_csvr' => { :path => './qtl/plugins/input', :list => core_dfiles },
+  'test_scanone' => { :path => './test/scanone', :list => core_dfiles },
+  'write_xgapbin' => { :path => './qtl/plugins/output', :list => core_dfiles + io_dfiles + xgap_dfiles },
+  'read_xgapbin' => { :path => './qtl/core/xgap', :list => core_dfiles + io_dfiles + xgap_dfiles }
 }
 
 exe_list.each do | fn, attr | 
@@ -67,15 +64,7 @@ exe_list.each do | fn, attr |
   end
 end
 
-file "write_xgapbin" => core_dfiles_list do
-  sh "dmd -unittest -ofwrite_xgapbin #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/plugins/output/write_xgapbin.d test/main.d"
-end
-
-file "read_xgapbin" => core_dfiles_list do
-  sh "dmd -unittest -ofread_xgapbin #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/plugins/output/write_xgapbin.d test/main.d"
-end
-
-file "csv2xgap" => core_dfiles_list do
+file "csv2xgap" => core_dfiles do
   sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/output/write_xgapbin.d"
 end
 
