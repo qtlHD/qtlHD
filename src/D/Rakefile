@@ -35,7 +35,9 @@ CLEAN.include('*.o')
 #Win32 files
 CLEAN.include('*.obj','*.exe','*.map')
 CLEAN.include('test.*', '*.xbin')
-CLEAN.include(%w[ csv2xgap read_csv read_csvr test.xbin write_xgapbin read_xgapbin bindR ])
+#Created test executabels
+exe_list = Dir.glob("*").find_all { |fn| File.executable?(fn) and !File.directory?(fn) }
+CLEAN.include(exe_list)
 
 # The compile targets
 
