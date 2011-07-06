@@ -1,5 +1,5 @@
 /**
- * Test scanone routines, using listeria set
+ * Test scanone routines, using listeria (CSV) set
  */
 
 module test.scanone.test_scanone;
@@ -8,7 +8,6 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
-import qtl.plugins.input.read_interface;
 import qtl.plugins.input.read_csv;
 import std.stdio;
 import std.conv;
@@ -42,6 +41,7 @@ unittest {
   // Check genotype
   assert(data.genotypes[1][0].value == F2.NA);
   assert(data.genotypes[1][1].value == F2.B);
+  assert(data.individuals.length == 120);
 
 /*
 Now we can fetch information about the data object. There are two 'styles'. One

@@ -15,7 +15,9 @@ import std.algorithm;
 
 // Default values for undefined types
 immutable MARKER_POSITION_UNKNOWN = double.nan;
-immutable MARKER_NAME_UNKNOWN = "unknown";
+immutable NAME_UNKNOWN = "unknown";
+immutable MARKER_NAME_UNKNOWN = "marker name unknown";
+immutable INDIVIDUAL_NAME_UNKNOWN = "individual name unknown";
 immutable ID_UNKNOWN = uint.max;
 
 /** 
@@ -39,6 +41,9 @@ mixin template Identity()
   const uint id;            /// Unique identifier (maybe we don't need this as 
                             /// the memory address is also a unique number)
   const string name;        /// Name
+  this() { id = ID_UNKNOWN; name = NAME_UNKNOWN; }
+  this(uint _id) { id = _id; name = to!string(_id); };
+  this(string _name, uint _id = ID_UNKNOWN) { id = _id; name = _name; };
 }
 
 mixin template Attributes()
@@ -55,6 +60,10 @@ mixin template MarkerInfo() {
   Position position;          /// Marker position - content depends on map
 }
 
+mixin template ActList(T) {
+  T[] list;
+  auto length() { return list.length; }
+}
 
 /** 
  * The Marker struct is the most primitive representation of a marker, i.e.
@@ -219,7 +228,7 @@ class Individual {
 }
 
 class Individuals {
-  SList!Individual list;
+  mixin ActList!Individual;
 }
 
 /******************************************************************************

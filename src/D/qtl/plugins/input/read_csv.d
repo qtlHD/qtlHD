@@ -90,8 +90,9 @@ class ReadSimpleCSV(XType) {
     }
     // read remaining data
     string buf;
-    uint individual = 0;
+    uint n_individual = 0;
     while (f.readln(buf)) {
+      n_individual++;
       auto fields = split(buf,",");
       if (fields.length != n_columns) throw new Exception("Field # out of range in ", buf);
       Phenotype!double[] ps;
@@ -107,7 +108,7 @@ class ReadSimpleCSV(XType) {
         gs ~= set_genotype!XType(strip(field));
       }
       genotypes ~= gs;
-      individual++;
+      individuals.list ~= new Individual(n_individual);
     }
     f.close();
   }

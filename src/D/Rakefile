@@ -32,21 +32,39 @@ core_xgapfiles = core_xgap_list.join(' ')
 
 #Unix files
 CLEAN.include('*.o')
+CLEAN.include('*.dep')
+CLEAN.include('*.deps')
 #Win32 files
 CLEAN.include('*.obj','*.exe','*.map')
 CLEAN.include('test.*', '*.xbin')
 #Created test executabels
-exe_list = Dir.glob("*").find_all { |fn| File.executable?(fn) and !File.directory?(fn) }
-CLEAN.include(exe_list)
+clean_exe_list = Dir.glob("*").find_all { |fn| File.executable?(fn) and !File.directory?(fn) }
+CLEAN.include(clean_exe_list)
 
 # The compile targets
 
-file "read_csv" => core_dfiles_list do
-  sh "dmd -unittest -ofread_csv #{core_dfiles} qtl/plugins/input/read_csv.d test/main.d"
-end
+exe_list = { 
+  'read_csv' => { :path => 'qtl/plugins/input', :list => core_dfiles_list },
+  'read_csvr' => { :path => 'qtl/plugins/input', :list => core_dfiles_list },
+  'test_scanone' => { :path => 'test/scanone', :list => core_dfiles_list }
+}
 
-file "read_csvr" => core_dfiles_list do
-  sh "dmd -unittest -ofread_csvr #{core_dfiles} qtl/plugins/input/read_csvr.d qtl/plugins/input/read_csv.d test/main.d"
+exe_list.each do | fn, attr | 
+  path = attr[:path]
+  list = attr[:list]
+  source = path + '/' + fn + '.d'
+  list << source 
+  list.uniq!
+
+  if fn =~ /test/i
+    desc fn
+  else
+    desc "Test "+fn
+  end
+  file fn => list do
+    sh "dmd -unittest -of#{fn} #{list.join(' ')} test/main.d"
+    sh './'+fn
+  end
 end
 
 file "write_xgapbin" => core_dfiles_list do
@@ -59,10 +77,6 @@ end
 
 file "csv2xgap" => core_dfiles_list do
   sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/output/write_xgapbin.d"
-end
-
-file "test_scanone_listeria" => core_dfiles_list << 'test/scanone/test_scanone.d' do
-  sh "dmd -unittest -oftest_scanone_listeria #{core_dfiles} qtl/plugins/input/read_csv.d test/scanone/test_scanone.d test/main.d"
 end
 
 # ---- Standard tasks
@@ -100,11 +114,6 @@ desc "Test XGAP"
 task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do 
   sh "./write_xgapbin"
   sh "./read_xgapbin"
-end
-
-desc "Test scanone"
-task :test_scanone => [ 'test_scanone_listeria' ] do 
-  sh "./test_scanone_listeria"
 end
 
 desc "Test all"

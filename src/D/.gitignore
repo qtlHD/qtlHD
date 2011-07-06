@@ -6,4 +6,6 @@ read_xgapbin
 test_scanone
 test_scanone_listeria
 *.c
+*.cpp
 *.h
+*.hpp
