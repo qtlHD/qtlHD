@@ -108,7 +108,7 @@ class ReadSimpleCSV(XType) {
         gs ~= set_genotype!XType(strip(field));
       }
       genotypes ~= gs;
-      individuals.list ~= new Individual(n_individual);
+      // individuals.list ~= new Individual(n_individual);
     }
     f.close();
   }

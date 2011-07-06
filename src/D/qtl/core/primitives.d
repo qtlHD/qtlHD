@@ -229,6 +229,7 @@ class Individual {
 
 class Individuals {
   mixin ActList!Individual;
+  // Individual[] list;
 }
 
 /******************************************************************************
