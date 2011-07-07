@@ -103,8 +103,10 @@ unittest {
   markers.list ~= m5;
   // fetch markers by Chromosome
   auto tlist = chromosome_markers(markers);
+  assert(tlist.length == 2);
   foreach(c, ms ; tlist) {
     writeln(c,ms);
   }
-  assert(tlist[0][0].name == '1');
+  auto chromosome1 = tlist[0][0];
+  assert(chromosome1.name == "X");
 }
