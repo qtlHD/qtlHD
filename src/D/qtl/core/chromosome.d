@@ -1,5 +1,5 @@
 /**
- * Chromosome related
+ * Chromosome related functions
  */
 
 module qtl.core.chromosome;
@@ -10,6 +10,9 @@ import std.variant;
 import qtl.core.primitives;
 
 import std.stdio;
+// import std.container;
+import std.typecons; 
+
 
 /**
  * Create a new Chromosome object, basing the id on the content of name.
@@ -36,12 +39,34 @@ Chromosome get_chromosome(string name, uint id, bool is_sex=false) {
     return new Autosome(name,id);
 }
 
-/*
- * Test for chromosome sex - FIXME should be done on type instead
+/**
+ * Test for chromosome sex - based on object type
  */
 
-bool is_sex(Chromosome chromosome) {
+static bool is_sex(Chromosome chromosome) {
   return (typeid(chromosome) == typeid(SexChromosome));
+}
+
+/**
+ * Take a full list of markers and return a Tuple list of
+ * (chromosomes,Markers), i.e. Chromosomes with their markers attached.
+ */
+
+
+Tuple!(Chromosome,Ms)[] chromosome_markers(Ms)(in Ms markers) {
+  Ms[string] alist;
+  foreach(m ; markers.list) {
+    if ((m.chromosome.name) !in alist) {
+      alist[m.chromosome.name] = new Ms();
+    }
+    alist[m.chromosome.name].list ~= new Marker(m); // FIXME: what about other types?
+  }
+  // convert to ret type
+  Tuple!(Chromosome, Ms)[] list; 
+  foreach( cname, ms ; alist) {
+     list ~= Tuple!(Chromosome, Ms)(ms.list[0].chromosome,ms);
+  }
+  return list;
 }
 
 unittest {
@@ -64,4 +89,21 @@ unittest {
   // test for sex
   assert(is_sex(cx),typeof(cx).stringof ~ to!string(cx.id) ~ to!string(is_sex(cx)));
   assert(!is_sex(c1));
+
+  auto markers = new Markers!Marker();
+  auto m1 = new Marker(c1,10.0);
+  auto m2 = new Marker(c1,20.0);
+  auto m3 = new Marker(c1,30.0);
+  auto m4 = new Marker(cx,11.0);
+  auto m5 = new Marker(cx,14.0);
+  markers.list ~= m1;
+  markers.list ~= m2;
+  markers.list ~= m3;
+  markers.list ~= m4;
+  markers.list ~= m5;
+  // fetch markers by Chromosome
+  auto tlist = chromosome_markers(markers);
+  foreach(c, ms ; tlist) {
+    writeln(c,ms);
+  }
 }

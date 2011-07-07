@@ -42,8 +42,8 @@ mixin template Identity()
                             /// the memory address is also a unique number)
   const string name;        /// Name
   this() { id = ID_UNKNOWN; name = NAME_UNKNOWN; }
-  this(uint _id) { id = _id; name = to!string(_id); };
-  this(string _name, uint _id = ID_UNKNOWN) { id = _id; name = _name; };
+  this(uint _id) { id = _id; name = to!string(_id); }
+  this(string _name, uint _id = ID_UNKNOWN) { id = _id; name = _name; }
 }
 
 mixin template Attributes()
@@ -84,13 +84,17 @@ class Marker {
   mixin MarkerInfo;
 
   this(double _position = MARKER_POSITION_UNKNOWN, string _name = MARKER_NAME_UNKNOWN, uint _id=ID_UNKNOWN) { 
-    name = _name, position = _position, id = _id ;
+    name = _name, position = _position, chromosome = null, id = _id ;
     if (name == MARKER_NAME_UNKNOWN && position != MARKER_POSITION_UNKNOWN) 
       // default to 'loc\d\d\d\.\d' name
       name = "loc" ~ to!string(position);
   }
   this(in Marker m) {
     this(m.position, m.name, m.id);
+  }
+  this(Chromosome _chromosome, double _position) {
+    chromosome = _chromosome, position = _position;
+    id = ID_UNKNOWN, name = MARKER_NAME_UNKNOWN; // FIXME: auto init
   }
 
   Position get_position() { return position; }
@@ -113,13 +117,16 @@ class Marker {
  */
 
 class PseudoMarker : Marker {
-  // constructors
+
   this(double _position = MARKER_POSITION_UNKNOWN, string _name = MARKER_NAME_UNKNOWN, uint _id=ID_UNKNOWN) { 
-    super(_position, _name, _id); 
+    super(_position, _name, _id);
   }
+
   this(in PseudoMarker m) {
     this(m.position, m.name, m.id);
   }
+  this(Chromosome _chromosome, double _position) 
+  { super(_chromosome, _position); }
 }
 
 immutable GENOTYPE_NA = -1;
@@ -200,13 +207,7 @@ struct Covariate(T) {
 class Chromosome {
   mixin Identity;
 
-  this(string _name, uint _id = ID_UNKNOWN) {
-    id = _id;
-    name = _name;
-  }
-
-  // Glean from type system bool is_sex() { return false; };
-  // e.g. typeid(chromosome) == typeid(SexChromosome)
+  /// functions, such as is_sex, are defined in chromosome.d
 }
 
 class Autosome : Chromosome {
@@ -225,6 +226,9 @@ class SexChromosome : Chromosome {
 
 class Individual {
   mixin Identity;
+
+  /// We don't store chromosomes and markers in this object.
+  /// See also Markers!M and chromosome.d to 
 }
 
 class Individuals {

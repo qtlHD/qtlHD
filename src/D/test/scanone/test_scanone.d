@@ -44,49 +44,6 @@ unittest {
   assert(data.individuals.length == 120);
 
 /*
-Now we can fetch information about the data object. There are two 'styles'. One
-follows Ruby's principles of least surprise. The other style is more native
-to R/qtl.
-
-Return the number of individuals (Ruby style)
-
-  >> d.individuals.size
-  => 120
-
-The short R/qtl style reads
-
-  >> d.nind
-  => 120
-
-Number of phenotypes (phenotype T264. R/qtl adds sex and pgm automagically)
-
-  >> d.phenotypenames.size
-  => 1
-
-  >> d.nphe
-  => 1
-
-Number of markers
-
-  >> d.markers.size
-  => 133
-
-  >> d.totmar
-  => 133
-
-Number of chromosomes
-
-  >> d.chromosomes.size
-  => 20
-
-The names are sorted, so we can validate the contents
-
-  >> d.chromosomes.names.sort
-  => ["1", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "2", "3", "4", "5", "6", "7", "8", "9", "X"]
-
-  >> d.nchr
-  => 20
-
 Markers per chromosome
 
   >> d.nmar.sort
