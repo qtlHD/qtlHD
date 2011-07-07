@@ -105,5 +105,7 @@ unittest {
   auto tlist = chromosome_markers(markers);
   foreach(c, ms ; tlist) {
     writeln(c,ms);
+    auto firstm = ms[0];
+    // writeln(c,ms,firstm.position,firstm.chromosome);
   }
 }

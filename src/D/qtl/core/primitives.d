@@ -91,6 +91,7 @@ class Marker {
   }
   this(in Marker m) {
     this(m.position, m.name, m.id);
+    chromosome = cast(Chromosome)m.chromosome;
   }
   this(Chromosome _chromosome, double _position) {
     chromosome = _chromosome, position = _position;
