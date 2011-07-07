@@ -53,13 +53,14 @@ static bool is_sex(Chromosome chromosome) {
  */
 
 
-Tuple!(Chromosome,Ms)[] chromosome_markers(Ms)(in Ms markers) {
+Tuple!(Chromosome,Markers!M)[] chromosome_markers(M)(in Markers!M markers) {
+  alias Markers!M Ms;
   Ms[string] alist;
   foreach(m ; markers.list) {
     if ((m.chromosome.name) !in alist) {
       alist[m.chromosome.name] = new Ms();
     }
-    alist[m.chromosome.name].list ~= new Marker(m); // FIXME: what about other types?
+    alist[m.chromosome.name].list ~= new M(m);
   }
   // convert to ret type
   Tuple!(Chromosome, Ms)[] list; 
