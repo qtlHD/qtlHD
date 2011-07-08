@@ -7,6 +7,8 @@ module qtl.core.xgap.xgap;
 import std.file;
 import std.conv;
 
+import qtl.core.primitives;
+
 //Aliasses to define Footprint and Version
 alias byte[8] Footprint;
 alias byte[4] Version;
@@ -69,6 +71,19 @@ struct XgapMatrixHeader{
 class XgapMatrix {
   XgapMatrixHeader  header;
   Container data;
+}
+
+//Helper function to go from marker[] to a 3 column format
+string[][] getMarkerInfoMatrix(Marker[] markers){
+  string[][] return_matrix;
+  foreach(Marker m;markers){
+    string[] row;
+    row ~= m.name;
+    row ~= m.chromosome.name;
+    row ~= to!string(m.position);
+    return_matrix ~= row;
+  }
+  return return_matrix;
 }
 
 //Helper function to go from sizes in bytes to KBs

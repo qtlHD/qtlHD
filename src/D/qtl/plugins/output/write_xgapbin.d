@@ -86,18 +86,6 @@ class BinaryWriter(Reader, XType) {
     }
   }
   
-  string[][] getMarkerInfoMatrix(Marker[] markers){
-    string[][] return_matrix;
-    foreach(Marker m;markers){
-      string[] row;
-      row ~= m.name;
-      row ~= m.chromosome.name;
-      row ~= to!string(m.position);
-      return_matrix ~= row;
-    }
-    return return_matrix;
-  }
-  
   void write_binary(in string filename){
     f = File(filename,"wb");
     XgapFileHeader h = XgapFileHeader(xgap_footprint,xgap_version,3);
