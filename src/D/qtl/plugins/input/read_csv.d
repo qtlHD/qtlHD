@@ -127,6 +127,7 @@ unittest {
   assert(data.phenotypenames[0] == "T264");
   assert(data.markers[0].name == "D10M44");
   assert(data.markers[0].id == 0);
+  assert(data.markers[0].chromosome.name == "1",data.markers[0].chromosome.name);
   assert(data.markers[1].id == 1);
   // Check chromosomes
   assert(data.chromosomes.length == 20, to!string(data.chromosomes.length));
