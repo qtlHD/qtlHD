@@ -53,8 +53,7 @@ static bool is_sex(Chromosome chromosome) {
  */
 
 
-Tuple!(Chromosome,Markers!M)[] get_markers_by_chromosome(M)(in Markers!M markers) {
-  alias Markers!M Ms;
+Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(in Ms markers) {
   Ms[string] alist;
   foreach(m ; markers.list) {
     if ((m.chromosome.name) !in alist) {
