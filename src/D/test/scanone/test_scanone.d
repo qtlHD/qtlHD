@@ -16,7 +16,7 @@ import std.path;
 
 // The comments are based on the Ruby/Biolib-R/qtl integration
 
-static bool VERBOSE = false;
+static bool VERBOSE = true;
 
 unittest {
 
@@ -47,10 +47,14 @@ unittest {
 
   // Markers per chromosome
   auto c_mslist = get_markers_by_chromosome(data.markers);
-  if (VERBOSE) {
-    foreach(c_ms ; c_mslist) {
-      auto c = c_ms[0];
-      auto ms = c_ms[1];
+  foreach(c_ms ; c_mslist) {
+    auto c = c_ms[0];
+    auto ms = c_ms[1];
+    if (c.name == "X") {
+      assert(ms[0].position == 0, to!string(ms[0].position));
+      // assert(ms[1].name == "DXM64", ms[1].name);
+    }
+    if (VERBOSE) {
       writeln(c.name);
       foreach (m; ms) {
         writeln(m.name,'-',m.position);
