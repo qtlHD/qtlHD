@@ -91,7 +91,7 @@ class XbinReader(XType) {
     for(int x=0;x<(h.nrow*h.ncol);x++){
       if(h.type == MatrixType.VARCHARMATRIX){
         lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
-        start = (skip + int.sizeof + ((h.nrow*h.ncol)*int.sizeof));      
+        start = (skip + ((h.nrow*h.ncol)*int.sizeof));      
       }else{
         lengths ~= byteToInt(inputbuffer[skip..(skip+int.sizeof)]);
         start = (skip + int.sizeof);
@@ -195,11 +195,16 @@ unittest{
   assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[0][1])) == indata.phenotypes[0][1]);
   assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[5][10])) == indata.phenotypes[5][10]);
   assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[10][5])) == indata.phenotypes[10][5]);
+  writeln("   - Reloaded phenotypes from xgap binary");
   XgapMatrix m2 = data.load(1);
   assert(set_genotype!RIL((cast(StringMatrix)(m2.data)).data[3][1]) == indata.genotypes[3][1]);
   assert(set_genotype!RIL((cast(StringMatrix)(m2.data)).data[7][15]) == indata.genotypes[7][15]);
   assert(set_genotype!RIL((cast(StringMatrix)(m2.data)).data[20][3]) == indata.genotypes[20][3]);
-  XgapMatrix m3 = data.load(2);  
-  writeln((cast(StringMatrix)(m3.data)).data);
+  writeln("   - Reloaded genotypes from xgap binary");
+  XgapMatrix m3 = data.load(2);
+  assert((cast(StringMatrix)(m3.data)).data[1][0] == getMarkerInfoMatrix(indata.markers)[1][0]);
+  assert((cast(StringMatrix)(m3.data)).data[10][2] == getMarkerInfoMatrix(indata.markers)[10][2]);
+  assert((cast(StringMatrix)(m3.data)).data[20][1] == getMarkerInfoMatrix(indata.markers)[20][1]);  
+  writeln("   - Reloaded markers from xgap binary");
 }
 
