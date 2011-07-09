@@ -49,7 +49,7 @@ unittest {
      writeln(c,ms);
      // writeln(c.name);
      foreach (m; ms[1]) {
-       writeln(m.position);
+       writeln(m.name,m.position);
      }
 
   }
