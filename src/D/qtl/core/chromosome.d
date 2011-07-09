@@ -55,9 +55,15 @@ static bool is_sex(Chromosome chromosome) {
 
 Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
   Ms[string] alist;
-  foreach(m ; markers.list) {
+  static if (is(typeof(Ms.list))) 
+    auto ms = markers.list;
+  else
+    auto ms = markers;
+  foreach(m ; ms) {
     if ((m.chromosome.name) !in alist) {
-      alist[m.chromosome.name] = new Ms();
+      static if (is(typeof(Ms.list))) {
+        alist[m.chromosome.name] = new Ms();
+      }
     }
     // note the cast does not affect derived types, such as PseudoMarker
     static if (is(typeof(Ms.list))) {
@@ -71,7 +77,11 @@ Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
   // convert to ret type
   Tuple!(Chromosome, Ms)[] list; 
   foreach( cname, ms ; alist) {
+    static if (is(typeof(Ms.list))) {
      list ~= Tuple!(Chromosome, Ms)(ms.list[0].chromosome,ms);
+    } else {
+     list ~= Tuple!(Chromosome, Ms)(ms[0].chromosome,ms);
+    }
   }
   return list;
 }
@@ -111,14 +121,14 @@ unittest {
   markers.list ~= m5;
   markers.list ~= m6;
   // fetch markers by Chromosome
-  auto tlist = get_markers_by_chromosome(markers);
-  assert(tlist.length == 2);
-  foreach(c, ms ; tlist) {
+  auto c_mslist = get_markers_by_chromosome(markers);
+  assert(c_mslist.length == 2);
+  foreach(c, ms ; c_mslist) {
      writeln(c,ms);
      foreach (m; ms[1].list) {
        writeln(typeid(m));
      }
   }
-  auto chromosome1 = tlist[0][0];
+  auto chromosome1 = c_mslist[0][0];
   assert(chromosome1.name == "X");
 }
