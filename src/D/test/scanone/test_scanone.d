@@ -45,7 +45,8 @@ unittest {
 
   // Markers per chromosome
   auto c_mslist = get_markers_by_chromosome(data.markers);
-  foreach(ms ; c_mslist) {
+  foreach(c_ms ; c_mslist) {
+     auto (c,ms) = c_ms;
      writeln(ms[0].name);
      foreach (m; ms[1]) {
        writeln(m.name,'-',m.position);
