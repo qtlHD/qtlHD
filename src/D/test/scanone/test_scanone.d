@@ -43,8 +43,10 @@ unittest {
   assert(data.genotypes[1][1].value == F2.B);
   assert(data.individuals.length == 120);
 
+  // Markers per chromosome
+  // auto cmlist = get_markers_by_chromosome(data.markers);
+
 /*
-Markers per chromosome
 
   >> d.nmar.sort
   => [["1", 13], ["10", 5], ["11", 6], ["12", 6], ["13", 12], ["14", 4], ["15", 8], ["16", 4], ["17", 4], ["18", 4], ["19", 4], ["2", 6], ["3", 6], ["4", 4], ["5", 13], ["6", 13], ["7", 6], ["8", 6], ["9", 7], ["X", 2]]

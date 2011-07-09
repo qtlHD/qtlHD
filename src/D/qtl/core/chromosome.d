@@ -60,7 +60,7 @@ Tuple!(Chromosome,Markers!M)[] get_markers_by_chromosome(M)(in Markers!M markers
     if ((m.chromosome.name) !in alist) {
       alist[m.chromosome.name] = new Ms();
     }
-    alist[m.chromosome.name].list ~= new M(m);
+    alist[m.chromosome.name].list ~= cast(Marker)m; // note the cast does not affect derived types, such as PseudoMarker
   }
   // convert to ret type
   Tuple!(Chromosome, Ms)[] list; 
@@ -97,16 +97,21 @@ unittest {
   auto m3 = new Marker(c1,30.0);
   auto m4 = new Marker(cx,11.0);
   auto m5 = new Marker(cx,14.0);
+  auto m6 = new PseudoMarker(cx,12.0);
   markers.list ~= m1;
   markers.list ~= m2;
   markers.list ~= m3;
   markers.list ~= m4;
   markers.list ~= m5;
+  markers.list ~= m6;
   // fetch markers by Chromosome
   auto tlist = get_markers_by_chromosome(markers);
   assert(tlist.length == 2);
   foreach(c, ms ; tlist) {
-    writeln(c,ms);
+     writeln(c,ms);
+     foreach (m; ms[1].list) {
+       writeln(typeid(m));
+     }
   }
   auto chromosome1 = tlist[0][0];
   assert(chromosome1.name == "X");
