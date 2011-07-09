@@ -59,8 +59,13 @@ Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
     if ((m.chromosome.name) !in alist) {
       alist[m.chromosome.name] = new Ms();
     }
-    static if (is(typeof(Ms.list)) {
-      alist[m.chromosome.name].list ~= cast(Marker)m; // note the cast does not affect derived types, such as PseudoMarker
+    // note the cast does not affect derived types, such as PseudoMarker
+    static if (is(typeof(Ms.list))) {
+      // we have list accessor
+      alist[m.chromosome.name].list ~= cast(Marker)m; 
+    }
+    else {
+      alist[m.chromosome.name] ~= cast(Marker)m; 
     }
   }
   // convert to ret type

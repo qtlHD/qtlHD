@@ -44,7 +44,7 @@ unittest {
   assert(data.individuals.length == 120);
 
   // Markers per chromosome
-  // auto cmlist = get_markers_by_chromosome(data.markers);
+  auto cmlist = get_markers_by_chromosome(data.markers);
 
 /*
 
