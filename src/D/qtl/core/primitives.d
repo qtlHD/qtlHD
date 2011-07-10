@@ -386,7 +386,10 @@ unittest {
   markers.list ~= mref1;  // 1, 4.6
   markers.list ~= mref2;  // 2, 4.8
   markers.list ~= pmref1; // 3, 4.7
+  // find by index
   assert(markers[0].name == "m1");
+  // find by name
+  assert(markers["m1"].name == "m1");
   uint[] result;
   foreach ( m ; markers.list ) {
     result ~= m.marker.id;
