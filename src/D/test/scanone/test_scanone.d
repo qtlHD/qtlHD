@@ -81,25 +81,11 @@ unittest {
   Marker m = find!("a.name == \"D10M44\"")(data.markers)[0];
   assert(m.name == "D10M44");
   assert(m.id == 0);
-  // assert(data.markers["D10M44"].name == "D10M44");
-
-/*
-Markers carry an indexed marker ID named 'mid'. This is really superfluous when
-genome information is available on marker positions. But it can be useful to
-speed queries up:
-
-Find marker by index ('mid')
-
-  >> d.markers[0].name
-  => 'D10M44'
-
-or the equivalent
-
-  >> d.marker(0).name
-  => 'D10M44'
-
-  >>  d.marker(0).position
-  => 0
+  // Find marker by id
+  Marker m1 = find!("a.id == 1")(data.markers)[0];
+  assert(m1.id == 1);
+  assert(m1.position == 0.99675);
+  /*
 
   >>  d.marker(1).position
   => 0.99675
