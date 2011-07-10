@@ -82,6 +82,8 @@ Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
   return list;
 }
 
+static auto VERBOSE = false;
+
 unittest {
   writeln("Unit test " ~ __FILE__);
   // For chromosome, for now, simply use an associative array
@@ -119,11 +121,13 @@ unittest {
   // fetch markers by Chromosome
   auto c_mslist = get_markers_by_chromosome(markers);
   assert(c_mslist.length == 2);
-  foreach(c, ms ; c_mslist) {
-     writeln(c,ms);
-     foreach (m; ms[1].list) {
-       writeln(typeid(m));
-     }
+  if (VERBOSE) {
+    foreach(c, ms ; c_mslist) {
+       writeln(c,ms);
+       foreach (m; ms[1].list) {
+         writeln(typeid(m));
+       }
+    }
   }
   auto chromosome1 = c_mslist[0][0];
   assert(chromosome1.name == "X");

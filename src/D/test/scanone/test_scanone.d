@@ -17,7 +17,7 @@ import std.algorithm;
 
 // The comments are based on the Ruby/Biolib-R/qtl integration
 
-static bool VERBOSE = true;
+static bool VERBOSE = false;
 
 unittest {
 
