@@ -13,6 +13,7 @@ import std.stdio;
 import std.conv;
 import std.string;
 import std.path;
+import std.algorithm;
 
 // The comments are based on the Ruby/Biolib-R/qtl integration
 
@@ -46,6 +47,9 @@ unittest {
   assert(data.individuals.length == 120);
 
   // Markers per chromosome
+  /*
+    => [["1", 13], ["10", 5], ["11", 6], ["12", 6], ["13", 12], ["14", 4], ["15", 8], ["16", 4], ["17", 4], ["18", 4], ["19", 4], ["2", 6], ["3", 6], ["4", 4], ["5", 13], ["6", 13], ["7", 6], ["8", 6], ["9", 7], ["X", 2]]
+  */
   auto c_mslist = get_markers_by_chromosome(data.markers);
   foreach(c_ms ; c_mslist) {
     auto c = c_ms[0];
@@ -66,22 +70,20 @@ unittest {
       }
     }
   }
+  /*
+  Find marker by name
+
+    >> d.markers['D10M44'].name
+    => 'D10M44'
+    >> d.markers['D10M44'].id
+    => 0
+  */
+  Marker m = find!("a.name == \"D10M44\"")(data.markers)[0];
+  assert(m.name == "D10M44");
+  assert(m.id == 0);
+  // assert(data.markers["D10M44"].name == "D10M44");
+
 /*
-
-  >> d.nmar.sort
-  => [["1", 13], ["10", 5], ["11", 6], ["12", 6], ["13", 12], ["14", 4], ["15", 8], ["16", 4], ["17", 4], ["18", 4], ["19", 4], ["2", 6], ["3", 6], ["4", 4], ["5", 13], ["6", 13], ["7", 6], ["8", 6], ["9", 7], ["X", 2]]
-
-Find marker by name
-
-  >> d.markers['D10M44'].name
-  => 'D10M44'
-
-  >> d.markers['D10M44'].mid
-  => 0
-
-  >> d.markers['D1M3'].mid
-  => 1
-
 Markers carry an indexed marker ID named 'mid'. This is really superfluous when
 genome information is available on marker positions. But it can be useful to
 speed queries up:
