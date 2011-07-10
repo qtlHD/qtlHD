@@ -12,6 +12,7 @@ import std.container;
 import std.conv;
 import std.range;
 import std.algorithm;
+import std.string;
 
 // Default values for undefined types
 immutable MARKER_POSITION_UNKNOWN = double.nan;
@@ -84,7 +85,7 @@ class Marker {
   mixin MarkerInfo;
 
   this(double _position = MARKER_POSITION_UNKNOWN, string _name = MARKER_NAME_UNKNOWN, uint _id=ID_UNKNOWN) { 
-    name = _name, position = _position, chromosome = null, id = _id ;
+    name = strip(_name), position = _position, chromosome = null, id = _id ;
     if (name == MARKER_NAME_UNKNOWN && position != MARKER_POSITION_UNKNOWN) 
       // default to 'loc\d\d\d\.\d' name
       name = "loc" ~ to!string(position);
@@ -111,6 +112,7 @@ class Marker {
     if (cmp < 0) return -1;
     return 0;
   }
+  string toString() { return name ~ "~" ~ to!string(position); }
 }
 
 /** 

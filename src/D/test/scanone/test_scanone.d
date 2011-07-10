@@ -50,9 +50,14 @@ unittest {
   foreach(c_ms ; c_mslist) {
     auto c = c_ms[0];
     auto ms = c_ms[1];
+    // look for X chromosome with 2 markers
     if (c.name == "X") {
+      assert(ms.length == 2);
       assert(ms[0].position == 0, to!string(ms[0].position));
-      // assert(ms[1].name == "DXM64", ms[1].name);
+      assert(ms[0].toString == "DXM186~0", ms[0].toString);
+      // writeln(ms[1]);
+      assert(ms[1].name == "DXM64", ms[1].name);
+      assert(ms[1].toString == "DXM64~42.3459", ms[1].toString);
     }
     if (VERBOSE) {
       writeln(c.name);
