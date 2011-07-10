@@ -85,14 +85,9 @@ unittest {
   Marker m1 = find!("a.id == 1")(data.markers)[0];
   assert(m1.id == 1);
   assert(m1.position == 0.99675);
+  Marker m14 = find!("a.id == 14")(data.markers)[0];
+  assert(m14.chromosome.name == "2");
   /*
-
-  >>  d.marker(1).position
-  => 0.99675
-
-  >>  d.marker(0).chromosome
-  => '1'
-
   >>  d.marker(14).chromosome
   => '2'
 
