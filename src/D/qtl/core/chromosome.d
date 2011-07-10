@@ -77,11 +77,7 @@ Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
   // convert to ret type
   Tuple!(Chromosome, Ms)[] list; 
   foreach( cname, ms ; alist) {
-    static if (is(typeof(Ms.list))) {
-     list ~= Tuple!(Chromosome, Ms)(ms.list[0].chromosome,ms);
-    } else {
-     list ~= Tuple!(Chromosome, Ms)(ms[0].chromosome,ms);
-    }
+    list ~= Tuple!(Chromosome, Ms)(ms[0].chromosome,ms);
   }
   return list;
 }
