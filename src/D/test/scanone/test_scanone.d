@@ -88,14 +88,7 @@ unittest {
   Marker m14 = find!("a.id == 14")(data.markers)[0];
   assert(m14.chromosome.name == "2");
   /*
-  >>  d.marker(14).chromosome
-  => '2'
-
-  >> d.markers.size
-  => 133
-
-Now create an ordered map of markers and their (estimated) recombination
-rates:
+    Now create an ordered map of markers and their (estimated) recombination rates:
 
   >> map = QtlMap.new(d.markers)
   >> map.size

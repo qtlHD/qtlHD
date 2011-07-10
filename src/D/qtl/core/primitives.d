@@ -266,7 +266,8 @@ class MarkerRef(T)
     marker = new Marker(m.position, m.name, m.id);
   }
 
-  Position get_position() { return marker.get_position(); }
+  Position get_position() { return marker.get_position; }
+  string name() { return marker.name; }
 
   /// Markers at the same position are considered equal
   bool opEquals(Object other) {
@@ -300,6 +301,10 @@ class Markers(M) {
     sort(ms.list); // sorts in place
     return ms;
   }
+  // M opIndex(string name) {
+  //   return find!( (m) { return m.name == name; })(list)[0];
+  // }
+  M opIndex(int i) { return list[i]; }
 }
 
 /**
@@ -381,6 +386,7 @@ unittest {
   markers.list ~= mref1;  // 1, 4.6
   markers.list ~= mref2;  // 2, 4.8
   markers.list ~= pmref1; // 3, 4.7
+  assert(markers[0].name == "m1");
   uint[] result;
   foreach ( m ; markers.list ) {
     result ~= m.marker.id;
