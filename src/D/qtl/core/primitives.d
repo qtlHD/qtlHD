@@ -267,7 +267,8 @@ class MarkerRef(T)
   }
 
   Position get_position() { return marker.get_position; }
-  string name() { return marker.name; }
+  const string name() { return marker.name; }
+  const uint id() { return marker.id; }
 
   /// Markers at the same position are considered equal
   bool opEquals(Object other) {
@@ -301,10 +302,17 @@ class Markers(M) {
     sort(ms.list); // sorts in place
     return ms;
   }
-  // M opIndex(string name) {
-  //   return find!( (m) { return m.name == name; })(list)[0];
-  // }
   M opIndex(int i) { return list[i]; }
+  /// find by name
+  M find(string name) {
+    foreach(m; list) { if (m.name == name) return m; }
+    return null;
+  }
+  /// find by ID
+  M find(uint id) {
+    foreach(m; list) { if (m.id == id) return m; }
+    return null;
+  }
 }
 
 /**
@@ -389,7 +397,7 @@ unittest {
   // find by index
   assert(markers[0].name == "m1");
   // find by name
-  assert(markers["m1"].name == "m1");
+  assert(markers.find("m1").name == "m1");
   uint[] result;
   foreach ( m ; markers.list ) {
     result ~= m.marker.id;
