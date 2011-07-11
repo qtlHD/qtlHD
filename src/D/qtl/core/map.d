@@ -2,11 +2,29 @@
  * Functions for the map 
  */
 
-module qtl.core.marker;
+module qtl.core.map;
+
+import qtl.core.primitives;
 
 import std.algorithm;
 import std.math;
 import std.stdio;
+
+/**
+ * Find first (most-left) marker - do not assume markers is sorted
+ */
+
+Marker map_first(Ms)(Ms markers) {
+  return reduce!("(a.get_position()<b.get_position()?a:b)")(markers);
+}
+
+/**
+ * Find last (most-right) marker - do not assume markers is sorted
+ */
+
+Marker map_last(Ms)(Ms markers) {
+  return reduce!("(a.get_position()>b.get_position()?a:b)")(markers);
+}
 
 /**
  * Calculate map size of a list of Markers - do not assume
@@ -14,10 +32,13 @@ import std.stdio;
  */
 
 double map_size(Ms)(Ms markers) {
-  auto min = reduce!("(a.get_position()<b.get_position()?a:b)")
-    (markers);
-  auto max = reduce!("(a.get_position()>b.get_position()?a:b)")
-    (markers);
-  return max.get_position - min.get_position;
+  return map_last(markers).get_position - map_first(markers).get_position;
 }
 
+/** 
+ * Calculate recombination between markers
+ */
+
+double[] recombination_fractions(Ms)(Ms markers) {
+ return null;
+}

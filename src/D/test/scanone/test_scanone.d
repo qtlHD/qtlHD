@@ -9,6 +9,7 @@ import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.marker;
+import qtl.core.map;
 import qtl.plugins.input.read_csv;
 import std.stdio;
 import std.conv;
