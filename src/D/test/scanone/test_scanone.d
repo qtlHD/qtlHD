@@ -88,6 +88,7 @@ unittest {
   assert(msx.length == 2);
   assert(to!string(map_size(msx))=="42.3459",to!string(map_size(msx)));
   // Calculate map size all Chromosomes
+  auto size = reduce!"map_size(a[1])+map_size(b[1])"(c_mslist);
 
   /*
     Now create an ordered map of markers and their (estimated) recombination rates:
