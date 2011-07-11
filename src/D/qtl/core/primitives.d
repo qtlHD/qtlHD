@@ -63,7 +63,7 @@ mixin template MarkerInfo() {
 
 mixin template ActList(T) {
   T[] list;
-  auto length() { return list.length; }
+  const uint length() { return list.length; }
 }
 
 /** 
@@ -305,7 +305,7 @@ class Markers(M) {
     sort(ms.list); // sorts in place
     return ms;
   }
-  int length() { return list.length; }
+  const int length() { return list.length; }
   M opIndex(int i) { return list[i]; }
   /// find by name
   M find(string name) {
