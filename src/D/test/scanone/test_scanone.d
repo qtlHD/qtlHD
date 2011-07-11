@@ -99,7 +99,9 @@ unittest {
   auto c1 = find!("a[0].name == \"1\"")(c_mslist)[0];
   auto ms1 = c1[1].sort;
   writeln(ms1);
-  auto rf1 = recombination_fractions(ms1);
+  auto rfs = recombination_fractions(ms1);
+  writeln(rfs);
+  assert(to!string(rfs[0])=="0.00986881");
 /*
   >> map.positions('1')
   => [0, 0.99675, 24.84773, 40.41361, 49.99468, 52.8002, 70.11204, 70.80642, 80.62324, 81.39623, 84.93474, 92.68394, 93.64344]

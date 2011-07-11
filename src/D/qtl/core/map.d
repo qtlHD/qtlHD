@@ -8,6 +8,7 @@ import qtl.core.primitives;
 
 import std.algorithm;
 import std.math;
+import std.array;
 import std.stdio;
 
 /**
@@ -36,9 +37,23 @@ double map_size(Ms)(Ms markers) {
 }
 
 /** 
- * Calculate recombination between markers
+ * Calculate recombination fractions between markers (Haldane)
  */
 
-double[] recombination_fractions(Ms)(Ms markers) {
- return null;
+double[] recombination_fractions(OrderedMs)(OrderedMs markers) {
+  // ps = positions(name)
+  // ds = []
+  // ps.each_cons(2) { | a | ds.push a[1]-a[0] }
+  double[] distances;
+  distances.reserve(markers.length);
+  Marker leftmarker = null;
+  foreach(m; markers) {
+    if (leftmarker) {
+      distances ~= m.get_position - leftmarker.get_position;
+    }
+    leftmarker = m;
+  }
+  return array(map!("0.5*(1-exp(-a/50))")(distances)); // Haldane
 }
+
+// unittests in test_scanone.d
