@@ -8,6 +8,7 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
+import qtl.core.marker;
 import qtl.plugins.input.read_csv;
 import std.stdio;
 import std.conv;
@@ -52,8 +53,8 @@ unittest {
   */
   auto c_mslist = get_markers_by_chromosome(data.markers);
   foreach(c_ms ; c_mslist) {
-    auto c = c_ms[0];
-    auto ms = c_ms[1];
+    auto c = c_ms[0];  // first part of Tuple
+    auto ms = c_ms[1]; // second part of Tuple
     // look for X chromosome with 2 markers
     if (c.name == "X") {
       assert(ms.length == 2, to!string(ms.length));
@@ -70,14 +71,7 @@ unittest {
       }
     }
   }
-  /*
-  Find marker by name
-
-    >> d.markers['D10M44'].name
-    => 'D10M44'
-    >> d.markers['D10M44'].id
-    => 0
-  */
+  // Find marker by name
   Marker m = find!("a.name == \"D10M44\"")(data.markers)[0];
   assert(m.name == "D10M44");
   assert(m.id == 0);
@@ -87,6 +81,14 @@ unittest {
   assert(m1.position == 0.99675);
   Marker m14 = find!("a.id == 14")(data.markers)[0];
   assert(m14.chromosome.name == "2");
+
+  // Calculate map size X Chromosome
+  auto cx = find!("a[0].name == \"X\"")(c_mslist)[0];
+  auto msx = cx[1];
+  assert(msx.length == 2);
+  assert(to!string(map_size(msx))=="42.3459",to!string(map_size(msx)));
+  // Calculate map size all Chromosomes
+
   /*
     Now create an ordered map of markers and their (estimated) recombination rates:
 
