@@ -88,9 +88,6 @@ task :test => [PROG] do
   sh "./#{PROG}" 
 end
 
-# ---- Utilities
-
-
 # ---- Unit tests
 
 desc "Test XGAP"
