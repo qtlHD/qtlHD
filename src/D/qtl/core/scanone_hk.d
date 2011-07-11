@@ -4,7 +4,7 @@
  * NOTE: this module is under development
  */
 
-module qtl.core.scaneone_hk;
+module qtl.core.scanone_hk;
 
 import std.container;
 import qtl.core.primitives;
@@ -62,41 +62,12 @@ import qtl.core.primitives;
 import qtl.core.genotype;
 import qtl.plugins.input.read_csv;
 
-class M {
-}
-
-interface MContained {
-}
-
-template Scanner(T) {
-
-  class Mref : MContained {
-    Genotype!T[][] genotypes;
-  }
-
-  MappedQTLs scanone_hk(Mref[] markers) /*
-                        in PhenotypeContainer phenotypes, 
-                        in Individual[] individuals,
-                        in CovariateContainer covariates) */
-  {
-    return null;
-  }
+double[] scanone_hk(Ms)(Ms markers) 
+{
+  return null;
 }
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-  Genotype!F2[][] genotypes;
-  auto mref = new Scanner!F2.Mref();
-  mref.genotypes = genotypes;
-
-  alias F2 XType;
-  alias std.path.join join;
-  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
-  writeln("  - reading CSV " ~ fn);
-  auto data = new ReadSimpleCSV!XType(fn);
-  assert(data.markers.length == 133, to!string(data.markers.length));
-  // auto covariates = new Covariates!double;
-  Scanner!F2.Mref[] markerrefs;
-  auto result = Scanner!F2.scanone_hk(markerrefs); // ,data.phenotypes,data.individuals,covariates);
 }
 

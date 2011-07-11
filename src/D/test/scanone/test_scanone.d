@@ -12,6 +12,7 @@ import qtl.core.marker;
 import qtl.core.map;
 import qtl.core.make_map;
 import qtl.plugins.input.read_csv;
+import qtl.core.scanone_hk;
 import std.stdio;
 import std.conv;
 import std.string;
@@ -125,6 +126,8 @@ unittest {
   assert(exprfs1.length==51,to!string(exprfs1.length));
   assert(to!string(rfs[0])=="0.00986881");
   assert(to!string(rfs[2])=="0.133759");
+  // Getting ready for scanone
+  auto result = scanone_hk(expms1); 
 
   /*
 We are going to scan for QTL's. The first R equivalent here is:
