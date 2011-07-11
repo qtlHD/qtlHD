@@ -45,7 +45,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
   // markers (at off_end) with step=0 is not supported here. That should also
   // be a separate function. Variable step size is, again, another function.
   auto new_markers = new Ms(markers);
-  auto sorted_markers = markers.sorted();
+  auto sorted_markers = new_markers.sorted();
   if (markers.list.length > 1) {
     auto list = sorted_markers.list;
     auto minpos = list[0].get_position();

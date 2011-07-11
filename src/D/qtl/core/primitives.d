@@ -294,8 +294,8 @@ class Markers(M) {
   this(in Markers!M markers) {
     list = markers.list.dup;  // make sure to clone all data
   }
-  this(in M[] markers) {
-    list = cast(M[])markers;
+  this(M[] markers) {
+    list = markers.dup;
   }
   void add(in Marker m) {
     list ~= new M(m);
