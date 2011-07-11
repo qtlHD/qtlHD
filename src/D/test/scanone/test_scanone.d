@@ -100,21 +100,15 @@ unittest {
   auto ms1 = c1[1].sort;
   writeln(ms1);
   auto rfs = recombination_fractions(ms1);
-  writeln(rfs);
+  assert(rfs.length==12);
   assert(to!string(rfs[0])=="0.00986881");
-/*
-  >> map.positions('1')
-  => [0, 0.99675, 24.84773, 40.41361, 49.99468, 52.8002, 70.11204, 70.80642, 80.62324, 81.39623, 84.93474, 92.68394, 93.64344]
-  >> map.recombination_fractions('1')[0..2]
-  => [0.0098688058543826, 0.189684817590462, 0.13375939855361]
-  >> map.recombination_fractions('1').size
-  => 12
-  >> map.positions('X')
-  => [0, 42.34593]
-  >> map.recombination_fractions('X')
-  => [0.285633000218103]
+  assert(to!string(rfs[1])=="0.189685");
+  // Chromosome X
+  writeln(recombination_fractions(msx));
+  assert(to!string(recombination_fractions(msx)[0])=="0.285633");
+  // expand map
 
-And expand the map:
+  /*
 
   >> expanded_map = map.expand(2.5)
   >> expanded_map.size
