@@ -8,6 +8,11 @@ module qtl.core.scanone_hk;
 
 import std.container;
 import qtl.core.primitives;
+import std.stdio;
+import std.algorithm;
+import qtl.core.genotype;
+import qtl.plugins.input.read_csv;
+
 
 /*
  * Performs genome scan using the Haley-Knott regression method
@@ -51,19 +56,26 @@ import qtl.core.primitives;
  *
  **********************************************************************/
 
-import std.stdio;
-import std.conv;
-import std.string;
-import std.path;
-
-import qtl.core.primitives;
-// import qtl.core.chromosome;
-// import qtl.core.phenotype;
-import qtl.core.genotype;
-import qtl.plugins.input.read_csv;
-
-double[] scanone_hk(Ms)(Ms markers) 
+double[] scanone_hk(Ms,Ps,Is,Gs)(Ms markers, Ps phenotypes, Is individuals, Gs genotypes) 
 {
+  immutable n_mar = markers.length;
+  immutable n_phe = phenotypes.length;
+  immutable n_ind = individuals.length;
+  immutable n_gen = genotypes.length;
+  immutable n_rss = n_phe;
+  immutable n_intcov = 0; // later
+  immutable n_addcov = 0; // later
+  double[] rss;
+  rss.reserve(n_rss);
+  double[][] tmp_pheno;  
+  tmp_pheno.reserve(n_ind * n_phe);
+  // design matrix for full model
+  immutable ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov;
+  // immutable rank = ncolx;
+  immutable lwork = 3*ncolx + max(n_ind, n_phe);
+  // double[] dwork = (double *)R_alloc((2*n_ind+1)*ncolx+lwork+(n_ind+ncolx)*nphe,
+
+  
   return null;
 }
 

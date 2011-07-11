@@ -127,7 +127,7 @@ unittest {
   assert(to!string(rfs[0])=="0.00986881");
   assert(to!string(rfs[2])=="0.133759");
   // Getting ready for scanone
-  auto result = scanone_hk(expms1); 
+  auto result = scanone_hk(expms1,data.phenotypes,data.individuals,data.genotypes); 
 
   /*
 We are going to scan for QTL's. The first R equivalent here is:
