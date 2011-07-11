@@ -94,14 +94,12 @@ unittest {
   }
   assert(to!string(totalsize) == "1104.29");
 
-  /*
-    Now create an ordered map of markers and their (estimated) recombination rates:
-
-  >> map = QtlMap.new(d.markers)
-  >> map.size
-  => 1104.28582
-  >> map.size("1")
-  => 93.64344
+  // Chromosome 1
+  auto c1 = find!("a[0].name == \"1\"")(c_mslist)[0];
+  auto ms1 = c1[1].sort;
+  writeln(ms1);
+  auto rf1 = recombination_fractions(ms1);
+/*
   >> map.positions('1')
   => [0, 0.99675, 24.84773, 40.41361, 49.99468, 52.8002, 70.11204, 70.80642, 80.62324, 81.39623, 84.93474, 92.68394, 93.64344]
   >> map.recombination_fractions('1')[0..2]
