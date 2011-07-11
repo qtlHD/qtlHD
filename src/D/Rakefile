@@ -93,12 +93,6 @@ end
 
 # ---- Unit tests
 
-desc "Test CSVr"
-task :test_csvr => [ 'read_csv', 'read_csvr' ] do 
-  sh "./read_csv" 
-  sh "./read_csvr" 
-end
-
 desc "Test XGAP"
 task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do 
   sh "./write_xgapbin"
@@ -106,10 +100,5 @@ task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do
 end
 
 desc "Test all"
-task :test_all => [ :test_csvr, :test_xgap ] do 
-#  sh "./read_csv"
-end
-
-desc "Test all"
-task :test_all => [:clean, :test_csvr, :test_xgap ]
+task :test_all => [:clean, :read_csv, :read_csvr, :test_xgap ]
 
