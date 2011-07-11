@@ -294,6 +294,9 @@ class Markers(M) {
   this(in Markers!M markers) {
     list = markers.list.dup;  // make sure to clone all data
   }
+  this(in M[] markers) {
+    list = cast(M[])markers;
+  }
   void add(in Marker m) {
     list ~= new M(m);
   }
@@ -302,6 +305,7 @@ class Markers(M) {
     sort(ms.list); // sorts in place
     return ms;
   }
+  int length() { return list.length; }
   M opIndex(int i) { return list[i]; }
   /// find by name
   M find(string name) {

@@ -10,12 +10,14 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.marker;
 import qtl.core.map;
+import qtl.core.make_map;
 import qtl.plugins.input.read_csv;
 import std.stdio;
 import std.conv;
 import std.string;
 import std.path;
 import std.algorithm;
+alias std.algorithm.find find;
 
 // The comments are based on the Ruby/Biolib-R/qtl integration
 
@@ -106,7 +108,16 @@ unittest {
   // Chromosome X
   writeln(recombination_fractions(msx));
   assert(to!string(recombination_fractions(msx)[0])=="0.285633");
-  // expand map
+  // expand map for each chromosome
+  double totalexpsize = 0.0;
+  foreach(c_ms ; c_mslist) {
+    auto msin = new Markers!Marker(c_ms[1]);
+    auto ms = add_stepped_markers_autosome(msin,2.5,0);
+    totalexpsize += map_size(ms.list);
+  }
+  // after expansion the size is still:
+  assert(to!string(totalexpsize) == "1104.29",to!string(totalexpsize));
+  
 
   /*
 
