@@ -56,7 +56,7 @@ unittest {
     auto ms = c_ms[1];
     // look for X chromosome with 2 markers
     if (c.name == "X") {
-      assert(ms.length == 2);
+      assert(ms.length == 2, to!string(ms.length));
       assert(ms[0].position == 0, to!string(ms[0].position));
       assert(ms[0].toString == "DXM186~0", ms[0].toString);
       // writeln(ms[1]);

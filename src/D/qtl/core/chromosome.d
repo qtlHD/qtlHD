@@ -54,29 +54,22 @@ static bool is_sex(Chromosome chromosome) {
 
 
 Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
-  Ms[string] alist;
-  static if (is(typeof(Ms.list))) 
-    auto ms = markers.list;
-  else
-    auto ms = markers;
+  Ms[string] hash_cs;   // store chromosomes temporarily in associative array hash_cs
+  auto ms = markers.list;
   foreach(m ; ms) {
-    if ((m.chromosome.name) !in alist) {
-      static if (is(typeof(Ms.list))) {
-        alist[m.chromosome.name] = new Ms();
-      }
-    }
     // note the cast does not affect derived types, such as PseudoMarker
-    static if (is(typeof(Ms.list))) {
-      // we have list accessor
-      alist[m.chromosome.name].list ~= cast(Marker)m; 
+    static if (is(Ms : Object)) {
+      if ((m.chromosome.name) !in hash_cs)
+        hash_cs[m.chromosome.name] = new Ms();
+      hash_cs[m.chromosome.name].list ~= cast(Marker)m; 
     }
     else {
-      alist[m.chromosome.name] ~= cast(Marker)m; 
+      hash_cs[m.chromosome.name] ~= cast(Marker)m;
     }
   }
   // convert to ret type
   Tuple!(Chromosome, Ms)[] list; 
-  foreach( cname, ms ; alist) {
+  foreach( cname, ms ; hash_cs) {
     list ~= Tuple!(Chromosome, Ms)(ms[0].chromosome,ms);
   }
   return list;

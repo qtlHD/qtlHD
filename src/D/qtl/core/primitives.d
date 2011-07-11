@@ -315,6 +315,10 @@ class Markers(M) {
   }
 }
 
+@property M[] list(M)(Markers!M ms) { return ms.list; }
+@property M[] list(M)(M[] ms) { return ms; };
+
+
 /**
  * ChromosomeMap combines Chromosome and Marker list.
  */
@@ -394,6 +398,8 @@ unittest {
   markers.list ~= mref1;  // 1, 4.6
   markers.list ~= mref2;  // 2, 4.8
   markers.list ~= pmref1; // 3, 4.7
+  // test list
+  assert(list(markers) == markers.list);
   // find by index
   assert(markers[0].name == "m1");
   // find by name
