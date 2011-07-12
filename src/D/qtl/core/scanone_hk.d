@@ -11,11 +11,15 @@ import qtl.core.primitives;
 import std.stdio;
 import std.algorithm;
 import std.math;
+import std.string;
 import qtl.core.genotype;
 import qtl.plugins.input.read_csv;
 
 import core.stdc.stdlib;  // for malloc
 import core.stdc.string;  // for memcpy
+
+pragma(lib, "blas");
+pragma(lib, "lapack");
 
 immutable TOL = 1e-12;  // tolerance for linear regression
 
@@ -79,7 +83,7 @@ private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x
   int i, singular=0;
 
   /* use dgels first */
-  dgels_(cast(char *)"N", n_ind, ncolx0, nphe, x0, n_ind, tmppheno, n_ind,
+  dgels_(cast(char *)toStringz("N"), n_ind, ncolx0, nphe, x0, n_ind, tmppheno, n_ind,
 		  work, lwork, info);
   
   /* if there's problem like singular, use dgelss */
@@ -111,13 +115,13 @@ private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x
 /* DGEMM */
 private void mydgemm(int *nphe, int *n_ind, double *alpha, double *tmppheno, double *beta, double *rss_det) 
 {
-  dgemm_(cast(char *)"T",cast(char *)"N", nphe, nphe, n_ind, alpha, tmppheno, n_ind, tmppheno, n_ind, beta, rss_det, nphe);
+  dgemm_(cast(char *)toStringz("T"),cast(char *)toStringz("N"), nphe, nphe, n_ind, alpha, tmppheno, n_ind, tmppheno, n_ind, beta, rss_det, nphe);
 }
 
 /* DPOTRF */
 private void mydpotrf(int *nphe, double *rss_det, int *info) 
 {
-  dpotrf_(cast(char *)"U", nphe, rss_det, nphe, info);
+  dpotrf_(cast(char *)toStringz("U"), nphe, rss_det, nphe, info);
 }
 
 /*DPOTRS */
