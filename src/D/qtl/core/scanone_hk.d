@@ -10,6 +10,7 @@ import std.container;
 import qtl.core.primitives;
 import std.stdio;
 import std.algorithm;
+import std.math;
 import qtl.core.genotype;
 import qtl.plugins.input.read_csv;
 
@@ -17,6 +18,133 @@ import core.stdc.stdlib;  // for malloc
 import core.stdc.string;  // for memcpy
 
 immutable TOL = 1e-12;  // tolerance for linear regression
+
+// Prototypes for the raw Fortran interface to BLAS
+extern(C) {
+
+alias float f_float;
+alias double f_double;
+alias cfloat f_cfloat;
+alias cdouble f_cdouble;
+alias int f_int;
+
+void dgels_(char *trans, f_int *m, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_double *work, f_int *lwork, f_int *info);
+
+void dgelss_(f_int *m, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_double *s, f_double *rcond, f_int *rank, f_double *work, f_int *lwork, f_int *info);
+
+// void dgemm_(char *transa, char *transb, f_int *m, f_int *n, f_int *k, f_double *alpha, f_double *A, f_int *lda, f_double *B, f_int *ldb, f_double *beta, f_double *C, f_int *ldc, f_int transa_len, f_int transb_len);
+void dgemm_(char *transa, char *transb, f_int *m, f_int *n, f_int *k, f_double *alpha, f_double *A, f_int *lda, f_double *B, f_int *ldb, f_double *beta, f_double *C, f_int *ldc);
+
+// void dpotrf_(char *uplo, f_int *n, f_double *a, f_int *lda, f_int *info, f_int uplo_len);
+void dpotrf_(char *uplo, f_int *n, f_double *a, f_int *lda, f_int *info);
+
+// void dpotrs_(char *uplo, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_int *info, f_int uplo_len);
+void dpotrs_(char *uplo, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_int *info);
+}
+
+/**********************************************************************
+ *
+ * lapackutil.c
+ *
+ * copyright (c) 2006, Hao Wu
+ *
+ * last modified Feb, 2006 
+ * first written Jan, 2006 
+ *
+ *     This program is free software; you can redistribute it and/or
+ *     modify it under the terms of the GNU General Public License,
+ *     version 3, as published by the Free Software Foundation.
+ * 
+ *     This program is distributed in the hope that it will be useful,
+ *     but without any warranty; without even the implied warranty of
+ *     merchantability or fitness for a particular purpose.  See the GNU
+ *     General Public License, version 3, for more details.
+ * 
+ *     A copy of the GNU General Public License, version 3, is available
+ *     at http://www.r-project.org/Licenses/GPL-3
+ *
+ * C functions for the R/qtl package
+ *
+ * These are some wrapper functions for several LAPACK routines.
+ *
+ * Contains: mydgelss, mydgemm, mydpotrf, mydpotrs
+ *
+ **********************************************************************/
+
+/* DGELSS function */
+private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x0_bk,
+               double *pheno, double *tmppheno, double *s, double *tol, 
+               int *rank, double *work, int *lwork, int *info)
+{
+  int i, singular=0;
+
+  /* use dgels first */
+  dgels_(cast(char *)"N", n_ind, ncolx0, nphe, x0, n_ind, tmppheno, n_ind,
+		  work, lwork, info);
+  
+  /* if there's problem like singular, use dgelss */
+  /* note that x0 will contain the result for QR decomposition. 
+  If any diagonal element of R is zero, then input x0 is rank deficient */
+  for(i=0; i<*ncolx0; i++)  {
+    if(abs(x0[*n_ind*i+i]) < TOL) {
+      singular = 1;
+      break;
+    }
+  }
+
+  
+  if(singular) { /* switch to dgelss if input x0 is not of full rank */
+    /* note that tmppheno and x0 have been destroyed already,
+    we need to make another copy of them */
+    /*mexPrintf("Warning - Design matrix is signular \n"); */
+    /* note that at this stage both x0 and tmppheno might be destroyed,
+    we need to make a copy of them */
+
+    memcpy(x0, x0_bk, *n_ind*(*ncolx0)*double.sizeof);
+    memcpy(tmppheno, pheno, *n_ind*(*nphe)*double.sizeof);
+    dgelss_(n_ind, ncolx0, nphe, x0, n_ind, tmppheno, n_ind, 
+      s, tol, rank, work, lwork, info);
+  }
+}
+
+
+/* DGEMM */
+private void mydgemm(int *nphe, int *n_ind, double *alpha, double *tmppheno, double *beta, double *rss_det) 
+{
+  dgemm_(cast(char *)"T",cast(char *)"N", nphe, nphe, n_ind, alpha, tmppheno, n_ind, tmppheno, n_ind, beta, rss_det, nphe);
+}
+
+/* DPOTRF */
+private void mydpotrf(int *nphe, double *rss_det, int *info) 
+{
+  dpotrf_(cast(char *)"U", nphe, rss_det, nphe, info);
+}
+
+/*DPOTRS */
+private void mydpotrs(char *uplo, int *n, int *nrhs, double *A, 
+                      int *lda, double *B, int *ldb, int *info)
+{
+  dpotrs_(uplo, n, nrhs, A, lda, B, ldb, info);
+}
+
+/* end of lapackutil.c */
+
+private void matmult(double *result, double *a, int nrowa,
+                     int ncola, double *b, int ncolb)
+
+{
+  int i, j, k;
+
+  for(i=0; i<nrowa; i++) {
+    for(j=0; j<ncolb; j++) {
+      /* clear the content of result */
+      result[j*nrowa+i] = 0.0;
+      /*result[i*ncolb+j] = 0.0;*/
+      for(k=0; k<ncola; k++)
+        result[j*nrowa+i] += a[k*nrowa+i]*b[j*ncola+k];
+    }
+  }
+}
 
 /*
  * Performs genome scan using the Haley-Knott regression method
@@ -96,8 +224,8 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
 
   // calculated
   immutable n_pos = markers.length;
-  immutable nphe = phenotypes.length;
-  immutable n_ind = individuals.length;
+  int nphe = phenotypes.length;
+  int n_ind = individuals.length;
   immutable n_gen = genotypes.length;
 
   // unused now
@@ -112,7 +240,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   double *x_bk, singular, yfit, rss_det, work, coef;
   double alpha=1.0;
   auto beta=0.0;
-  auto tol=TOL;
+  double tol=TOL;
   double dtmp;
 
   /* number of rss's, currently multivar is not used so it's always 0 */
