@@ -190,7 +190,6 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   double *pheno;  // changed by weights!
   double[][][] genoprob; // changed!
   immutable double **addcov, intcov;
-  immutable int[] ind_noqtl;
 
   // calculated
   immutable n_pos = markers.length;
@@ -199,9 +198,18 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   immutable n_gen = genotypes.length;
 
   // unused now
-  immutable double *weights = null;
+  int[] ind_noqtl;
+  ind_noqtl.length = n_ind; 
+  assert(ind_noqtl[0] == 0);
+  double[] weights;
+  weights.length = n_ind;
+  weights[] = 1.0;
   immutable n_intcov = 0;
   immutable n_addcov = 0;
+
+  // initialize
+  pheno = cast(double *)malloc(nphe * double.sizeof);
+  genoprob = new double[][][](n_ind,n_pos,n_gen);
 
   // local
   int  i, j, k, k2, s, rank, info, nrss, lwork, ncolx, ind_idx,
@@ -268,10 +276,9 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   for(j=0; j<n_ind; j++)  rss0 += (resid[j]*resid[j]);
   Null model is now done in R ********************/
 
-  if (weights)
-    for(j=0; j<n_ind; j++) 
-      for(k=0; k<nphe; k++)
-        pheno[j+k*n_ind] *= weights[j];
+  for(j=0; j<n_ind; j++) 
+    for(k=0; k<nphe; k++)
+      pheno[j+k*n_ind] *= weights[j];
   /* note: weights are really square-root of weights */
 
   for(i=0; i<n_pos; i++) { /* loop over positions */
