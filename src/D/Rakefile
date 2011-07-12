@@ -10,9 +10,9 @@
 #   rake build          
 #   rake run
 #   rake test
-#   rake csv2xgap        # build utility
+#   rake DEBUG csv2xgap  # build utility with debug information
 #   rake read_csv        # CSV unit tests
-#   rake read_csvr       # CSVr unit tests
+#   rake DEBUG read_csvr # CSVr unit tests with debug information
 #   etc. etc. (see rake -T).
 
 require 'rake/clean'
@@ -21,6 +21,15 @@ PROG = 'read_csv'  # this will change
 BINARIES = [PROG, :csv2xgap ]
 TESTS = [ 'read_csv' ]
 
+D_TEST  = "-unittest"
+d_test  = D_TEST
+D_DEBUG = "-gc -debug"
+d_debug = ""
+
+if ARGV.index("DEBUG") 
+  d_debug = D_DEBUG
+  print "Adding debug information!\n"
+end
 core_dfiles = Dir.glob("./qtl/core/*.d")
 io_dfiles = Dir.glob("./qtl/plugins/input/*.d")
 xgap_dfiles = Dir.glob("./qtl/core/xgap/*.d")
@@ -59,7 +68,7 @@ exe_list.each do | fn, attr |
     desc "Test "+fn
   end
   file fn => list do
-    sh "dmd -unittest -of#{fn} #{list.join(' ')} test/main.d"
+    sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
     sh './'+fn
   end
 end
