@@ -13,6 +13,10 @@ import std.algorithm;
 import qtl.core.genotype;
 import qtl.plugins.input.read_csv;
 
+import core.stdc.stdlib;  // for malloc
+import core.stdc.string;  // for memcpy
+
+immutable TOL = 1e-12;  // tolerance for linear regression
 
 /*
  * Performs genome scan using the Haley-Knott regression method
@@ -26,10 +30,10 @@ import qtl.plugins.input.read_csv;
  *   n_pos        Number of marker positions
  *   n_gen        Number of different genotypes
  *   Genoprob     Array of conditional genotype probabilities
- *   Addcov       Matrix of additive covariates: Addcov[cov][ind]
- *   n_addcov     Number of columns of Addcov
- *   Intcov       Number of interactive covariates: Intcov[cov][ind]
- *   n_intcov     Number of columns of Intcov
+ *   addcov       Matrix of additive covariates: addcov[cov][ind]
+ *   n_addcov     Number of columns of addcov
+ *   intcov       Number of interactive covariates: intcov[cov][ind]
+ *   n_intcov     Number of columns of intcov
  *   pheno        Phenotype data, as a vector
  *   nphe         Number of phenotypes
  *   weights      Vector of positive weights, of length n_ind
@@ -84,10 +88,28 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
 
   
 */
+  // inputs
+  double *pheno;  // changed by weights!
+  double[][][] genoprob; // changed!
+  immutable double **addcov, intcov;
+  immutable int[] ind_noqtl;
+
+  // calculated
+  immutable n_pos = markers.length;
+  immutable nphe = phenotypes.length;
+  immutable n_ind = individuals.length;
+  immutable n_gen = genotypes.length;
+
+  // unused now
+  immutable double *weights = null;
+  immutable n_intcov = 0;
+  immutable n_addcov = 0;
+
+  // local
   int  i, j, k, k2, s, rank, info, nrss, lwork, ncolx, ind_idx,
     multivar=0;
   double *dwork, x;
-  double *x_bk, singular, yfit, rss, rss_det, work, tmppheno, coef;
+  double *x_bk, singular, yfit, rss_det, work, coef;
   double alpha=1.0;
   auto beta=0.0;
   auto tol=TOL;
@@ -100,8 +122,10 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
     nrss = nphe;
 
   /* allocate memory */
-  rss = new double[nrss];            // rss[nphe]
-  tmppheno = new double[n_ind*nphe]; // tmppheno[n_ind][nphe]
+  // auto rss = new double[nrss];            // rss[nphe]
+  // auto tmppheno = new double[n_ind*nphe]; // tmppheno[n_ind][nphe]
+  auto rss = cast(double *)malloc(nrss * double.sizeof);
+  auto tmppheno = cast(double *)malloc(n_ind*nphe * double.sizeof);
 
   /* number of columns in design matrix X for full model */
   ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov; 
@@ -110,19 +134,19 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   rank = ncolx;
 
   /* allocate space and set things up*/
-  /*  x = (double *)R_alloc(n_ind*ncol, sizeof(double));
-  coef = (double *)R_alloc(ncol, sizeof(double));
-  resid = (double *)R_alloc(n_ind, sizeof(double));
-  qty = (double *)R_alloc(n_ind, sizeof(double));
+  /*  x = (double *)R_alloc(n_ind*ncol, double.sizeof);
+  coef = (double *)R_alloc(ncol, double.sizeof);
+  resid = (double *)R_alloc(n_ind, double.sizeof);
+  qty = (double *)R_alloc(n_ind, double.sizeof);
   jpvt = (int *)R_alloc(ncol, sizeof(int));
-  qraux = (double *)R_alloc(ncol, sizeof(double));
-  work = (double *)R_alloc(2 * ncol, sizeof(double)); */
-  lwork = 3*ncolx+ MAX(n_ind, nphe);
+  qraux = (double *)R_alloc(ncol, double.sizeof);
+  work = (double *)R_alloc(2 * ncol, double.sizeof); */
+  lwork = 3*ncolx+ max(n_ind, nphe);
   if(multivar == 1)
-    dwork = new double[(2*n_ind+1)*ncolx+lwork+(n_ind+nphe+ncolx)*nphe];
-    // dwork[2*ind][ncolx (geno+cov)] + [max(ind,phe)][3*ncolx] + [ind+phe+ncollx][phe]
+    dwork = cast(double *)malloc(((2*n_ind+1)*ncolx+lwork+(n_ind+nphe+ncolx)*nphe) * double.sizeof);
   else
-    dwork = new double[(2*n_ind+1)*ncolx+lwork+(n_ind+ncolx)*nphe];
+    dwork = cast(double *)malloc(((2*n_ind+1)*ncolx+lwork+(n_ind+ncolx)*nphe)* double.sizeof);
+
 
   /* split the memory block */
   singular = dwork;
@@ -138,10 +162,10 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   for(j=0; j<n_ind; j++) {
     x[j] = 1.0;
     for(k=0; k<n_addcov; k++) 
-      x[j+(k+1)*n_ind] = Addcov[k][j];
+      x[j+(k+1)*n_ind] = addcov[k][j];
   }
   F77_CALL(dqrls)(x, &n_ind, &ncol0, pheno, &ny, &tol, coef, resid,
-	          qty, &k, jpvt, qraux, work);
+                  qty, &k, jpvt, qraux, work);
   rss0 = 0.0;
   for(j=0; j<n_ind; j++)  rss0 += (resid[j]*resid[j]);
   Null model is now done in R ********************/
@@ -152,34 +176,34 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   /* note: weights are really square-root of weights */
 
   for(i=0; i<n_pos; i++) { /* loop over positions */
-    R_CheckUserInterrupt(); /* check for ^C */
+    // R_CheckUserInterrupt(); /* check for ^C */
 
     for(k=0; k<n_ind * ncolx; k++) x[k] = 0.0;
 
     /* fill up X matrix */
     for(j=0; j<n_ind; j++) {
       if(!ind_noqtl[j]) {
-	for(k=0; k<n_gen; k++)
-	  x[j+k*n_ind] = Genoprob[k][i][j]*weights[j];
+        for(k=0; k<n_gen; k++)
+          x[j+k*n_ind] = genoprob[k][i][j]*weights[j];
       }
       for(k=0; k<n_addcov; k++)
-	x[j+(k+n_gen)*n_ind] = Addcov[k][j]*weights[j];
+        x[j+(k+n_gen)*n_ind] = addcov[k][j]*weights[j];
       if(!ind_noqtl[j]) {
-	for(k=0,s=0; k<n_gen-1; k++)
-	  for(k2=0; k2<n_intcov; k2++,s++) 
-	    x[j+(n_gen+n_addcov+s)*n_ind] = Genoprob[k][i][j]*Intcov[k2][j]*weights[j];
+        for(k=0,s=0; k<n_gen-1; k++)
+          for(k2=0; k2<n_intcov; k2++,s++) 
+            x[j+(n_gen+n_addcov+s)*n_ind] = genoprob[k][i][j]*intcov[k2][j]*weights[j];
       }
     }
 
     /* linear regression of phenotype on QTL genotype probabilities */
     /*    F77_CALL(dqrls)(x, &n_ind, &ncol, pheno, &ny, &tol, coef, resid,
-		    qty, &k, jpvt, qraux, work);
+                    qty, &k, jpvt, qraux, work);
     */
     /* make a copy of x matrix, we may need it */
-    memcpy(x_bk, x, n_ind*ncolx*sizeof(double));
+    memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
     /* make a copy of phenotypes. I'm doing this because 
        dgelss will destroy the input rhs array */
-    memcpy(tmppheno, pheno, n_ind*nphe*sizeof(double));
+    memcpy(tmppheno, pheno, n_ind*nphe*double.sizeof);
     /* linear regression of phenotype on QTL genotype probabilities */
     mydgelss (&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
       &tol, &rank, work, &lwork, &info);
@@ -204,9 +228,9 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
     else { /* multiple phenotypes */
       if(multivar == 1) {
         /* note that the result tmppheno has dimension n_ind x nphe,
-	   the first ncolx rows contains the estimates. */
+           the first ncolx rows contains the estimates. */
         for (k=0; k<nphe; k++) 
-          memcpy(coef+k*ncolx, tmppheno+k*n_ind, ncolx*sizeof(double));
+          memcpy(coef+k*ncolx, tmppheno+k*n_ind, ncolx*double.sizeof);
         /* calculate yfit */
         matmult(yfit, x_bk, n_ind, ncolx, coef, nphe);
         /* calculate residual, put the result in tmppheno */
@@ -234,7 +258,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
           /* note that the result tmppheno has dimension n_ind x nphe,
           the first ncolx rows contains the estimates. */
           for (k=0; k<nphe; k++) 
-            memcpy(coef+k*ncolx, tmppheno+k*n_ind, ncolx*sizeof(double));
+            memcpy(coef+k*ncolx, tmppheno+k*n_ind, ncolx*double.sizeof);
           /* calculate yfit */
           matmult(yfit, x_bk, n_ind, ncolx, coef, nphe);
           /* calculate residual, put the result in tmppheno */
@@ -248,15 +272,15 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
               rss[k] += dtmp * dtmp;
             }
           }
-	  
+          
         }
-	
+        
       }
     }
     /* make the result */
     /* log10 likelihood */
-    for(k=0; k<nrss; k++) 
-       Result[k][i] = (double)n_ind/2.0*log10(rss[k]);
+    //@for(k=0; k<nrss; k++) 
+    //@   Result[k][i] = (double)n_ind/2.0*log10(rss[k]);
 
   } /* end loop over positions */
   return null;
