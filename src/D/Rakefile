@@ -10,9 +10,9 @@
 #   rake build          
 #   rake run
 #   rake test
-#   rake DEBUG csv2xgap  # build utility with debug information
-#   rake read_csv        # CSV unit tests
-#   rake DEBUG read_csvr # CSVr unit tests with debug information
+#   rake DEBUG=TRUE csv2xgap  # build utility with debug information
+#   rake read_csv             # CSV unit tests
+#   rake DEBUG=TRUE read_csvr # CSVr unit tests with debug information
 #   etc. etc. (see rake -T).
 
 require 'rake/clean'
@@ -23,10 +23,12 @@ TESTS = [ 'read_csv' ]
 
 D_TEST  = "-unittest"
 d_test  = D_TEST
+debug   = false
 D_DEBUG = "-gc -debug"
 d_debug = ""
 
-if ARGV.index("DEBUG") 
+if ARGV.index("DEBUG=TRUE")
+  debug = true
   d_debug = D_DEBUG
   print "Adding debug information!\n"
 end
@@ -69,7 +71,11 @@ exe_list.each do | fn, attr |
   end
   file fn => list do
     sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
-    sh './'+fn
+    if debug
+      sh 'gdb '+fn
+    else
+      sh './'+fn
+    end
   end
 end
 
