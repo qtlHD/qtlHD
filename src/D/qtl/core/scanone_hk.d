@@ -268,9 +268,10 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   for(j=0; j<n_ind; j++)  rss0 += (resid[j]*resid[j]);
   Null model is now done in R ********************/
 
-  for(j=0; j<n_ind; j++) 
-    for(k=0; k<nphe; k++)
-      pheno[j+k*n_ind] *= weights[j];
+  if (weights)
+    for(j=0; j<n_ind; j++) 
+      for(k=0; k<nphe; k++)
+        pheno[j+k*n_ind] *= weights[j];
   /* note: weights are really square-root of weights */
 
   for(i=0; i<n_pos; i++) { /* loop over positions */
