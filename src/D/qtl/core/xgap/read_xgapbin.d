@@ -19,17 +19,12 @@ import std.string;
 import std.path;
 import std.file;
 
-class XbinReader(XType) {
+class XbinReader {
   XgapFileHeader      header;         //Binary file header
   XgapMatrixHeader[]  headers;        //Matrix headers
   private File    f;              //File pointer
   ubyte[]         inputbuffer;    //Buffered file content
   bool            correct;        //Is the file correct?
-  string[] phenotypenames;
-  Marker[] markers;
-  Chromosome[string] chromosomes;
-  Phenotype!double[][] phenotypes;
-  Genotype!XType[][] genotypes;
 
   bool checkMagicNumber(in ubyte[] buffer){
     if(xgap_magicnumber == buffer) return true;
@@ -187,7 +182,7 @@ unittest{
   writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn), toKb(outfn));
   
   writeln("  - reading XBIN " ~ outfn);
-  auto data = new XbinReader!RIL(outfn);
+  auto data = new XbinReader(outfn);
   assert(data.correct == true);
   assert(data.header.nmatrices == 3);
   assert(data.header.fileversion == [0,0,1, 'A']);
