@@ -31,15 +31,15 @@ class XbinReader(XType) {
   Phenotype!double[][] phenotypes;
   Genotype!XType[][] genotypes;
 
-  bool checkFootprint(in ubyte[] buffer){
-    if(xgap_footprint == buffer) return true;
+  bool checkMagicNumber(in ubyte[] buffer){
+    if(xgap_magicnumber == buffer) return true;
     return false;
   }
   
   bool checkBuffer(ubyte[] buffer){
-    ubyte[] startprint = buffer[0..Footprint.sizeof];
-    ubyte[] endprint = buffer[buffer.length-Footprint.sizeof..$];
-    if(checkFootprint(startprint) && checkFootprint(endprint)) return (correct = true);
+    ubyte[] startprint = buffer[0..MagicNumber.sizeof];
+    ubyte[] endprint = buffer[buffer.length-MagicNumber.sizeof..$];
+    if(checkMagicNumber(startprint) && checkMagicNumber(endprint)) return (correct = true);
     return (correct=false);
   }
   
