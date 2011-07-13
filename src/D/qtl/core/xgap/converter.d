@@ -54,7 +54,7 @@ class XbinConverter{
       for(int r=0;r<m.header.nrow;r++){
         string mname = (cast(StringMatrix)m.data).data[r][0];
         string mchr = (cast(StringMatrix)m.data).data[r][1];
-        double mloc = to!double((cast(StringMatrix)m.data).data[r][1]);
+        double mloc = to!double((cast(StringMatrix)m.data).data[r][2]);
         markers ~= new Marker(mloc,mname);
       }
       return markers;
