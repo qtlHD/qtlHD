@@ -9,15 +9,15 @@ import std.conv;
 
 import qtl.core.primitives;
 
-//Aliasses to define Footprint and Version
-alias byte[8] Footprint;
+//Aliasses to define MagicNumber and Version
+alias byte[8] MagicNumber;
 alias byte[4] Version;
 //Aliasses to more easily refer to the different matrices
 alias XgapMatrixData!int     IntegerMatrix;
 alias XgapMatrixData!double  DoubleMatrix;
 alias XgapMatrixData!string  StringMatrix;
-//Current Footprint and Version
-immutable Footprint xgap_footprint = [ 0, 'X', 'G', 'A', 'P', 'B', 0, 1 ];
+//Current MagicNumber and Version
+immutable MagicNumber xgap_magicnumber = [ 0, 'X', 'G', 'A', 'P', 'B', 0, 1 ];
 immutable Version   xgap_version   = [ 0, 0, 1, 'A' ];
 
 enum MatrixType : uint { 
@@ -38,7 +38,7 @@ enum MatrixClass : uint {
 
 //XgapBinary file header, see doc/input/XGap.md
 struct XgapFileHeader{
-  Footprint   magicn = xgap_footprint;
+  MagicNumber   magicn = xgap_magicnumber;
   Version     fileversion = xgap_version;
   int         nmatrices;
 }
@@ -55,7 +55,7 @@ class XgapMatrixData(T) : Container{
 
 //Xgap matrix header structure, see doc/input/XGap.md
 struct XgapMatrixHeader{
-  Footprint     magicn = xgap_footprint;
+  MagicNumber     magicn = xgap_magicnumber;
   
   MatrixType    type;
   MatrixClass   mclass;
