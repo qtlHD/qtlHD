@@ -70,4 +70,5 @@ unittest{
   auto convertor = new XbinConverter();
   auto phenotypes = convertor.toPhenotype!double(data.load(0));
   auto genotypes = convertor.toGenotypes!RIL(data.load(1));
+  auto markers = convertor.asMarkers(data.load(2));
 }
