@@ -43,6 +43,7 @@ body {
       } else {
         return(log(error_prob));
       }
+    default: break;
   }
   return(0.0); /* shouldn't get here */
 }
