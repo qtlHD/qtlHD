@@ -17,10 +17,13 @@ import qtl.plugins.input.read_csv;
 
 import core.stdc.stdlib;  // for malloc
 import core.stdc.string;  // for memcpy
-
-pragma(lib, "blas");
-pragma(lib, "lapack");
-
+version (Windows) {
+  import qtl.core.libs.libload;
+  import std.loader;
+}else{
+  pragma(lib, "blas");
+  pragma(lib, "lapack");
+}
 immutable TOL = 1e-12;  // tolerance for linear regression
 
 // Prototypes for the raw Fortran interface to BLAS
@@ -32,18 +35,38 @@ alias cfloat f_cfloat;
 alias cdouble f_cdouble;
 alias int f_int;
 
-void dgels_(char *trans, f_int *m, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_double *work, f_int *lwork, f_int *info);
+version (Windows) {
+  void function(char *trans, f_int *m, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_double *work, f_int *lwork, f_int *info) dgels_;
+  void function (f_int *m, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_double *s, f_double *rcond, f_int *rank, f_double *work, f_int *lwork, f_int *info)dgelss_;
+  void function (char *transa, char *transb, f_int *m, f_int *n, f_int *k, f_double *alpha, f_double *A, f_int *lda, f_double *B, f_int *ldb, f_double *beta, f_double *C, f_int *ldc) dgemm_;
+  void function (char *uplo, f_int *n, f_double *a, f_int *lda, f_int *info) dpotrf_;
+  void function (char *uplo, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_int *info) dpotrs_;
 
-void dgelss_(f_int *m, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_double *s, f_double *rcond, f_int *rank, f_double *work, f_int *lwork, f_int *info);
+  static this(){
+    HXModule lib = load_library("Rblas");
+    load_function(dgels_)(lib,"dgels_");
+    load_function(dgelss_)(lib,"dgelss_");
+    load_function(dgemm_)(lib,"dgemm_");
+    load_function(dpotrf_)(lib,"dpotrf_");
+    load_function(dpotrs_)(lib,"dpotrs_");
+    writeln("mapped R.dll");
+  }
+}else{
 
-// void dgemm_(char *transa, char *transb, f_int *m, f_int *n, f_int *k, f_double *alpha, f_double *A, f_int *lda, f_double *B, f_int *ldb, f_double *beta, f_double *C, f_int *ldc, f_int transa_len, f_int transb_len);
-void dgemm_(char *transa, char *transb, f_int *m, f_int *n, f_int *k, f_double *alpha, f_double *A, f_int *lda, f_double *B, f_int *ldb, f_double *beta, f_double *C, f_int *ldc);
+  void dgels_(char *trans, f_int *m, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_double *work, f_int *lwork, f_int *info);
 
-// void dpotrf_(char *uplo, f_int *n, f_double *a, f_int *lda, f_int *info, f_int uplo_len);
-void dpotrf_(char *uplo, f_int *n, f_double *a, f_int *lda, f_int *info);
+  void dgelss_(f_int *m, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_double *s, f_double *rcond, f_int *rank, f_double *work, f_int *lwork, f_int *info);
 
-// void dpotrs_(char *uplo, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_int *info, f_int uplo_len);
-void dpotrs_(char *uplo, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_int *info);
+  // void dgemm_(char *transa, char *transb, f_int *m, f_int *n, f_int *k, f_double *alpha, f_double *A, f_int *lda, f_double *B, f_int *ldb, f_double *beta, f_double *C, f_int *ldc, f_int transa_len, f_int transb_len);
+  void dgemm_(char *transa, char *transb, f_int *m, f_int *n, f_int *k, f_double *alpha, f_double *A, f_int *lda, f_double *B, f_int *ldb, f_double *beta, f_double *C, f_int *ldc);
+
+  // void dpotrf_(char *uplo, f_int *n, f_double *a, f_int *lda, f_int *info, f_int uplo_len);
+  void dpotrf_(char *uplo, f_int *n, f_double *a, f_int *lda, f_int *info);
+
+  // void dpotrs_(char *uplo, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_int *info, f_int uplo_len);
+  void dpotrs_(char *uplo, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_int *info);
+
+}
 }
 
 /**********************************************************************
