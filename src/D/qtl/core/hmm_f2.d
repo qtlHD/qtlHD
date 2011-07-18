@@ -23,6 +23,7 @@ body {
       return(-LN2);
     case F2.A: case F2.B: 
       return(-2.0*LN2);
+    default: break;
   }
   return(0.0); /* shouldn't get here */
 }
@@ -68,6 +69,7 @@ body {
     } else {
       return(log(1.0-error_prob/2.0));
     }
+  default: break;    
   }
   return(0.0); /* shouldn't get here */
 }
@@ -134,18 +136,22 @@ body {
       case F2.A: return(2.0*log(1.0-rec_frac));
       case F2.H: return(LN2 + log(1.0-rec_frac) + log(rec_frac));
       case F2.B: return(2.0*log(rec_frac));
+      default: break;
       }
     case F2.H:
       switch(true_gen_right) {
       case F2.A: case F2.B: return(log(rec_frac) + log(1.0-rec_frac));
       case F2.H: return(log((1.0-rec_frac)^^2 + rec_frac^^2));
+      default: break;
       }
     case F2.B:
       switch(true_gen_right) {
       case F2.A: return(2.0*log(rec_frac));
       case F2.H: return(LN2 + log(1.0-rec_frac) + log(rec_frac));
       case F2.B: return(2.0*log(1.0-rec_frac));
+      default: break;
       }
+    default: break;
   }
   return(log(-1.0)); /* shouldn't get here */
 }
