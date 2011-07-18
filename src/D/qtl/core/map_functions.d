@@ -51,6 +51,7 @@ body {
         rec_frac[i] = findRoot(&mfcfsub, 0.0, 0.5-TOL);
       }
       break;
+    default: break;
     }
   }
   return rec_frac;
@@ -128,6 +129,7 @@ body {
       break;
     case "carter-falconer":
       dist_cM[i] = 12.5*(log(1+2*rf)-log(1-2*rf))+25*atan(2*rf);
+    default: break;
     }
   }
 
