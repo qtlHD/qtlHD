@@ -63,7 +63,7 @@ mixin template MarkerInfo() {
 
 mixin template ActList(T) {
   T[] list;
-  auto length() { return list.length; }
+  const uint length() { return list.length; }
 }
 
 /** 
@@ -294,6 +294,9 @@ class Markers(M) {
   this(in Markers!M markers) {
     list = markers.list.dup;  // make sure to clone all data
   }
+  this(M[] markers) {
+    list = markers.dup;
+  }
   void add(in Marker m) {
     list ~= new M(m);
   }
@@ -302,6 +305,7 @@ class Markers(M) {
     sort(ms.list); // sorts in place
     return ms;
   }
+  const int length() { return list.length; }
   M opIndex(int i) { return list[i]; }
   /// find by name
   M find(string name) {
@@ -314,6 +318,10 @@ class Markers(M) {
     return null;
   }
 }
+
+@property M[] list(M)(Markers!M ms) { return ms.list; }
+@property M[] list(M)(M[] ms) { return ms; };
+
 
 /**
  * ChromosomeMap combines Chromosome and Marker list.
@@ -394,6 +402,8 @@ unittest {
   markers.list ~= mref1;  // 1, 4.6
   markers.list ~= mref2;  // 2, 4.8
   markers.list ~= pmref1; // 3, 4.7
+  // test list
+  assert(list(markers) == markers.list);
   // find by index
   assert(markers[0].name == "m1");
   // find by name
