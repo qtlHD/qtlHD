@@ -104,7 +104,7 @@ unittest {
   writeln(ms1);
   auto rfs = recombination_fractions(ms1);
   assert(rfs.length==12);
-  assert(to!string(rfs[0])=="0.00986881");
+  assert(to!string(rfs[0])[0..9]=="0.0098688");
   assert(to!string(rfs[1])=="0.189685");
   // Chromosome X
   writeln(recombination_fractions(msx));
@@ -124,7 +124,7 @@ unittest {
   auto expms1 = add_stepped_markers_autosome(msin1,2.5,0);
   auto exprfs1 = recombination_fractions(expms1.list);
   assert(exprfs1.length==51,to!string(exprfs1.length));
-  assert(to!string(rfs[0])=="0.00986881");
+  assert(to!string(rfs[0])[0..9]=="0.0098688");
   assert(to!string(rfs[2])=="0.133759");
   // Getting ready for scanone
   auto result = scanone_hk(expms1,data.phenotypes,data.individuals,data.genotypes); 
