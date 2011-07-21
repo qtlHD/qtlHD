@@ -37,6 +37,11 @@ lib_dfiles = Dir.glob("./qtl/core/libs/*.d")
 io_dfiles = Dir.glob("./qtl/plugins/input/*.d")
 xgap_dfiles = Dir.glob("./qtl/core/xgap/*.d")
 
+
+def windows?
+  return RUBY_PLATFORM =~ /(:?mswin|mingw)/
+end
+
 #Unix files
 CLEAN.include('*.o')
 CLEAN.include('*.dep')
@@ -51,11 +56,11 @@ CLEAN.include(clean_exe_list)
 # The compile targets
 
 exe_list = { 
-  'read_csv' => { :path => './qtl/plugins/input', :list => core_dfiles + lib_dfiles },
-  'read_csvr' => { :path => './qtl/plugins/input', :list => core_dfiles + io_dfiles + lib_dfiles },
-  'test_scanone' => { :path => './test/scanone', :list => core_dfiles + lib_dfiles },
-  'write_xgapbin' => { :path => './qtl/plugins/output', :list => core_dfiles + lib_dfiles + io_dfiles + xgap_dfiles },
-  'read_xgapbin' => { :path => './qtl/core/xgap', :list => core_dfiles + lib_dfiles + io_dfiles + xgap_dfiles + ['./qtl/plugins/output/write_xgapbin.d'] }
+  'read_csv' => { :path => './qtl/plugins/input', :list => core_dfiles },
+  'read_csvr' => { :path => './qtl/plugins/input', :list => core_dfiles + io_dfiles },
+  'test_scanone' => { :path => './test/scanone', :list => core_dfiles },
+  'write_xgapbin' => { :path => './qtl/plugins/output', :list => core_dfiles + io_dfiles + xgap_dfiles },
+  'read_xgapbin' => { :path => './qtl/core/xgap', :list => core_dfiles + io_dfiles + xgap_dfiles + ['./qtl/plugins/output/write_xgapbin.d'] }
 }
 
 exe_list.each do | fn, attr | 
@@ -71,7 +76,11 @@ exe_list.each do | fn, attr |
     desc "Test "+fn
   end
   file fn => list do
-    sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
+    if windows?
+      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} #{lib_dfiles.join(' ')} test/main.d"      
+    else
+      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
+    end
     if debug
       sh 'gdb '+fn
     else
