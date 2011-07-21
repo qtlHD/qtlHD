@@ -213,6 +213,7 @@ private void matmult(double *result, double *a, int nrowa,
 double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individuals, in Gs genotypes) 
 {
   // inputs
+  writefln("Debug: Starting scanone_HK");
   double *pheno;  // changed by weights!
   double[][][] genoprob; // changed!
   immutable double **addcov, intcov;
@@ -232,7 +233,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   weights[] = 1.0;
   immutable n_intcov = 0;
   immutable n_addcov = 0;
-
+  writefln("Debug: before first malloc");
   // initialize
   pheno = cast(double *)malloc(nphe * double.sizeof);
   genoprob = new double[][][](n_ind,n_pos,n_gen);
@@ -258,7 +259,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   // auto tmppheno = new double[n_ind*nphe]; // tmppheno[n_ind][nphe]
   auto rss = cast(double *)malloc(nrss * double.sizeof);
   auto tmppheno = cast(double *)malloc(n_ind*nphe * double.sizeof);
-
+  writefln("Debug: after mallocs");
   /* number of columns in design matrix X for full model */
   ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov; 
   // 1..n_gen ; 1..n_gen * n_intcov ; n_addcov
@@ -301,15 +302,16 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   rss0 = 0.0;
   for(j=0; j<n_ind; j++)  rss0 += (resid[j]*resid[j]);
   Null model is now done in R ********************/
-
+writefln("Debug: below the commented stuff");
+//DANNY: between this debug and the next I get access violation
   for(j=0; j<n_ind; j++) 
     for(k=0; k<nphe; k++)
       pheno[j+k*n_ind] *= weights[j];
   /* note: weights are really square-root of weights */
-
+writefln("Debug: after the strange pheno for loop");
   for(i=0; i<n_pos; i++) { /* loop over positions */
     // R_CheckUserInterrupt(); /* check for ^C */
-
+    writefln("Debug: goin to forloop");
     for(k=0; k<n_ind * ncolx; k++) x[k] = 0.0;
 
     /* fill up X matrix */
@@ -326,20 +328,22 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
             x[j+(n_gen+n_addcov+s)*n_ind] = genoprob[k][i][j]*intcov[k2][j]*weights[j];
       }
     }
-
+    writefln("Debug: Done setting up");
     /* linear regression of phenotype on QTL genotype probabilities */
     /*    F77_CALL(dqrls)(x, &n_ind, &ncol, pheno, &ny, &tol, coef, resid,
                     qty, &k, jpvt, qraux, work);
     */
     /* make a copy of x matrix, we may need it */
+//DANNY: mqmcpy produces an access violation
     memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
     /* make a copy of phenotypes. I'm doing this because 
        dgelss will destroy the input rhs array */
     memcpy(tmppheno, pheno, n_ind*nphe*double.sizeof);
     /* linear regression of phenotype on QTL genotype probabilities */
-    mydgelss (&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
+    writefln("Debug: calling mydgelss");
+	mydgelss (&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
       &tol, &rank, work, &lwork, &info);
-
+    writefln("Debug: mydgelss done");
     /* calculate residual sum of squares */
     if(nphe == 1) {
       /* only one phenotype, this is easier */
