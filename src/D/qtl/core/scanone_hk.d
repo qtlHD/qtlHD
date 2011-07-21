@@ -43,13 +43,16 @@ version (Windows) {
   void function (char *uplo, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_int *info) dpotrs_;
 
   static this(){
-    HXModule lib = load_library("Rblas");
-    load_function(dgels_)(lib,"dgels_");
-    load_function(dgelss_)(lib,"dgelss_");
-    load_function(dgemm_)(lib,"dgemm_");
-    load_function(dpotrf_)(lib,"dpotrf_");
-    load_function(dpotrs_)(lib,"dpotrs_");
-    writeln("mapped R.dll");
+    HXModule blaslib = load_library("Rblas");
+    load_function(dgemm_)(blaslib,"dgemm_");
+	writeln("mapped Rblas.dll");
+	
+	HXModule lapacklib = load_library("Rlapack");
+	load_function(dgels_)(lapacklib,"dgels_");
+    load_function(dgelss_)(lapacklib,"dgelss_");
+    load_function(dpotrf_)(lapacklib,"dpotrf_");
+    load_function(dpotrs_)(lapacklib,"dpotrs_");
+    writeln("mapped Rlapack.dll");
   }
 }else{
 
