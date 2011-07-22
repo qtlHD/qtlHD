@@ -1,5 +1,5 @@
 /**
- * HMM util module
+ * hmm_util
  */
 
 module qtl.core.hmm_util;
