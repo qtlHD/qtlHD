@@ -21,7 +21,7 @@ import std.path;
 
 // re-estimate inter-marker recombination fractions
 double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_prob,
-			      int max_iterations, double tol)
+		  int max_iterations, double tol, bool verbose)
 {
   if(genotypes[0].length != rec_frac.length+1)
     throw new Exception("no. markers in genotypes doesn't match rec_frac length");
@@ -45,6 +45,9 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
   double[F2pk][F2pk] gamma;
   double sum_gamma;
   foreach(it; 0..max_iterations) {
+    foreach(ref rf; cur_rec_frac) {
+      rf = 0.0;
+    }
 
     foreach(ind; 0..n_individuals) {
 
@@ -54,10 +57,8 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
 
 
       foreach(j; 0..rec_frac.length) {
-	cur_rec_frac[j] = 0.0;
-
 	// calculate gamma = log Pr(v1, v2, O)
-	auto sum_gamma_undef = false;
+	auto sum_gamma_undef = true;
 	foreach(left_gen; all_true_geno) {
 	  foreach(right_gen; all_true_geno) {
 	    gamma[left_gen][right_gen] = alpha[left_gen][j] + beta[right_gen][j+1] + 
@@ -65,7 +66,7 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
 	      stepF2pk(left_gen, right_gen, rec_frac[j]);
 
 	    if(sum_gamma_undef) {
-	      sum_gamma_undef = true;
+	      sum_gamma_undef = false;
 	      sum_gamma = gamma[left_gen][right_gen];
 	    }
 	    else {
@@ -90,6 +91,18 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
       rf /= n_individuals;
       if(rf < tol/1000.0) rf = tol/1000.0;
       else if(rf > 0.5-tol/1000.0) rf = 0.5-tol/1000.0;
+    }
+
+    if(verbose) {
+      auto maxdif=0.0;
+      double tempdif;
+      foreach(j; 0..rec_frac.length) {
+	tempdif = abs(rec_frac[j] - cur_rec_frac[j]);
+	if(tempdif > maxdif) {
+	  maxdif = tempdif;
+	}
+      }
+      writefln("%4d %.12f", it, tempdif);
     }
 
     /* check convergence */
@@ -124,6 +137,10 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
       }
     }
     loglik += curloglik;
+  }
+
+  if(verbose) {
+    writefln("loglik = %.3f", loglik);
   }
 
   return(cur_rec_frac);
@@ -173,12 +190,13 @@ unittest {
     assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-14);
   }
 
-  writeln(rec_frac);
   auto rec_frac_rev_rqtl = [0.18726831033621754719,
 			    0.15929622543721855266,
 			    0.29234793156548449788];
 
-  auto rec_frac_rev = estmapF2(chr_4_genotypes, rec_frac, 0.002, 100, 1e-6);
+  auto rec_frac_rev = estmapF2(chr_4_genotypes, rec_frac, 0.002, 100, 1e-6, true);
 
-  writeln(rec_frac_rev);
+  foreach(i; 0..rec_frac.length) {
+    assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-5);
+  }
 }
