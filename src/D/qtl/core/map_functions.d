@@ -99,8 +99,6 @@ unittest {
     assert(abs(result_h[i] - rec_frac_h[i]) < 1e-14);
     assert(abs(result_k[i] - rec_frac_k[i]) < 1e-14);
     assert(abs(result_m[i] - rec_frac_m[i]) < 1e-14);
-    writefln("%d %.5f %.16f %.16f %.5f", i, dist[i], rec_frac_cf[i], result_cf[i], 
-	     log10(abs(rec_frac_cf[i] - result_cf[i])));
     assert(abs(result_cf[i] - rec_frac_cf[i]) < 1e-13);
   }
 }
