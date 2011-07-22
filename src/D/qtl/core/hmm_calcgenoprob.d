@@ -1,5 +1,5 @@
 /**
- * HMM calc_genoprob module
+ * calc_genoprob
  */
 
 module qtl.core.hmm_calcgenoprob;
