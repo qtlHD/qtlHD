@@ -43,12 +43,6 @@ class ReadSimpleCSV(XType) {
     auto header = split(f.readln(),",");
     immutable n_columns = header.length;
     ms.reserve(n_columns);  // pre-allocate memory (just good practise)
-    foreach (i, mname; header)
-    {
-       // writeln(mname);
-       Marker m = new Marker(MARKER_POSITION_UNKNOWN,mname,i-1); 
-       ms ~= m;
-    }
 
     // read chromosome info
     auto cnames = split(f.readln(),",");
@@ -62,6 +56,13 @@ class ReadSimpleCSV(XType) {
         n_phenotypes = i;
         break;
       }
+    }
+
+    // create Marker objects; have m.id be column within phenotypes or within genotypes
+    foreach (i, mname; header)
+    {
+      Marker m = new Marker(MARKER_POSITION_UNKNOWN, mname, i-n_phenotypes); 
+      ms ~= m;
     }
 
     // split into phenotypes and markers
@@ -154,8 +155,8 @@ unittest {
   assert(data.markers.length == 174, to!string(data.markers.length));
   assert(data.phenotypenames == ["bp", "sex"]);
   assert(data.markers[3].name == "D1Mit178");
-  assert(data.markers[3].id == 4);
-  assert(data.markers[4].id == 5);
+  assert(data.markers[3].id == 3);
+  assert(data.markers[4].id == 4);
   // Check chromosomes
   assert(data.chromosomes.length == 20, to!string(data.chromosomes.length));
   assert(data.chromosomes["X"].id == ID_UNKNOWN);
@@ -171,5 +172,31 @@ unittest {
   assert(data.genotypes[1][1].value == F2.H);
   assert(data.genotypes[2][3].value == F2.NA);
   assert(data.genotypes[2][4].value == F2.B);
+}
+
+unittest {
+  alias std.path.join join;
+  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","hyper_noX.csv");
+  writeln("  - reading CSV " ~ fn);
+  auto data = new ReadSimpleCSV!BC(fn);
+  assert(data.markers.length == 170, to!string(data.markers.length));
+  assert(data.phenotypenames == ["bp", "sex"]);
+  assert(data.markers[3].name == "D1Mit178");
+  assert(data.markers[3].id == 3);
+  assert(data.markers[4].id == 4);
+  // Check chromosomes
+  assert(data.chromosomes.length == 19, to!string(data.chromosomes.length));
+  assert(data.chromosomes["7"].id == 7);
+  assert(data.markers[2].position == 32.8000000002, "Marker position not matching");
+  // Check phenotype
+  assert(data.phenotypes[29][0].value == 116.3);
+  assert(data.phenotypes[30][0].value == 110.2);
+  assert(data.phenotypes[29][1].value == 1);
+  assert(data.phenotypes[30][1].value == 1);
+  // Check genotype
+  assert(data.genotypes[1][0].value == BC.H);
+  assert(data.genotypes[1][1].value == BC.H);
+  assert(data.genotypes[2][3].value == BC.NA);
+  assert(data.genotypes[2][4].value == BC.A);
 }
 
