@@ -10,6 +10,7 @@ import std.stdio;
 
 enum RIL { NA = GENOTYPE_NA, A, B };
 enum F2  { NA = GENOTYPE_NA, A, H, B, HorB, HorA }; 
+enum F2pk {AA, AB, BA, BB}; // pk = "phase known"
 enum BC  { NA = GENOTYPE_NA, A, H };
 
 Genotype!T set_genotype(T)(in string s) {

@@ -110,6 +110,72 @@ double[int][F2] backwardEquationsF2(Genotype!F2[] genotypes, F2[] all_true_geno,
 }
 
 
+// forward Equations for F2pk
+double[int][F2pk] forwardEquationsF2pk(Genotype!F2[] genotypes, F2pk[] all_true_geno, 
+				   double[] rec_frac, double error_prob) 
+{
+  int n_markers = genotypes.length;
+
+  double[int][F2pk] alpha;
+
+  // initialize alphas
+  foreach(true_geno; all_true_geno) {
+    alpha[true_geno][0] = initF2pk(true_geno) + emitF2pk(genotypes[0], true_geno, error_prob);
+  }
+
+  foreach(pos; 1 .. n_markers) {
+    foreach(true_geno_right; all_true_geno) {
+
+      alpha[true_geno_right][pos] = alpha[all_true_geno[0]][pos-1] + 
+	stepF2pk(all_true_geno[0], true_geno_right, rec_frac[pos-1]);
+
+      foreach(true_geno_left; all_true_geno[1..$]) {
+	alpha[true_geno_right][pos] = addlog(alpha[true_geno_right][pos], 
+					     alpha[true_geno_left][pos-1] + 
+					     stepF2pk(true_geno_left, true_geno_right, rec_frac[pos-1]));
+      }
+      alpha[true_geno_right][pos] += emitF2pk(genotypes[pos], true_geno_right, error_prob);
+    }
+  }
+  return alpha;
+}
+
+
+// backward Equations for F2pk
+double[int][F2pk] backwardEquationsF2pk(Genotype!F2[] genotypes, F2pk[] all_true_geno, 
+				    double[] rec_frac, double error_prob) 
+{
+  int n_markers = genotypes.length;
+
+  double[int][F2pk] beta;
+
+  // initialize beta
+  foreach(true_geno; all_true_geno) {
+    beta[true_geno][n_markers-1] = 0.0;
+  }
+
+  // backward equations
+  for(auto pos = n_markers-2; pos >= 0; pos--) {
+    foreach(true_geno_left; all_true_geno) {
+      beta[true_geno_left][pos] = beta[all_true_geno[0]][pos+1] + 
+	stepF2pk(true_geno_left, all_true_geno[0], rec_frac[pos]) + 
+	emitF2pk(genotypes[pos+1], all_true_geno[0], error_prob);
+
+      foreach(true_geno_right; all_true_geno[1..$]) {
+	beta[true_geno_left][pos] = addlog(beta[true_geno_left][pos], 
+					   beta[true_geno_right][pos+1] + 
+					   stepF2pk(true_geno_left, true_geno_right, rec_frac[pos])+
+					   emitF2pk(genotypes[pos+1], true_geno_right, error_prob));
+      }
+    }
+  }
+
+  return beta;
+}
+
+
+
+
 // forward Equations for BC
 double[int][BC] forwardEquationsBC(Genotype!BC[] genotypes, BC[] all_true_geno, 
 				   double[] rec_frac, double error_prob) 

@@ -26,7 +26,7 @@ double initF2(F2 true_gen)
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-  writeln("    unit test initFC");
+  writeln("    unit test initF2");
   auto gen = [F2.A, F2.H, F2.B];
   assert(abs(initF2(gen[0]) - log(0.25)) < 1e-12);
   assert(abs(initF2(gen[1]) - log(0.5)) < 1e-12);
@@ -72,7 +72,7 @@ double emitF2(Genotype!F2 obs_gen, F2 true_gen, double error_prob)
 }
 
 unittest {
-  writeln("    unit test emitFC");
+  writeln("    unit test emitF2");
   auto gen = [F2.A, F2.H, F2.B];
   auto ogen = [set_genotype!F2("-"), 
 	       set_genotype!F2("A"), set_genotype!F2("H"), set_genotype!F2("B"),
@@ -148,7 +148,7 @@ double stepF2(F2 true_gen_left, F2 true_gen_right,
 }
 
 unittest {
-  writeln("    unit test stepFC");
+  writeln("    unit test stepF2");
   auto gen = [F2.A, F2.H, F2.B];
   double rf = 0.01;
 
@@ -166,3 +166,155 @@ unittest {
 }
 
   
+double initF2pk(F2pk true_gen)
+{
+  if(true_gen != F2pk.AA && true_gen != F2pk.AB &&
+     true_gen != F2pk.BA && true_gen != F2pk.BB)
+    throw new Exception("true_gen not a valid genotype.");
+
+  return(-2.0*LN2);  /* ln(0.25) */
+}
+
+unittest {
+  writeln("Unit test " ~ __FILE__);
+  writeln("    unit test initF2pk");
+  auto gen = [F2pk.AA, F2pk.AB, F2pk.BA, F2pk.BB];
+  foreach(g; gen) {
+    assert(abs(initF2pk(g) - log(0.25)) < 1e-12);
+  }
+}
+
+
+
+
+double emitF2pk(Genotype!F2 obs_gen, F2pk true_gen, double error_prob)
+{
+  if(true_gen != F2pk.AA && true_gen != F2pk.AB && 
+     true_gen != F2pk.BA && true_gen != F2pk.BB)
+    throw new Exception("true_gen not among the possible true genotypes");
+  if(error_prob < 0.0 || error_prob > 1.0)
+    throw new Exception("error_prob must be >= 0 and <= 1");
+  
+  switch(obs_gen.value) {
+  case F2.NA: return(0.0);
+    
+  case F2.A: 
+    if(true_gen==F2pk.AA) {
+      return(log(1.0-error_prob));
+    } else {
+      return(log(error_prob)-LN2);
+    }
+
+  case F2.H:
+    if(true_gen==F2pk.AB || true_gen==F2pk.BA) {
+      return(log(1.0-error_prob));
+    } else {
+      return(log(error_prob)-LN2);
+    }
+
+  case F2.B:
+    if(true_gen==F2pk.BB) {
+      return(log(1.0-error_prob));
+    } else {
+      return(log(error_prob)-LN2);
+    }
+
+  case F2.HorB:
+    if(true_gen == F2pk.AA) {
+      return(log(error_prob));
+    } else {
+      return(log(1.0-error_prob/2.0));
+    }
+
+  case F2.HorA:
+    if(true_gen == F2pk.BB) {
+      return(log(error_prob));
+    } else {
+      return(log(1.0-error_prob/2.0));
+    }
+
+  default:
+    throw new Exception("obs_gen.value not among possible observed marker genotypes.");
+  }
+}
+    
+  
+double stepF2pk(F2pk true_gen_left, F2pk true_gen_right, double rec_frac)
+{
+  if(true_gen_right != F2pk.AA && true_gen_right != F2pk.AB &&
+     true_gen_right != F2pk.BA && true_gen_right != F2pk.BB)
+    throw new Exception("true_gen_right not among the possible true genotypes");
+  if(rec_frac < 0.0 || rec_frac > 0.5)
+    throw new Exception("rec_frac must be >= 0 and <= 0.5");
+
+  switch(true_gen_left) {
+    case F2pk.AA:
+      switch(true_gen_right) {
+      case F2pk.AA: return(2.0*log(1.0-rec_frac));
+      case F2pk.AB: case F2pk.BA: return(log(1.0-rec_frac) + log(rec_frac));
+      case F2pk.BB: return(2.0*log(rec_frac));
+      }
+
+    case F2pk.AB:
+      switch(true_gen_right) {
+      case F2pk.AA: case F2pk.BB: return(log(rec_frac) + log(1.0-rec_frac));
+      case F2pk.AB: return(2.0*log(1.0-rec_frac));
+      case F2pk.BA: return(2.0*log(rec_frac));
+      }
+
+    case F2pk.BA:
+      switch(true_gen_right) {
+      case F2pk.AA: case F2pk.BB: return(log(rec_frac) + log(1.0-rec_frac));
+      case F2pk.BA: return(2.0*log(1.0-rec_frac));
+      case F2pk.AB: return(2.0*log(rec_frac));
+      }
+
+    case F2pk.BB:
+      switch(true_gen_right) {
+      case F2pk.BB: return(2.0*log(1.0-rec_frac));
+      case F2pk.AB: case F2pk.BA: return(log(1.0-rec_frac) + log(rec_frac));
+      case F2pk.AA: return(2.0*log(rec_frac));
+      }
+
+    default: 
+      throw new Exception("true_gen_left not among the possible true genotypes");
+  }
+}
+
+double nrecF2pk(F2pk true_gen_left, F2pk true_gen_right)
+{
+  if(true_gen_right != F2pk.AA && true_gen_right != F2pk.AB &&
+     true_gen_right != F2pk.BA && true_gen_right != F2pk.BB)
+    throw new Exception("true_gen_right not among the possible true genotypes");
+
+  switch(true_gen_left) {
+  case F2pk.AA:
+    switch(true_gen_right) {
+    case F2pk.AA: return(0.0);
+    case F2pk.AB: case F2pk.BA: return(0.5);
+    case F2pk.BB: return(1.0);
+    }
+  case F2pk.AB:
+    switch(true_gen_right) {
+    case F2pk.AA: case F2pk.BB: return(0.5);
+    case F2pk.AB: return(0.0);
+    case F2pk.BA: return(1.0);
+    }
+  case F2pk.BA:
+    switch(true_gen_right) {
+    case F2pk.AA: case F2pk.BB: return(0.5);
+    case F2pk.BA: return(0.0);
+    case F2pk.AB: return(1.0);
+    }
+  case F2pk.BB:
+    switch(true_gen_right) {
+    case F2pk.BB: return(0.0);
+    case F2pk.AB: case F2pk.BA: return(0.5);
+    case F2pk.AA: return(1.0);
+    }
+  default: 
+    throw new Exception("true_gen_left not among the possible true genotypes");
+  }
+
+}
+
