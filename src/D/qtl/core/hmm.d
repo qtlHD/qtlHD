@@ -37,12 +37,11 @@ double[F2][int][int] calcGenoprobF2(Genotype!F2[][] genotypes, double[] rec_frac
   double[F2][int][int] genoprobs;
 
   foreach(ind; 0..n_individuals) {
-    // forward equations
     alpha = forwardEquationsF2(genotypes[ind], all_true_geno, rec_frac, error_prob);
 	
     beta = backwardEquationsF2(genotypes[ind], all_true_geno, rec_frac, error_prob);
 
-    /* calculate genotype probabilities */
+    // calculate genotype probabilities
     double sum_at_pos;
     foreach(pos; 0..n_markers) {
       sum_at_pos = genoprobs[ind][pos][all_true_geno[0]] = alpha[all_true_geno[0]][pos] + beta[all_true_geno[0]][pos];
@@ -55,6 +54,7 @@ double[F2][int][int] calcGenoprobF2(Genotype!F2[][] genotypes, double[] rec_frac
       }
     }
   }
+
   return genoprobs;
 }
 
