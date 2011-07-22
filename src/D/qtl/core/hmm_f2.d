@@ -11,20 +11,17 @@ import std.math, std.stdio, std.path;
 
 // marginal genotype probability
 double initF2(F2 true_gen)
-in {
-  assert(true_gen == F2.A || 
-	 true_gen == F2.H || 
-	 true_gen == F2.B, 
-	 "true_gen not among the possible true genotypes");
-}
-body {
+{
   switch(true_gen) {
-    case F2.H:
-      return(-LN2);
-    case F2.A: case F2.B: 
-      return(-2.0*LN2);
+  case F2.H:
+    return(-LN2);
+
+  case F2.A: case F2.B: 
+    return(-2.0*LN2);
+
+  default:
+    throw new Exception("true_gen not among the possible true genotypes");
   }
-  return(0.0); /* shouldn't get here */
 }
 
 unittest {
@@ -39,37 +36,39 @@ unittest {
 
 // emission probability (marker genotype "penetrance")
 double emitF2(Genotype!F2 obs_gen, F2 true_gen, double error_prob) 
-in {
-  assert(true_gen == F2.A || 
-	 true_gen == F2.H || 
-	 true_gen == F2.B, 
-	 "true_gen not among the possible true genotypes");
-  assert(error_prob >= 0 && error_prob <= 1.0, 
-	 "error_prob must be >= 0 and <= 1");
-}
-body {
+{
+  if(true_gen != F2.A && true_gen != F2.H && true_gen != F2.B) 
+    throw new Exception("true_gen not among the possible true genotypes");
+  if(error_prob < 0.0 || error_prob > 1.0)
+    throw new Exception("error_prob must be >= 0 and <= 1");
+  
   switch(obs_gen.value) {
   case F2.NA: return(0.0);
+    
   case F2.A: case F2.H: case F2.B:
     if(obs_gen.value == true_gen) {
       return(log(1.0-error_prob));
     } else {
       return(log(error_prob)-LN2);
     }
+
   case F2.HorB:
     if(true_gen == F2.A) {
       return(log(error_prob));
     } else {
       return(log(1.0-error_prob/2.0));
     }
+
   case F2.HorA:
     if(true_gen == F2.B) {
       return(log(error_prob));
     } else {
       return(log(1.0-error_prob/2.0));
     }
+
+  default:
+    throw new Exception("obs_gen.value not among possible observed marker genotypes.");
   }
-  return(0.0); /* shouldn't get here */
 }
 
 unittest {
@@ -115,19 +114,13 @@ unittest {
 // transition probabilities 
 double stepF2(F2 true_gen_left, F2 true_gen_right, 
 	      double rec_frac) 
-in {
-  assert(true_gen_left == F2.A || 
-	 true_gen_left == F2.H || 
-	 true_gen_left == F2.B, 
-	 "true_gen_left not among the possible true genotypes");
-  assert(true_gen_right == F2.A || 
-	 true_gen_right == F2.H || 
-	 true_gen_right == F2.B, 
-	 "true_gen_right not among the possible true genotypes");
-  assert(rec_frac >= 0 && rec_frac <= 0.5,
-	 "rec_frac must be >= 0 and <= 0.5");
-}
-body {
+{
+  if(true_gen_right != F2.A && true_gen_right != F2.H &&
+     true_gen_right != F2.B) 
+    throw new Exception("true_gen_right not among the possible true genotypes");
+  if(rec_frac < 0.0 || rec_frac > 0.5)
+    throw new Exception("rec_frac must be >= 0 and <= 0.5");
+
   switch(true_gen_left) {
     case F2.A:
       switch(true_gen_right) {
@@ -135,19 +128,23 @@ body {
       case F2.H: return(LN2 + log(1.0-rec_frac) + log(rec_frac));
       case F2.B: return(2.0*log(rec_frac));
       }
+
     case F2.H:
       switch(true_gen_right) {
       case F2.A: case F2.B: return(log(rec_frac) + log(1.0-rec_frac));
       case F2.H: return(log((1.0-rec_frac)^^2 + rec_frac^^2));
       }
+
     case F2.B:
       switch(true_gen_right) {
       case F2.A: return(2.0*log(rec_frac));
       case F2.H: return(LN2 + log(1.0-rec_frac) + log(rec_frac));
       case F2.B: return(2.0*log(1.0-rec_frac));
       }
+
+    default: 
+      throw new Exception("true_gen_left not among the possible true genotypes");
   }
-  return(log(-1.0)); /* shouldn't get here */
 }
 
 unittest {

@@ -19,14 +19,16 @@ import std.path;
 
 // calculate QTL genotype probabilities
 double[F2][int][int] calcGenoprobF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_prob)
-in {
-  assert(genotypes[0].length == rec_frac.length+1, "no. markers in genotypes doesn't match rec_frac length");
-  assert(error_prob >= 0 && error_prob <= 1, "error_prob out of range");
+{
+  if(genotypes[0].length != rec_frac.length+1)
+    throw new Exception("no. markers in genotypes doesn't match rec_frac length");
+  if(error_prob < 0.0 || error_prob > 1.0)
+    throw new Exception("error_prob out of range");
   foreach(rf; rec_frac) {
-    assert(rf >= 0 && rf <= 0.5, "rec_frac must be >= 0 and <= 0.5");
+    if(rf < 0 || rf > 0.5)
+      throw new Exception("rec_frac must be >= 0 and <= 0.5");
   }
- }
-body {
+
   int n_individuals = genotypes.length;
   int n_markers = genotypes[0].length;
   F2[] all_true_geno = [F2.A, F2.H, F2.B];
