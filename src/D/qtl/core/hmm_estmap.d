@@ -200,3 +200,200 @@ unittest {
     assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-5);
   }
 }
+
+
+
+// re-estimate inter-marker recombination fractions
+double[] estmapBC(Genotype!BC[][] genotypes, double[] rec_frac, double error_prob,
+		  int max_iterations, double tol, bool verbose)
+{
+  if(genotypes[0].length != rec_frac.length+1)
+    throw new Exception("no. markers in genotypes doesn't match rec_frac length");
+  if(error_prob < 0.0 || error_prob > 1.0)
+    throw new Exception("error_prob out of range");
+  foreach(rf; rec_frac) {
+    if(rf < 0 || rf > 0.5)
+      throw new Exception("rec_frac must be >= 0 and <= 0.5");
+  }
+  if(max_iterations < 0)
+    throw new Exception("max_iterations should be >= 0");
+  if(tol < 0)
+    throw new Exception("tol >= 0");
+
+  int n_individuals = genotypes.length;
+  int n_markers = genotypes[0].length;
+  BC[] all_true_geno = [BC.A, BC.H];
+
+  auto cur_rec_frac = rec_frac.dup; 
+  double[int][BC] alpha, beta;
+  double[BC][BC] gamma;
+  double sum_gamma;
+  foreach(it; 0..max_iterations) {
+    foreach(ref rf; cur_rec_frac) {
+      rf = 0.0;
+    }
+
+    foreach(ind; 0..n_individuals) {
+
+      // forward and backward equations
+      alpha = forwardEquationsBC(genotypes[ind], all_true_geno, rec_frac, error_prob);
+      beta = backwardEquationsBC(genotypes[ind], all_true_geno, rec_frac, error_prob);
+
+
+      foreach(j; 0..rec_frac.length) {
+	// calculate gamma = log Pr(v1, v2, O)
+	auto sum_gamma_undef = true;
+	foreach(left_gen; all_true_geno) {
+	  foreach(right_gen; all_true_geno) {
+	    gamma[left_gen][right_gen] = alpha[left_gen][j] + beta[right_gen][j+1] + 
+	      emitBC(genotypes[ind][j+1], right_gen, error_prob) +
+	      stepBC(left_gen, right_gen, rec_frac[j]);
+
+	    if(sum_gamma_undef) {
+	      sum_gamma_undef = false;
+	      sum_gamma = gamma[left_gen][right_gen];
+	    }
+	    else {
+	      sum_gamma = addlog(sum_gamma, gamma[left_gen][right_gen]);
+	    }
+	  }
+	}
+
+	// update cur_rf
+	foreach(left_gen; all_true_geno) {
+	  foreach(right_gen; all_true_geno) {
+	    cur_rec_frac[j] += nrecBC(left_gen, right_gen) * exp(gamma[left_gen][right_gen] - sum_gamma);
+	  }
+	}
+      } /* loop over marker intervals */
+
+    } /* loop over individuals */
+
+
+    /* rescale */
+    foreach(ref rf; cur_rec_frac) {
+      rf /= n_individuals;
+      if(rf < tol/1000.0) rf = tol/1000.0;
+      else if(rf > 0.5-tol/1000.0) rf = 0.5-tol/1000.0;
+    }
+
+    if(verbose) {
+      auto maxdif=0.0;
+      double tempdif;
+      foreach(j; 0..rec_frac.length) {
+	tempdif = abs(rec_frac[j] - cur_rec_frac[j]);
+	if(tempdif > maxdif) {
+	  maxdif = tempdif;
+	}
+      }
+      writefln("%4d %.12f", it, tempdif);
+    }
+
+    /* check convergence */
+    auto converged = true;
+    foreach(j; 0..rec_frac.length) {
+      if(abs(rec_frac[j] - cur_rec_frac[j]) > tol*(cur_rec_frac[j]+tol*100.0)) {
+	converged = false; 
+	break;
+      }
+    }
+
+    if(converged) break; 
+
+    rec_frac = cur_rec_frac.dup;
+  }
+    
+  /* calculate log likelihood */
+  auto loglik = 0.0;
+  double curloglik;
+  foreach(ind; 0..n_individuals) {
+
+    alpha = forwardEquationsBC(genotypes[ind], all_true_geno, rec_frac, error_prob);
+
+    auto curloglik_undef = true;
+    foreach(gen; all_true_geno) {
+      if(curloglik_undef) {
+	curloglik_undef = false;
+	curloglik = alpha[gen][rec_frac.length-1];
+      }
+      else {
+	curloglik = addlog(curloglik, alpha[gen][rec_frac.length-1]);
+      }
+    }
+    loglik += curloglik;
+  }
+
+  if(verbose) {
+    writefln("loglik = %.3f", loglik);
+  }
+
+  return(cur_rec_frac);
+}
+
+
+unittest {
+  writeln("    unit test estmapBC:");
+  alias std.path.join join;
+  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","hyper_noX.csv");
+  writeln("      - read CSV " ~ fn);
+  auto data = new ReadSimpleCSV!BC(fn);
+  
+  Marker[] markers_on_chr_15;
+  writeln("    Grab markers");
+  foreach(marker; data.markers) {
+    if(marker.chromosome.name=="15") {
+      markers_on_chr_15 ~= marker;
+    }
+  }
+
+  writeln("      - Subset genotype data");
+  Genotype!BC[][] chr_15_genotypes;
+  chr_15_genotypes.reserve(data.genotypes.length);
+  foreach(i; 0..data.genotypes.length) {
+    Genotype!BC[] an_individuals_genotype;
+    an_individuals_genotype.reserve(markers_on_chr_15.length);
+    foreach(j; 0..markers_on_chr_15.length) {
+      an_individuals_genotype ~= data.genotypes[i][markers_on_chr_15[j].id];
+    }
+    chr_15_genotypes ~= an_individuals_genotype;
+  }
+
+  writeln("      - Get recombination fractions");
+  double[] dist_cM;
+  foreach(i; 1..markers_on_chr_15.length) {
+    dist_cM ~= markers_on_chr_15[i].position - markers_on_chr_15[i-1].position;
+  }
+  auto rec_frac = mapFunction(dist_cM, "carter-falconer");
+
+  auto rec_frac_rqtl = [0.0000000000010000000000000001818,
+			0.0219999835094050709416446665045,
+			0.0539985307617614693209695531095,
+			0.0329998747687984747556377840283,
+			0.0000000000010000000000000001818,
+			0.0109999994856799232501032292930,
+			0.0000000000010000000000000001818,
+			0.1199204909742600105859722248169,
+			0.2581768942841565772639000897470,
+			0.0769913404562991288138107393024];
+
+  foreach(i; 0..rec_frac.length) {
+    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-13);
+  }
+
+  auto rec_frac_rev_rqtl = [0.020807743646802073778,
+			    0.035733145049573165897,
+			    0.037277422953319969134,
+			    0.046231824599400450637,
+			    0.027836290106153856183,
+			    0.098343160668203172259,
+			    0.030788500492084123344,
+			    0.150350381248621794983,
+			    0.162944847048261037825,
+			    0.075138233383357094786];
+
+  auto rec_frac_rev = estmapBC(chr_15_genotypes, rec_frac, 0.001, 100, 1e-6, true);
+
+  foreach(i; 0..rec_frac.length) {
+    assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-5);
+  }
+}
