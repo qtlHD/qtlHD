@@ -93,3 +93,22 @@ unittest {
 }
 
   
+double nrecBC(BC true_gen_left, BC true_gen_right)
+{
+  if(true_gen_left != BC.A && true_gen_left != BC.H) 
+    throw new Exception("true_gen_left not a valid genotype.");
+  if(true_gen_right != BC.A && true_gen_right != BC.H) 
+    throw new Exception("true_gen_right not a valid genotype.");
+
+  if(true_gen_left == true_gen_right) return(0.0);
+  else return(1.0);
+}
+
+unittest {
+  writeln("    unit test nrecBC");
+  auto gen = [BC.A, BC.H];
+  assert(nrecBC(gen[0], gen[0]) == 0.0);
+  assert(nrecBC(gen[0], gen[1]) == 1.0);
+  assert(nrecBC(gen[1], gen[0]) == 1.0);
+  assert(nrecBC(gen[1], gen[1]) == 0.0);
+}
