@@ -176,7 +176,6 @@ double initF2pk(F2pk true_gen)
 }
 
 unittest {
-  writeln("Unit test " ~ __FILE__);
   writeln("    unit test initF2pk");
   auto gen = [F2pk.AA, F2pk.AB, F2pk.BA, F2pk.BB];
   foreach(g; gen) {
@@ -239,6 +238,52 @@ double emitF2pk(Genotype!F2 obs_gen, F2pk true_gen, double error_prob)
 }
     
   
+unittest {
+  writeln("    unit test emitF2pk");
+
+  auto gen = [F2pk.AA, F2pk.AB, F2pk.BA, F2pk.BB];
+  auto ogen = [set_genotype!F2("-"), 
+	       set_genotype!F2("A"), set_genotype!F2("H"), set_genotype!F2("B"),
+	       set_genotype!F2("D"), set_genotype!F2("C")];
+  double err = 0.001;
+
+  /* missing */
+  foreach(g; gen) {
+    assert(abs(emitF2pk(ogen[0], g, err) ) < 1e-12);
+  }
+
+  /* A */
+  assert(abs(emitF2pk(ogen[1], gen[0], err) - log(1.0-err)) < 1e-12);
+  assert(abs(emitF2pk(ogen[1], gen[1], err) - log(err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[1], gen[2], err) - log(err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[1], gen[3], err) - log(err/2.0)) < 1e-12);
+
+  /* H */
+  assert(abs(emitF2pk(ogen[2], gen[0], err) - log(err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[2], gen[1], err) - log(1.0-err)) < 1e-12);
+  assert(abs(emitF2pk(ogen[2], gen[2], err) - log(1.0-err)) < 1e-12);
+  assert(abs(emitF2pk(ogen[2], gen[3], err) - log(err/2.0)) < 1e-12);
+
+  /* B */
+  assert(abs(emitF2pk(ogen[3], gen[0], err) - log(err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[3], gen[1], err) - log(err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[3], gen[2], err) - log(err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[3], gen[3], err) - log(1.0-err)) < 1e-12);
+
+  /* AorH (aka D) */
+  assert(abs(emitF2pk(ogen[4], gen[0], err) - log(1.0-err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[4], gen[1], err) - log(1.0-err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[4], gen[2], err) - log(1.0-err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[4], gen[3], err) - log(err)) < 1e-12);
+
+  /* HorB (aka C) */
+  assert(abs(emitF2pk(ogen[5], gen[0], err) - log(err)) < 1e-12);
+  assert(abs(emitF2pk(ogen[5], gen[1], err) - log(1.0-err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[5], gen[2], err) - log(1.0-err/2.0)) < 1e-12);
+  assert(abs(emitF2pk(ogen[5], gen[3], err) - log(1.0-err/2.0)) < 1e-12);
+}
+
+
 double stepF2pk(F2pk true_gen_left, F2pk true_gen_right, double rec_frac)
 {
   if(true_gen_right != F2pk.AA && true_gen_right != F2pk.AB &&
@@ -281,6 +326,34 @@ double stepF2pk(F2pk true_gen_left, F2pk true_gen_right, double rec_frac)
   }
 }
 
+unittest {
+  writeln("    unit test stepF2pk");
+  auto gen = [F2pk.AA, F2pk.AB, F2pk.BA, F2pk.BB];
+  double rf = 0.01;
+
+  assert( abs( stepF2pk(gen[0], gen[0], rf) - log((1-rf)^^2) ) < 1e-12);
+  assert( abs( stepF2pk(gen[0], gen[1], rf) - log(rf*(1-rf)) ) < 1e-12);
+  assert( abs( stepF2pk(gen[0], gen[2], rf) - log(rf*(1-rf)) ) < 1e-12);
+  assert( abs( stepF2pk(gen[0], gen[3], rf) - log(rf^^2)     ) < 1e-12);
+
+  assert( abs( stepF2pk(gen[1], gen[0], rf) - log(rf*(1-rf)) ) < 1e-12);
+  assert( abs( stepF2pk(gen[1], gen[1], rf) - log((1-rf)^^2) ) < 1e-12);
+  assert( abs( stepF2pk(gen[1], gen[2], rf) - log(rf^^2)     ) < 1e-12);
+  assert( abs( stepF2pk(gen[1], gen[3], rf) - log(rf*(1-rf)) ) < 1e-12);
+
+  assert( abs( stepF2pk(gen[2], gen[3], rf) - log(rf*(1-rf)) ) < 1e-12);
+  assert( abs( stepF2pk(gen[2], gen[2], rf) - log((1-rf)^^2) ) < 1e-12);
+  assert( abs( stepF2pk(gen[2], gen[1], rf) - log(rf^^2)     ) < 1e-12);
+  assert( abs( stepF2pk(gen[2], gen[0], rf) - log(rf*(1-rf)) ) < 1e-12);
+
+  assert( abs( stepF2pk(gen[3], gen[3], rf) - log((1-rf)^^2) ) < 1e-12);
+  assert( abs( stepF2pk(gen[3], gen[2], rf) - log(rf*(1-rf)) ) < 1e-12);
+  assert( abs( stepF2pk(gen[3], gen[1], rf) - log(rf*(1-rf)) ) < 1e-12);
+  assert( abs( stepF2pk(gen[3], gen[0], rf) - log(rf^^2)     ) < 1e-12);
+}
+
+
+
 double nrecF2pk(F2pk true_gen_left, F2pk true_gen_right)
 {
   if(true_gen_right != F2pk.AA && true_gen_right != F2pk.AB &&
@@ -318,3 +391,27 @@ double nrecF2pk(F2pk true_gen_left, F2pk true_gen_right)
 
 }
 
+unittest {
+  writeln("    unit test nrecF2pk");
+  auto gen = [F2pk.AA, F2pk.AB, F2pk.BA, F2pk.BB];
+
+  assert(nrecF2pk(gen[0], gen[0])==0.0);
+  assert(nrecF2pk(gen[0], gen[1])==0.5);
+  assert(nrecF2pk(gen[0], gen[2])==0.5);
+  assert(nrecF2pk(gen[0], gen[3])==1.0);
+
+  assert(nrecF2pk(gen[1], gen[0])==0.5);
+  assert(nrecF2pk(gen[1], gen[1])==0.0);
+  assert(nrecF2pk(gen[1], gen[2])==1.0);
+  assert(nrecF2pk(gen[1], gen[3])==0.5);
+
+  assert(nrecF2pk(gen[2], gen[3])==0.5);
+  assert(nrecF2pk(gen[2], gen[2])==0.0);
+  assert(nrecF2pk(gen[2], gen[1])==1.0);
+  assert(nrecF2pk(gen[2], gen[0])==0.5);
+
+  assert(nrecF2pk(gen[3], gen[3])==0.0);
+  assert(nrecF2pk(gen[3], gen[2])==0.5);
+  assert(nrecF2pk(gen[3], gen[1])==0.5);
+  assert(nrecF2pk(gen[3], gen[0])==1.0);
+}
