@@ -36,6 +36,7 @@ core_dfiles = Dir.glob("./qtl/core/*.d")
 lib_dfiles = Dir.glob("./qtl/core/libs/*.d")
 io_dfiles = Dir.glob("./qtl/plugins/input/*.d")
 xgap_dfiles = Dir.glob("./qtl/core/xgap/*.d")
+mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
 
 
 def windows?
@@ -59,6 +60,7 @@ exe_list = {
   'read_csv' => { :path => './qtl/plugins/input', :list => core_dfiles },
   'read_csvr' => { :path => './qtl/plugins/input', :list => core_dfiles + io_dfiles },
   'test_scanone' => { :path => './test/scanone', :list => core_dfiles },
+  'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + io_dfiles + mqm_dfiles },
   'write_xgapbin' => { :path => './qtl/plugins/output', :list => core_dfiles + io_dfiles + xgap_dfiles },
   'read_xgapbin' => { :path => './qtl/core/xgap', :list => core_dfiles + io_dfiles + xgap_dfiles + ['./qtl/plugins/output/write_xgapbin.d'] }
 }
