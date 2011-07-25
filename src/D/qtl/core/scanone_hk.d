@@ -304,9 +304,9 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   Null model is now done in R ********************/
 writefln("Debug: below the commented stuff");
 //DANNY: between this debug and the next I get access violation
-  for(j=0; j<n_ind; j++) 
+  /*for(j=0; j<n_ind; j++) 
     for(k=0; k<nphe; k++)
-      pheno[j+k*n_ind] *= weights[j];
+      pheno[j+k*n_ind] *= weights[j]; */
   /* note: weights are really square-root of weights */
 writefln("Debug: after the strange pheno for loop");
   for(i=0; i<n_pos; i++) { /* loop over positions */
@@ -335,10 +335,10 @@ writefln("Debug: after the strange pheno for loop");
     */
     /* make a copy of x matrix, we may need it */
 //DANNY: mqmcpy produces an access violation
-    memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
+    /*memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
     /* make a copy of phenotypes. I'm doing this because 
        dgelss will destroy the input rhs array */
-    memcpy(tmppheno, pheno, n_ind*nphe*double.sizeof);
+    /*memcpy(tmppheno, pheno, n_ind*nphe*double.sizeof);*/
     /* linear regression of phenotype on QTL genotype probabilities */
     writefln("Debug: calling mydgelss");
 	mydgelss (&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
