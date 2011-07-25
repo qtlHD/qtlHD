@@ -301,6 +301,7 @@ double stepF2pk(F2pk true_gen_left, F2pk true_gen_right, double rec_frac)
       case F2pk.AA: return(2.0*log(1.0-rec_frac));
       case F2pk.AB: case F2pk.BA: return(log(1.0-rec_frac) + log(rec_frac));
       case F2pk.BB: return(2.0*log(rec_frac));
+      default: throw new Exception("true_gen_right not among possible observed marker genotypes.");
       }
 
     case F2pk.AB:
@@ -308,6 +309,7 @@ double stepF2pk(F2pk true_gen_left, F2pk true_gen_right, double rec_frac)
       case F2pk.AA: case F2pk.BB: return(log(rec_frac) + log(1.0-rec_frac));
       case F2pk.AB: return(2.0*log(1.0-rec_frac));
       case F2pk.BA: return(2.0*log(rec_frac));
+      default: throw new Exception("true_gen_right not among possible observed marker genotypes.");
       }
 
     case F2pk.BA:
@@ -315,6 +317,7 @@ double stepF2pk(F2pk true_gen_left, F2pk true_gen_right, double rec_frac)
       case F2pk.AA: case F2pk.BB: return(log(rec_frac) + log(1.0-rec_frac));
       case F2pk.BA: return(2.0*log(1.0-rec_frac));
       case F2pk.AB: return(2.0*log(rec_frac));
+      default: throw new Exception("true_gen_right not among possible observed marker genotypes.");
       }
 
     case F2pk.BB:
@@ -322,6 +325,7 @@ double stepF2pk(F2pk true_gen_left, F2pk true_gen_right, double rec_frac)
       case F2pk.BB: return(2.0*log(1.0-rec_frac));
       case F2pk.AB: case F2pk.BA: return(log(1.0-rec_frac) + log(rec_frac));
       case F2pk.AA: return(2.0*log(rec_frac));
+      default: throw new Exception("true_gen_right not among possible observed marker genotypes.");
       }
 
     default: 
@@ -369,24 +373,28 @@ double nrecF2pk(F2pk true_gen_left, F2pk true_gen_right)
     case F2pk.AA: return(0.0);
     case F2pk.AB: case F2pk.BA: return(0.5);
     case F2pk.BB: return(1.0);
+    default: throw new Exception("true_gen_right not among possible observed marker genotypes.");
     }
   case F2pk.AB:
     switch(true_gen_right) {
     case F2pk.AA: case F2pk.BB: return(0.5);
     case F2pk.AB: return(0.0);
     case F2pk.BA: return(1.0);
+    default: throw new Exception("true_gen_right not among possible observed marker genotypes.");
     }
   case F2pk.BA:
     switch(true_gen_right) {
     case F2pk.AA: case F2pk.BB: return(0.5);
     case F2pk.BA: return(0.0);
     case F2pk.AB: return(1.0);
+    default: throw new Exception("true_gen_right not among possible observed marker genotypes.");
     }
   case F2pk.BB:
     switch(true_gen_right) {
     case F2pk.BB: return(0.0);
     case F2pk.AB: case F2pk.BA: return(0.5);
     case F2pk.AA: return(1.0);
+    default: throw new Exception("true_gen_right not among possible observed marker genotypes.");
     }
   default: 
     throw new Exception("true_gen_left not among the possible true genotypes");
