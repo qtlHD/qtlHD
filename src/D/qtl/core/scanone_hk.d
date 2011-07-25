@@ -45,10 +45,10 @@ version (Windows) {
   static this(){
     HXModule blaslib = load_library("Rblas");
     load_function(dgemm_)(blaslib,"dgemm_");
-	writeln("mapped Rblas.dll");
-	
-	HXModule lapacklib = load_library("Rlapack");
-	load_function(dgels_)(lapacklib,"dgels_");
+    writeln("mapped Rblas.dll");
+
+    HXModule lapacklib = load_library("Rlapack");
+    load_function(dgels_)(lapacklib,"dgels_");
     load_function(dgelss_)(lapacklib,"dgelss_");
     load_function(dpotrf_)(lapacklib,"dpotrf_");
     load_function(dpotrs_)(lapacklib,"dpotrs_");
