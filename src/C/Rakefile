@@ -1,0 +1,60 @@
+#! /usr/bin/rake
+#
+# Rake file for building binaries, libraries and unit tests. 
+# Big Thanks to Pjotr Prins for showing me Rake
+
+require 'rake/clean'
+
+LIBS =  ['libraries:mqm']
+
+def builddir;return "build";end
+
+def windows?;return RUBY_PLATFORM =~ /(:?mswin|mingw)/;end
+
+def execext
+  if windows? then
+    return "exe"
+  else
+    return "bin"
+  end
+end
+  
+CLEAN.include("#{builddir}*.*")
+CLEAN.include("#{builddir}")
+CLEAN.include("*.#{execext}")
+CLEAN.include("*.o")
+CLEAN.include("*.dll")
+CLEAN.include("*.a")
+
+mqm_files = (Dir.glob("MQM/*.cpp") + Dir.glob("MQM/*.c")).join(' ')
+obj_files = (Dir.glob("*.o")).join(' ')
+
+directory builddir
+
+def libext
+  if windows? then
+    return "lib"
+  else
+    return "a"
+  end
+end
+
+# ---- Standard Libs ----
+namespace :libraries do
+  desc "Build all libraries"
+  task :all => LIBS
+  
+  desc "The library with mqm functionality"
+  task "mqm" do
+    sh "g++ -c #{mqm_files} -I\"C:/Progra~1/R/R-2.12.1/include\" -L\"C:/Progra~1/R/R-2.12.1/bin/i386\" -lR"
+    sh "g++ -shared -o mqm.dll #{obj_files} -I\"C:/Progra~1/R/R-2.12.1/include\" -L\"C:/Progra~1/R/R-2.12.1/bin/i386\" -lR"
+    sh "del *.o"
+  end
+end
+
+# ---- Default task ----
+
+desc "Default is to build all applications"
+task :default => 'libraries:all' do
+  print "CPP Librarie building OK\n"
+end
