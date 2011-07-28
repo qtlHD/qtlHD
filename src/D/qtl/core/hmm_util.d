@@ -46,198 +46,72 @@ unittest {
 
 
 
-// forward Equations for F2
-double[int][F2] forwardEquations(Genotype!F2[] genotypes, F2[] all_true_geno, 
-				 double[] rec_frac, double error_prob) 
+// forward Equations
+mixin template forwardEquationsCode(GT, PKGT) 
 {
-  int n_markers = genotypes.length;
+  double[int][PKGT] forwardEquations(Genotype!GT[] genotypes, PKGT[] all_true_geno, 
+				     double[] rec_frac, double error_prob) 
+  {
+    int n_markers = genotypes.length;
 
-  double[int][F2] alpha;
+    double[int][PKGT] alpha;
 
-  // initialize alphas
-  foreach(true_geno; all_true_geno) {
-    alpha[true_geno][0] = init(true_geno) + emit(genotypes[0], true_geno, error_prob);
-  }
-
-  foreach(pos; 1 .. n_markers) {
-    foreach(true_geno_right; all_true_geno) {
-
-      alpha[true_geno_right][pos] = alpha[all_true_geno[0]][pos-1] + 
-	step(all_true_geno[0], true_geno_right, rec_frac[pos-1]);
-
-      foreach(true_geno_left; all_true_geno[1..$]) {
-	alpha[true_geno_right][pos] = addlog(alpha[true_geno_right][pos], 
-					     alpha[true_geno_left][pos-1] + 
-					     step(true_geno_left, true_geno_right, rec_frac[pos-1]));
-      }
-      alpha[true_geno_right][pos] += emit(genotypes[pos], true_geno_right, error_prob);
+    // initialize alphas
+    foreach(true_geno; all_true_geno) {
+      alpha[true_geno][0] = init(true_geno) + emit(genotypes[0], true_geno, error_prob);
     }
-  }
-  return alpha;
-}
 
+    foreach(pos; 1 .. n_markers) {
+      foreach(true_geno_right; all_true_geno) {
 
-// backward Equations for F2
-double[int][F2] backwardEquations(Genotype!F2[] genotypes, F2[] all_true_geno, 
-				  double[] rec_frac, double error_prob) 
-{
-  int n_markers = genotypes.length;
+	alpha[true_geno_right][pos] = alpha[all_true_geno[0]][pos-1] + 
+	  step(all_true_geno[0], true_geno_right, rec_frac[pos-1]);
 
-  double[int][F2] beta;
-
-  // initialize beta
-  foreach(true_geno; all_true_geno) {
-    beta[true_geno][n_markers-1] = 0.0;
-  }
-
-  // backward equations
-  for(auto pos = n_markers-2; pos >= 0; pos--) {
-    foreach(true_geno_left; all_true_geno) {
-      beta[true_geno_left][pos] = beta[all_true_geno[0]][pos+1] + 
-	step(true_geno_left, all_true_geno[0], rec_frac[pos]) + 
-	emit(genotypes[pos+1], all_true_geno[0], error_prob);
-
-      foreach(true_geno_right; all_true_geno[1..$]) {
-	beta[true_geno_left][pos] = addlog(beta[true_geno_left][pos], 
-					   beta[true_geno_right][pos+1] + 
-					   step(true_geno_left, true_geno_right, rec_frac[pos])+
-					   emit(genotypes[pos+1], true_geno_right, error_prob));
+	foreach(true_geno_left; all_true_geno[1..$]) {
+	  alpha[true_geno_right][pos] = addlog(alpha[true_geno_right][pos], 
+					       alpha[true_geno_left][pos-1] + 
+					       step(true_geno_left, true_geno_right, rec_frac[pos-1]));
+	}
+	alpha[true_geno_right][pos] += emit(genotypes[pos], true_geno_right, error_prob);
       }
     }
+    return alpha;
   }
-
-  return beta;
-}
-
-
-// forward Equations for F2pk
-double[int][F2pk] forwardEquations(Genotype!F2[] genotypes, F2pk[] all_true_geno, 
-				   double[] rec_frac, double error_prob) 
-{
-  int n_markers = genotypes.length;
-
-  double[int][F2pk] alpha;
-
-  // initialize alphas
-  foreach(true_geno; all_true_geno) {
-    alpha[true_geno][0] = init(true_geno) + emit(genotypes[0], true_geno, error_prob);
-  }
-
-  foreach(pos; 1 .. n_markers) {
-    foreach(true_geno_right; all_true_geno) {
-
-      alpha[true_geno_right][pos] = alpha[all_true_geno[0]][pos-1] + 
-	step(all_true_geno[0], true_geno_right, rec_frac[pos-1]);
-
-      foreach(true_geno_left; all_true_geno[1..$]) {
-	alpha[true_geno_right][pos] = addlog(alpha[true_geno_right][pos], 
-					     alpha[true_geno_left][pos-1] + 
-					     step(true_geno_left, true_geno_right, rec_frac[pos-1]));
-      }
-      alpha[true_geno_right][pos] += emit(genotypes[pos], true_geno_right, error_prob);
-    }
-  }
-  return alpha;
-}
-
-
-// backward Equations for F2pk
-double[int][F2pk] backwardEquations(Genotype!F2[] genotypes, F2pk[] all_true_geno, 
-				    double[] rec_frac, double error_prob) 
-{
-  int n_markers = genotypes.length;
-
-  double[int][F2pk] beta;
-
-  // initialize beta
-  foreach(true_geno; all_true_geno) {
-    beta[true_geno][n_markers-1] = 0.0;
-  }
-
-  // backward equations
-  for(auto pos = n_markers-2; pos >= 0; pos--) {
-    foreach(true_geno_left; all_true_geno) {
-      beta[true_geno_left][pos] = beta[all_true_geno[0]][pos+1] + 
-	step(true_geno_left, all_true_geno[0], rec_frac[pos]) + 
-	emit(genotypes[pos+1], all_true_geno[0], error_prob);
-
-      foreach(true_geno_right; all_true_geno[1..$]) {
-	beta[true_geno_left][pos] = addlog(beta[true_geno_left][pos], 
-					   beta[true_geno_right][pos+1] + 
-					   step(true_geno_left, true_geno_right, rec_frac[pos])+
-					   emit(genotypes[pos+1], true_geno_right, error_prob));
-      }
-    }
-  }
-
-  return beta;
 }
 
 
 
-
-// forward Equations for BC
-double[int][BC] forwardEquations(Genotype!BC[] genotypes, BC[] all_true_geno, 
-				 double[] rec_frac, double error_prob) 
+// backward Equations 
+mixin template backwardEquationsCode(GT, PKGT)
 {
-  int n_markers = genotypes.length;
+  double[int][PKGT] backwardEquations(Genotype!GT[] genotypes, PKGT[] all_true_geno, 
+				      double[] rec_frac, double error_prob) 
+  {
+    int n_markers = genotypes.length;
 
-  double[int][BC] alpha;
+    double[int][PKGT] beta;
 
-  // initialize alphas
-  foreach(true_geno; all_true_geno) {
-    alpha[true_geno][0] = init(true_geno) + emit(genotypes[0], true_geno, error_prob);
-  }
-
-  foreach(pos; 1 .. n_markers) {
-    foreach(true_geno_right; all_true_geno) {
-
-      alpha[true_geno_right][pos] = alpha[all_true_geno[0]][pos-1] + 
-	step(all_true_geno[0], true_geno_right, rec_frac[pos-1]);
-
-      foreach(true_geno_left; all_true_geno[1..$]) {
-	alpha[true_geno_right][pos] = addlog(alpha[true_geno_right][pos], 
-					     alpha[true_geno_left][pos-1] + 
-					     step(true_geno_left, true_geno_right, rec_frac[pos-1]));
-      }
-      alpha[true_geno_right][pos] += emit(genotypes[pos], true_geno_right, error_prob);
+    // initialize beta
+    foreach(true_geno; all_true_geno) {
+      beta[true_geno][n_markers-1] = 0.0;
     }
-  }
-  return alpha;
-}
 
+    // backward equations
+    for(auto pos = n_markers-2; pos >= 0; pos--) {
+      foreach(true_geno_left; all_true_geno) {
+	beta[true_geno_left][pos] = beta[all_true_geno[0]][pos+1] + 
+	  step(true_geno_left, all_true_geno[0], rec_frac[pos]) + 
+	  emit(genotypes[pos+1], all_true_geno[0], error_prob);
 
-// backward Equations for BC
-double[int][BC] backwardEquations(Genotype!BC[] genotypes, BC[] all_true_geno, 
-				  double[] rec_frac, double error_prob) 
-{
-  int n_markers = genotypes.length;
-
-  double[int][BC] beta;
-
-  // initialize beta
-  foreach(true_geno; all_true_geno) {
-    beta[true_geno][n_markers-1] = 0.0;
-  }
-
-  // backward equations
-  for(auto pos = n_markers-2; pos >= 0; pos--) {
-    foreach(true_geno_left; all_true_geno) {
-      beta[true_geno_left][pos] = beta[all_true_geno[0]][pos+1] + 
-	step(true_geno_left, all_true_geno[0], rec_frac[pos]) + 
-	emit(genotypes[pos+1], all_true_geno[0], error_prob);
-
-      foreach(true_geno_right; all_true_geno[1..$]) {
-	beta[true_geno_left][pos] = addlog(beta[true_geno_left][pos], 
-					   beta[true_geno_right][pos+1] + 
-					   step(true_geno_left, true_geno_right, rec_frac[pos])+
-					   emit(genotypes[pos+1], true_geno_right, error_prob));
+	foreach(true_geno_right; all_true_geno[1..$]) {
+	  beta[true_geno_left][pos] = addlog(beta[true_geno_left][pos], 
+					     beta[true_geno_right][pos+1] + 
+					     step(true_geno_left, true_geno_right, rec_frac[pos])+
+					     emit(genotypes[pos+1], true_geno_right, error_prob));
+	}
       }
     }
+
+    return beta;
   }
-
-  return beta;
 }
-
-
-
