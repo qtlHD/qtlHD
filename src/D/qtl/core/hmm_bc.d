@@ -12,7 +12,7 @@ import std.exception;
 
 
 // marginal genotype probability
-double initBC(BC true_gen)
+double init(BC true_gen)
 {
   if(true_gen == BC.A || true_gen == BC.H)
     return(-LN2);
@@ -22,14 +22,14 @@ double initBC(BC true_gen)
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-  writeln("    unit test initBC");
+  writeln("    unit test init for BC");
   auto gen = [BC.A, BC.H];
-  assert(abs(initBC(gen[0]) - log(0.5)) < 1e-12);
-  assert(abs(initBC(gen[1]) - log(0.5)) < 1e-12);
+  assert(abs(init(gen[0]) - log(0.5)) < 1e-12);
+  assert(abs(init(gen[1]) - log(0.5)) < 1e-12);
 }
 
 // emission probability (marker genotype "penetrance")
-double emitBC(Genotype!BC obs_gen, BC true_gen, double error_prob) 
+double emit(Genotype!BC obs_gen, BC true_gen, double error_prob) 
 {
   if(error_prob < 0.0 || error_prob > 1.0)
      throw new Exception("error_prob must be >= 0 and <= 1");
@@ -48,22 +48,22 @@ double emitBC(Genotype!BC obs_gen, BC true_gen, double error_prob)
 }
 
 unittest {
-  writeln("    unit test emitBC");
+  writeln("    unit test emit for BC");
   auto gen = [BC.A, BC.H];
   auto ogen = [set_genotype!BC("-"), set_genotype!BC("A"), set_genotype!BC("H")];
   double err = 0.001;
   
   foreach(g; gen) {
-    assert(abs( emitBC(ogen[0], g, err) ) < 1e-12);
+    assert(abs( emit(ogen[0], g, err) ) < 1e-12);
   }
-  assert(abs( emitBC(ogen[1], gen[0], err) - log(1-err) ) < 1e-12);
-  assert(abs( emitBC(ogen[1], gen[1], err) - log(err) ) < 1e-12);
-  assert(abs( emitBC(ogen[2], gen[0], err) - log(err) ) < 1e-12);
-  assert(abs( emitBC(ogen[2], gen[1], err) - log(1-err) ) < 1e-12);
+  assert(abs( emit(ogen[1], gen[0], err) - log(1-err) ) < 1e-12);
+  assert(abs( emit(ogen[1], gen[1], err) - log(err) ) < 1e-12);
+  assert(abs( emit(ogen[2], gen[0], err) - log(err) ) < 1e-12);
+  assert(abs( emit(ogen[2], gen[1], err) - log(1-err) ) < 1e-12);
 }
 
 // transition probabilities 
-double stepBC(BC true_gen_left, BC true_gen_right, 
+double step(BC true_gen_left, BC true_gen_right, 
 	      double rec_frac)
 {
   if(true_gen_left != BC.A && true_gen_left != BC.H)
@@ -83,17 +83,17 @@ double stepBC(BC true_gen_left, BC true_gen_right,
 
 
 unittest {
-  writeln("    unit test stepBC");
+  writeln("    unit test step for BC");
   auto gen = [BC.A, BC.H];
   double rf = 0.01;
-  assert(abs( stepBC(gen[0], gen[0], rf) - log(1-rf) ) < 1e-12);
-  assert(abs( stepBC(gen[0], gen[1], rf) - log(rf) ) < 1e-12);
-  assert(abs( stepBC(gen[1], gen[0], rf) - log(rf) ) < 1e-12);
-  assert(abs( stepBC(gen[1], gen[1], rf) - log(1-rf) ) < 1e-12);
+  assert(abs( step(gen[0], gen[0], rf) - log(1-rf) ) < 1e-12);
+  assert(abs( step(gen[0], gen[1], rf) - log(rf) ) < 1e-12);
+  assert(abs( step(gen[1], gen[0], rf) - log(rf) ) < 1e-12);
+  assert(abs( step(gen[1], gen[1], rf) - log(1-rf) ) < 1e-12);
 }
 
   
-double nrecBC(BC true_gen_left, BC true_gen_right)
+double nrec(BC true_gen_left, BC true_gen_right)
 {
   if(true_gen_left != BC.A && true_gen_left != BC.H) 
     throw new Exception("true_gen_left not a valid genotype.");
@@ -105,10 +105,30 @@ double nrecBC(BC true_gen_left, BC true_gen_right)
 }
 
 unittest {
-  writeln("    unit test nrecBC");
+  writeln("    unit test nrec for BC");
   auto gen = [BC.A, BC.H];
-  assert(nrecBC(gen[0], gen[0]) == 0.0);
-  assert(nrecBC(gen[0], gen[1]) == 1.0);
-  assert(nrecBC(gen[1], gen[0]) == 1.0);
-  assert(nrecBC(gen[1], gen[1]) == 0.0);
+  assert(nrec(gen[0], gen[0]) == 0.0);
+  assert(nrec(gen[0], gen[1]) == 1.0);
+  assert(nrec(gen[1], gen[0]) == 1.0);
+  assert(nrec(gen[1], gen[1]) == 0.0);
+}
+
+
+// return vector of all possible true genotypes
+BC[] allTrueGeno(BC one)
+{
+  return [BC.A, BC.H];
+}
+
+
+// return vector of all possible true genotypes, phase-known case
+BC[] allTrueGenoPK(BC one)
+{
+  return [BC.A, BC.H];
+}
+
+unittest {
+  writeln("    unit test allTrueGeno for BC");
+  assert(allTrueGeno(BC.A) == [BC.A, BC.H]);
+  assert(allTrueGenoPK(BC.A) == [BC.A, BC.H]);
 }

@@ -20,7 +20,7 @@ import std.path;
 
 
 // calculate QTL genotype probabilities
-double[F2][int][int] calcGenoprobF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_prob)
+double[F2][int][int] calcGenoprob(Genotype!F2[][] genotypes, double[] rec_frac, double error_prob)
 {
   if(genotypes[0].length != rec_frac.length+1)
     throw new Exception("no. markers in genotypes doesn't match rec_frac length");
@@ -33,15 +33,15 @@ double[F2][int][int] calcGenoprobF2(Genotype!F2[][] genotypes, double[] rec_frac
 
   int n_individuals = genotypes.length;
   int n_markers = genotypes[0].length;
-  F2[] all_true_geno = [F2.A, F2.H, F2.B];
+  auto all_true_geno = allTrueGeno(genotypes[0][0].value);
 
   double[int][F2] alpha, beta;
   double[F2][int][int] genoprobs;
 
   foreach(ind; 0..n_individuals) {
-    alpha = forwardEquationsF2(genotypes[ind], all_true_geno, rec_frac, error_prob);
+    alpha = forwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
 	
-    beta = backwardEquationsF2(genotypes[ind], all_true_geno, rec_frac, error_prob);
+    beta = backwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
 
     // calculate genotype probabilities
     double sum_at_pos;
@@ -97,7 +97,7 @@ unittest {
   auto rec_frac = mapFunction(dist_cM, "haldane");
 
   writeln("      - Run calcGenoprobF2");
-  auto genoprobs = calcGenoprobF2(chr_4_genotypes, rec_frac, 0.002);
+  auto genoprobs = calcGenoprob(chr_4_genotypes, rec_frac, 0.002);
 
   writeln("      - Compare results to R/qtl");
   double[F2][int] genoprobs_from_rqtl;
@@ -168,7 +168,7 @@ unittest {
 
 
 // calculate QTL genotype probabilities
-double[BC][int][int] calcGenoprobBC(Genotype!BC[][] genotypes, double[] rec_frac, double error_prob)
+double[BC][int][int] calcGenoprob(Genotype!BC[][] genotypes, double[] rec_frac, double error_prob)
 {
   if(genotypes[0].length != rec_frac.length+1)
     throw new Exception("no. markers in genotypes doesn't match rec_frac length");
@@ -181,15 +181,15 @@ double[BC][int][int] calcGenoprobBC(Genotype!BC[][] genotypes, double[] rec_frac
 
   int n_individuals = genotypes.length;
   int n_markers = genotypes[0].length;
-  BC[] all_true_geno = [BC.A, BC.H];
+  auto all_true_geno = allTrueGeno(genotypes[0][0].value);
 
   double[int][BC] alpha, beta;
   double[BC][int][int] genoprobs;
 
   foreach(ind; 0..n_individuals) {
-    alpha = forwardEquationsBC(genotypes[ind], all_true_geno, rec_frac, error_prob);
+    alpha = forwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
 	
-    beta = backwardEquationsBC(genotypes[ind], all_true_geno, rec_frac, error_prob);
+    beta = backwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
 
     // calculate genotype probabilities
     double sum_at_pos;
@@ -256,7 +256,7 @@ unittest {
 
 
   writeln("      - Run calcGenoprobBC");
-  auto genoprobs = calcGenoprobBC(chr_5_genotypes, rec_frac, 0.002);
+  auto genoprobs = calcGenoprob(chr_5_genotypes, rec_frac, 0.002);
 
   writeln("      - Compare results to R/qtl");
   double[BC][int] genoprobs_from_rqtl;

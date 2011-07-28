@@ -20,8 +20,8 @@ import std.path;
 
 
 // re-estimate inter-marker recombination fractions
-double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_prob,
-		  int max_iterations, double tol, bool verbose)
+double[] estmap(Genotype!F2[][] genotypes, double[] rec_frac, double error_prob,
+		int max_iterations, double tol, bool verbose)
 {
   if(genotypes[0].length != rec_frac.length+1)
     throw new Exception("no. markers in genotypes doesn't match rec_frac length");
@@ -38,7 +38,7 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
 
   int n_individuals = genotypes.length;
   int n_markers = genotypes[0].length;
-  F2pk[] all_true_geno = [F2pk.AA, F2pk.AB, F2pk.BA, F2pk.BB];
+  auto all_true_geno = allTrueGenoPK(genotypes[0][0].value);
 
   auto cur_rec_frac = rec_frac.dup; 
   double[int][F2pk] alpha, beta;
@@ -52,8 +52,8 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
     foreach(ind; 0..n_individuals) {
 
       // forward and backward equations
-      alpha = forwardEquationsF2pk(genotypes[ind], all_true_geno, rec_frac, error_prob);
-      beta = backwardEquationsF2pk(genotypes[ind], all_true_geno, rec_frac, error_prob);
+      alpha = forwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
+      beta = backwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
 
 
       foreach(j; 0..rec_frac.length) {
@@ -62,8 +62,8 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
 	foreach(left_gen; all_true_geno) {
 	  foreach(right_gen; all_true_geno) {
 	    gamma[left_gen][right_gen] = alpha[left_gen][j] + beta[right_gen][j+1] + 
-	      emitF2pk(genotypes[ind][j+1], right_gen, error_prob) +
-	      stepF2pk(left_gen, right_gen, rec_frac[j]);
+	      emit(genotypes[ind][j+1], right_gen, error_prob) +
+	      step(left_gen, right_gen, rec_frac[j]);
 
 	    if(sum_gamma_undef) {
 	      sum_gamma_undef = false;
@@ -78,7 +78,7 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
 	// update cur_rf
 	foreach(left_gen; all_true_geno) {
 	  foreach(right_gen; all_true_geno) {
-	    cur_rec_frac[j] += nrecF2pk(left_gen, right_gen) * exp(gamma[left_gen][right_gen] - sum_gamma);
+	    cur_rec_frac[j] += nrec(left_gen, right_gen) * exp(gamma[left_gen][right_gen] - sum_gamma);
 	  }
 	}
       } /* loop over marker intervals */
@@ -124,7 +124,7 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
   double curloglik;
   foreach(ind; 0..n_individuals) {
 
-    alpha = forwardEquationsF2pk(genotypes[ind], all_true_geno, rec_frac, error_prob);
+    alpha = forwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
 
     auto curloglik_undef = true;
     foreach(gen; all_true_geno) {
@@ -149,7 +149,7 @@ double[] estmapF2(Genotype!F2[][] genotypes, double[] rec_frac, double error_pro
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-  writeln("    unit test estmapF2:");
+  writeln("    unit test estmap for F2:");
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
   writeln("      - read CSV " ~ fn);
@@ -194,7 +194,7 @@ unittest {
 			    0.15929622543721855266,
 			    0.29234793156548449788];
 
-  auto rec_frac_rev = estmapF2(chr_4_genotypes, rec_frac, 0.002, 100, 1e-6, true);
+  auto rec_frac_rev = estmap(chr_4_genotypes, rec_frac, 0.002, 100, 1e-6, true);
 
   foreach(i; 0..rec_frac.length) {
     assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-5);
@@ -204,8 +204,8 @@ unittest {
 
 
 // re-estimate inter-marker recombination fractions
-double[] estmapBC(Genotype!BC[][] genotypes, double[] rec_frac, double error_prob,
-		  int max_iterations, double tol, bool verbose)
+double[] estmap(Genotype!BC[][] genotypes, double[] rec_frac, double error_prob,
+		int max_iterations, double tol, bool verbose)
 {
   if(genotypes[0].length != rec_frac.length+1)
     throw new Exception("no. markers in genotypes doesn't match rec_frac length");
@@ -222,7 +222,7 @@ double[] estmapBC(Genotype!BC[][] genotypes, double[] rec_frac, double error_pro
 
   int n_individuals = genotypes.length;
   int n_markers = genotypes[0].length;
-  BC[] all_true_geno = [BC.A, BC.H];
+  auto all_true_geno = allTrueGenoPK(genotypes[0][0].value);
 
   auto cur_rec_frac = rec_frac.dup; 
   double[int][BC] alpha, beta;
@@ -236,8 +236,8 @@ double[] estmapBC(Genotype!BC[][] genotypes, double[] rec_frac, double error_pro
     foreach(ind; 0..n_individuals) {
 
       // forward and backward equations
-      alpha = forwardEquationsBC(genotypes[ind], all_true_geno, rec_frac, error_prob);
-      beta = backwardEquationsBC(genotypes[ind], all_true_geno, rec_frac, error_prob);
+      alpha = forwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
+      beta = backwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
 
 
       foreach(j; 0..rec_frac.length) {
@@ -246,8 +246,8 @@ double[] estmapBC(Genotype!BC[][] genotypes, double[] rec_frac, double error_pro
 	foreach(left_gen; all_true_geno) {
 	  foreach(right_gen; all_true_geno) {
 	    gamma[left_gen][right_gen] = alpha[left_gen][j] + beta[right_gen][j+1] + 
-	      emitBC(genotypes[ind][j+1], right_gen, error_prob) +
-	      stepBC(left_gen, right_gen, rec_frac[j]);
+	      emit(genotypes[ind][j+1], right_gen, error_prob) +
+	      step(left_gen, right_gen, rec_frac[j]);
 
 	    if(sum_gamma_undef) {
 	      sum_gamma_undef = false;
@@ -262,7 +262,7 @@ double[] estmapBC(Genotype!BC[][] genotypes, double[] rec_frac, double error_pro
 	// update cur_rf
 	foreach(left_gen; all_true_geno) {
 	  foreach(right_gen; all_true_geno) {
-	    cur_rec_frac[j] += nrecBC(left_gen, right_gen) * exp(gamma[left_gen][right_gen] - sum_gamma);
+	    cur_rec_frac[j] += nrec(left_gen, right_gen) * exp(gamma[left_gen][right_gen] - sum_gamma);
 	  }
 	}
       } /* loop over marker intervals */
@@ -308,7 +308,7 @@ double[] estmapBC(Genotype!BC[][] genotypes, double[] rec_frac, double error_pro
   double curloglik;
   foreach(ind; 0..n_individuals) {
 
-    alpha = forwardEquationsBC(genotypes[ind], all_true_geno, rec_frac, error_prob);
+    alpha = forwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
 
     auto curloglik_undef = true;
     foreach(gen; all_true_geno) {
@@ -391,7 +391,7 @@ unittest {
 			    0.162944847048261037825,
 			    0.075138233383357094786];
 
-  auto rec_frac_rev = estmapBC(chr_15_genotypes, rec_frac, 0.001, 100, 1e-6, true);
+  auto rec_frac_rev = estmap(chr_15_genotypes, rec_frac, 0.001, 100, 1e-6, true);
 
   foreach(i; 0..rec_frac.length) {
     assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-5);
