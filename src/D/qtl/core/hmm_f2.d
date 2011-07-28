@@ -4,14 +4,14 @@
 
 module qtl.core.hmm_f2;
 
+import std.math, std.stdio, std.path;
 import qtl.core.genotype;
 import qtl.core.primitives;
 import qtl.plugins.input.read_csv;
-import std.math, std.stdio, std.path;
+import qtl.core.map_functions;
 import qtl.core.hmm_calcgenoprob;
 import qtl.core.hmm_util;
 import qtl.core.hmm_estmap;
-import qtl.core.map_functions;
 
 // things for the unit tests 
 import qtl.plugins.input.read_csv;
