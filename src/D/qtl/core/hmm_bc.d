@@ -378,3 +378,8 @@ unittest {
     assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-5);
   }
 }
+
+
+// forward and backward equations
+mixin forwardEquationsCode!(BC, BC);
+mixin backwardEquationsCode!(BC, BC);
