@@ -4,21 +4,6 @@
 
 module qtl.core.hmm_calcgenoprob;
 
-// things I think I really need
-import qtl.core.primitives;
-import qtl.core.genotype;
-import qtl.core.map_functions;
-import std.stdio;
-import std.math;
-import qtl.core.hmm_f2;
-import qtl.core.hmm_bc;
-import qtl.core.hmm_util;
-
-// things for the unit tests 
-import qtl.plugins.input.read_csv;
-import std.path;
-
-
 // calculate QTL genotype probabilities
 mixin template calcGenoprobCode(T)
 {

@@ -4,18 +4,8 @@
 
 module qtl.core.hmm_util;
 
-// things I think I really need
-import qtl.core.primitives;
-import qtl.core.genotype;
-import qtl.core.map_functions;
 import std.stdio;
 import std.math;
-import qtl.core.hmm_f2;
-import qtl.core.hmm_bc;
-
-// things for the unit tests 
-import qtl.plugins.input.read_csv;
-import std.path;
 
 // Calculate addlog(a,b) = log[exp(a) + exp(b)]
 double addlog(double a, double b)
