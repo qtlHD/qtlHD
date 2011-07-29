@@ -20,6 +20,9 @@ alias XgapMatrixData!string  StringMatrix;
 immutable MagicNumber xgap_magicnumber = [ 0, 'X', 'G', 'A', 'P', 'B', 0, 1 ];
 immutable Version   xgap_version   = [ 0, 0, 1, 'A' ];
 
+/*
+ * Different types of data types we allow for storage
+ */
 enum MatrixType : uint { 
   EMPTY = 0, 
   INTMATRIX = 1, 
@@ -28,6 +31,10 @@ enum MatrixType : uint {
   VARCHARMATRIX = 4
 };
 
+/*
+ * We tag our data as being of a certain 'Class'
+ * This determines how data can be used by the algorithms
+ */
 enum MatrixClass : uint { 
   EMPTY = 0,
   PHENOTYPE = 1, 
@@ -36,7 +43,12 @@ enum MatrixClass : uint {
   ANNOTATION = 4
 };
 
-//XgapBinary file header, see doc/input/XGap.md
+/* XgapBinary file header
+ * This is the first structure we encounter in an XGAP binary file
+ * We start by printing a magicnumber followed 
+ * by the version and the number of matrices stored
+ * for more information see: doc/input/XGap.md
+ */
 struct XgapFileHeader{
   MagicNumber   magicn = xgap_magicnumber;
   Version     fileversion = xgap_version;
@@ -47,13 +59,28 @@ struct XgapFileHeader{
 interface Container {
 }
 
-//Xgap matrix data structure holding a lengths and templated data
+/*
+ * Xgap matrix data structure 
+ * This object stores the length of all the elements inside.
+ * Also this objects contains the templated data.
+ */
 class XgapMatrixData(T) : Container{
   int[]         lengths;
   T[][]         data;
 }
 
-//Xgap matrix header structure, see doc/input/XGap.md
+/*
+ * Xgap matrix header structure
+ * Each data field (representing a matrix) inside the xgap binary file needs a header.
+ * This header holds: 
+ *  - A magic number (for file integrity checks)
+ *  - Matrix type and class
+ *  - size: The number of elements inside the matrix
+ *  - nrow: Number of matrix rows
+ *  - ncol: Number of matrix columns
+ *  - pad16b: Padding for the header
+ * For more information see: doc/input/XGap.md
+ */
 struct XgapMatrixHeader{
   MagicNumber     magicn = xgap_magicnumber;
   

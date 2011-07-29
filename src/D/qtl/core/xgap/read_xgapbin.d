@@ -26,11 +26,14 @@ class XbinReader {
   ubyte[]         inputbuffer;    //Buffered file content
   bool            correct;        //Is the file correct?
 
+  //Checks if the buffer is equal to the magic number
   bool checkMagicNumber(in ubyte[] buffer){
     if(xgap_magicnumber == buffer) return true;
     return false;
   }
   
+  //Checks to see if the file is loaded into memory.
+  //We can check this by checking the magic numbers at the beginning and ending
   bool checkBuffer(ubyte[] buffer){
     ubyte[] startprint = buffer[0..MagicNumber.sizeof];
     ubyte[] endprint = buffer[buffer.length-MagicNumber.sizeof..$];
@@ -46,6 +49,7 @@ class XbinReader {
     return returnbuffer;
   }
   
+  //CInternal function to load and cast data to the types specified by the header of the matrix
   T[][] loadData(T)(XgapMatrixHeader h, int[] lengths, int start){
     T[][] data;
     int skip=start;
@@ -66,7 +70,7 @@ class XbinReader {
   }
   
  /*
-  * Loads the ith matrix of MatrixClasstype from the file
+  * Loads the matrixid'th XgapMatrix from the file
   */
   XgapMatrix load(int matrixid = 0){
     if(!(matrixid >= 0 && matrixid < headers.length)){
@@ -124,10 +128,12 @@ class XbinReader {
     return returnmatrix;
   }
   
+  //Get the version number of the file
   Version getVersion(){
     return header.fileversion;
   }
   
+  //Return the number of matrices inside the file
   int getNumberOfMatrices(){
     return header.nmatrices;
   }
@@ -154,6 +160,7 @@ class XbinReader {
     return correct;
   }
   
+  //Read the entire file to memory and parse the matrixheaders
   this(in string filename,in bool verbose = false){
     assert(getSize(filename) < uint.max);
     inputbuffer = new ubyte[cast(uint)getSize(filename)];
