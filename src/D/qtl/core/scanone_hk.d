@@ -258,7 +258,6 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   // initialize
   auto pheno_size = n_ind * nphe;
   auto pheno_memsize = pheno_size * double.sizeof;
-  // pheno = cast(double *)malloc(pheno_memsize);
   auto pheno = new double[pheno_size];
   genoprob = new double[][][](n_gen,n_pos,n_ind);
 
@@ -280,9 +279,8 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
 
   /* allocate memory */
   auto rss = new double[nrss];  
-  // auto rss = cast(double *)malloc(nrss * double.sizeof);
 
-  auto tmppheno = cast(double *)malloc(pheno_memsize);
+  auto tmppheno = new double[pheno_size];
   /* number of columns in design matrix X for full model */
   ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov; 
   // 1..n_gen ; 1..n_gen * n_intcov ; n_addcov
@@ -361,9 +359,9 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
     memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
     /* make a copy of phenotypes. I'm doing this because 
        dgelss will destroy the input rhs array */
-    memcpy(tmppheno, pheno.ptr, pheno_memsize);
+    memcpy(tmppheno.ptr, pheno.ptr, pheno_memsize);
     /* linear regression of phenotype on QTL genotype probabilities */
-    mydgelss(&n_ind, &ncolx, &nphe, x, x_bk, pheno.ptr, tmppheno, singular,
+    mydgelss(&n_ind, &ncolx, &nphe, x, x_bk, pheno.ptr, tmppheno.ptr, singular,
       &tol, &rank, work, &lwork, &info);
     /* calculate residual sum of squares */
     if(nphe == 1) {
@@ -376,7 +374,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
       else {
         /* the desigm matrix is not full rank, this is trouble */
         /* calculate the fitted value */
-        matmult(yfit, x_bk, n_ind, ncolx, tmppheno, 1);
+        matmult(yfit, x_bk, n_ind, ncolx, tmppheno.ptr, 1);
         /* calculate rss */
         for (k=0, rss[0]=0.0; k<n_ind; k++)
           rss[0] += (pheno[k]-yfit[k]) * (pheno[k]-yfit[k]);
@@ -387,13 +385,13 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
         /* note that the result tmppheno has dimension n_ind x nphe,
            the first ncolx rows contains the estimates. */
         for (k=0; k<nphe; k++) 
-          memcpy(coef+k*ncolx, tmppheno+k*n_ind, ncolx*double.sizeof);
+          memcpy(coef+k*ncolx, tmppheno.ptr+k*n_ind, ncolx*double.sizeof);
         /* calculate yfit */
         matmult(yfit, x_bk, n_ind, ncolx, coef, nphe);
         /* calculate residual, put the result in tmppheno */
         for (k=0; k<n_ind*nphe; k++)
           tmppheno[k] = pheno[k] - yfit[k];
-        mydgemm(&nphe, &n_ind, &alpha, tmppheno, &beta, rss_det);
+        mydgemm(&nphe, &n_ind, &alpha, tmppheno.ptr, &beta, rss_det);
 
         /* calculate the determinant of rss */
         /* do Cholesky factorization on rss_det */
@@ -415,7 +413,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
           /* note that the result tmppheno has dimension n_ind x nphe,
           the first ncolx rows contains the estimates. */
           for (k=0; k<nphe; k++) 
-            memcpy(coef+k*ncolx, tmppheno+k*n_ind, ncolx*double.sizeof);
+            memcpy(coef+k*ncolx, tmppheno.ptr+k*n_ind, ncolx*double.sizeof);
           /* calculate yfit */
           matmult(yfit, x_bk, n_ind, ncolx, coef, nphe);
           /* calculate residual, put the result in tmppheno */
