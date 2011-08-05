@@ -302,7 +302,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   auto dwork = new double[dwork_size];
 
   /* split the memory block */
-  singular = dwork;
+  singular = dwork.ptr;
   work = singular + ncolx;
   x = work + lwork;
   x_bk = x + n_ind*ncolx;
