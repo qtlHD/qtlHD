@@ -122,7 +122,7 @@ private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x
 
   /* use dgels first */
   dgels_(cast(char *)toStringz("N"), n_ind, ncolx0, nphe, x0, n_ind, tmppheno, n_ind,
-		  work, lwork, info);
+      work, lwork, info);
   
   /* if there's problem like singular, use dgelss */
   /* note that x0 will contain the result for QR decomposition. 
@@ -246,7 +246,8 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   immutable n_intcov = 0;
   immutable n_addcov = 0;
   // initialize
-  pheno = cast(double *)malloc(nphe * double.sizeof);
+  auto pheno_memsize = n_ind * nphe * double.sizeof
+  pheno = cast(double *)malloc(pheno_memsize);
   genoprob = new double[][][](n_ind,n_pos,n_gen);
 
   // local
@@ -267,9 +268,8 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
 
   /* allocate memory */
   // auto rss = new double[nrss];            // rss[nphe]
-  // auto tmppheno = new double[n_ind*nphe]; // tmppheno[n_ind][nphe]
   auto rss = cast(double *)malloc(nrss * double.sizeof);
-  auto tmppheno = cast(double *)malloc(n_ind*nphe * double.sizeof);
+  auto tmppheno = cast(double *)malloc(pheno_memsize);
   /* number of columns in design matrix X for full model */
   ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov; 
   // 1..n_gen ; 1..n_gen * n_intcov ; n_addcov
@@ -342,12 +342,12 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
                     qty, &k, jpvt, qraux, work);
     */
     /* make a copy of x matrix, we may need it */
-    memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
+    1memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
     /* make a copy of phenotypes. I'm doing this because 
        dgelss will destroy the input rhs array */
-    memcpy(tmppheno, pheno, n_ind*nphe*double.sizeof);
+    memcpy(tmppheno, pheno, pheno_memsize);
     /* linear regression of phenotype on QTL genotype probabilities */
-	mydgelss (&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
+    mydgelss (&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
       &tol, &rank, work, &lwork, &info);
     /* calculate residual sum of squares */
     if(nphe == 1) {
