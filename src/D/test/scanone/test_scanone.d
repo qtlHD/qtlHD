@@ -121,13 +121,13 @@ unittest {
  
   // test rfs after expansion
   auto msin1 = new Markers!Marker(ms1);
-  auto expms1 = add_stepped_markers_autosome(msin1,2.5,0);
-  auto exprfs1 = recombination_fractions(expms1.list);
-  assert(exprfs1.length==51,to!string(exprfs1.length));
-  assert(to!string(rfs[0])[0..9]=="0.0098688");
-  assert(to!string(rfs[2])=="0.133759");
+  auto expanded_ms1 = add_stepped_markers_autosome(msin1,2.5,0);
+  auto expanded_recombfs1 = recombination_fractions(expanded_ms1.list);
+  assert(expanded_recombfs1.length==51,to!string(expanded_recombfs1.length));
+  assert(to!string(expanded_recombfs1[0])[0..9]=="0.0098688");
+  assert(to!string(expanded_recombfs1[2])=="0.133759");
   // Getting ready for scanone
-  auto result = scanone_hk(expms1,data.phenotypes,data.individuals,data.genotypes); 
+  auto result = scanone_hk(expanded_ms1,data.phenotypes,data.individuals,data.genotypes); 
 
   /*
 We are going to scan for QTL's. The first R equivalent here is:

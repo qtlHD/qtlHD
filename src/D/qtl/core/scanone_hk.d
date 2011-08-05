@@ -17,6 +17,16 @@ import qtl.plugins.input.read_csv;
 
 import core.stdc.stdlib;  // for malloc
 import core.stdc.string;  // for memcpy
+
+static immutable bool VERBOSE = true;
+
+void message(string s) {
+  static if (VERBOSE)
+    writeln("DEBUG: " ~ s);
+  else
+    debug(1) { write("DEBUG: "); writeln(s); }
+}
+
 version (Windows) {
   import qtl.core.libs.libload;
   import std.loader;
@@ -24,6 +34,7 @@ version (Windows) {
   pragma(lib, "blas");
   pragma(lib, "lapack");
 }
+
 immutable TOL = 1e-12;  // tolerance for linear regression
 
 // Prototypes for the raw Fortran interface to BLAS
@@ -45,16 +56,17 @@ version (Windows) {
   static this(){
     HXModule blaslib = load_library("Rblas");
     load_function(dgemm_)(blaslib,"dgemm_");
-    writeln("mapped Rblas.dll");
+    if (VERBOSE) message("mapped Rblas.dll");
 
     HXModule lapacklib = load_library("Rlapack");
     load_function(dgels_)(lapacklib,"dgels_");
     load_function(dgelss_)(lapacklib,"dgelss_");
     load_function(dpotrf_)(lapacklib,"dpotrf_");
     load_function(dpotrs_)(lapacklib,"dpotrs_");
-    writeln("mapped Rlapack.dll");
+    if (VERBOSE) message("mapped Rlapack.dll");
   }
-}else{
+} 
+else {
 
   void dgels_(char *trans, f_int *m, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_double *work, f_int *lwork, f_int *info);
 
@@ -69,7 +81,7 @@ version (Windows) {
   // void dpotrs_(char *uplo, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_int *info, f_int uplo_len);
   void dpotrs_(char *uplo, f_int *n, f_int *nrhs, f_double *a, f_int *lda, f_double *b, f_int *ldb, f_int *info);
 
-}
+  }
 }
 
 /**********************************************************************
@@ -213,7 +225,7 @@ private void matmult(double *result, double *a, int nrowa,
 double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individuals, in Gs genotypes) 
 {
   // inputs
-  writefln("Debug: Starting scanone_HK");
+  message("Starting scanone_HK");
   double *pheno;  // changed by weights!
   double[][][] genoprob; // changed!
   immutable double **addcov, intcov;
@@ -233,7 +245,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   weights[] = 1.0;
   immutable n_intcov = 0;
   immutable n_addcov = 0;
-  writefln("Debug: before first malloc");
+  message("before first malloc");
   // initialize
   pheno = cast(double *)malloc(nphe * double.sizeof);
   genoprob = new double[][][](n_ind,n_pos,n_gen);
@@ -259,7 +271,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   // auto tmppheno = new double[n_ind*nphe]; // tmppheno[n_ind][nphe]
   auto rss = cast(double *)malloc(nrss * double.sizeof);
   auto tmppheno = cast(double *)malloc(n_ind*nphe * double.sizeof);
-  writefln("Debug: after mallocs");
+  message("after mallocs");
   /* number of columns in design matrix X for full model */
   ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov; 
   // 1..n_gen ; 1..n_gen * n_intcov ; n_addcov
@@ -302,16 +314,16 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   rss0 = 0.0;
   for(j=0; j<n_ind; j++)  rss0 += (resid[j]*resid[j]);
   Null model is now done in R ********************/
-writefln("Debug: below the commented stuff");
+message("below the commented stuff");
 //DANNY: between this debug and the next I get access violation
   /*for(j=0; j<n_ind; j++) 
     for(k=0; k<nphe; k++)
       pheno[j+k*n_ind] *= weights[j]; */
   /* note: weights are really square-root of weights */
-writefln("Debug: after the strange pheno for loop");
+message("after the strange pheno for loop");
   for(i=0; i<n_pos; i++) { /* loop over positions */
     // R_CheckUserInterrupt(); /* check for ^C */
-    writefln("Debug: goin to forloop");
+    message("goin to forloop");
     for(k=0; k<n_ind * ncolx; k++) x[k] = 0.0;
 
     /* fill up X matrix */
@@ -328,7 +340,6 @@ writefln("Debug: after the strange pheno for loop");
             x[j+(n_gen+n_addcov+s)*n_ind] = genoprob[k][i][j]*intcov[k2][j]*weights[j];
       }
     }
-    writefln("Debug: Done setting up");
     /* linear regression of phenotype on QTL genotype probabilities */
     /*    F77_CALL(dqrls)(x, &n_ind, &ncol, pheno, &ny, &tol, coef, resid,
                     qty, &k, jpvt, qraux, work);
@@ -340,10 +351,10 @@ writefln("Debug: after the strange pheno for loop");
        dgelss will destroy the input rhs array */
     /*memcpy(tmppheno, pheno, n_ind*nphe*double.sizeof);*/
     /* linear regression of phenotype on QTL genotype probabilities */
-    writefln("Debug: calling mydgelss");
+    message("calling mydgelss");
 	mydgelss (&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
       &tol, &rank, work, &lwork, &info);
-    writefln("Debug: mydgelss done");
+    // message("mydgelss done");
     /* calculate residual sum of squares */
     if(nphe == 1) {
       /* only one phenotype, this is easier */
@@ -423,6 +434,7 @@ writefln("Debug: after the strange pheno for loop");
 }
 
 unittest {
-  writeln("Unit test " ~ __FILE__);
+  // See also ./test/scanone/test_scanone.d
+  message("Unit test " ~ __FILE__);
 }
 
