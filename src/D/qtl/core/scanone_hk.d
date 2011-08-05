@@ -264,7 +264,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   // local
   int  i, j, k, k2, s, rank, info, nrss, lwork, ncolx, ind_idx,
     multivar=0;
-  double *dwork, x;
+  double *x;
   double *x_bk, singular, yfit, rss_det, work, coef;
   double alpha=1.0;
   auto beta=0.0;
@@ -299,11 +299,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   // 120 n_ind, 133 ncolx (n_geno+cov), 519 lwork, 58200 dwork_size
   auto dwork_size = (2*n_ind+1)*ncolx+lwork+(n_ind+ncolx)*nphe;
   writeln("!!",n_ind,',',nphe,',',ncolx,',',lwork,',',dwork_size);
-  if(multivar == 1)
-    // multivar is currently 0
-    dwork = cast(double *)malloc(((2*n_ind+1)*ncolx+lwork+(n_ind+nphe+ncolx)*nphe) * double.sizeof);
-  else
-    dwork = cast(double *)malloc(dwork_size * double.sizeof);
+  auto dwork = new double[dwork_size];
 
   /* split the memory block */
   singular = dwork;
