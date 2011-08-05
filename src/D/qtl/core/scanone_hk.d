@@ -257,8 +257,10 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   immutable n_intcov = 0;
   immutable n_addcov = 0;
   // initialize
-  auto pheno_memsize = n_ind * nphe * double.sizeof;
-  pheno = cast(double *)malloc(pheno_memsize);
+  auto pheno_size = n_ind * nphe;
+  auto pheno_memsize = pheno_size * double.sizeof;
+  // pheno = cast(double *)malloc(pheno_memsize);
+  pheno = new double[pheno_size];
   genoprob = new double[][][](n_gen,n_pos,n_ind);
 
   // local
