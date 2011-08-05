@@ -121,6 +121,16 @@ private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x
   int i, singular=0;
 
   /* use dgels first */
+  message("dgels_");
+  writeln(*n_ind);
+  writeln(*ncolx0); 
+  writeln(*nphe); 
+  writeln(*x0); 
+  writeln(*n_ind); 
+  writeln(*work); 
+  writeln(*lwork); 
+  writeln(*info); 
+
   dgels_(cast(char *)toStringz("N"), n_ind, ncolx0, nphe, x0, n_ind, tmppheno, n_ind,
       work, lwork, info);
   
@@ -141,6 +151,7 @@ private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x
     /*mexPrintf("Warning - Design matrix is signular \n"); */
     /* note that at this stage both x0 and tmppheno might be destroyed,
     we need to make a copy of them */
+    message("singular");
 
     memcpy(x0, x0_bk, *n_ind*(*ncolx0)*double.sizeof);
     memcpy(tmppheno, pheno, *n_ind*(*nphe)*double.sizeof);
@@ -234,7 +245,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   immutable n_pos = markers.length;
   int nphe = phenotypes.length;
   int n_ind = individuals.length;
-  immutable n_gen = genotypes.length;
+  immutable n_gen = genotypes[0].length; // get columns of matrix
 
   // unused now
   int[] ind_noqtl;
@@ -246,9 +257,9 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   immutable n_intcov = 0;
   immutable n_addcov = 0;
   // initialize
-  auto pheno_memsize = n_ind * nphe * double.sizeof
+  auto pheno_memsize = n_ind * nphe * double.sizeof;
   pheno = cast(double *)malloc(pheno_memsize);
-  genoprob = new double[][][](n_ind,n_pos,n_gen);
+  genoprob = new double[][][](n_gen,n_pos,n_ind);
 
   // local
   int  i, j, k, k2, s, rank, info, nrss, lwork, ncolx, ind_idx,
@@ -267,8 +278,9 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
     nrss = nphe;
 
   /* allocate memory */
-  // auto rss = new double[nrss];            // rss[nphe]
-  auto rss = cast(double *)malloc(nrss * double.sizeof);
+  auto rss = new double[nrss];  
+  // auto rss = cast(double *)malloc(nrss * double.sizeof);
+
   auto tmppheno = cast(double *)malloc(pheno_memsize);
   /* number of columns in design matrix X for full model */
   ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov; 
@@ -284,12 +296,15 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   jpvt = (int *)R_alloc(ncol, sizeof(int));
   qraux = (double *)R_alloc(ncol, double.sizeof);
   work = (double *)R_alloc(2 * ncol, double.sizeof); */
-  lwork = 3*ncolx+ max(n_ind, nphe);
+  lwork = 3*ncolx + max(n_ind, nphe);
+  // 120 n_ind, 133 ncolx (n_geno+cov), 519 lwork, 58200 dwork_size
+  auto dwork_size = (2*n_ind+1)*ncolx+lwork+(n_ind+ncolx)*nphe;
+  writeln("!!",n_ind,',',nphe,',',ncolx,',',lwork,',',dwork_size);
   if(multivar == 1)
+    // multivar is currently 0
     dwork = cast(double *)malloc(((2*n_ind+1)*ncolx+lwork+(n_ind+nphe+ncolx)*nphe) * double.sizeof);
   else
-    dwork = cast(double *)malloc(((2*n_ind+1)*ncolx+lwork+(n_ind+ncolx)*nphe)* double.sizeof);
-
+    dwork = cast(double *)malloc(dwork_size * double.sizeof);
 
   /* split the memory block */
   singular = dwork;
@@ -342,12 +357,12 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
                     qty, &k, jpvt, qraux, work);
     */
     /* make a copy of x matrix, we may need it */
-    1memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
+    memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
     /* make a copy of phenotypes. I'm doing this because 
        dgelss will destroy the input rhs array */
     memcpy(tmppheno, pheno, pheno_memsize);
     /* linear regression of phenotype on QTL genotype probabilities */
-    mydgelss (&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
+    mydgelss(&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
       &tol, &rank, work, &lwork, &info);
     /* calculate residual sum of squares */
     if(nphe == 1) {
