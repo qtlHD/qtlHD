@@ -237,7 +237,6 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
 {
   // inputs
   message("Starting scanone_HK");
-  double *pheno;  // changed by weights!
   double[][][] genoprob; // changed!
   immutable double **addcov, intcov;
 
@@ -260,7 +259,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   auto pheno_size = n_ind * nphe;
   auto pheno_memsize = pheno_size * double.sizeof;
   // pheno = cast(double *)malloc(pheno_memsize);
-  pheno = new double[pheno_size];
+  auto pheno = new double[pheno_size];
   genoprob = new double[][][](n_gen,n_pos,n_ind);
 
   // local
@@ -362,9 +361,9 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
     memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
     /* make a copy of phenotypes. I'm doing this because 
        dgelss will destroy the input rhs array */
-    memcpy(tmppheno, pheno, pheno_memsize);
+    memcpy(tmppheno, pheno.ptr, pheno_memsize);
     /* linear regression of phenotype on QTL genotype probabilities */
-    mydgelss(&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
+    mydgelss(&n_ind, &ncolx, &nphe, x, x_bk, pheno.ptr, tmppheno, singular,
       &tol, &rank, work, &lwork, &info);
     /* calculate residual sum of squares */
     if(nphe == 1) {
