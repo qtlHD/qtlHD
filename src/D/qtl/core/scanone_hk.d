@@ -245,7 +245,6 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   weights[] = 1.0;
   immutable n_intcov = 0;
   immutable n_addcov = 0;
-  message("before first malloc");
   // initialize
   pheno = cast(double *)malloc(nphe * double.sizeof);
   genoprob = new double[][][](n_ind,n_pos,n_gen);
@@ -271,7 +270,6 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   // auto tmppheno = new double[n_ind*nphe]; // tmppheno[n_ind][nphe]
   auto rss = cast(double *)malloc(nrss * double.sizeof);
   auto tmppheno = cast(double *)malloc(n_ind*nphe * double.sizeof);
-  message("after mallocs");
   /* number of columns in design matrix X for full model */
   ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov; 
   // 1..n_gen ; 1..n_gen * n_intcov ; n_addcov
@@ -323,7 +321,6 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   */
   for(i=0; i<n_pos; i++) { /* loop over positions */
     // R_CheckUserInterrupt(); /* check for ^C */
-    message("goin to forloop");
     for(k=0; k<n_ind * ncolx; k++) x[k] = 0.0;
 
     /* fill up X matrix */
@@ -350,10 +347,8 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
        dgelss will destroy the input rhs array */
     memcpy(tmppheno, pheno, n_ind*nphe*double.sizeof);
     /* linear regression of phenotype on QTL genotype probabilities */
-    message("calling mydgelss");
 	mydgelss (&n_ind, &ncolx, &nphe, x, x_bk, pheno, tmppheno, singular,
       &tol, &rank, work, &lwork, &info);
-    // message("mydgelss done");
     /* calculate residual sum of squares */
     if(nphe == 1) {
       /* only one phenotype, this is easier */
@@ -434,6 +429,6 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
 
 unittest {
   // See also ./test/scanone/test_scanone.d
-  message("Unit test " ~ __FILE__);
+  writeln("Unit test " ~ __FILE__);
 }
 
