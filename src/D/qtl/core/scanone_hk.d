@@ -238,7 +238,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   // inputs
   message("Starting scanone_HK");
   double[][][] genoprob; // changed!
-  immutable double **addcov, intcov;
+  // immutable double **addcov, intcov;
 
   // calculated
   immutable n_pos = markers.length;
@@ -256,33 +256,27 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   immutable n_intcov = 0;
   immutable n_addcov = 0;
   // initialize
-  auto pheno_size = n_ind * nphe;
+  auto pheno_size = n_ind * nphe; // matrix of ind x phenotypes
   auto pheno_memsize = pheno_size * double.sizeof;
   auto pheno = new double[pheno_size];
   genoprob = new double[][][](n_gen,n_pos,n_ind);
 
   // local
-  int  i, j, k, k2, s, rank, info, nrss, lwork, ncolx, ind_idx,
-    multivar=0;
-  double *x;
-  double *x_bk, singular, yfit, rss_det, work, coef;
+  int  i, j, k, k2, s, rank, info, nrss, lwork, ind_idx;
   double alpha=1.0;
   auto beta=0.0;
   double tol=TOL;
   double dtmp;
 
   /* number of rss's, currently multivar is not used so it's always 0 */
-  if( (nphe==1) || (multivar==1) )
-    nrss = 1;
-  else
-    nrss = nphe;
+  nrss = nphe;
 
   /* allocate memory */
   auto rss = new double[nrss];  
 
   auto tmppheno = new double[pheno_size];
   /* number of columns in design matrix X for full model */
-  ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov; 
+  int ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov; 
   // 1..n_gen ; 1..n_gen * n_intcov ; n_addcov
   /*ncol0 = n_addcov+1;*/
   rank = ncolx;
@@ -301,14 +295,20 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   writeln("!!",n_ind,',',nphe,',',ncolx,',',lwork,',',dwork_size);
   auto dwork = new double[dwork_size];
 
-  /* split the memory block */
-  singular = dwork.ptr;
-  work = singular + ncolx;
-  x = work + lwork;
-  x_bk = x + n_ind*ncolx;
-  yfit = x_bk + n_ind*ncolx;
-  coef = yfit + n_ind*nphe;
-  if(multivar == 1) rss_det = coef + ncolx*nphe;
+  /* split the memory block 
+    singular (lwork) | x (ind*ncolx) | x_bk (ind*ncolx) | yfit (ind*ncolx) | coef (n_ind*phe)
+  */
+  auto singular = dwork;
+  auto work = singular[ncolx..$];
+  auto x = work[lwork..$];
+  auto x_bk = x[n_ind*ncolx..$];
+  auto yfit = x_bk[n_ind*ncolx..$];
+  auto coef = yfit[n_ind*nphe..$];
+  work.length = 0;
+  x.length = n_ind * ncolx;
+  x_bk.length = n_ind * ncolx; 
+  yfit.length = n_ind * ncolx; 
+  coef.length = n_ind * nphe;
 
   /* NULL model is now done in R ********************
      (only do it once!)
@@ -339,26 +339,26 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
         for(k=0; k<n_gen; k++)
           x[j+k*n_ind] = genoprob[k][i][j]*weights[j];
       }
-      for(k=0; k<n_addcov; k++)
-        x[j+(k+n_gen)*n_ind] = addcov[k][j]*weights[j];
-      if(!ind_noqtl[j]) {
-        for(k=0,s=0; k<n_gen-1; k++)
-          for(k2=0; k2<n_intcov; k2++,s++) 
-            x[j+(n_gen+n_addcov+s)*n_ind] = genoprob[k][i][j]*intcov[k2][j]*weights[j];
-      }
+      // for(k=0; k<n_addcov; k++)
+      //  x[j+(k+n_gen)*n_ind] = addcov[k][j]*weights[j];
+      // if(!ind_noqtl[j]) {
+      //   for(k=0,s=0; k<n_gen-1; k++)
+      //     for(k2=0; k2<n_intcov; k2++,s++) 
+      //       x[j+(n_gen+n_addcov+s)*n_ind] = genoprob[k][i][j]*intcov[k2][j]*weights[j];
+      //}
     }
     /* linear regression of phenotype on QTL genotype probabilities */
     /*    F77_CALL(dqrls)(x, &n_ind, &ncol, pheno, &ny, &tol, coef, resid,
                     qty, &k, jpvt, qraux, work);
     */
     /* make a copy of x matrix, we may need it */
-    memcpy(x_bk, x, n_ind*ncolx*double.sizeof);
+    memcpy(x_bk.ptr, x.ptr, n_ind*ncolx*double.sizeof);
     /* make a copy of phenotypes. I'm doing this because 
        dgelss will destroy the input rhs array */
     memcpy(tmppheno.ptr, pheno.ptr, pheno_memsize);
     /* linear regression of phenotype on QTL genotype probabilities */
-    mydgelss(&n_ind, &ncolx, &nphe, x, x_bk, pheno.ptr, tmppheno.ptr, singular,
-      &tol, &rank, work, &lwork, &info);
+    mydgelss(&n_ind, &ncolx, &nphe, x.ptr, x_bk.ptr, pheno.ptr, tmppheno.ptr, singular.ptr,
+      &tol, &rank, work.ptr, &lwork, &info);
     /* calculate residual sum of squares */
     if(nphe == 1) {
       /* only one phenotype, this is easier */
@@ -370,32 +370,13 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
       else {
         /* the desigm matrix is not full rank, this is trouble */
         /* calculate the fitted value */
-        matmult(yfit, x_bk, n_ind, ncolx, tmppheno.ptr, 1);
+        matmult(yfit.ptr, x_bk.ptr, n_ind, ncolx, tmppheno.ptr, 1);
         /* calculate rss */
         for (k=0, rss[0]=0.0; k<n_ind; k++)
           rss[0] += (pheno[k]-yfit[k]) * (pheno[k]-yfit[k]);
       }
     }
     else { /* multiple phenotypes */
-      if(multivar == 1) {
-        /* note that the result tmppheno has dimension n_ind x nphe,
-           the first ncolx rows contains the estimates. */
-        for (k=0; k<nphe; k++) 
-          memcpy(coef+k*ncolx, tmppheno.ptr+k*n_ind, ncolx*double.sizeof);
-        /* calculate yfit */
-        matmult(yfit, x_bk, n_ind, ncolx, coef, nphe);
-        /* calculate residual, put the result in tmppheno */
-        for (k=0; k<n_ind*nphe; k++)
-          tmppheno[k] = pheno[k] - yfit[k];
-        mydgemm(&nphe, &n_ind, &alpha, tmppheno.ptr, &beta, rss_det);
-
-        /* calculate the determinant of rss */
-        /* do Cholesky factorization on rss_det */
-        mydpotrf(&nphe, rss_det, &info);
-        for(k=0, rss[0]=1.0;k<nphe; k++)
-          rss[0] *= rss_det[k*nphe+k]*rss_det[k*nphe+k];
-      } 
-      else { /* return rss as a vector */
         if(rank == ncolx) {
           for(k=0; k<nrss; k++) {
             ind_idx = k*n_ind;
@@ -409,9 +390,9 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
           /* note that the result tmppheno has dimension n_ind x nphe,
           the first ncolx rows contains the estimates. */
           for (k=0; k<nphe; k++) 
-            memcpy(coef+k*ncolx, tmppheno.ptr+k*n_ind, ncolx*double.sizeof);
+            memcpy(coef.ptr+k*ncolx, tmppheno.ptr+k*n_ind, ncolx*double.sizeof);
           /* calculate yfit */
-          matmult(yfit, x_bk, n_ind, ncolx, coef, nphe);
+          matmult(yfit.ptr, x_bk.ptr, n_ind, ncolx, coef.ptr, nphe);
           /* calculate residual, put the result in tmppheno */
           for (k=0; k<n_ind*nphe; k++)
             tmppheno[k] = pheno[k] - yfit[k];
@@ -426,7 +407,6 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
           
         }
         
-      }
     }
     /* make the result */
     /* log10 likelihood */
