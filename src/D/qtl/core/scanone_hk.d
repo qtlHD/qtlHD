@@ -12,11 +12,12 @@ import std.stdio;
 import std.algorithm;
 import std.math;
 import std.string;
+import std.conv;
 import qtl.core.genotype;
 import qtl.plugins.input.read_csv;
 
-import core.stdc.stdlib;  // for malloc
-import core.stdc.string;  // for memcpy
+// import core.stdc.stdlib;  // for malloc
+// import core.stdc.string;  // for memcpy
 
 static immutable bool VERBOSE = true;
 
@@ -153,8 +154,12 @@ private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x
     we need to make a copy of them */
     message("singular");
 
-    memcpy(x0, x0_bk, *n_ind*(*ncolx0)*double.sizeof);
-    memcpy(tmppheno, pheno, *n_ind*(*nphe)*double.sizeof);
+    // memcpy(x0, x0_bk, *n_ind*(*ncolx0)*double.sizeof);
+    for (auto idx=0; idx<*n_ind*(*ncolx0); idx++)
+      x0[idx] = x0_bk[idx];
+    // memcpy(tmppheno, pheno, *n_ind*(*nphe)*double.sizeof);
+    for (auto idx=0; idx<*n_ind*(*nphe); idx++)
+      tmppheno[idx] = pheno[idx];
     dgelss_(n_ind, ncolx0, nphe, x0, n_ind, tmppheno, n_ind, 
       s, tol, rank, work, lwork, info);
   }
@@ -304,11 +309,11 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   auto x_bk = x[n_ind*ncolx..$];
   auto yfit = x_bk[n_ind*ncolx..$];
   auto coef = yfit[n_ind*nphe..$];
-  work.length = 0;
   x.length = n_ind * ncolx;
   x_bk.length = n_ind * ncolx; 
   yfit.length = n_ind * ncolx; 
   coef.length = n_ind * nphe;
+  assert(work.length == 62799, to!string(work.length));
 
   /* NULL model is now done in R ********************
      (only do it once!)
@@ -352,10 +357,14 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
                     qty, &k, jpvt, qraux, work);
     */
     /* make a copy of x matrix, we may need it */
-    memcpy(x_bk.ptr, x.ptr, n_ind*ncolx*double.sizeof);
+    // memcpy(x_bk.ptr, x.ptr, n_ind*ncolx*double.sizeof);
+    
     /* make a copy of phenotypes. I'm doing this because 
        dgelss will destroy the input rhs array */
-    memcpy(tmppheno.ptr, pheno.ptr, pheno_memsize);
+    // note using memcpy can be dangerous... FIXME
+    for(auto idx=0; idx < pheno.length; idx++)  
+      tmppheno[idx] = pheno[idx];
+
     /* linear regression of phenotype on QTL genotype probabilities */
     mydgelss(&n_ind, &ncolx, &nphe, x.ptr, x_bk.ptr, pheno.ptr, tmppheno.ptr, singular.ptr,
       &tol, &rank, work.ptr, &lwork, &info);
@@ -390,7 +399,8 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
           /* note that the result tmppheno has dimension n_ind x nphe,
           the first ncolx rows contains the estimates. */
           for (k=0; k<nphe; k++) 
-            memcpy(coef.ptr+k*ncolx, tmppheno.ptr+k*n_ind, ncolx*double.sizeof);
+            for(auto idx=0; idx < ncolx; idx++) 
+              coef[k*ncolx+idx] = tmppheno[k*n_ind+idx];
           /* calculate yfit */
           matmult(yfit.ptr, x_bk.ptr, n_ind, ncolx, coef.ptr, nphe);
           /* calculate residual, put the result in tmppheno */
