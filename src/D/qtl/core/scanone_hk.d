@@ -187,11 +187,11 @@ private void mydpotrs(char *uplo, int *n, int *nrhs, double *A,
 
 /* end of lapackutil.c */
 
-private void matmult(double *result, double *a, int nrowa,
-                     int ncola, double *b, int ncolb)
+private double [] matmult(double *a, int nrowa, int ncola, double *b, int ncolb)
 
 {
   int i, j, k;
+  double result[] = new double[](nrowa*ncola);
 
   for(i=0; i<nrowa; i++) {
     for(j=0; j<ncolb; j++) {
