@@ -202,6 +202,7 @@ private double [] matmult(double *a, int nrowa, int ncola, double *b, int ncolb)
         result[j*nrowa+i] += a[k*nrowa+i]*b[j*ncola+k];
     }
   }
+  return result;
 }
 
 /*
@@ -379,7 +380,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
       else {
         /* the desigm matrix is not full rank, this is trouble */
         /* calculate the fitted value */
-        matmult(yfit.ptr, x_bk.ptr, n_ind, ncolx, tmppheno.ptr, 1);
+        yfit = matmult(x_bk.ptr, n_ind, ncolx, tmppheno.ptr, 1);
         /* calculate rss */
         for (k=0, rss[0]=0.0; k<n_ind; k++)
           rss[0] += (pheno[k]-yfit[k]) * (pheno[k]-yfit[k]);
@@ -402,7 +403,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
             for(auto idx=0; idx < ncolx; idx++) 
               coef[k*ncolx+idx] = tmppheno[k*n_ind+idx];
           /* calculate yfit */
-          matmult(yfit.ptr, x_bk.ptr, n_ind, ncolx, coef.ptr, nphe);
+          yfit = matmult(x_bk.ptr, n_ind, ncolx, coef.ptr, nphe);
           /* calculate residual, put the result in tmppheno */
           for (k=0; k<n_ind*nphe; k++)
             tmppheno[k] = pheno[k] - yfit[k];
