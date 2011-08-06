@@ -187,7 +187,7 @@ private void mydpotrs(char *uplo, int *n, int *nrhs, double *A,
 
 /* end of lapackutil.c */
 
-private double [] matmult(double *a, int nrowa, int ncola, double *b, int ncolb)
+private double [] matmult(in double a[], int nrowa, int ncola, in double b[], int ncolb)
 
 {
   int i, j, k;
@@ -196,7 +196,7 @@ private double [] matmult(double *a, int nrowa, int ncola, double *b, int ncolb)
   for(i=0; i<nrowa; i++) {
     for(j=0; j<ncolb; j++) {
       /* clear the content of result */
-      result[j*nrowa+i] = 0.0;
+      // result[j*nrowa+i] = 0.0;
       /*result[i*ncolb+j] = 0.0;*/
       for(k=0; k<ncola; k++)
         result[j*nrowa+i] += a[k*nrowa+i]*b[j*ncola+k];
@@ -380,7 +380,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
       else {
         /* the desigm matrix is not full rank, this is trouble */
         /* calculate the fitted value */
-        yfit = matmult(x_bk.ptr, n_ind, ncolx, tmppheno.ptr, 1);
+        yfit = matmult(x_bk, n_ind, ncolx, tmppheno, 1);
         /* calculate rss */
         for (k=0, rss[0]=0.0; k<n_ind; k++)
           rss[0] += (pheno[k]-yfit[k]) * (pheno[k]-yfit[k]);
@@ -403,7 +403,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
             for(auto idx=0; idx < ncolx; idx++) 
               coef[k*ncolx+idx] = tmppheno[k*n_ind+idx];
           /* calculate yfit */
-          yfit = matmult(x_bk.ptr, n_ind, ncolx, coef.ptr, nphe);
+          yfit = matmult(x_bk, n_ind, ncolx, coef, nphe);
           /* calculate residual, put the result in tmppheno */
           for (k=0; k<n_ind*nphe; k++)
             tmppheno[k] = pheno[k] - yfit[k];
