@@ -121,7 +121,26 @@ private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x
 {
   int i, singular=0;
 
-  /* use dgels first */
+  /* 
+     SUBROUTINE DGELS( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK,
+     $                  INFO )
+      CHARACTER          TRANS
+      INTEGER            INFO, LDA, LDB, LWORK, M, N, NRHS
+      DOUBLE PRECISION   A( LDA, * ), B( LDB, * ), WORK( * )
+   
+      M      = rows in matrix
+      N      = cols in matrix
+      NRHS   = number of right hand sides
+      A      = (input/output) DOUBLE PRECISION array, dimension (LDA,N)
+      LDA    = The leading dimension of the array A.  LDA >= max(1,M).
+      B      = (input/output) DOUBLE PRECISION array, dimension (LDB,NRHS)
+               the matrix B of right hand side vectors, stored
+               B is M-by-NRHS 
+      LDB    = The leading dimension of the array B. LDB >= MAX(1,M,N).
+      WORK   = (workspace/output) DOUBLE PRECISION array, dimension (MAX(1,LWORK))
+      LWORK  = INTEGER The dimension of the array WORK.
+      INFO    (output) INTEGER  0:  successful exit
+  */
   message("dgels_");
   writeln(*n_ind);
   writeln(*ncolx0); 
