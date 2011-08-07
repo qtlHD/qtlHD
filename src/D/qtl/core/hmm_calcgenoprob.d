@@ -15,7 +15,7 @@ mixin template calcGenoprobCode(T)
       throw new Exception("error_prob out of range");
     foreach(rf; rec_frac) {
       if(rf < 0 || rf > 0.5)
-	throw new Exception("rec_frac must be >= 0 and <= 0.5");
+        throw new Exception("rec_frac must be >= 0 and <= 0.5");
     }
 
     int n_individuals = genotypes.length;
@@ -27,20 +27,20 @@ mixin template calcGenoprobCode(T)
 
     foreach(ind; 0..n_individuals) {
       alpha = forwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
-	
+        
       beta = backwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
 
       // calculate genotype probabilities
       double sum_at_pos;
       foreach(pos; 0..n_markers) {
-	sum_at_pos = genoprobs[ind][pos][all_true_geno[0]] = alpha[all_true_geno[0]][pos] + beta[all_true_geno[0]][pos];
-	foreach(true_geno; all_true_geno[1..$]) {
-	  genoprobs[ind][pos][true_geno] = alpha[true_geno][pos] + beta[true_geno][pos];
-	  sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][true_geno]);
-	}
-	foreach(true_geno; all_true_geno) {
-	  genoprobs[ind][pos][true_geno] = exp(genoprobs[ind][pos][true_geno] - sum_at_pos);
-	}
+        sum_at_pos = genoprobs[ind][pos][all_true_geno[0]] = alpha[all_true_geno[0]][pos] + beta[all_true_geno[0]][pos];
+        foreach(true_geno; all_true_geno[1..$]) {
+          genoprobs[ind][pos][true_geno] = alpha[true_geno][pos] + beta[true_geno][pos];
+          sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][true_geno]);
+        }
+        foreach(true_geno; all_true_geno) {
+          genoprobs[ind][pos][true_geno] = exp(genoprobs[ind][pos][true_geno] - sum_at_pos);
+        }
       }
     }
 
