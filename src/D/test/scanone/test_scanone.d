@@ -127,6 +127,8 @@ unittest {
   assert(to!string(expanded_recombfs1[0])[0..9]=="0.0098688");
   assert(to!string(expanded_recombfs1[2])=="0.133759");
   // genotype probabilities (using data.genotypes)
+  auto rec_frac = mapFunction(dist_cM, "haldane");
+  auto genoprobs = calcGenoprob(genotypes, rec_frac, 0.002);
   GenoProbs gprobs;
   // Getting ready for scanone
   auto result = scanone_hk(expanded_ms1,data.phenotypes,data.individuals,gprobs); 
