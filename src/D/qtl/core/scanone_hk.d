@@ -116,7 +116,7 @@ else {
  **********************************************************************/
 
 /* DGELSS function */
-private void mydgelss (int n_ind, int ncolx0, int nphe, double x0[], double x0_bk[],
+private void mydgelss (int n_ind, int ncolx0, int n_phe, double x0[], double x0_bk[],
                double *pheno, double tmppheno[], double singular[], double tol, 
                int rank, double *work, int *lwork)
 {
@@ -143,7 +143,7 @@ private void mydgelss (int n_ind, int ncolx0, int nphe, double x0[], double x0_b
       INFO    (output) INTEGER  0:  successful exit
 
 
-         ncolx0    npheno
+         ncolx0    n_pheno
          ngen+cov
          1 .. N  | NRHS   |
                  
@@ -158,11 +158,11 @@ F77_NAME(dgels)(const char* trans, const int* m, const int* n,
                 double* work, const int* lwork, int* info);
 
   */
-  writeln(n_ind); writeln(ncolx0); writeln(nphe); writeln(x0[0..10]); writeln(n_ind); writeln(*work); writeln(*lwork); 
+  writeln(n_ind); writeln(ncolx0); writeln(n_phe); writeln(x0[0..10]); writeln(n_ind); writeln(*work); writeln(*lwork); 
 
   auto m = n_ind;   // ind
   auto n = ncolx0;  // gen + cov
-  auto nrhs = nphe;
+  auto nrhs = n_phe;
   auto lda = n_ind;
   double *a = x0.ptr; // (gen + cov + phe) x ind
   double *b = tmppheno.ptr;
@@ -198,26 +198,26 @@ F77_NAME(dgels)(const char* trans, const int* m, const int* n,
     // memcpy(x0, x0_bk, *n_ind*(*ncolx0)*double.sizeof);
     for (auto idx=0; idx<n_ind*(ncolx0); idx++)
       x0[idx] = x0_bk[idx];
-    // memcpy(tmppheno, pheno, *n_ind*(*nphe)*double.sizeof);
-    for (auto idx=0; idx<n_ind*(nphe); idx++)
+    // memcpy(tmppheno, pheno, *n_ind*(*n_phe)*double.sizeof);
+    for (auto idx=0; idx<n_ind*(n_phe); idx++)
       tmppheno[idx] = pheno[idx];
     info = 0;
-    dgelss_(&n_ind, &ncolx0, &nphe, a, &n_ind, tmppheno.ptr, &n_ind, 
+    dgelss_(&n_ind, &ncolx0, &n_phe, a, &n_ind, tmppheno.ptr, &n_ind, 
       singular.ptr, &tol, &rank, work, lwork, &info);
   }
 }
 
 
 /* DGEMM */
-private void mydgemm(int *nphe, int *n_ind, double *alpha, double *tmppheno, double *beta, double *rss_det) 
+private void mydgemm(int *n_phe, int *n_ind, double *alpha, double *tmppheno, double *beta, double *rss_det) 
 {
-  dgemm_(cast(char *)toStringz("T"),cast(char *)toStringz("N"), nphe, nphe, n_ind, alpha, tmppheno, n_ind, tmppheno, n_ind, beta, rss_det, nphe);
+  dgemm_(cast(char *)toStringz("T"),cast(char *)toStringz("N"), n_phe, n_phe, n_ind, alpha, tmppheno, n_ind, tmppheno, n_ind, beta, rss_det, n_phe);
 }
 
 /* DPOTRF */
-private void mydpotrf(int *nphe, double *rss_det, int *info) 
+private void mydpotrf(int *n_phe, double *rss_det, int *info) 
 {
-  dpotrf_(cast(char *)toStringz("U"), nphe, rss_det, nphe, info);
+  dpotrf_(cast(char *)toStringz("U"), n_phe, rss_det, n_phe, info);
 }
 
 /*DPOTRS */
@@ -258,17 +258,17 @@ private double [] matmult(in double a[], int nrowa, int ncola, in double b[], in
  *   n_ind        Number of individuals
  *   n_pos        Number of marker positions
  *   n_gen        Number of different genotypes
- *   Genoprob     Array of conditional genotype probabilities
- *   addcov       Matrix of additive covariates: addcov[cov][ind]
- *   n_addcov     Number of columns of addcov
- *   intcov       Number of interactive covariates: intcov[cov][ind]
- *   n_intcov     Number of columns of intcov
- *   pheno        Phenotype data, as a vector
- *   nphe         Number of phenotypes
+ *   Genoprob     Matrix of conditional genotype probabilities
+ *   addcov       Matrix of additive covariates: addcov[cov][ind] (nyi)
+ *   n_addcov     Number of columns of addcov (nyi)
+ *   intcov       Number of interactive covariates: intcov[cov][ind] (nyi)
+ *   n_intcov     Number of columns of intcov (nyi)
+ *   pheno        Phenotype data, as a vector -- matix?
+ *   n_phe        Number of phenotypes
  *   weights      Vector of positive weights, of length n_ind
  *   ind_noqtl    Indicators (0/1) of which individuals should be excluded 
  *                from QTL effects.  
- *   Result       Result matrix of size [n_pos x (nphe)] containing the
+ *   Result       Result matrix of size [n_pos x (n_phe)] containing the
  *                LOD scores for each phenotype
  *
  * The new (tentative) interface is:
@@ -281,18 +281,17 @@ private double [] matmult(in double a[], int nrowa, int ncola, in double b[], in
  *
  **********************************************************************/
 
-double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individuals, in Gs genotypes) 
+double[] scanone_hk(Ms,Ps,Is)(in Ms markers, in Ps phenotypes, in Is individuals, in GenoProbs genoprob) 
 {
   // inputs
   message("Starting scanone_HK");
-  double[][][] genoprob; // changed!
   // immutable double **addcov, intcov;
 
   // calculated
   immutable n_pos = markers.length;
-  int nphe = phenotypes.length;
+  int n_phe = phenotypes.length;
   int n_ind = individuals.length;
-  immutable n_gen = genotypes[0].length; // get columns of matrix
+  immutable n_gen = genoprob[0].length; // get columns of matrix
 
   // unused now
   int[] ind_noqtl;
@@ -304,11 +303,11 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   immutable n_intcov = 0;
   immutable n_addcov = 0;
   // initialize
-  auto pheno_size = n_ind * nphe; // matrix of ind x phenotypes
+  auto pheno_size = n_ind * n_phe; // matrix of ind x phenotypes
   auto pheno_memsize = pheno_size * double.sizeof;
   auto pheno = new double[pheno_size];
-  genoprob = new double[][][](n_gen,n_pos,n_ind);
-  assert(!isnan(genoprob[0][0][0]));
+  // genoprob = new double[][][](n_gen,n_pos,n_ind);
+  assert(!isnan(genoprob[0][0][0].value));
 
   // local
   int  i, j, k, k2, s, nrss, lwork, ind_idx;
@@ -318,7 +317,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   double dtmp;
 
   /* number of rss's, currently multivar is not used so it's always 0 */
-  nrss = nphe;
+  nrss = n_phe;
 
   /* allocate memory */
   auto rss = new double[nrss];  
@@ -338,10 +337,10 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   jpvt = (int *)R_alloc(ncol, sizeof(int));
   qraux = (double *)R_alloc(ncol, double.sizeof);
   work = (double *)R_alloc(2 * ncol, double.sizeof); */
-  lwork = 3*ncolx + max(n_ind, nphe);
+  lwork = 3*ncolx + max(n_ind, n_phe);
   // 120 n_ind, 133 ncolx (n_geno+cov), 519 lwork, 58200 dwork_size
-  auto dwork_size = (2*n_ind+1)*ncolx+lwork+(n_ind+ncolx)*nphe;
-  writeln("!!",n_ind,',',nphe,',',ncolx,',',lwork,',',dwork_size);
+  auto dwork_size = (2*n_ind+1)*ncolx+lwork+(n_ind+ncolx)*n_phe;
+  writeln("!!",n_ind,',',n_phe,',',ncolx,',',lwork,',',dwork_size);
   auto dwork = new double[dwork_size];
   dwork[] = 0.0;
   assert(dwork[0]==0.0);
@@ -357,12 +356,12 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   auto x_bk = x[n_ind*ncolx..$];
   assert(x_bk[0]==0.0);
   auto yfit = x_bk[n_ind*ncolx..$];
-  auto coef = yfit[n_ind*nphe..$];
+  auto coef = yfit[n_ind*n_phe..$];
   x.length = n_ind * ncolx;
   assert(x[0]==0.0);
   x_bk.length = n_ind * ncolx; 
   yfit.length = n_ind * ncolx; 
-  coef.length = n_ind * nphe;
+  coef.length = n_ind * n_phe;
   assert(work.length == 62799, to!string(work.length));
 
   /* NULL model is now done in R ********************
@@ -381,7 +380,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
 
   /*
   for(j=0; j<n_ind; j++) 
-    for(k=0; k<nphe; k++)
+    for(k=0; k<n_phe; k++)
       pheno[j+k*n_ind] *= weights[j];  note: weights are really square-root of weights 
   */
   for(i=0; i<n_pos; i++) { /* loop over positions (markers) */
@@ -393,7 +392,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
     for(j=0; j<n_ind; j++) {
       if(!ind_noqtl[j]) {
         for(k=0; k<n_gen; k++)
-          x[j+k*n_ind] = genoprob[k][i][j]*weights[j];
+          x[j+k*n_ind] = genoprob[k][i][j].value*weights[j];
       }
       // for(k=0; k<n_addcov; k++)
       //  x[j+(k+n_gen)*n_ind] = addcov[k][j]*weights[j];
@@ -417,10 +416,10 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
       tmppheno[idx] = pheno[idx];
 
     /* linear regression of phenotype on QTL genotype probabilities */
-    mydgelss(n_ind, ncolx, nphe, x, x_bk, pheno.ptr, tmppheno, singular,
+    mydgelss(n_ind, ncolx, n_phe, x, x_bk, pheno.ptr, tmppheno, singular,
       tol, rank, work.ptr, &lwork);
     /* calculate residual sum of squares */
-    if(nphe == 1) {
+    if(n_phe == 1) {
       /* only one phenotype, this is easier */
       /* if the design matrix is full rank */
       if(rank == ncolx) {
@@ -447,15 +446,15 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
           }
         }
         else { /* not full rank, this is troubler */
-          /* note that the result tmppheno has dimension n_ind x nphe,
+          /* note that the result tmppheno has dimension n_ind x n_phe,
           the first ncolx rows contains the estimates. */
-          for (k=0; k<nphe; k++) 
+          for (k=0; k<n_phe; k++) 
             for(auto idx=0; idx < ncolx; idx++) 
               coef[k*ncolx+idx] = tmppheno[k*n_ind+idx];
           /* calculate yfit */
-          yfit = matmult(x_bk, n_ind, ncolx, coef, nphe);
+          yfit = matmult(x_bk, n_ind, ncolx, coef, n_phe);
           /* calculate residual, put the result in tmppheno */
-          for (k=0; k<n_ind*nphe; k++)
+          for (k=0; k<n_ind*n_phe; k++)
             tmppheno[k] = pheno[k] - yfit[k];
           /* calculate rss */
           for(k=0; k<nrss; k++) {

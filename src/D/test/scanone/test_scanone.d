@@ -126,8 +126,10 @@ unittest {
   assert(expanded_recombfs1.length==51,to!string(expanded_recombfs1.length));
   assert(to!string(expanded_recombfs1[0])[0..9]=="0.0098688");
   assert(to!string(expanded_recombfs1[2])=="0.133759");
+  // genotype probabilities (using data.genotypes)
+  GenoProbs gprobs;
   // Getting ready for scanone
-  auto result = scanone_hk(expanded_ms1,data.phenotypes,data.individuals,data.genotypes); 
+  auto result = scanone_hk(expanded_ms1,data.phenotypes,data.individuals,gprobs); 
 
   /*
 We are going to scan for QTL's. The first R equivalent here is:
