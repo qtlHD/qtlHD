@@ -4,13 +4,20 @@
 
 module qtl.core.hmm_calcgenoprob;
 
+import std.string;
+import std.conv;
+
 // calculate QTL genotype probabilities
 mixin template calcGenoprobCode(T)
 {
   double[T][int][int] calcGenoprob(Genotype!T[][] genotypes, double[] rec_frac, double error_prob)
   {
-    if(genotypes[0].length != rec_frac.length+1)
+    if(genotypes[0].length != rec_frac.length+1) {
+      // throw new Exception("no. markers in genotypes " ~ to!string(genotypes[0].length) ~ "doesn't match rec_frac length" ~ to!string(rec_frac.length+1));
+      writeln(genotypes[0].length);
+      writeln(rec_frac.length+1);
       throw new Exception("no. markers in genotypes doesn't match rec_frac length");
+    }
     if(error_prob < 0.0 || error_prob > 1.0)
       throw new Exception("error_prob out of range");
     foreach(rf; rec_frac) {
