@@ -136,7 +136,7 @@ unittest {
   //   dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
   // }
   
-  auto rec_frac = mapFunction(dist_cM, "haldane");
+  auto rec_frac = mapFunction(dist_cM);
   writeln("rf: ",rec_frac);
   auto genoprobs = calcGenoprob(data.genotypes, rec_frac, 0.002);
   GenoProbs gprobs;

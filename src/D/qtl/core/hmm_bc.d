@@ -176,7 +176,7 @@ unittest {
   foreach(i; 1..markers_on_chr_5.length) {
     dist_cM ~= markers_on_chr_5[i].position - markers_on_chr_5[i-1].position;
   }
-  auto rec_frac = mapFunction(dist_cM, "carter-falconer");
+  auto rec_frac = mapFunction(dist_cM, MapFunc.Carter_Falconer);
 
   double[] rec_frac_from_rqtl = [0.05499838959578960, 0.05399853076176147, 0.03299987476879847,
 				 0.01099999948567994, 0.03299987476879847, 0.14181577930458458, 
@@ -343,7 +343,7 @@ unittest {
   foreach(i; 1..markers_on_chr_15.length) {
     dist_cM ~= markers_on_chr_15[i].position - markers_on_chr_15[i-1].position;
   }
-  auto rec_frac = mapFunction(dist_cM, "carter-falconer");
+  auto rec_frac = mapFunction(dist_cM, MapFunc.Carter_Falconer);
 
   auto rec_frac_rqtl = [0.0000000000010000000000000001818,
 			0.0219999835094050709416446665045,
