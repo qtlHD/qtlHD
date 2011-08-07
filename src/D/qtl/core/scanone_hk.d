@@ -13,6 +13,7 @@ import std.algorithm;
 import std.math;
 import std.string;
 import std.conv;
+import std.exception;
 import qtl.core.genotype;
 import qtl.plugins.input.read_csv;
 
@@ -115,11 +116,11 @@ else {
  **********************************************************************/
 
 /* DGELSS function */
-private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x0_bk,
+private void mydgelss (int n_ind, int ncolx0, int nphe, double x0[], double *x0_bk,
                double *pheno, double *tmppheno, double *s, double *tol, 
-               int *rank, double *work, int *lwork, int *info)
+               int rank, double *work, int *lwork)
 {
-  int i, singular=0;
+  int singular=0;
 
   /* 
      SUBROUTINE DGELS( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK,
@@ -128,8 +129,8 @@ private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x
       INTEGER            INFO, LDA, LDB, LWORK, M, N, NRHS
       DOUBLE PRECISION   A( LDA, * ), B( LDB, * ), WORK( * )
    
-      M      = rows in matrix
-      N      = cols in matrix
+      M      = rows in A
+      N      = cols in A
       NRHS   = number of right hand sides
       A      = (input/output) DOUBLE PRECISION array, dimension (LDA,N)
       LDA    = The leading dimension of the array A.  LDA >= max(1,M).
@@ -140,25 +141,44 @@ private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x
       WORK   = (workspace/output) DOUBLE PRECISION array, dimension (MAX(1,LWORK))
       LWORK  = INTEGER The dimension of the array WORK.
       INFO    (output) INTEGER  0:  successful exit
-  */
-  message("dgels_");
-  writeln(*n_ind);
-  writeln(*ncolx0); 
-  writeln(*nphe); 
-  writeln(*x0); 
-  writeln(*n_ind); 
-  writeln(*work); 
-  writeln(*lwork); 
-  writeln(*info); 
 
-  dgels_(cast(char *)toStringz("N"), n_ind, ncolx0, nphe, x0, n_ind, tmppheno, n_ind,
-      work, lwork, info);
-  
+
+         ncolx0    npheno
+         ngen+cov
+         1 .. N  | NRHS   |
+                 
+      1  
+ nind ..
+      M
+
+
+F77_NAME(dgels)(const char* trans, const int* m, const int* n,
+                const int* nrhs, double* a, const int* lda,
+                double* b, const int* ldb,
+                double* work, const int* lwork, int* info);
+
+  */
+  writeln(n_ind); writeln(ncolx0); writeln(nphe); writeln(x0[0..10]); writeln(n_ind); writeln(*work); writeln(*lwork); 
+
+  auto m = n_ind;   // ind
+  auto n = ncolx0;  // gen + cov
+  auto nrhs = nphe;
+  auto lda = n_ind;
+  double *a = x0.ptr; // (gen + cov + phe) x ind
+
+  auto info = 0;
+  assert(lda >= max(1,m));
+  writeln("x0:",x0[0]);
+  assert(!isnan(x0[0]), to!string(x0[0]));
+  message("dgels_");
+  dgels_(cast(char *)toStringz("N"), &m, &n, &nrhs, a, &lda, tmppheno, &n_ind,
+      work, lwork, &info);
+
   /* if there's problem like singular, use dgelss */
   /* note that x0 will contain the result for QR decomposition. 
   If any diagonal element of R is zero, then input x0 is rank deficient */
-  for(i=0; i<*ncolx0; i++)  {
-    if(abs(x0[*n_ind*i+i]) < TOL) {
+  for(auto i=0; i<ncolx0; i++)  {
+    if(abs(x0[n_ind*i+i]) < TOL) {
       singular = 1;
       break;
     }
@@ -174,13 +194,14 @@ private void mydgelss (int *n_ind, int *ncolx0, int *nphe, double *x0, double *x
     message("singular");
 
     // memcpy(x0, x0_bk, *n_ind*(*ncolx0)*double.sizeof);
-    for (auto idx=0; idx<*n_ind*(*ncolx0); idx++)
+    for (auto idx=0; idx<n_ind*(ncolx0); idx++)
       x0[idx] = x0_bk[idx];
     // memcpy(tmppheno, pheno, *n_ind*(*nphe)*double.sizeof);
-    for (auto idx=0; idx<*n_ind*(*nphe); idx++)
+    for (auto idx=0; idx<n_ind*(nphe); idx++)
       tmppheno[idx] = pheno[idx];
-    dgelss_(n_ind, ncolx0, nphe, x0, n_ind, tmppheno, n_ind, 
-      s, tol, rank, work, lwork, info);
+    info = 0;
+    dgelss_(&n_ind, &ncolx0, &nphe, a, &n_ind, tmppheno, &n_ind, 
+      s, tol, &rank, work, lwork, &info);
   }
 }
 
@@ -287,7 +308,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   genoprob = new double[][][](n_gen,n_pos,n_ind);
 
   // local
-  int  i, j, k, k2, s, rank, info, nrss, lwork, ind_idx;
+  int  i, j, k, k2, s, nrss, lwork, ind_idx;
   double alpha=1.0;
   auto beta=0.0;
   double tol=TOL;
@@ -304,7 +325,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   int ncolx = n_gen + (n_gen-1)*n_intcov+n_addcov; 
   // 1..n_gen ; 1..n_gen * n_intcov ; n_addcov
   /*ncol0 = n_addcov+1;*/
-  rank = ncolx;
+  auto rank = ncolx;
 
   /* allocate space and set things up*/
   /*  x = (double *)R_alloc(n_ind*ncol, double.sizeof);
@@ -319,17 +340,22 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   auto dwork_size = (2*n_ind+1)*ncolx+lwork+(n_ind+ncolx)*nphe;
   writeln("!!",n_ind,',',nphe,',',ncolx,',',lwork,',',dwork_size);
   auto dwork = new double[dwork_size];
+  dwork[] = 0.0;
+  assert(dwork[0]==0.0);
+  assert(dwork[dwork_size-10]==0.0);
 
   /* split the memory block 
     singular (lwork) | x (ind*ncolx) | x_bk (ind*ncolx) | yfit (ind*ncolx) | coef (n_ind*phe)
   */
   auto singular = dwork;
   auto work = singular[ncolx..$];
+  assert(work[0]==0.0);
   auto x = work[lwork..$];
   auto x_bk = x[n_ind*ncolx..$];
   auto yfit = x_bk[n_ind*ncolx..$];
   auto coef = yfit[n_ind*nphe..$];
   x.length = n_ind * ncolx;
+  assert(x[0]==0.0);
   x_bk.length = n_ind * ncolx; 
   yfit.length = n_ind * ncolx; 
   coef.length = n_ind * nphe;
@@ -354,9 +380,10 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
     for(k=0; k<nphe; k++)
       pheno[j+k*n_ind] *= weights[j];  note: weights are really square-root of weights 
   */
-  for(i=0; i<n_pos; i++) { /* loop over positions */
-    // R_CheckUserInterrupt(); /* check for ^C */
-    for(k=0; k<n_ind * ncolx; k++) x[k] = 0.0;
+  for(i=0; i<n_pos; i++) { /* loop over positions (markers) */
+    // for(k=0; k<n_ind * ncolx; k++) x[k] = 0.0;
+    x[] = 0.0;
+    assert(x[0]==0.0);
 
     /* fill up X matrix */
     for(j=0; j<n_ind; j++) {
@@ -386,8 +413,8 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
       tmppheno[idx] = pheno[idx];
 
     /* linear regression of phenotype on QTL genotype probabilities */
-    mydgelss(&n_ind, &ncolx, &nphe, x.ptr, x_bk.ptr, pheno.ptr, tmppheno.ptr, singular.ptr,
-      &tol, &rank, work.ptr, &lwork, &info);
+    mydgelss(n_ind, ncolx, nphe, x, x_bk.ptr, pheno.ptr, tmppheno.ptr, singular.ptr,
+      &tol, rank, work.ptr, &lwork);
     /* calculate residual sum of squares */
     if(nphe == 1) {
       /* only one phenotype, this is easier */
