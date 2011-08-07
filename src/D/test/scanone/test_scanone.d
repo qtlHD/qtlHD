@@ -130,18 +130,16 @@ unittest {
   assert(expanded_recombfs1.length==51,to!string(expanded_recombfs1.length));
   assert(to!string(expanded_recombfs1[0])[0..9]=="0.0098688");
   assert(to!string(expanded_recombfs1[2])=="0.133759");
-  // genotype probabilities (using data.genotypes)
-  double[] dist_cM;
-  // foreach(i; 1..markers_on_chr_4.length) {
-  //   dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
-  // }
-  
-  auto rec_frac = mapFunction(dist_cM);
-  writeln("rf: ",rec_frac);
-  auto genoprobs = calcGenoprob(data.genotypes, rec_frac, 0.002);
-  GenoProbs gprobs;
-  // Getting ready for scanone
-  auto result = scanone_hk(expanded_ms1,data.phenotypes,data.individuals,gprobs); 
+  // for every chromosome
+    // calc genotype probabilities (using data.genotypes)
+    // here using map.d's Haldane - which should merge with hmm_f2 etc.
+    // auto rec_frac = mapFunction(dist_cM);
+    auto rec_frac = expanded_recombfs1;
+    writeln("rf: ",rec_frac);
+    auto genoprobs = calcGenoprob(data.genotypes, rec_frac, 0.002);
+    GenoProbs gprobs;
+    // Getting ready for scanone
+    auto result = scanone_hk(expanded_ms1,data.phenotypes,data.individuals,gprobs); 
 
   /*
 We are going to scan for QTL's. The first R equivalent here is:
