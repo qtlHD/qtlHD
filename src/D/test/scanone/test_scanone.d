@@ -20,6 +20,10 @@ import std.path;
 import std.algorithm;
 alias std.algorithm.find find;
 
+
+import qtl.core.map_functions;
+import qtl.core.hmm_f2;
+
 // The comments are based on the Ruby/Biolib-R/qtl integration
 
 static bool VERBOSE = false;
@@ -127,8 +131,14 @@ unittest {
   assert(to!string(expanded_recombfs1[0])[0..9]=="0.0098688");
   assert(to!string(expanded_recombfs1[2])=="0.133759");
   // genotype probabilities (using data.genotypes)
+  double[] dist_cM;
+  // foreach(i; 1..markers_on_chr_4.length) {
+  //   dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
+  // }
+  
   auto rec_frac = mapFunction(dist_cM, "haldane");
-  auto genoprobs = calcGenoprob(genotypes, rec_frac, 0.002);
+  writeln("rf: ",rec_frac);
+  auto genoprobs = calcGenoprob(data.genotypes, rec_frac, 0.002);
   GenoProbs gprobs;
   // Getting ready for scanone
   auto result = scanone_hk(expanded_ms1,data.phenotypes,data.individuals,gprobs); 
