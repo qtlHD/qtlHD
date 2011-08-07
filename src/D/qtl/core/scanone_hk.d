@@ -306,6 +306,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   auto pheno_memsize = pheno_size * double.sizeof;
   auto pheno = new double[pheno_size];
   genoprob = new double[][][](n_gen,n_pos,n_ind);
+  assert(!isnan(genoprob[0][0][0]));
 
   // local
   int  i, j, k, k2, s, nrss, lwork, ind_idx;
