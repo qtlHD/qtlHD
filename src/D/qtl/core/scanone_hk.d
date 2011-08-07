@@ -116,11 +116,11 @@ else {
  **********************************************************************/
 
 /* DGELSS function */
-private void mydgelss (int n_ind, int ncolx0, int nphe, double x0[], double *x0_bk,
-               double *pheno, double *tmppheno, double *s, double *tol, 
+private void mydgelss (int n_ind, int ncolx0, int nphe, double x0[], double x0_bk[],
+               double *pheno, double tmppheno[], double singular[], double tol, 
                int rank, double *work, int *lwork)
 {
-  int singular=0;
+  bool is_singular=false;
 
   /* 
      SUBROUTINE DGELS( TRANS, M, N, NRHS, A, LDA, B, LDB, WORK, LWORK,
@@ -165,13 +165,15 @@ F77_NAME(dgels)(const char* trans, const int* m, const int* n,
   auto nrhs = nphe;
   auto lda = n_ind;
   double *a = x0.ptr; // (gen + cov + phe) x ind
+  double *b = tmppheno.ptr;
+  auto ldb = n_ind;
 
   auto info = 0;
   assert(lda >= max(1,m));
   writeln("x0:",x0[0]);
   assert(!isnan(x0[0]), to!string(x0[0]));
   message("dgels_");
-  dgels_(cast(char *)toStringz("N"), &m, &n, &nrhs, a, &lda, tmppheno, &n_ind,
+  dgels_(cast(char *)toStringz("N"), &m, &n, &nrhs, a, &lda, b, &ldb,
       work, lwork, &info);
 
   /* if there's problem like singular, use dgelss */
@@ -179,13 +181,13 @@ F77_NAME(dgels)(const char* trans, const int* m, const int* n,
   If any diagonal element of R is zero, then input x0 is rank deficient */
   for(auto i=0; i<ncolx0; i++)  {
     if(abs(x0[n_ind*i+i]) < TOL) {
-      singular = 1;
+      is_singular = true;
       break;
     }
   }
 
   
-  if(singular) { /* switch to dgelss if input x0 is not of full rank */
+  if(is_singular) { /* switch to dgelss if input x0 is not of full rank */
     /* note that tmppheno and x0 have been destroyed already,
     we need to make another copy of them */
     /*mexPrintf("Warning - Design matrix is signular \n"); */
@@ -200,8 +202,8 @@ F77_NAME(dgels)(const char* trans, const int* m, const int* n,
     for (auto idx=0; idx<n_ind*(nphe); idx++)
       tmppheno[idx] = pheno[idx];
     info = 0;
-    dgelss_(&n_ind, &ncolx0, &nphe, a, &n_ind, tmppheno, &n_ind, 
-      s, tol, &rank, work, lwork, &info);
+    dgelss_(&n_ind, &ncolx0, &nphe, a, &n_ind, tmppheno.ptr, &n_ind, 
+      singular.ptr, &tol, &rank, work, lwork, &info);
   }
 }
 
@@ -353,6 +355,7 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
   assert(work[0]==0.0);
   auto x = work[lwork..$];
   auto x_bk = x[n_ind*ncolx..$];
+  assert(x_bk[0]==0.0);
   auto yfit = x_bk[n_ind*ncolx..$];
   auto coef = yfit[n_ind*nphe..$];
   x.length = n_ind * ncolx;
@@ -414,8 +417,8 @@ double[] scanone_hk(Ms,Ps,Is,Gs)(in Ms markers, in Ps phenotypes, in Is individu
       tmppheno[idx] = pheno[idx];
 
     /* linear regression of phenotype on QTL genotype probabilities */
-    mydgelss(n_ind, ncolx, nphe, x, x_bk.ptr, pheno.ptr, tmppheno.ptr, singular.ptr,
-      &tol, rank, work.ptr, &lwork);
+    mydgelss(n_ind, ncolx, nphe, x, x_bk, pheno.ptr, tmppheno, singular,
+      tol, rank, work.ptr, &lwork);
     /* calculate residual sum of squares */
     if(nphe == 1) {
       /* only one phenotype, this is easier */
