@@ -8,8 +8,10 @@ import std.stdio;
 import std.math;
 import std.numeric; // contains findRoot()
 
+enum MapFunc { Haldane, Kosambi, Morgan, Carter_Falconer };
+
 // convert cM distance to recombination fraction
-double[] mapFunction(double[] dist_cM, string which_mapFunction)
+double[] mapFunction(double[] dist_cM, MapFunc which_mapFunction = MapFunc.Haldane)
 in {
   foreach(dist; dist_cM) {
     assert(dist >= 0, "dist_cM must be >= 0");
@@ -22,18 +24,18 @@ body {
   double mfcfsub_dist;
   double mfcfsub(double rf)
   {
-    return inverseMapFunction([rf], "carter-falconer")[0]-mfcfsub_dist;
+    return inverseMapFunction([rf], MapFunc.Carter_Falconer)[0]-mfcfsub_dist;
   }
 
   foreach(i, dist; dist_cM) {
     switch(which_mapFunction) {
-    case "haldane":
+    case MapFunc.Haldane:
       rec_frac[i] = 0.5*(1-exp(-dist/50));
       break;
-    case "kosambi":
+    case MapFunc.Kosambi:
       rec_frac[i] = 0.5*tanh(dist/50);
       break;
-    case "morgan":
+    case MapFunc.Morgan:
       if(dist >= 50) {
         rec_frac[i] = 0.5;
       }
@@ -41,7 +43,7 @@ body {
         rec_frac[i] = dist/100.0;
       }
       break;
-    case "carter-falconer":
+    case MapFunc.Carter_Falconer:
       if(dist >= 300) { dist = 300; }
       if(dist == 0) {
         rec_frac[i] = 0; 
@@ -89,10 +91,10 @@ unittest {
 
   auto dist_orig = dist.dup;
 
-  auto result_h = mapFunction(dist, "haldane");
-  auto result_k = mapFunction(dist, "kosambi");
-  auto result_m = mapFunction(dist, "morgan");
-  auto result_cf = mapFunction(dist, "carter-falconer");
+  auto result_h = mapFunction(dist, MapFunc.Haldane);
+  auto result_k = mapFunction(dist, MapFunc.Kosambi);
+  auto result_m = mapFunction(dist, MapFunc.Morgan);
+  auto result_cf = mapFunction(dist, MapFunc.Carter_Falconer);
 
   assert(dist == dist_orig);
 
@@ -105,7 +107,7 @@ unittest {
 }
 
 // convert recombination fraction to cM distance
-double[] inverseMapFunction(double[] rec_frac, string which_mapFunction)
+double[] inverseMapFunction(double[] rec_frac, MapFunc which_mapFunction = MapFunc.Haldane)
 in {
   foreach(rf; rec_frac) {
     assert(rf >= 0.0 && rf <= 0.5, "rec_frac must be >= 0 and <= 0.5");
@@ -118,16 +120,16 @@ body {
   foreach(i, rf; rec_frac) {
     if(rf >= 0.5-TOL) { rf = 0.5 - TOL; }
     switch(which_mapFunction) {
-    case "haldane":
+    case MapFunc.Haldane:
       dist_cM[i] = -50*log(1-2*rf);
       break;
-    case "kosambi":
+    case MapFunc.Kosambi:
       dist_cM[i] = 50*atanh(2*rf);
       break;
-    case "morgan":
+    case MapFunc.Morgan:
       dist_cM[i] = rf*100;
       break;
-    case "carter-falconer":
+    case MapFunc.Carter_Falconer:
       dist_cM[i] = 12.5*(log(1+2*rf)-log(1-2*rf))+25*atan(2*rf);
     default: break;
     }
@@ -168,10 +170,10 @@ unittest {
   
   auto rec_frac_orig = rec_frac.dup;
 
-  auto result_h = inverseMapFunction(rec_frac, "haldane");
-  auto result_k = inverseMapFunction(rec_frac, "kosambi");
-  auto result_m = inverseMapFunction(rec_frac, "morgan");
-  auto result_cf = inverseMapFunction(rec_frac, "carter-falconer");
+  auto result_h = inverseMapFunction(rec_frac, MapFunc.Haldane);
+  auto result_k = inverseMapFunction(rec_frac, MapFunc.Kosambi);
+  auto result_m = inverseMapFunction(rec_frac, MapFunc.Morgan);
+  auto result_cf = inverseMapFunction(rec_frac, MapFunc.Carter_Falconer);
 
   assert(rec_frac == rec_frac_orig);
 
