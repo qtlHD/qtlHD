@@ -11,6 +11,7 @@ import std.numeric; // contains findRoot()
 enum MapFunc { Haldane, Kosambi, Morgan, Carter_Falconer };
 
 // convert cM distance to recombination fraction
+// Note: one chromosome at a time
 double[] mapFunction(double[] dist_cM, MapFunc which_mapFunction = MapFunc.Haldane)
 in {
   foreach(dist; dist_cM) {
@@ -107,6 +108,7 @@ unittest {
 }
 
 // convert recombination fraction to cM distance
+// Note: one chromosome at a time
 double[] inverseMapFunction(double[] rec_frac, MapFunc which_mapFunction = MapFunc.Haldane)
 in {
   foreach(rf; rec_frac) {

@@ -130,18 +130,46 @@ unittest {
   assert(expanded_recombfs1.length==51,to!string(expanded_recombfs1.length));
   assert(to!string(expanded_recombfs1[0])[0..9]=="0.0098688");
   assert(to!string(expanded_recombfs1[2])=="0.133759");
-  if (false) {
-  // for every chromosome
-    // calc genotype probabilities (using data.genotypes)
-    // here using map.d's Haldane - which should merge with hmm_f2 etc.
-    // auto rec_frac = mapFunction(dist_cM);
-    auto rec_frac = expanded_recombfs1;
-    writeln("rf: ",rec_frac);
-    auto genoprobs = calcGenoprob(data.genotypes, rec_frac, 0.002);
-    GenoProbs gprobs;
-    // Getting ready for scanone
-    auto result = scanone_hk(expanded_ms1,data.phenotypes,data.individuals,gprobs); 
+  // for chromosome 1 (c1, ms1, rfs)
+  // calc genotype probabilities (using data.genotypes)
+  // here using map.d's Haldane - which should merge with hmm_f2 etc.
+  // auto rec_frac = mapFunction(dist_cM);
+  // auto rec_frac = expanded_recombfs1;
+  Marker[] markers_on_chr_4;
+  writeln("    Grab markers");
+  foreach(marker; data.markers) {
+    if(marker.chromosome.name=="4") {
+      markers_on_chr_4 ~= marker;
+    }
   }
+
+  writeln("      - Subset genotype data");
+  Genotype!F2[][] chr_4_genotypes;
+  chr_4_genotypes.reserve(data.genotypes.length);
+  foreach(i; 0..data.genotypes.length) {
+    Genotype!F2[] an_individuals_genotype;
+    an_individuals_genotype.reserve(markers_on_chr_4.length);
+    foreach(j; 0..markers_on_chr_4.length) {
+      an_individuals_genotype ~= data.genotypes[i][markers_on_chr_4[j].id];
+    }
+    chr_4_genotypes ~= an_individuals_genotype;
+  }
+
+  writeln("      - Get recombination fractions");
+  double[] dist_cM;
+  foreach(i; 1..markers_on_chr_4.length) {
+    dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
+  }
+  auto rec_frac = mapFunction(dist_cM, MapFunc.Haldane);
+
+  writeln("      - Run calcGenoprob for F2");
+  auto genoprobs = calcGenoprob(chr_4_genotypes, rec_frac, 0.002);
+
+  // writeln("rf: ",rfs);
+  // auto genoprobs = calcGenoprob(data.genotypes, rfs, 0.002);
+  // GenoProbs gprobs;
+  // Getting ready for scanone
+  // auto result = scanone_hk(data.individuals,data.phenotypes,markers_on_chr_4,genoprobs); 
   /*
 We are going to scan for QTL's. The first R equivalent here is:
 
