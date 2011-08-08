@@ -281,7 +281,7 @@ private double [] matmult(in double a[], int nrowa, int ncola, in double b[], in
  *
  **********************************************************************/
 
-double[] scanone_hk(Ms,Ps,Is)(in Ms markers, in Ps phenotypes, in Is individuals, in GenoProbs genoprob) 
+double[] scanone_hk(Is,Ps,Ms)(in Is individuals, in Ps phenotypes, in Ms markers, in GenoProbs genoprob) 
 {
   // inputs
   message("Starting scanone_HK");
