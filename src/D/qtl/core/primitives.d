@@ -156,6 +156,24 @@ struct Genotype(T) {
   }
 }
 
+/**
+ * GenoProb keeps track of genotype probabilities
+ */
+
+struct GenoProb {
+  double value;
+  /// String representation of genotype probability.
+  string toString(){
+    if(to!int(value) != GENOTYPE_NA){
+      return to!string(value);
+    }else{
+      return "-";
+    }
+  }
+}
+
+alias GenoProb[][][] GenoProbs;  // = new double[][][](n_gen,n_pos,n_ind);
+
 immutable PHENOTYPE_NA = double.max; // FIXME: needs to be typed to T
 
 /**
