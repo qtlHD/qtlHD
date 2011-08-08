@@ -84,6 +84,7 @@ exe_list.each do | fn, attr |
       sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
     end
     if debug
+      print "RUNNING the debugger, to continue the test, type 'run'\n"
       sh 'gdb '+fn
     else
       sh './'+fn

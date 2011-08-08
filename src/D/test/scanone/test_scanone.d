@@ -20,6 +20,10 @@ import std.path;
 import std.algorithm;
 alias std.algorithm.find find;
 
+
+import qtl.core.map_functions;
+import qtl.core.hmm_f2;
+
 // The comments are based on the Ruby/Biolib-R/qtl integration
 
 static bool VERBOSE = false;
@@ -121,14 +125,23 @@ unittest {
  
   // test rfs after expansion
   auto msin1 = new Markers!Marker(ms1);
-  auto expms1 = add_stepped_markers_autosome(msin1,2.5,0);
-  auto exprfs1 = recombination_fractions(expms1.list);
-  assert(exprfs1.length==51,to!string(exprfs1.length));
-  assert(to!string(rfs[0])[0..9]=="0.0098688");
-  assert(to!string(rfs[2])=="0.133759");
-  // Getting ready for scanone
-  auto result = scanone_hk(expms1,data.phenotypes,data.individuals,data.genotypes); 
-
+  auto expanded_ms1 = add_stepped_markers_autosome(msin1,2.5,0);
+  auto expanded_recombfs1 = recombination_fractions(expanded_ms1.list);
+  assert(expanded_recombfs1.length==51,to!string(expanded_recombfs1.length));
+  assert(to!string(expanded_recombfs1[0])[0..9]=="0.0098688");
+  assert(to!string(expanded_recombfs1[2])=="0.133759");
+  if (false) {
+  // for every chromosome
+    // calc genotype probabilities (using data.genotypes)
+    // here using map.d's Haldane - which should merge with hmm_f2 etc.
+    // auto rec_frac = mapFunction(dist_cM);
+    auto rec_frac = expanded_recombfs1;
+    writeln("rf: ",rec_frac);
+    auto genoprobs = calcGenoprob(data.genotypes, rec_frac, 0.002);
+    GenoProbs gprobs;
+    // Getting ready for scanone
+    auto result = scanone_hk(expanded_ms1,data.phenotypes,data.individuals,gprobs); 
+  }
   /*
 We are going to scan for QTL's. The first R equivalent here is:
 
