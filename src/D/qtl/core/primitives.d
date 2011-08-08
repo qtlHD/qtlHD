@@ -157,6 +157,16 @@ struct Genotype(T) {
 }
 
 /**
+ * GenoTypeMatrix holds markers (cols) against individual's genotype (rows)
+ */
+
+mixin template RealizeGenotypeMatrix(T)
+{
+  alias Genotype!T[][] GenotypeMatrix; // = new double[][][](n_markers,n_ind);
+}
+
+
+/**
  * GenoProb keeps track of genotype probabilities
  */
 
@@ -172,7 +182,12 @@ struct GenoProb {
   }
 }
 
-alias GenoProb[][][] GenoProbs;  // = new double[][][](n_gen,n_pos,n_ind);
+/**
+ * GenoProbs is a three dimensional array holding markers (x-axis),
+ * individuals (y-axis) and genotypes (z-axis)
+ */
+
+alias GenoProb[][][] GenoProbs;  // = new double[][][](n_gen,n_ind,n_markers);
 
 immutable PHENOTYPE_NA = double.max; // FIXME: needs to be typed to T
 
@@ -196,6 +211,16 @@ struct Phenotype(T) {
     }
   }
 }
+
+/**
+ * PhenotypeMatrix holds phenotypes (cols) against individuals (rows)
+ */
+
+mixin template RealizePhenotypeMatrix(T)
+{
+  alias Phenotype!T[][] PhenotypeMatrix; // = new double[][][](n_ind,n_phe);
+}
+
 
 /**
  * Covariate representation
