@@ -17,3 +17,5 @@ Phenotype!T set_phenotype(T)(in string s) {
     p.value = to!T(s);
   return p;
 }
+
+
