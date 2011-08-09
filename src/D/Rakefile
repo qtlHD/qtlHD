@@ -82,7 +82,7 @@ exe_list.each do | fn, attr |
     if windows?
       sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} #{lib_dfiles.join(' ')} test/main.d"      
     else
-      sh "dmd -Xftags.json #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
+      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
     end
     if debug
       print "RUNNING the debugger, to continue the test, type 'run'\n"

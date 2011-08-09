@@ -7,6 +7,9 @@ module qtl.core.hmm_util;
 import std.stdio;
 import std.math;
 
+import qtl.core.map_functions;
+import qtl.core.hmm_f2;
+
 // Calculate addlog(a,b) = log[exp(a) + exp(b)]
 double addlog(double a, double b)
 {
@@ -41,7 +44,7 @@ mixin template forwardEquationsCode(GT, PKGT)
   {
     int n_markers = genotypes.length;
 
-    double[][] alpha = new double[][](n_markers,all_true_geno.length);
+    auto alpha = new double[][](all_true_geno.length,n_markers);
 
     // initialize alphas
     foreach(true_geno; all_true_geno) {
@@ -50,7 +53,7 @@ mixin template forwardEquationsCode(GT, PKGT)
 
     foreach(pos; 1 .. n_markers) {
       foreach(true_geno_right; all_true_geno) {
-
+ 
        alpha[true_geno_right][pos] = alpha[all_true_geno[0]][pos-1] + 
          step(all_true_geno[0], true_geno_right, rec_frac[pos-1]);
 
@@ -76,7 +79,7 @@ mixin template backwardEquationsCode(GT, PKGT)
   {
     int n_markers = genotypes.length;
 
-    double[][] beta = new double[][](n_markers,all_true_geno.length);
+    auto beta = new double[][](all_true_geno.length,n_markers);
 
     // initialize beta
     foreach(true_geno; all_true_geno) {
