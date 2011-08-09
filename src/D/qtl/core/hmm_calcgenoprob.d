@@ -10,7 +10,7 @@ import std.conv;
 // calculate QTL genotype probabilities
 mixin template calcGenoprobCode(T)
 {
-  double[T][int][int] calcGenoprob(Genotype!T[][] genotypes, double[] rec_frac, double error_prob)
+  double[T][int][int] calc_geno_prob(Genotype!T[][] genotypes, double[] rec_frac, double error_prob)
   {
     if(genotypes[0].length != rec_frac.length+1) {
       // throw new Exception("no. markers in genotypes " ~ to!string(genotypes[0].length) ~ "doesn't match rec_frac length" ~ to!string(rec_frac.length+1));

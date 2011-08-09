@@ -191,7 +191,7 @@ unittest {
 
 
   writeln("      - Run calcGenoprob for BC");
-  auto genoprobs = calcGenoprob(chr_5_genotypes, rec_frac, 0.002);
+  auto genoprobs = calc_geno_prob(chr_5_genotypes, rec_frac, 0.002);
 
   writeln("      - Compare results to R/qtl");
   double[BC][int] genoprobs_from_rqtl;

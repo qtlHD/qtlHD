@@ -494,7 +494,7 @@ unittest {
   auto rec_frac = mapFunction(dist_cM, MapFunc.Haldane);
 
   writeln("      - Run calcGenoprob for F2");
-  auto genoprobs = calcGenoprob(chr_4_genotypes, rec_frac, 0.002);
+  auto genoprobs = calc_geno_prob(chr_4_genotypes, rec_frac, 0.002);
 
   writeln("      - Compare results to R/qtl");
   double[F2][int] genoprobs_from_rqtl;
