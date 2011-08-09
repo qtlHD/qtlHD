@@ -28,8 +28,9 @@ mixin template estmapCode(GT, PKGT)
     auto all_true_geno = allTrueGenoPK(genotypes[0][0].value);
 
     auto cur_rec_frac = rec_frac.dup; 
-    double[int][PKGT] alpha, beta;
-    double[PKGT][PKGT] gamma;
+    double[][] alpha = new double[][](all_true_geno.length,n_markers);
+    double[][] beta = new double[][](all_true_geno.length,n_markers);
+    double[][] gamma = new double[][](all_true_geno.length,n_markers);
     double sum_gamma;
     foreach(it; 0..max_iterations) {
       foreach(ref rf; cur_rec_frac) {
