@@ -37,6 +37,7 @@ lib_dfiles = Dir.glob("./qtl/core/libs/*.d")
 io_dfiles = Dir.glob("./qtl/plugins/input/*.d")
 xgap_dfiles = Dir.glob("./qtl/core/xgap/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
+all_dfiles = core_dfiles + lib_dfiles + io_dfiles 
 
 
 def windows?
@@ -81,7 +82,7 @@ exe_list.each do | fn, attr |
     if windows?
       sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} #{lib_dfiles.join(' ')} test/main.d"      
     else
-      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
+      sh "dmd -Xftags.json #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
     end
     if debug
       print "RUNNING the debugger, to continue the test, type 'run'\n"
@@ -103,6 +104,14 @@ task :default => [:build, :test]
 
 desc "Build default binaries"
 task :build => TESTS
+
+desc "Create tags (exurberant tags)"
+task :tags => [] do
+  print "Creating tags!"
+  list = all_dfiles 
+  sh "dmd -c -Xftags.json #{list.join(' ')} test/main.d"
+  sh "rdmd ../../scripts/d2tags . > tags"
+end
 
 desc "Run #{PROG}"
 task :run => [PROG] do

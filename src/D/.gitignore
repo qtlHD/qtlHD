@@ -5,6 +5,8 @@ write_xgapbin
 read_xgapbin
 test_scanone
 test_scanone_listeria
+tags.json
+tags
 *.c
 *.cpp
 *.h

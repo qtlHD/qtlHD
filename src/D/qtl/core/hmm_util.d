@@ -33,9 +33,6 @@ unittest {
   assert(addlog(a-300,a) == a);
 }
 
-
-
-
 // forward Equations
 mixin template forwardEquationsCode(GT, PKGT) 
 {
