@@ -7,6 +7,7 @@ module qtl.core.map_functions;
 import std.stdio;
 import std.math;
 import std.numeric; // contains findRoot()
+import std.conv;
 
 enum MapFunc { Haldane, Kosambi, Morgan, Carter_Falconer };
 
@@ -15,7 +16,7 @@ enum MapFunc { Haldane, Kosambi, Morgan, Carter_Falconer };
 double[] mapFunction(double[] dist_cM, MapFunc which_mapFunction = MapFunc.Haldane)
 in {
   foreach(dist; dist_cM) {
-    assert(dist >= 0, "dist_cM must be >= 0");
+    assert(dist >= 0, "dist_cM must be >= 0, was " ~ to!string(dist));
   }
 }
 body {

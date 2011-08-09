@@ -121,8 +121,7 @@ unittest {
 
 
 // transition probabilities 
-double step(F2 true_gen_left, F2 true_gen_right, 
-	    double rec_frac) 
+double step(in F2 true_gen_left, in F2 true_gen_right, in double rec_frac) 
 {
   if(true_gen_right != F2.A && true_gen_right != F2.H &&
      true_gen_right != F2.B) 
@@ -487,7 +486,7 @@ unittest {
   }
 
   writeln("      - Get recombination fractions");
-  double[] dist_cM = new double[](markers_on_chr_4.length);
+  double[] dist_cM;
   foreach(i; 1..markers_on_chr_4.length) {
     dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
   }
@@ -594,7 +593,7 @@ unittest {
   }
 
   writeln("      - Get recombination fractions");
-  double[] dist_cM = new double[](markers_on_chr_4.length);
+  double[] dist_cM;
   foreach(i; 1..markers_on_chr_4.length) {
     dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
   }

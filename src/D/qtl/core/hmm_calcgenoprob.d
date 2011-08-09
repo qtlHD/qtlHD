@@ -29,9 +29,9 @@ mixin template calcGenoprobCode(T)
     int n_markers = genotypes[0].length;
     auto all_true_geno = allTrueGeno(genotypes[0][0].value);
 
-    double[][] alpha = new double[][](n_markers,all_true_geno.length);
-    double[][] beta = new double[][](n_markers,all_true_geno.length);
-    double[][][] genoprobs = new double[][][](all_true_geno.length,n_markers,n_individuals);
+    auto alpha = new double[][](all_true_geno.length,n_markers);
+    auto beta = new double[][](all_true_geno.length,n_markers);
+    auto genoprobs = new double[][][](n_individuals,n_markers,all_true_geno.length);
 
     foreach(ind; 0..n_individuals) {
       alpha = forwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
