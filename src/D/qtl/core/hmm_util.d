@@ -8,7 +8,9 @@ import std.stdio;
 import std.math;
 
 import qtl.core.map_functions;
+import qtl.core.primitives;
 import qtl.core.hmm_f2;
+import qtl.core.hmm_bc;
 
 // Calculate addlog(a,b) = log[exp(a) + exp(b)]
 double addlog(double a, double b)
@@ -37,10 +39,8 @@ unittest {
 }
 
 // forward Equations
-mixin template forwardEquationsCode(GT, PKGT) 
-{
-  double[][] forwardEquations(Genotype!GT[] genotypes, PKGT[] all_true_geno, 
-                                 double[] rec_frac, double error_prob) 
+  double[][] forwardEquations(GT,PKGT)(in Genotype!GT[] genotypes, in PKGT[] all_true_geno, 
+                                 in double[] rec_frac, in double error_prob) 
   {
     int n_markers = genotypes.length;
 
@@ -67,15 +67,12 @@ mixin template forwardEquationsCode(GT, PKGT)
     }
     return alpha;
   }
-}
 
 
 
 // backward Equations 
-mixin template backwardEquationsCode(GT, PKGT)
-{
-  double[][] backwardEquations(Genotype!GT[] genotypes, PKGT[] all_true_geno, 
-                                  double[] rec_frac, double error_prob) 
+  double[][] backwardEquations(GT,PKGT)(in Genotype!GT[] genotypes, in PKGT[] all_true_geno, 
+                                  in double[] rec_frac, in double error_prob) 
   {
     int n_markers = genotypes.length;
 
@@ -104,4 +101,3 @@ mixin template backwardEquationsCode(GT, PKGT)
 
     return beta;
   }
-}

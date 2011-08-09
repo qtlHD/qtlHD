@@ -456,7 +456,7 @@ unittest {
 
 
 // calcGenoprob for F2
-mixin calcGenoprobCode!F2;
+// mixin calcGenoprobCode!F2;
 
 unittest {
   writeln("    unit test calcGenoprob for F2:");
@@ -620,8 +620,8 @@ unittest {
 
 
 // forward and backward equations
-mixin forwardEquationsCode!(F2, F2);
-mixin backwardEquationsCode!(F2, F2);
+// mixin forwardEquationsCode!(F2, F2);
+// mixin backwardEquationsCode!(F2, F2);
 
-mixin forwardEquationsCode!(F2, F2pk);
-mixin backwardEquationsCode!(F2, F2pk);
+// mixin forwardEquationsCode!(F2, F2pk);
+// mixin backwardEquationsCode!(F2, F2pk);

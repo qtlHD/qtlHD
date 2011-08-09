@@ -4,9 +4,9 @@
 
 module qtl.core.genotype;
 
-import qtl.core.primitives;
 import std.conv;
 import std.stdio;
+import qtl.core.primitives;
 
 enum RIL { NA = GENOTYPE_NA, A, B };
 enum F2  { NA = GENOTYPE_NA, A, H, B, HorB, HorA }; 
