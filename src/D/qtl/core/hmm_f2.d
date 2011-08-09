@@ -487,7 +487,7 @@ unittest {
   }
 
   writeln("      - Get recombination fractions");
-  double[] dist_cM;
+  double[] dist_cM = new double[](markers_on_chr_4.length);
   foreach(i; 1..markers_on_chr_4.length) {
     dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
   }
@@ -594,7 +594,7 @@ unittest {
   }
 
   writeln("      - Get recombination fractions");
-  double[] dist_cM;
+  double[] dist_cM = new double[](markers_on_chr_4.length);
   foreach(i; 1..markers_on_chr_4.length) {
     dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
   }
