@@ -31,12 +31,20 @@ version (Windows) {
   extern(C){
     double function(double, double, double, int) dnorm;
     double function(double, double, double, int, int) qf;
+    void function(unsigned int, unsigned int) set_seed;
+    void function(unsigned int*, unsigned int*) get_seed;
   }
+  
+  //Karl wants to bind:
+  //norm_rand; set_seed
+  //unif_rand; get_seed
   
   static this(){
     HXModule lib = load_library("R");
     load_function(dnorm)(lib,"Rf_dnorm4");
     load_function(qf)(lib,"Rf_qf");
+    load_function(set_seed)(lib,"Rf_set_seed");
+    load_function(get_seed)(lib,"Rf_get_seed");
     writeln("Loaded R functionality");
   }
   
