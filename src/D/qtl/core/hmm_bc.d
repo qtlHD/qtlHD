@@ -142,7 +142,7 @@ unittest {
 
 
 // calcGenoprob for BC
-mixin calcGenoprobCode!BC;
+// mixin calcGenoprobCode!BC;
 
 unittest {
   writeln("    unit test calcGenoprob for BC:");
@@ -380,5 +380,5 @@ unittest {
 
 
 // forward and backward equations
-mixin forwardEquationsCode!(BC, BC);
-mixin backwardEquationsCode!(BC, BC);
+//mixin forwardEquationsCode!(BC, BC);
+//mixin backwardEquationsCode!(BC, BC);
