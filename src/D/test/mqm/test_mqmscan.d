@@ -69,4 +69,32 @@ unittest{
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","hyper_noX.csv");
   if(VERBOSE) writeln("  - reading CSV " ~ fn);
+  auto indata = new ReadSimpleCSV!F2(fn);
+  char** markers;
+  int nind;
+  int nmark;
+  int augmentednind;
+  int* INDlist;
+  int* chr;
+  int* f1genotype;
+  double* mapdistance;
+  char crosstype = 'F';
+  char* cofactors;
+  int verbose = 1;
+  int backwards = 0;
+  double neglect_unlikely = 0.001;
+  int max_totalaugment = 10000;
+  int max_indaugment = 100;
+  double** pheno_value;
+  double** QTL; //stores the result
+  double windowsize = 20.0;
+  double stepsize = 1.0;
+  double stepmin = 0.0;
+  double stepmax = 200.0;
+  double alpha = 0.05;
+  int maxiter = 10000;
+  char estmap = 'N';
+  int phenotype = 0;
+  //mqmaugmentfull(&markers,&nind,&augmentednind,&INDlist,neglect_unlikely, max_totalaugment, max_indaugment,&pheno_value,nmark,chr,mapdistance,1,crosstype,verbose);
+  //double logL = analyseF2(augmentednind, &nmark, &cofactors, markers, pheno_value[phenotype], f1genotype, backwards,QTL, &mapdistance,&chr,0,0,windowsize, stepsize,stepmin,stepmax,alpha,maxiter,nind,&INDlist,estmap,crosstype,false,verbose);
 }
