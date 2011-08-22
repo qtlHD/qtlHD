@@ -94,7 +94,7 @@ void reorg_int(int n_ind, int n_mar, int *pheno, int ***Pheno) {
  * Returns logL
  */
 
-double analyseF2(int Nind, int *nummark, cvector *cofactor, MQMMarkerMatrix marker,
+extern "C" EXPORT double analyseF2(int Nind, int *nummark, cvector *cofactor, MQMMarkerMatrix marker,
                vector y, ivector f1genotype, int Backwards, double **QTL,vector
                *mapdistance, int **Chromo, int Nrun, int RMLorML, double
                windowsize, double stepsize, double stepmin, double stepmax,

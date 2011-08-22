@@ -29,12 +29,21 @@
 #ifndef __STANDALONE_HPP
 #define __STANDALONE_HPP
 
-// #define STANDALONE - should be defined in the build system
+#define STANDALONE //- should be defined in the build system
+#define ENABLE_C99_MACROS //- should be defined in the build system
 
 #ifdef STANDALONE
 #undef Rprintf
 #define Rprintf(args...) printf(args)
 #endif
 
+
+#ifdef BUILD_DLL
+/* DLL export */
+#define EXPORT __declspec(dllexport)
+#else
+/* EXE import */
+#define EXPORT __declspec(dllimport)
+#endif
 
 #endif // __STANDALONE_HPP
