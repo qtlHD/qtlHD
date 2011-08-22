@@ -31,8 +31,8 @@ version (Windows) {
   extern(C){
     double function(double, double, double, int) dnorm;
     double function(double, double, double, int, int) qf;
-    void function(unsigned int, unsigned int) set_seed;
-    void function(unsigned int*, unsigned int*) get_seed;
+    void function(uint, uint) set_seed;
+    void function(uint*, uint*) get_seed;
   }
   
   //Karl wants to bind:
