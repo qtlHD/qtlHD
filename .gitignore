@@ -21,6 +21,7 @@
 *.tmp
 *.map
 *.obj
+*.dll
 *.o
 *.so
 *.doc
