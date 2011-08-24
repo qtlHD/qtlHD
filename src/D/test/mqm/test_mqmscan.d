@@ -101,6 +101,6 @@ unittest{
   char estmap = 'N';
   int phenotype = 0;
   writeln("  - SETUP DONE");
-  //mqmaugmentfull(&markers,&nind,&augmentednind,&INDlist,neglect_unlikely, max_totalaugment, max_indaugment,&pheno_value,nmark,chr,mapdistance,1,crosstype,verbose);
+  mqmaugmentfull(&markers,&nind,&augmentednind,&INDlist,neglect_unlikely, max_totalaugment, max_indaugment,&pheno_value,nmark,chr,mapdistance,1,crosstype,verbose);
   double logL = analyseF2(augmentednind, &nmark, &cofactors, markers, pheno_value[phenotype], f1genotype, backwards,QTL, &mapdistance,&chr,0,0,windowsize, stepsize,stepmin,stepmax,alpha,maxiter,nind,&INDlist,estmap,crosstype,false,verbose);
 }
