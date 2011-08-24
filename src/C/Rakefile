@@ -47,7 +47,7 @@ namespace :libraries do
   desc "The library with mqm functionality"
   task "mqm" do
     sh "gcc -c -DBUILD_DLL #{mqm_files} -I\"C:/Progra~1/R/R-2.12.1/include\" -L\"C:/Progra~1/R/R-2.12.1/bin/i386\" -lR"
-    sh "gcc -shared -o mqm.dll #{obj_files} -I\"C:/Progra~1/R/R-2.12.1/include\" -L\"C:/Progra~1/R/R-2.12.1/bin/i386\" -lR --out-implib"
+    sh "gcc -shared -o mqm.dll #{obj_files} -I\"C:/Progra~1/R/R-2.12.1/include\" -L\"C:/Progra~1/R/R-2.12.1/bin/i386\" -lR -lstdc++ --out-implib"
     sh "del *.o"
     sh "copy mqm.dll ..\\D\\"
   end

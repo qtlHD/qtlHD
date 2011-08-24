@@ -64,28 +64,48 @@ version (Windows) {
   }
 }
 
+pure int[] doRange(int start,int length){
+  int array[];
+  for(int i = 0; i < (length-1); i++){
+   array ~= start+i;
+  }
+  return array;
+}
+
+pure T[] doArray(T)(int length,T value){
+  T array[];
+  for(int i = 0; i < (length-1); i++){
+   array ~= value;
+  }
+  return array;
+}
+
 unittest{
   writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","hyper_noX.csv");
   if(VERBOSE) writeln("  - reading CSV " ~ fn);
   auto indata = new ReadSimpleCSV!F2(fn);
-  char** markers;
-  int nind;
-  int nmark;
-  int augmentednind;
-  int* INDlist;
-  int* chr;
-  int* f1genotype;
-  double* mapdistance;
+  char** markers = indata.getGenotypesForMQM();
+  writeln("  - GENO DONE !!!");
+  int nind = indata.genotypes.length;
+  int nmark = indata.markers.length;
+  int augmentednind = indata.genotypes.length;
+  int* INDlist = doRange(0,nind).ptr;
+  int* chr = indata.getChromosomesForMQM();
+  writeln("  - CHR DONE !!!");
+  int* f1genotype = doRange(0,nind).ptr;
+  double* mapdistance = indata.getDistancesForMQM();
   char crosstype = 'F';
-  char* cofactors;
+  char* cofactors = doArray!char(nmark,'0').ptr;
+  writeln("  - COF DONE !!!");
   int verbose = 1;
   int backwards = 0;
   double neglect_unlikely = 0.001;
   int max_totalaugment = 10000;
   int max_indaugment = 100;
-  double** pheno_value;
+  double** pheno_value = indata.getPhenotypesForMQM();
+  writeln("  - PHENO DONE !!!");
   double** QTL; //stores the result
   double windowsize = 20.0;
   double stepsize = 1.0;
@@ -95,6 +115,6 @@ unittest{
   int maxiter = 10000;
   char estmap = 'N';
   int phenotype = 0;
-  //mqmaugmentfull(&markers,&nind,&augmentednind,&INDlist,neglect_unlikely, max_totalaugment, max_indaugment,&pheno_value,nmark,chr,mapdistance,1,crosstype,verbose);
-  //double logL = analyseF2(augmentednind, &nmark, &cofactors, markers, pheno_value[phenotype], f1genotype, backwards,QTL, &mapdistance,&chr,0,0,windowsize, stepsize,stepmin,stepmax,alpha,maxiter,nind,&INDlist,estmap,crosstype,false,verbose);
+  mqmaugmentfull(&markers,&nind,&augmentednind,&INDlist,neglect_unlikely, max_totalaugment, max_indaugment,&pheno_value,nmark,chr,mapdistance,1,crosstype,verbose);
+  double logL = analyseF2(augmentednind, &nmark, &cofactors, markers, pheno_value[phenotype], f1genotype, backwards,QTL, &mapdistance,&chr,0,0,windowsize, stepsize,stepmin,stepmax,alpha,maxiter,nind,&INDlist,estmap,crosstype,false,verbose);
 }
