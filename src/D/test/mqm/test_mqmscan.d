@@ -10,6 +10,7 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.marker;
 import qtl.core.map;
+import qtl.core.matrices;
 import qtl.core.make_map;
 import qtl.plugins.input.read_csv;
 import qtl.core.scanone_hk;
@@ -64,22 +65,6 @@ version (Windows) {
   }
 }
 
-pure int[] doRange(int start,int length){
-  int array[];
-  for(int i = 0; i < (length-1); i++){
-   array ~= start+i;
-  }
-  return array;
-}
-
-pure T[] doArray(T)(int length,T value){
-  T array[];
-  for(int i = 0; i < (length-1); i++){
-   array ~= value;
-  }
-  return array;
-}
-
 unittest{
   writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
@@ -101,9 +86,9 @@ unittest{
   writeln("  - COF DONE !!!");
   int verbose = 1;
   int backwards = 0;
-  double neglect_unlikely = 0.001;
-  int max_totalaugment = 10000;
-  int max_indaugment = 100;
+  double neglect_unlikely = 1;
+  int max_totalaugment = 10;
+  int max_indaugment = 1;
   double** pheno_value = indata.getPhenotypesForMQM();
   writeln("  - PHENO DONE !!!");
   double** QTL; //stores the result
@@ -115,6 +100,7 @@ unittest{
   int maxiter = 10000;
   char estmap = 'N';
   int phenotype = 0;
+  writeln("  - SETUP DONE");
   mqmaugmentfull(&markers,&nind,&augmentednind,&INDlist,neglect_unlikely, max_totalaugment, max_indaugment,&pheno_value,nmark,chr,mapdistance,1,crosstype,verbose);
-  double logL = analyseF2(augmentednind, &nmark, &cofactors, markers, pheno_value[phenotype], f1genotype, backwards,QTL, &mapdistance,&chr,0,0,windowsize, stepsize,stepmin,stepmax,alpha,maxiter,nind,&INDlist,estmap,crosstype,false,verbose);
+  //double logL = analyseF2(augmentednind, &nmark, &cofactors, markers, pheno_value[phenotype], f1genotype, backwards,QTL, &mapdistance,&chr,0,0,windowsize, stepsize,stepmin,stepmax,alpha,maxiter,nind,&INDlist,estmap,crosstype,false,verbose);
 }

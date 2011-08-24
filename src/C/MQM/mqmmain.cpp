@@ -40,7 +40,7 @@
 using namespace std;
 
 FILE *redirect_info = stdout;
-int debuglevel = 0;
+int debuglevel = 1;
 
 bool checkfileexists(const char *filename) {
   ifstream myfile;

@@ -27,7 +27,6 @@ CLEAN.include("*.dll")
 CLEAN.include("*.a")
 
 mqm_files = (Dir.glob("MQM/*.cpp") + Dir.glob("MQM/*.c")).join(' ')
-obj_files = (Dir.glob("*.o")).join(' ')
 
 directory builddir
 
@@ -46,9 +45,7 @@ namespace :libraries do
   
   desc "The library with mqm functionality"
   task "mqm" do
-    sh "gcc -c -DBUILD_DLL #{mqm_files} -I\"C:/Progra~1/R/R-2.12.1/include\" -L\"C:/Progra~1/R/R-2.12.1/bin/i386\" -lR"
-    sh "gcc -shared -o mqm.dll #{obj_files} -I\"C:/Progra~1/R/R-2.12.1/include\" -L\"C:/Progra~1/R/R-2.12.1/bin/i386\" -lR -lstdc++ --out-implib"
-    sh "del *.o"
+    sh "gcc -shared -o mqm.dll -DBUILD_DLL #{mqm_files} -I\"C:/Progra~1/R/R-2.12.1/include\" -L\"C:/Progra~1/R/R-2.12.1/bin/i386\" -lR -lstdc++"
     sh "copy mqm.dll ..\\D\\"
   end
 end
