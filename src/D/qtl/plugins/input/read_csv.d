@@ -40,7 +40,7 @@ class ReadSimpleCSV(XType) {
   size_t n_phenotypes;
   
   double** getPhenotypesForMQM(){
-    double** pheno = newmatrix!double(individuals.length, n_phenotypes);
+    double** pheno = newmatrix!double(n_phenotypes,individuals.length);
     for(int p=0;p<n_phenotypes;p++){
       for(int i=0;i<individuals.length;i++){
         //writefln("%d %d %f",p,i,phenotypes[i][p].value);
@@ -51,11 +51,11 @@ class ReadSimpleCSV(XType) {
   }
   
   char** getGenotypesForMQM(){
-    char** geno = newmatrix!char(individuals.length, n_phenotypes);
-    for(int i=0;i<individuals.length;i++){
-      for(int p=0;p<genotypes[i].length;p++){
-        //writefln("%d %d %s",p,i,to!char(genotypes[i][p].toString()[0]));
-        geno[i][p] = to!char(genotypes[i][p].toString()[0]);
+    char** geno = newmatrix!char(markers.length,individuals.length);
+    for(int m=0;m<markers.length;m++){
+      for(int i=0;i<individuals.length;i++){
+        //writefln("%d %d %f",m,i,genotypes[i][m].value);
+        geno[m][i] = 'A';
       }
     }
     return geno;
