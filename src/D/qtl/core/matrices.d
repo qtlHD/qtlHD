@@ -1,6 +1,7 @@
 module qtl.core.matrices;
 
-import core.memory;
+//import core.memory;
+import std.c.stdlib;
 import std.stdio;
 import std.conv;
 
@@ -31,7 +32,7 @@ pure T[] doArray(T)(int length,T value){
  */
 T** newmatrix(T)(int rows, int cols) {
   T** m;
-  m = cast(T**)GC.calloc(rows, int.sizeof);
+  m = cast(T**)calloc(rows, (T*).sizeof);
   if(m is null){
     writeln("Not enough memory for new matrix");
   }
@@ -57,7 +58,7 @@ void printmatrix(T)(T** m, int rows, int cols) {
  */
 T* newvector(T)(int dim) {
   T* v;
-  v = cast(T*)GC.calloc(dim, int.sizeof);
+  v = cast(T*)calloc(dim, T.sizeof);
   if(v is null){
     writeln("Not enough memory for new vector of dimension %d",(dim+1));
   }
