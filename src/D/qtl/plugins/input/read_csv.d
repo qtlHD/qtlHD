@@ -6,8 +6,11 @@
 
 module qtl.plugins.input.read_csv;
 
+import core.memory;
+
 import qtl.core.primitives;
 import qtl.core.chromosome;
+import qtl.core.matrices;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 
@@ -25,7 +28,7 @@ import std.path;
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
-
+ 
 class ReadSimpleCSV(XType) {
   private File f;
   string[] phenotypenames;
@@ -34,6 +37,45 @@ class ReadSimpleCSV(XType) {
   Chromosome[string] chromosomes;
   Phenotype!double[][] phenotypes;
   Genotype!XType[][] genotypes;
+  size_t n_phenotypes;
+  
+  double** getPhenotypesForMQM(){
+    double** pheno = newmatrix!double(n_phenotypes,individuals.length);
+    for(int p=0;p<n_phenotypes;p++){
+      for(int i=0;i<individuals.length;i++){
+        //writefln("%d %d %f",p,i,phenotypes[i][p].value);
+        pheno[p][i] = phenotypes[i][p].value;
+      }
+    }
+    return pheno;
+  }
+  
+  char** getGenotypesForMQM(){
+    char** geno = newmatrix!char(markers.length,individuals.length);
+    for(int m=0;m<markers.length;m++){
+      for(int i=0;i<individuals.length;i++){
+        //writefln("%d %d %f",m,i,genotypes[i][m].value);
+        geno[m][i] = 'A';
+      }
+    }
+    return geno;
+  }
+  
+  int* getChromosomesForMQM(){
+    int* chromo = newvector!int(markers.length);
+    for(int i=0;i<markers.length;i++){
+      chromo[i] = markers[i].chromosome.id;
+    }
+    return chromo;
+  }
+  
+  double* getDistancesForMQM(){
+    double* dist = newvector!double(markers.length);
+    for(int i=0;i<markers.length;i++){
+      dist[i] = markers[i].position;
+    }
+    return dist;
+  }
 
   this(in string fn) {
     f = File(fn,"r");
@@ -49,7 +91,7 @@ class ReadSimpleCSV(XType) {
     if (cnames.length != n_columns) throw new Exception("# Chromosomes out of range");
 
     // find first non-blank (indicating last phenotype columns)
-    size_t n_phenotypes;
+    
     foreach (i, cname; cnames)
     {
       if(cname != "") {

@@ -39,13 +39,12 @@ void reorg_int(int n_ind, int n_mar, int *pheno, int ***Pheno);
 
 /* analyseF2 - analyse one F2/BC/RIL family */
 
-double analyseF2(int Nind, int *Nmark, cvector *cofactor, MQMMarkerMatrix marker, 
+extern "C" EXPORT double analyseF2(int Nind, int *Nmark, cvector *cofactor, MQMMarkerMatrix marker, 
                vector y, ivector f1genotype, int Backwards, double **QTL,vector
                *mapdistance,int **Chromo,int Nrun,int RMLorML, double
                windowsize,double stepsize, double stepmin,double stepmax,double
                alfa,int em,int out_Naug,int **INDlist,char reestimate, MQMCrossType
                crosstype,bool dominance,int verbose);
-      
 //R calling interface
 void R_mqmscan(int *Nind,int *Nmark,int *Npheno,
                int *geno,int *chromo, double *dist, double *pheno,
