@@ -490,7 +490,7 @@ unittest {
   foreach(i; 1..markers_on_chr_4.length) {
     dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
   }
-  auto rec_frac = mapFunction(dist_cM, MapFunc.Haldane);
+  auto rec_frac = dist_to_recfrac(dist_cM, GeneticMapFunc.Haldane);
 
   writeln("      - Run calcGenoprob for F2");
   auto genoprobs = calc_geno_prob(chr_4_genotypes, rec_frac, 0.002);
@@ -597,7 +597,7 @@ unittest {
   foreach(i; 1..markers_on_chr_4.length) {
     dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
   }
-  auto rec_frac = mapFunction(dist_cM, MapFunc.Kosambi);
+  auto rec_frac = dist_to_recfrac(dist_cM, GeneticMapFunc.Kosambi);
 
   auto rec_frac_rqtl = [0.18274786564786985044,
 			0.15620001633845906341,
