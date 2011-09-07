@@ -562,7 +562,7 @@ unittest {
 
 
 // estmap
-mixin estmapCode!(F2, F2pk);
+// mixin estmapCode!(F2, F2pk);
 
 unittest {
   writeln("Unit test " ~ __FILE__);

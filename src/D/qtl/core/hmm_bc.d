@@ -309,7 +309,7 @@ unittest {
 
 
 // estmap for BC
-mixin estmapCode!(BC, BC);
+// mixin estmapCode!(BC, BC);
 
 unittest {
   writeln("    unit test estmapBC:");
