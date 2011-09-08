@@ -22,7 +22,7 @@ import std.path;
  */
 class CSVrReader(XType) {
   private File f;
-  int nindividuals = 0;
+  size_t nindividuals = 0;
   int nphenotypes = 0;
   int nmarkers = 0;
   

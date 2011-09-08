@@ -42,7 +42,7 @@ unittest {
   double[][] forwardEquations(GT,PKGT)(in Genotype!GT[] genotypes, in PKGT[] all_true_geno, 
                                  in double[] rec_frac, in double error_prob) 
   {
-    int n_markers = genotypes.length;
+    size_t n_markers = genotypes.length;
 
     auto alpha = new double[][](all_true_geno.length,n_markers);
 
@@ -74,7 +74,7 @@ unittest {
   double[][] backwardEquations(GT,PKGT)(in Genotype!GT[] genotypes, in PKGT[] all_true_geno, 
                                   in double[] rec_frac, in double error_prob) 
   {
-    int n_markers = genotypes.length;
+    size_t n_markers = genotypes.length;
 
     auto beta = new double[][](all_true_geno.length,n_markers);
 
@@ -84,7 +84,7 @@ unittest {
     }
 
     // backward equations
-    for(auto pos = n_markers-2; pos >= 0; pos--) {
+    for(size_t pos = n_markers-2; pos >= 0; pos--) {
       foreach(true_geno_left; all_true_geno) {
        beta[true_geno_left][pos] = beta[all_true_geno[0]][pos+1] + 
          step(true_geno_left, all_true_geno[0], rec_frac[pos]) + 

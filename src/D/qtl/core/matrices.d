@@ -30,13 +30,13 @@ pure T[] doArray(T)(int length,T value){
 /*
  * Produces a R*C-dim matrix
  */
-T** newmatrix(T)(int rows, int cols) {
+T** newmatrix(T)(size_t rows, size_t cols) {
   T** m;
   m = cast(T**)calloc(rows, (T*).sizeof);
   if(m is null){
     writeln("Not enough memory for new matrix");
   }
-  for(int i=0; i<rows; i++) {
+  for(size_t i=0; i<rows; i++) {
     m[i]= newvector!T(cols);
   }
   return m;
@@ -56,7 +56,7 @@ void printmatrix(T)(T** m, int rows, int cols) {
 /*
  * Produces a N-dim vector
  */
-T* newvector(T)(int dim) {
+T* newvector(T)(size_t dim) {
   T* v;
   v = cast(T*)calloc(dim, T.sizeof);
   if(v is null){
