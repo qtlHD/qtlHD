@@ -45,7 +45,7 @@ version (Windows) {
   }
   
 }else{
-  pragma(lib, "r");
+  pragma(lib, "libR.so");
   
   extern(C){
     double dnorm(double, double, double, int);

@@ -23,8 +23,8 @@ mixin template estmapCode(GT, PKGT)
     if(tol < 0)
       throw new Exception("tol >= 0");
 
-    int n_individuals = genotypes.length;
-    int n_markers = genotypes[0].length;
+    size_t n_individuals = genotypes.length;
+    size_t n_markers = genotypes[0].length;
     auto all_true_geno = allTrueGenoPK(genotypes[0][0].value);
 
     auto cur_rec_frac = rec_frac.dup; 
