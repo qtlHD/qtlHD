@@ -29,8 +29,8 @@ double[][][] calc_geno_prob(T)(in Genotype!T[][] genotypes, in double[] rec_frac
       throw new Exception("rec_frac must be >= 0 and <= 0.5");
   }
 
-  int n_individuals = genotypes.length;
-  int n_markers = genotypes[0].length;
+  size_t n_individuals = genotypes.length;
+  size_t n_markers = genotypes[0].length;
   auto all_true_geno = allTrueGeno(genotypes[0][0].value);
 
   auto alpha = new double[][](all_true_geno.length,n_markers);
