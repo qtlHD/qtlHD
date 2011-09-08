@@ -45,5 +45,6 @@
 /* EXE import */
 #define EXPORT __declspec(dllimport)
 #endif
-
+#undef EXPORT
+#define EXPORT
 #endif // __STANDALONE_HPP
