@@ -24,12 +24,9 @@ alias std.algorithm.find find;
 
 static bool VERBOSE = false;
 
-version (Windows) {
-  import qtl.core.libs.libload;
-  import std.loader;
-}else{
-  pragma(lib, "r");
-}
+import qtl.core.libs.libload;
+import std.loader;
+
 
 version (Windows) {
   extern(C){
@@ -73,9 +70,9 @@ unittest{
   auto indata = new ReadSimpleCSV!F2(fn);
   char** markers = indata.getGenotypesForMQM();
   writeln("  - GENO DONE !!!");
-  int nind = indata.genotypes.length;
-  int nmark = indata.markers.length;
-  int augmentednind = indata.genotypes.length;
+  int nind = cast(int)indata.genotypes.length;
+  int nmark = cast(int)indata.markers.length;
+  int augmentednind = cast(int)indata.genotypes.length;
   int* INDlist = doRange(0,nind).ptr;
   int* chr = indata.getChromosomesForMQM();
   writeln("  - CHR DONE !!!");

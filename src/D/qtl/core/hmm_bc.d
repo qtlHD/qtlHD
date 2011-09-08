@@ -194,7 +194,7 @@ unittest {
   auto genoprobs = calc_geno_prob(chr_5_genotypes, rec_frac, 0.002);
 
   writeln("      - Compare results to R/qtl");
-  double[BC][int] genoprobs_from_rqtl;
+  double[BC][size_t] genoprobs_from_rqtl;
   /* probs from R/qtl for individual 1 */
   genoprobs_from_rqtl[0] =  [BC.A:0.999769660491391820578, BC.H:0.0002303395086083074390];
   genoprobs_from_rqtl[1] =  [BC.A:0.996571637787474373660, BC.H:0.0034283622125256579989];

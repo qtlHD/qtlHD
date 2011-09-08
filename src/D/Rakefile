@@ -39,6 +39,21 @@ xgap_dfiles = Dir.glob("./qtl/core/xgap/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
 all_dfiles = core_dfiles + lib_dfiles + io_dfiles 
 
+def suffix
+  if windows? then
+    return "dll"
+  else
+    return "so"
+  end
+end
+
+def prefix
+  if windows? then
+    return ""
+  else
+    return "lib"
+  end
+end
 
 def windows?
   return RUBY_PLATFORM =~ /(:?mswin|mingw)/
