@@ -49,7 +49,7 @@ version (Windows) {
   }
   
 }else{
-  pragma(lib, "r");
+  pragma(lib, "libR.so");
   
   extern(C){
     double dnorm(double, double, double, int);
@@ -67,12 +67,11 @@ version (Windows) {
 }
 
 unittest{
- /* writeln("Unit test " ~ __FILE__);
+  writeln("Unit test " ~ __FILE__);
   writeln("  - norm_rand: " ~ to!string(norm_rand()));
   writeln("  - norm_rand: " ~ to!string(norm_rand()));
   writeln("  - norm_rand: " ~ to!string(norm_rand()));
   writeln("  - unif_rand: " ~ to!string(unif_rand()));
   writeln("  - unif_rand: " ~ to!string(unif_rand()));
-  writeln("  - unif_rand: " ~ to!string(unif_rand()));*/
-  
+  writeln("  - unif_rand: " ~ to!string(unif_rand())); 
 }
