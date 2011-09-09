@@ -192,17 +192,18 @@ alias GenoProb[][][] GenoProbs;  // = new double[][][](n_gen,n_ind,n_markers);
 
 
 /**
- * FounderIndex is an index into Founders
+ * FounderIndex is an index into Founders (see also genotype.d)
  */
 
 alias uint FounderIndex;   
 
 /**
  * A true genotype consists of a Tuple of alleles. These alleles can,
- * potentially, be directional.
+ * potentially, be directional (see also genotype.d)
  */
 
 alias Tuple!(FounderIndex, FounderIndex) TrueGenotype;
+
 
 immutable PHENOTYPE_NA = double.max; // FIXME: needs to be typed to T
 

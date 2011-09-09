@@ -24,18 +24,22 @@ import qtl.core.primitives;
 
   founders:       [1]   [2]   [3]   [4]
   
-  actual types:   [1,1] [1,2] [2,2] [2,3] [2,4] etc
+  actual types:   [1,1] [1,2] [2,2] [2,3] [2,4] etc.  (TrueGenotype)
 
-  combinations:
+  combinations: (GenotypeCombinator[])
 
    -1        ->   NA
     0        ->   [ 1      0     0     0    0 ]   i.e. [1,1]
-    1        ->   [ 0      1     1     0    0 ]   i.e. [1,2] or [2,2]
+    1        ->   [ 0      1     1     0    0 ]   i.e. [1,2] or [2,2] 
     2        ->   [ 0      0     1     0    0 ]   i.e. [2,2]
+
+  (GenotypeCombinatorIndex)
 
   Every marker column has its own combinations defined. So combination #1 may
   refer to different genotypes, between different marker columns.
  */
+
+
 
 enum RIL { NA = GENOTYPE_NA, A, B };
 enum F2  { NA = GENOTYPE_NA, A, H, B, HorB, HorA }; 
