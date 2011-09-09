@@ -8,6 +8,35 @@ import std.conv;
 import std.stdio;
 import qtl.core.primitives;
 
+/**
+
+  Discussing storing genotypes:
+
+  The number of possible real genotypes at a marker location is limited, as they
+  depend on the number of founders (K^2 types). Unfortunately, due to technology, 
+  there are a lot more 'observed' genotypes - i.e. combinations of possible genotypes,
+
+  Inside each dataset, however, there is a limited number of stored combinations. So,
+  rather than setting all types in advance we only create the actual types used in
+  the dataset. The genotype matrix contains pointers to a bit array. The bit array
+  references combinations of supported types. Supported types are Tuples of 'alleles',
+  where alleles are numbers referring to the founders. I.e.
+
+  founders:       [1]   [2]   [3]   [4]
+  
+  actual types:   [1,1] [1,2] [2,2] [2,3] [2,4] etc
+
+  combinations:
+
+   -1        ->   NA
+    0        ->   [ 1      0     0     0    0 ]   i.e. [1,1]
+    1        ->   [ 0      1     1     0    0 ]   i.e. [1,2] or [2,2]
+    2        ->   [ 0      0     1     0    0 ]   i.e. [2,2]
+
+  Every marker column has its own combinations defined. So combination #1 may
+  refer to different genotypes, between different marker columns.
+ */
+
 enum RIL { NA = GENOTYPE_NA, A, B };
 enum F2  { NA = GENOTYPE_NA, A, H, B, HorB, HorA }; 
 enum F2pk {AA, AB, BA, BB}; // pk = "phase known"
