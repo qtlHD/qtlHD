@@ -41,8 +41,8 @@ class ReadSimpleCSV(XType) {
   
   double** getPhenotypesForMQM(){
     double** pheno = newmatrix!double(n_phenotypes,individuals.length);
-    for(int p=0;p<n_phenotypes;p++){
-      for(int i=0;i<individuals.length;i++){
+    for(auto p=0;p<n_phenotypes;p++){
+      for(auto i=0;i<individuals.length;i++){
         //writefln("%d %d %f",p,i,phenotypes[i][p].value);
         pheno[p][i] = phenotypes[i][p].value;
       }
@@ -103,7 +103,7 @@ class ReadSimpleCSV(XType) {
     // create Marker objects; have m.id be column within phenotypes or within genotypes
     foreach (i, mname; header)
     {
-      Marker m = new Marker(MARKER_POSITION_UNKNOWN, mname, i-n_phenotypes); 
+      Marker m = new Marker(MARKER_POSITION_UNKNOWN, mname, cast(uint)(i-n_phenotypes)); 
       ms ~= m;
     }
 

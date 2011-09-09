@@ -496,7 +496,7 @@ unittest {
   auto genoprobs = calc_geno_prob(chr_4_genotypes, rec_frac, 0.002);
 
   writeln("      - Compare results to R/qtl");
-  double[F2][int] genoprobs_from_rqtl;
+  double[F2][size_t] genoprobs_from_rqtl;
   /* probs from R/qtl for individual 1 */
   genoprobs_from_rqtl[0] = [F2.A:0.99365258749878116, F2.H:0.005366774350785078, F2.B:0.00098063815043388934];
   genoprobs_from_rqtl[1] = [F2.A:0.01597337476839351, F2.H:0.984010456989931837, F2.B:0.00001616824167473149];
@@ -505,7 +505,7 @@ unittest {
   
   foreach(i; 0..genoprobs[0].length) {
     foreach(j; [F2.A, F2.H, F2.B]) {
-      assert(abs(genoprobs[0][i][j] - genoprobs_from_rqtl[i][j]) < 1e-14);
+      assert(abs(genoprobs[0][cast()i][j] - genoprobs_from_rqtl[i][j]) < 1e-14);
     }
   }
 	
