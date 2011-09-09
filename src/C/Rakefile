@@ -46,6 +46,14 @@ def prefix
   end
 end
 
+def compilerflags
+  if windows? then
+    return "-lR -lstdc++"
+  else
+    return "-fPIC"
+  end
+end
+
 # ---- Standard Libs ----
 namespace :libraries do
   desc "Build all libraries"
@@ -53,7 +61,11 @@ namespace :libraries do
   
   desc "The library with mqm functionality"
   task "mqm" do
-    sh "gcc -shared -o #{prefix}mqm.#{suffix} -DBUILD_DLL #{mqm_files} `R CMD config --cppflags` `R CMD config --ldflags` -fPIC"
+    compileflags = `R CMD config --cppflags`
+    linkflags = `R CMD config --ldflags`
+    #raise("R not found on your path") if(!compileflags)
+    #raise("R not found on your path") if(!linkflags)
+    sh "gcc -shared -o #{prefix}mqm.#{suffix} -DBUILD_DLL #{mqm_files} #{compilerflags.chomp()} #{compileflags.chomp()} #{linkflags} "
     sh "cp #{prefix}mqm.#{suffix} ../D/"
   end
 end
