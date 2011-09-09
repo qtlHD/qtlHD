@@ -13,6 +13,7 @@ import std.conv;
 import std.range;
 import std.algorithm;
 import std.string;
+import std.typecons; 
 
 // Default values for undefined types
 immutable MARKER_POSITION_UNKNOWN = double.nan;
@@ -140,7 +141,7 @@ immutable GENOTYPE_NA = -1;
  * possible).
  *
  * Note the primitive should be as small as possible, there may be many 
- * genotypes! Therefore it is a struct.
+ * genotypes! Therefore it is a struct (where value may be an int index)
  */
 
 struct Genotype(T) {
@@ -188,6 +189,20 @@ struct GenoProb {
  */
 
 alias GenoProb[][][] GenoProbs;  // = new double[][][](n_gen,n_ind,n_markers);
+
+
+/**
+ * FounderIndex is an index into Founders
+ */
+
+alias uint FounderIndex;   
+
+/**
+ * A true genotype consists of a Tuple of alleles. These alleles can,
+ * potentially, be directional.
+ */
+
+alias Tuple!(FounderIndex, FounderIndex) TrueGenotype;
 
 immutable PHENOTYPE_NA = double.max; // FIXME: needs to be typed to T
 
