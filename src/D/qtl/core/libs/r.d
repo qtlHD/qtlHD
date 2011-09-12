@@ -11,14 +11,20 @@ version (Windows) {
     double function(double, double, double, int) dnorm;
     double function(double, double, double, int, int) qf;
 
-    void function() R_SeedsSymbol; // this is the tricky part, we need to combine calling these 3 functions to produce a new seed
-    void function(int*) seed_in;
-    void function(int*) seed_out;
+    // Here we have the tricky part, we need to combine calling these 3 functions to produce a new seed
+    void   function() R_SeedsSymbol; 
+    void   function(int*) seed_in;
+    void   function(int*) seed_out;
     
     double function() norm_rand;
+    void   function(char *, ...) Rprintf;
+    void   function(char *, ...) REprintf;
     double function() unif_rand;
     double function() exp_rand;
     
+    //Wrapping the initialization of an embedded R interpretig process
+    int    function(int argc, char **argv) Rf_initEmbeddedR;
+    void   function(int fatal) Rf_endEmbeddedR;
   }
   
   //Karl wants to bind:
@@ -38,8 +44,13 @@ version (Windows) {
     load_function(seed_out)(lib,"seed_out");
 
     load_function(norm_rand)(lib,"norm_rand");
+    load_function(Rprintf)(lib,"Rprintf");
+    load_function(REprintf)(lib,"REprintf");
     load_function(unif_rand)(lib,"unif_rand");
     load_function(exp_rand)(lib,"exp_rand");
+   
+    load_function(Rf_initEmbeddedR)(lib,"Rf_initEmbeddedR");
+    load_function(Rf_endEmbeddedR)(lib,"Rf_endEmbeddedR");
 
     writeln("Loaded R functionality");
   }
