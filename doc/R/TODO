@@ -1,0 +1,21 @@
+For qtlHD we are going to create an R package that can be installed by users.
+
+We want an R package which can (in principle) be part of CRAN, provided the
+qtlHD binary support libraries are installed. The support libraries come
+seperately, mostly because CRAN does not support D, at this moment.
+
+The procedure is:
+
+  1. Install qtlhd libraries (D!)
+  2. Install R/qtlhd package (no D!)
+
+Theoretically we could have the R package install the libraries, pulling them
+from the Internet, but that is for the future.
+
+The R/qtlhd package should only contain R code (optionally C), that wraps
+the lowlevel API of qtlHD.
+
+The R/qtlhd package should do no processing, only conversions to types that 
+qtlHD can use.
+
+
