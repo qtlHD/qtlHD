@@ -1,4 +1,8 @@
-module qtl.core.libs.r;
+/**
+ * Functions exported by Rlib
+ */
+
+module qtl.core.libs.rlib;
 
 import std.stdio;
 import std.conv;

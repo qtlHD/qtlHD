@@ -1,5 +1,5 @@
 /**
- * Map function module
+ * Genetic map function module
  **/
 
 module qtl.core.map_functions;
@@ -9,11 +9,11 @@ import std.math;
 import std.numeric; // contains findRoot()
 import std.conv;
 
-enum MapFunc { Haldane, Kosambi, Morgan, Carter_Falconer };
+enum GeneticMapFunc { Haldane, Kosambi, Morgan, Carter_Falconer };
 
 // convert cM distance to recombination fraction
 // Note: one chromosome at a time
-double[] mapFunction(double[] dist_cM, MapFunc which_mapFunction = MapFunc.Haldane)
+double[] dist_to_recfrac(double[] dist_cM, GeneticMapFunc which_dist_to_recfrac = GeneticMapFunc.Haldane)
 in {
   foreach(dist; dist_cM) {
     assert(dist >= 0, "dist_cM must be >= 0, was " ~ to!string(dist));
@@ -26,18 +26,18 @@ body {
   double mfcfsub_dist;
   double mfcfsub(double rf)
   {
-    return inverseMapFunction([rf], MapFunc.Carter_Falconer)[0]-mfcfsub_dist;
+    return recfrac_to_dist([rf], GeneticMapFunc.Carter_Falconer)[0]-mfcfsub_dist;
   }
 
   foreach(i, dist; dist_cM) {
-    switch(which_mapFunction) {
-    case MapFunc.Haldane:
+    switch(which_dist_to_recfrac) {
+    case GeneticMapFunc.Haldane:
       rec_frac[i] = 0.5*(1-exp(-dist/50));
       break;
-    case MapFunc.Kosambi:
+    case GeneticMapFunc.Kosambi:
       rec_frac[i] = 0.5*tanh(dist/50);
       break;
-    case MapFunc.Morgan:
+    case GeneticMapFunc.Morgan:
       if(dist >= 50) {
         rec_frac[i] = 0.5;
       }
@@ -45,7 +45,7 @@ body {
         rec_frac[i] = dist/100.0;
       }
       break;
-    case MapFunc.Carter_Falconer:
+    case GeneticMapFunc.Carter_Falconer:
       if(dist >= 300) { dist = 300; }
       if(dist == 0) {
         rec_frac[i] = 0; 
@@ -62,7 +62,7 @@ body {
 }
 
 unittest {
-  writeln("Unit test " ~ __FILE__, " : mapFunction");
+  writeln("Unit test " ~ __FILE__, " : dist_to_recfrac");
 
   auto dist = [0, 0.5, 2, 4, 8, 10, 66, 1000];
   auto rec_frac_h = [0,
@@ -93,10 +93,10 @@ unittest {
 
   auto dist_orig = dist.dup;
 
-  auto result_h = mapFunction(dist, MapFunc.Haldane);
-  auto result_k = mapFunction(dist, MapFunc.Kosambi);
-  auto result_m = mapFunction(dist, MapFunc.Morgan);
-  auto result_cf = mapFunction(dist, MapFunc.Carter_Falconer);
+  auto result_h = dist_to_recfrac(dist, GeneticMapFunc.Haldane);
+  auto result_k = dist_to_recfrac(dist, GeneticMapFunc.Kosambi);
+  auto result_m = dist_to_recfrac(dist, GeneticMapFunc.Morgan);
+  auto result_cf = dist_to_recfrac(dist, GeneticMapFunc.Carter_Falconer);
 
   assert(dist == dist_orig);
 
@@ -110,7 +110,7 @@ unittest {
 
 // convert recombination fraction to cM distance
 // Note: one chromosome at a time
-double[] inverseMapFunction(double[] rec_frac, MapFunc which_mapFunction = MapFunc.Haldane)
+double[] recfrac_to_dist(double[] rec_frac, GeneticMapFunc which_dist_to_recfrac = GeneticMapFunc.Haldane)
 in {
   foreach(rf; rec_frac) {
     assert(rf >= 0.0 && rf <= 0.5, "rec_frac must be >= 0 and <= 0.5");
@@ -122,17 +122,17 @@ body {
 
   foreach(i, rf; rec_frac) {
     if(rf >= 0.5-TOL) { rf = 0.5 - TOL; }
-    switch(which_mapFunction) {
-    case MapFunc.Haldane:
+    switch(which_dist_to_recfrac) {
+    case GeneticMapFunc.Haldane:
       dist_cM[i] = -50*log(1-2*rf);
       break;
-    case MapFunc.Kosambi:
+    case GeneticMapFunc.Kosambi:
       dist_cM[i] = 50*atanh(2*rf);
       break;
-    case MapFunc.Morgan:
+    case GeneticMapFunc.Morgan:
       dist_cM[i] = rf*100;
       break;
-    case MapFunc.Carter_Falconer:
+    case GeneticMapFunc.Carter_Falconer:
       dist_cM[i] = 12.5*(log(1+2*rf)-log(1-2*rf))+25*atan(2*rf);
     default: break;
     }
@@ -142,7 +142,7 @@ body {
 }
 
 unittest {
-  writeln("Unit test " ~ __FILE__, " : inverseMapFunction");
+  writeln("Unit test " ~ __FILE__, " : recfrac_to_dist");
 
   auto rec_frac = [0, 0.005, 0.02, 0.04, 0.08, 0.1, 0.4, 0.5];
   auto dist_h = [0,
@@ -173,10 +173,10 @@ unittest {
   
   auto rec_frac_orig = rec_frac.dup;
 
-  auto result_h = inverseMapFunction(rec_frac, MapFunc.Haldane);
-  auto result_k = inverseMapFunction(rec_frac, MapFunc.Kosambi);
-  auto result_m = inverseMapFunction(rec_frac, MapFunc.Morgan);
-  auto result_cf = inverseMapFunction(rec_frac, MapFunc.Carter_Falconer);
+  auto result_h = recfrac_to_dist(rec_frac, GeneticMapFunc.Haldane);
+  auto result_k = recfrac_to_dist(rec_frac, GeneticMapFunc.Kosambi);
+  auto result_m = recfrac_to_dist(rec_frac, GeneticMapFunc.Morgan);
+  auto result_cf = recfrac_to_dist(rec_frac, GeneticMapFunc.Carter_Falconer);
 
   assert(rec_frac == rec_frac_orig);
 

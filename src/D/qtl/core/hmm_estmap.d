@@ -4,12 +4,19 @@
 
 module qtl.core.hmm_estmap;
 
+import std.string;
+import std.conv;
+import std.stdio;
+import std.math;
+import qtl.core.primitives;
+import qtl.core.hmm_bc;
+import qtl.core.hmm_f2;
+import qtl.core.hmm_util;
+
 // re-estimate inter-marker recombination fractions
-mixin template estmapCode(GT, PKGT)
+double[] estmap(T)(in Genotype!T[][] genotypes, in double[] rec_frac, in double error_prob,
+		   in int max_iterations, in double tol, in bool verbose)
 {
-  double[] estmap(Genotype!GT[][] genotypes, double[] rec_frac, double error_prob,
-		  int max_iterations, double tol, bool verbose)
-  {
     if(genotypes[0].length != rec_frac.length+1)
       throw new Exception("no. markers in genotypes doesn't match rec_frac length");
     if(error_prob < 0.0 || error_prob > 1.0)
@@ -28,6 +35,7 @@ mixin template estmapCode(GT, PKGT)
     auto all_true_geno = allTrueGenoPK(genotypes[0][0].value);
 
     auto cur_rec_frac = rec_frac.dup; 
+    auto prev_rec_frac = rec_frac.dup;
     double[][] alpha = new double[][](all_true_geno.length,n_markers);
     double[][] beta = new double[][](all_true_geno.length,n_markers);
     double[][] gamma = new double[][](all_true_geno.length,n_markers);
@@ -40,18 +48,18 @@ mixin template estmapCode(GT, PKGT)
       foreach(ind; 0..n_individuals) {
 
 	// forward and backward equations
-	alpha = forwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
-	beta = backwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
+	alpha = forwardEquations(genotypes[ind], all_true_geno, prev_rec_frac, error_prob);
+	beta = backwardEquations(genotypes[ind], all_true_geno, prev_rec_frac, error_prob);
 
 
-	foreach(j; 0..rec_frac.length) {
+	foreach(j; 0..prev_rec_frac.length) {
 	  // calculate gamma = log Pr(v1, v2, O)
 	  auto sum_gamma_undef = true;
 	  foreach(left_gen; all_true_geno) {
 	    foreach(right_gen; all_true_geno) {
 	      gamma[left_gen][right_gen] = alpha[left_gen][j] + beta[right_gen][j+1] + 
 		emit(genotypes[ind][j+1], right_gen, error_prob) +
-		step(left_gen, right_gen, rec_frac[j]);
+		step(left_gen, right_gen, prev_rec_frac[j]);
 
 	      if(sum_gamma_undef) {
 		sum_gamma_undef = false;
@@ -83,8 +91,8 @@ mixin template estmapCode(GT, PKGT)
       if(verbose) {
 	auto maxdif=0.0;
 	double tempdif;
-	foreach(j; 0..rec_frac.length) {
-	  tempdif = abs(rec_frac[j] - cur_rec_frac[j]);
+	foreach(j; 0..prev_rec_frac.length) {
+	  tempdif = abs(prev_rec_frac[j] - cur_rec_frac[j]);
 	  if(tempdif > maxdif) {
 	    maxdif = tempdif;
 	  }
@@ -94,8 +102,8 @@ mixin template estmapCode(GT, PKGT)
 
       /* check convergence */
       auto converged = true;
-      foreach(j; 0..rec_frac.length) {
-	if(abs(rec_frac[j] - cur_rec_frac[j]) > tol*(cur_rec_frac[j]+tol*100.0)) {
+      foreach(j; 0..prev_rec_frac.length) {
+	if(abs(prev_rec_frac[j] - cur_rec_frac[j]) > tol*(cur_rec_frac[j]+tol*100.0)) {
 	  converged = false; 
 	  break;
 	}
@@ -103,7 +111,7 @@ mixin template estmapCode(GT, PKGT)
 
       if(converged) break; 
 
-      rec_frac = cur_rec_frac.dup;
+      prev_rec_frac = cur_rec_frac.dup;
     }
     
     /* calculate log likelihood */
@@ -111,16 +119,16 @@ mixin template estmapCode(GT, PKGT)
     double curloglik;
     foreach(ind; 0..n_individuals) {
 
-      alpha = forwardEquations(genotypes[ind], all_true_geno, rec_frac, error_prob);
+      alpha = forwardEquations(genotypes[ind], all_true_geno, prev_rec_frac, error_prob);
 
       auto curloglik_undef = true;
       foreach(gen; all_true_geno) {
 	if(curloglik_undef) {
 	  curloglik_undef = false;
-	  curloglik = alpha[gen][rec_frac.length-1];
+	  curloglik = alpha[gen][prev_rec_frac.length-1];
 	}
 	else {
-	  curloglik = addlog(curloglik, alpha[gen][rec_frac.length-1]);
+	  curloglik = addlog(curloglik, alpha[gen][prev_rec_frac.length-1]);
 	}
       }
       loglik += curloglik;
@@ -131,9 +139,7 @@ mixin template estmapCode(GT, PKGT)
     }
 
     return(cur_rec_frac);
-  }
 }
-
 
 
 

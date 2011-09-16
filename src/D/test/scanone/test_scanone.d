@@ -160,7 +160,7 @@ unittest {
   foreach(i; 1..markers_on_chr_4.length) {
     dist_cM ~= markers_on_chr_4[i].position - markers_on_chr_4[i-1].position;
   }
-  auto rec_frac = mapFunction(dist_cM, MapFunc.Haldane);
+  auto rec_frac = dist_to_recfrac(dist_cM, GeneticMapFunc.Haldane);
 
   writeln("      - Run calcGenoprob for F2");
   // auto genoprobs = calc_geno_prob(chr_4_genotypes, rec_frac, 0.002);
