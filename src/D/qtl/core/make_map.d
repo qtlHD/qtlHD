@@ -11,6 +11,7 @@ import std.string;
 import std.path;
 import std.exception;
 import std.algorithm;
+import std.math;
 alias std.algorithm.find find;
 
 import qtl.core.primitives;
@@ -56,7 +57,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
         // marker does not exist: add pseudo marker 
         new_markers.add(pm);
     }
-    if(off_end > 0) {
+    if(off_end > 0) {  // FIXME: why not use this even if markers.list.length == 1?
       for(auto npos=minpos-step; npos >= minpos - off_end; npos -= step) 
 	new_markers.add(new PseudoMarker(npos));
       for(auto npos=maxpos+step; npos <= maxpos + off_end; npos += step) 
@@ -64,10 +65,57 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
     }
     // FIXME remove Pseudo markers too close to other markers
     // (was this in R/qtl? No, so maybe I leave this)
+
+    // sort the result
+    new_markers = new_markers.sorted();
   }
-  new_markers = new_markers.sorted();
   return new_markers;
 }
+
+// like add_stepped_markers_autosome, but add minimal number of pseudomarkers so that gaps < step
+Ms add_minimal_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0) {
+  enforce(step>0);
+  enforce(off_end>=0);
+
+  auto new_markers = new Ms(markers);
+  auto sorted_markers = new_markers.sorted();
+
+  auto list = sorted_markers.list;
+  auto minpos = list[0].get_position();
+  auto maxpos = list[$-1].get_position();
+
+  if(off_end > 0) {  
+    new_markers.add(new PseudoMarker(minpos-off_end));
+    new_markers.add(new PseudoMarker(maxpos+off_end));
+
+    // update minpos and maxpos and sorted list
+    minpos -= step;
+    maxpos += step;
+    sorted_markers = new_markers.sorted();
+    list = sorted_markers.list;
+  }
+
+  if (list.length > 1) {
+    for(auto left=0; left < list.length-1; left++) {
+      auto leftpos = list[left].get_position();
+      auto rightpos = list[left+1].get_position();
+      auto dist =  rightpos - leftpos;
+
+      if(dist > step) {
+	auto n_pseudomarkers = ceil(dist/step)-1;
+	auto dist_to_step = dist/(n_pseudomarkers+1);
+
+	for(auto pmarpos=leftpos+dist_to_step; pmarpos < rightpos; pmarpos += dist_to_step) {
+	  new_markers.add(new PseudoMarker(pmarpos));
+	}
+      }
+    }
+
+    new_markers = new_markers.sorted();
+  }
+  return new_markers;
+}
+
 
 /**
  * NYI FIXME - implementation of sex chromosome will be done later
@@ -172,11 +220,25 @@ unittest {
   markers3.list ~= new Marker(10.0);
   markers3.list ~= new Marker(20.0);
   markers3.list ~= new Marker(30.0);
-  auto res3 = add_stepped_markers_autosome(markers2,5.0,7.5);
+  auto res3 = add_stepped_markers_autosome(markers3, 5.0, 7.5);
   auto list3 = res3.list;
   assert(list3.length == 7, to!string(list3.length));
   auto uniq_list3 = uniq!"a.get_position() == b.get_position()"(list3);
   auto pos_list3 = map!"a.get_position()"(uniq_list3);
   assert(equal(pos_list3, [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0]), to!string(pos_list3));
+
+  // test add_minimal_markers_autosome
+  auto markers4 = new Markers!(Marker)();
+  markers4.list ~= new Marker(10.0);
+  markers4.list ~= new Marker(17.0);
+  markers4.list ~= new Marker(27.0);
+  auto res4 = add_minimal_markers_autosome(markers4, 2.0, 7.5);
+  auto list4 = res4.list;
+  assert(list4.length == 18, to!string(list4.length));
+  auto uniq_list4 = uniq!"a.get_position() == b.get_position()"(list4);
+  auto pos_list4 = map!"a.get_position()"(uniq_list4);
+  assert(equal(pos_list4, [2.5, 4.375, 6.25, 8.125, 10.0, 11.75, 13.5, 15.25, 17.0, 19.0, 21.0, 23.0, 25.0, 27.0,
+			   28.875, 30.75, 32.625, 34.5]), 
+	 to!string(pos_list3));
 }
 
