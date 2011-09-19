@@ -58,11 +58,14 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
     }
     // always add one marker beyond each end (no matter
     // the fixed position distance)
-    new_markers.add(new PseudoMarker(minpos - off_end));
-    new_markers.add(new PseudoMarker(maxpos + off_end));
+    if(off_end > 0) {
+      new_markers.add(new PseudoMarker(minpos - off_end));
+      new_markers.add(new PseudoMarker(maxpos + off_end));
+    }
     // FIXME remove Pseudo markers too close to other markers
     // (was this in R/qtl? No, so maybe I leave this)
   }
+  new_markers = new_markers.sorted();
   return new_markers;
 }
 
@@ -156,12 +159,12 @@ unittest {
   assert(list.length == 23, to!string(list.length)); 
   auto uniq_list = uniq!"a.get_position() == b.get_position()"(list);
   auto pos_list = map!"a.get_position()"(uniq_list);
-  assert(equal(pos_list,[10, 20, 30, 11, 12, 13, 14, 15, 16, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29, 9, 31]), to!string(pos_list));
+  assert(equal(pos_list,[9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]), to!string(pos_list));
   auto ts = map!"to!double(a)"(pos_list);
   // nudge mar Result into a double[]
   double ds[];
   foreach (u ; pos_list) { ds ~= u; }  // this can be done better, I am sure
-  assert(ds[0] == 10);
+  assert(ds[1] == 10);
   assert(ds.length == 23); // tis proof 
 }
 
