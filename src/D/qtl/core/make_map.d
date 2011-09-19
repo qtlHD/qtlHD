@@ -47,28 +47,31 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
   // be a separate function. Variable step size is, again, another function.
   auto new_markers = new Ms(markers);
   auto sorted_markers = new_markers.sorted();
+  auto list = sorted_markers.list;
+  auto minpos = list[0].get_position();
+  auto maxpos = list[$-1].get_position();
+
   if (markers.list.length > 1) {
-    auto list = sorted_markers.list;
-    auto minpos = list[0].get_position();
-    auto maxpos = list[$-1].get_position();
     for (auto npos = minpos+step ; npos < maxpos; npos += step) {
       auto pm = new PseudoMarker(npos);
       if (countUntil(sorted_markers.list, pm) == -1)
         // marker does not exist: add pseudo marker 
         new_markers.add(pm);
     }
-    if(off_end > 0) {  // FIXME: why not use this even if markers.list.length == 1?
-      for(auto npos=minpos-step; npos >= minpos - off_end; npos -= step) 
-	new_markers.add(new PseudoMarker(npos));
-      for(auto npos=maxpos+step; npos <= maxpos + off_end; npos += step) 
-	new_markers.add(new PseudoMarker(npos));
-    }
     // FIXME remove Pseudo markers too close to other markers
     // (was this in R/qtl? No, so maybe I leave this)
-
-    // sort the result
-    new_markers = new_markers.sorted();
   }
+
+  if(off_end >= step) {  
+    for(auto npos=minpos-step; npos >= minpos - off_end; npos -= step) 
+      new_markers.add(new PseudoMarker(npos));
+    for(auto npos=maxpos+step; npos <= maxpos + off_end; npos += step) 
+      new_markers.add(new PseudoMarker(npos));
+  }
+
+  // sort the result
+  new_markers = new_markers.sorted();
+
   return new_markers;
 }
 
