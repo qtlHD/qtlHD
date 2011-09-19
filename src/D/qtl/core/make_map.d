@@ -242,6 +242,19 @@ unittest {
   auto pos_list4 = map!"a.get_position()"(uniq_list4);
   assert(equal(pos_list4, [2.5, 4.375, 6.25, 8.125, 10.0, 11.75, 13.5, 15.25, 17.0, 19.0, 21.0, 23.0, 25.0, 27.0,
 			   28.875, 30.75, 32.625, 34.5]), 
-	 to!string(pos_list3));
+	 to!string(pos_list4));
+
+  // test add_minimal_markers_autosome with off_end=0
+  auto markers5 = new Markers!(Marker)();
+  markers5.list ~= new Marker(5.0);
+  markers5.list ~= new Marker(8.3);
+  markers5.list ~= new Marker(9.8);
+  auto res5 = add_minimal_markers_autosome(markers5, 1.0, 0);
+  auto list5 = res5.list;
+  assert(list5.length == 7, to!string(list5.length));
+  auto uniq_list5 = uniq!"a.get_position() == b.get_position()"(list5);
+  auto pos_list5 = map!"a.get_position()"(uniq_list5);
+  assert(equal(to!string(pos_list5), to!string([5.0, 5.825, 6.65, 7.475, 8.3, 9.05, 9.8])), 
+	 to!string(pos_list5));
 }
 
