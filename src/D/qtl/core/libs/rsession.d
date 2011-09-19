@@ -3,8 +3,8 @@ module qtl.core.libs.rsession;
 import std.stdio;
 import std.conv;
 import std.process;
-import std.c.stdlib;
-import qtl.core.libs.r;
+//import std.c.stdlib;
+import qtl.core.libs.rlib;
 
 /** 
  * Represents an R session object which is used to initialize a new session
@@ -35,10 +35,10 @@ class RSession{
       writeln("Initialize embedded R (library)");
       //TODO: Execute a single R run giving the R-home
       //setenv("R_HOME","/usr/lib/R",1);
-      string output = system("R CMD config --ldflags");
-      write(output);
+      string output = shell("R CMD config --ldflags");
+      writeln(output);
       environment["R_HOME"] = rhome;
-      Rf_initEmbeddedR(argc, argv.ptr);
+ //     Rf_initEmbeddedR(argc, argv.ptr);
       r_running = true;
     }
   }
