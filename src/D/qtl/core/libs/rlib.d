@@ -7,11 +7,115 @@ module qtl.core.libs.rlib;
 import std.stdio;
 import std.conv;
 
+alias uint SEXPTYPE;
+alias int R_len_t;
+
+struct sxpinfo_struct{
+  SEXPTYPE type      =  5;
+  uint obj   =  1;
+  uint named =  2;
+  uint gp    = 16;
+  uint mark  =  1;
+  uint deb   =  1;
+  uint trace =  1;  /* functions and memory tracing */
+  uint spare =  1;  /* currently unused */
+  uint gcgen =  1;  /* old generation number */
+  uint gccls =  3;  /* node class */
+};
+
+struct symsxp_struct {
+  SEXPREC *pname;
+  SEXPREC *value;
+  SEXPREC *internal;
+};
+
+struct listsxp_struct {
+  SEXPREC* carval;
+  SEXPREC* cdrval;
+  SEXPREC* tagval;
+};
+
+struct envsxp_struct {
+  SEXPREC* frame;
+  SEXPREC* enclos;
+  SEXPREC* hashtab;
+};
+
+struct closxp_struct {
+  SEXPREC* formals;
+  SEXPREC* b;
+  SEXPREC* env;
+};
+
+struct promsxp_struct {
+  SEXPREC* value;
+  SEXPREC* expr;
+  SEXPREC* env;
+};
+
+struct vecsxp_struct {
+    R_len_t	length;
+    R_len_t	truelength;
+};
+
+struct primsxp_struct {
+    int offset;
+};
+
+struct SEXPREC_HEADER{
+  union U{
+    sxpinfo_struct sxpinfo;
+    SEXPREC* attrib;
+    SEXPREC* gengc_next_node;
+    SEXPREC* gengc_prev_node;
+  };
+};
+
+struct SEXPREC {
+  SEXPREC_HEADER header;
+  union U {
+	  primsxp_struct primsxp;
+	  symsxp_struct symsxp;
+	  listsxp_struct listsxp;
+	  envsxp_struct envsxp;
+	  closxp_struct closxp;
+	  promsxp_struct promsxp;
+  };
+};
+
+alias SEXPREC *SEXP;
+
+const NILSXP = 0;
+const SYMSXP = 1;
+const LISTSXP = 2;
+const CLOSXP = 3;
+const ENVSXP = 4;
+const PROMSXP = 5;
+const LANGSXP = 6;
+const SPECIALSXP = 7;
+const BUILTINSXP = 8;
+const CHARSXP = 9;
+const LGLSXP = 10;
+const INTSXP = 13;
+const REALSXP = 14;
+const CPLXSXP = 15;
+const STRSXP = 16;
+const ANYSXP = 18;
+const VECSXP = 19;
+const EXPRSXP = 20;
+const BCODESXP = 21;
+const EXTPTRSXP = 22;
+const WEAKREFSXP = 23;
+const RAWSXP = 24;
+const S4SXP = 25;
+const FUNSXP = 99;
+
 version (Windows) {
   import qtl.core.libs.libload;
   import std.loader;
   
   extern(C){
+    extern SEXPREC* R_GlobalEnv;
     double function(double, double, double, int) dnorm;
     double function(double, double, double, int, int) qf;
 
@@ -19,7 +123,7 @@ version (Windows) {
     void   function() R_SeedsSymbol; 
     void   function(int*) seed_in;
     void   function(int*) seed_out;
-    
+       
     double function() norm_rand;
     void   function(char *, ...) Rprintf;
     void   function(char *, ...) REprintf;
@@ -29,6 +133,21 @@ version (Windows) {
     //Wrapping the initialization of an embedded R interpretig process
     int    function(int argc, char **argv) Rf_initEmbeddedR;
     void   function(int fatal) Rf_endEmbeddedR;
+    
+    SEXP     function(SEXP) Rf_protect;
+    SEXP     function(SEXPTYPE, R_len_t) Rf_allocVector;
+    SEXPREC* function(SEXPREC *x, SEXPREC *y)SETCAR;
+    SEXPREC* function(char *)Rf_install;
+    SEXPREC* function(SEXPREC *, SEXPREC *, int *)R_tryEval;
+    SEXPREC* function(SEXPREC *, SEXPREC *, int *)R_tryEvalSilent;
+    
+    void    function(int)Rf_unprotect;
+    void    function(SEXPREC *)Rf_unprotect_ptr;
+    
+    int*    function(SEXPREC *x)LOGICAL;
+    int*    function(SEXPREC *x)INTEGER;
+    ubyte*  function(SEXPREC *x)RAW;
+    double* function(SEXPREC *x)REAL;
   }
   
   //Karl wants to bind:

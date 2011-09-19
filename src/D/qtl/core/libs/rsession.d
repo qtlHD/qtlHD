@@ -3,6 +3,7 @@ module qtl.core.libs.rsession;
 import std.stdio;
 import std.conv;
 import std.process;
+import std.regex;
 //import std.c.stdlib;
 import qtl.core.libs.rlib;
 
@@ -36,11 +37,35 @@ class RSession{
       //TODO: Execute a single R run giving the R-home
       //setenv("R_HOME","/usr/lib/R",1);
       string output = shell("R CMD config --ldflags");
-      writeln(output);
+      writefln("Linker flags returned by R: %s", output);
+      auto m = match(output, regex("/bin"));
+      rhome = m.pre[2..$];
+      writefln("RHome by R: %s", rhome);
       environment["R_HOME"] = rhome;
- //     Rf_initEmbeddedR(argc, argv.ptr);
+      Rf_initEmbeddedR(argc, argv.ptr);
       r_running = true;
     }
+  }
+  
+  int callFunction(){
+    SEXP e, val;
+    int errorOccurred;
+    int result = -1;
+
+    Rf_protect(e = Rf_allocVector(LANGSXP, 1));
+    SETCAR(e, Rf_install("foo".dup.ptr));
+
+    val = R_tryEval(e, R_GlobalEnv, &errorOccurred);
+
+    if(!errorOccurred) {
+      Rf_protect(val);
+      result = INTEGER(val)[0];
+      Rf_unprotect(1);
+    }else{
+      writeln("An error occurred when calling foo");
+    }
+    Rf_unprotect(1); /* e / Assume we have an INTSXP here. */
+    return(result);
   }
 
  /**
@@ -60,8 +85,9 @@ private:
 
 unittest{
   RSession r = new RSession();
-  writeln("  - norm_rand: " ~ to!string(norm_rand()));
-  writeln("  - norm_rand: " ~ to!string(norm_rand()));
-  writeln("  - norm_rand: " ~ to!string(norm_rand()));
+  r.callFunction();
+  //writeln("  - norm_rand: " ~ to!string(norm_rand()));
+  //writeln("  - norm_rand: " ~ to!string(norm_rand()));
+  //writeln("  - norm_rand: " ~ to!string(norm_rand()));
   r.close();
 }
