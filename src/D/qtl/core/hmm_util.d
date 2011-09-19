@@ -7,7 +7,7 @@ module qtl.core.hmm_util;
 import std.stdio;
 import std.math;
 
-import qtl.core.map_functions;
+import qtl.core.genetic_map_functions;
 import qtl.core.primitives;
 import qtl.core.hmm_f2;
 import qtl.core.hmm_bc;
