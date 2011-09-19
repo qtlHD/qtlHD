@@ -166,5 +166,17 @@ unittest {
   foreach (u ; pos_list) { ds ~= u; }  // this can be done better, I am sure
   assert(ds[1] == 10);
   assert(ds.length == 23); // tis proof 
+
+  // test with off_end > step
+  auto markers3 = new Markers!(Marker)();
+  markers3.list ~= new Marker(10.0);
+  markers3.list ~= new Marker(20.0);
+  markers3.list ~= new Marker(30.0);
+  auto res3 = add_stepped_markers_autosome(markers2,5.0,7.5);
+  auto list3 = res3.list;
+  assert(list3.length == 7, to!string(list3.length));
+  auto uniq_list3 = uniq!"a.get_position() == b.get_position()"(list3);
+  auto pos_list3 = map!"a.get_position()"(uniq_list3);
+  assert(equal(pos_list3, [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0]), to!string(pos_list3));
 }
 
