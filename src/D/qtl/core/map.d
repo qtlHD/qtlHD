@@ -5,6 +5,7 @@
 module qtl.core.map;
 
 import qtl.core.primitives;
+import qtl.core.genetic_map_functions;
 
 import std.algorithm;
 import std.math;
@@ -37,10 +38,10 @@ double map_size(Ms)(Ms markers) {
 }
 
 /** 
- * Calculate recombination fractions between markers (Haldane)
+ * Calculate recombination fractions between markers
  */
 
-double[] recombination_fractions(OrderedMs)(OrderedMs markers) {
+double[] recombination_fractions(OrderedMs)(OrderedMs markers, GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane) {
   // ps = positions(name)
   // ds = []
   // ps.each_cons(2) { | a | ds.push a[1]-a[0] }
@@ -53,7 +54,8 @@ double[] recombination_fractions(OrderedMs)(OrderedMs markers) {
     }
     leftmarker = m;
   }
-  return array(map!("0.5*(1-exp(-a/50))")(distances)); // Haldane
+
+  return array(dist_to_recfrac(distances, which_genmapfunc)); // Haldane
 }
 
 // unittests in test_scanone.d
