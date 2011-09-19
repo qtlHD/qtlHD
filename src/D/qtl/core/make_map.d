@@ -50,17 +50,17 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
     auto list = sorted_markers.list;
     auto minpos = list[0].get_position();
     auto maxpos = list[$-1].get_position();
-    for (auto npos = minpos ; npos < maxpos; npos += step) {
+    for (auto npos = minpos+step ; npos < maxpos; npos += step) {
       auto pm = new PseudoMarker(npos);
       if (countUntil(sorted_markers.list, pm) == -1)
         // marker does not exist: add pseudo marker 
         new_markers.add(pm);
     }
-    // always add one marker beyond each end (no matter
-    // the fixed position distance)
     if(off_end > 0) {
-      new_markers.add(new PseudoMarker(minpos - off_end));
-      new_markers.add(new PseudoMarker(maxpos + off_end));
+      for(auto npos=minpos-step; npos >= minpos - off_end; npos -= step) 
+	new_markers.add(new PseudoMarker(npos));
+      for(auto npos=maxpos+step; npos <= maxpos + off_end; npos += step) 
+	new_markers.add(new PseudoMarker(npos));
     }
     // FIXME remove Pseudo markers too close to other markers
     // (was this in R/qtl? No, so maybe I leave this)
