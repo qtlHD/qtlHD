@@ -2,7 +2,7 @@
  * Genetic map function module
  **/
 
-module qtl.core.map_functions;
+module qtl.core.genetic_map_functions;
 
 import std.stdio;
 import std.math;
@@ -13,7 +13,7 @@ enum GeneticMapFunc { Haldane, Kosambi, Morgan, Carter_Falconer };
 
 // convert cM distance to recombination fraction
 // Note: one chromosome at a time
-double[] dist_to_recfrac(double[] dist_cM, GeneticMapFunc which_dist_to_recfrac = GeneticMapFunc.Haldane)
+double[] dist_to_recfrac(double[] dist_cM, GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane)
 in {
   foreach(dist; dist_cM) {
     assert(dist >= 0, "dist_cM must be >= 0, was " ~ to!string(dist));
@@ -30,7 +30,7 @@ body {
   }
 
   foreach(i, dist; dist_cM) {
-    switch(which_dist_to_recfrac) {
+    switch(which_genmapfunc) {
     case GeneticMapFunc.Haldane:
       rec_frac[i] = 0.5*(1-exp(-dist/50));
       break;
@@ -110,7 +110,7 @@ unittest {
 
 // convert recombination fraction to cM distance
 // Note: one chromosome at a time
-double[] recfrac_to_dist(double[] rec_frac, GeneticMapFunc which_dist_to_recfrac = GeneticMapFunc.Haldane)
+double[] recfrac_to_dist(double[] rec_frac, GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane)
 in {
   foreach(rf; rec_frac) {
     assert(rf >= 0.0 && rf <= 0.5, "rec_frac must be >= 0 and <= 0.5");
@@ -122,7 +122,7 @@ body {
 
   foreach(i, rf; rec_frac) {
     if(rf >= 0.5-TOL) { rf = 0.5 - TOL; }
-    switch(which_dist_to_recfrac) {
+    switch(which_genmapfunc) {
     case GeneticMapFunc.Haldane:
       dist_cM[i] = -50*log(1-2*rf);
       break;
