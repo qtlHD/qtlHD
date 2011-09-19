@@ -95,7 +95,7 @@ exe_list.each do | fn, attr |
   end
   file fn => list do
     if windows?
-      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} #{lib_dfiles.join(' ')} test/main.d -L-lR"
+      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} #{lib_dfiles.join(' ')} test/main.d"
     else
       sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
     end

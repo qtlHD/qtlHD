@@ -114,8 +114,9 @@ version (Windows) {
   import qtl.core.libs.libload;
   import std.loader;
   
+  SEXPREC* R_GlobalEnv;
+  
   extern(C){
-    extern SEXPREC* R_GlobalEnv;
     double function(double, double, double, int) dnorm;
     double function(double, double, double, int, int) qf;
 
@@ -138,6 +139,8 @@ version (Windows) {
     SEXP     function(SEXPTYPE, R_len_t) Rf_allocVector;
     SEXPREC* function(SEXPREC *x, SEXPREC *y)SETCAR;
     SEXPREC* function(char *)Rf_install;
+    SEXP     function(SEXP, SEXP) Rf_eval;
+    SEXP     function(SEXP, SEXP) Rf_findFun;
     SEXPREC* function(SEXPREC *, SEXPREC *, int *)R_tryEval;
     SEXPREC* function(SEXPREC *, SEXPREC *, int *)R_tryEvalSilent;
     
@@ -149,6 +152,22 @@ version (Windows) {
     ubyte*  function(SEXPREC *x)RAW;
     double* function(SEXPREC *x)REAL;
   }
+  
+  SEXP NEW_LOGICAL(int n){return Rf_allocVector(LGLSXP,n); }
+  SEXP NEW_INTEGER(int n){return Rf_allocVector(INTSXP,n);}
+  SEXP NEW_NUMERIC(int n){return Rf_allocVector(REALSXP,n);}
+  SEXP NEW_CHARACTER(int n){return  Rf_allocVector(STRSXP,n);}
+  SEXP NEW_COMPLEX(int n){return Rf_allocVector(CPLXSXP,n);}
+  SEXP NEW_LIST(int n){return Rf_allocVector(VECSXP,n);}
+  SEXP NEW_STRING(int n){return NEW_CHARACTER(n);}
+  SEXP NEW_RAW(int n){return Rf_allocVector(RAWSXP,n);}
+  int* INTEGER_DATA(SEXPREC *x){return INTEGER(x);}
+  SEXP PROTECT(SEXP e){ return Rf_protect(e); }
+  void UNPROTECT(int e){ return Rf_unprotect(e); }
+  
+  int function(SEXPREC *x)Rf_length;
+  
+  SEXPREC* function(SEXPREC *e)CDR;
   
   //Karl wants to bind:
   //norm_rand; set_seed
@@ -174,6 +193,25 @@ version (Windows) {
    
     load_function(Rf_initEmbeddedR)(lib,"Rf_initEmbeddedR");
     load_function(Rf_endEmbeddedR)(lib,"Rf_endEmbeddedR");
+    
+    load_function(Rf_protect)(lib,"Rf_protect");
+    load_function(Rf_allocVector)(lib,"Rf_allocVector");
+    load_function(SETCAR)(lib,"SETCAR");
+    load_function(Rf_install)(lib,"Rf_install");
+    load_function(Rf_findFun)(lib,"Rf_findFun");
+    load_function(R_tryEval)(lib,"R_tryEval");
+    load_function(Rf_eval)(lib,"Rf_eval");
+    load_function(R_tryEvalSilent)(lib,"R_tryEvalSilent");
+    
+    load_function(Rf_unprotect)(lib,"Rf_unprotect");
+    load_function(Rf_unprotect_ptr)(lib,"Rf_unprotect_ptr");
+    
+    load_function(LOGICAL)(lib,"LOGICAL");
+    load_function(INTEGER)(lib,"INTEGER");
+    load_function(RAW)(lib,"RAW");
+    load_function(REAL)(lib,"REAL");
+    load_function(CDR)(lib,"CDR");
+    load_function(Rf_length)(lib,"Rf_length");
 
     writeln("Loaded R functionality");
   }

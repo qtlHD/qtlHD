@@ -53,7 +53,7 @@ class RSession{
     int result = -1;
 
     Rf_protect(e = Rf_allocVector(LANGSXP, 1));
-    SETCAR(e, Rf_install("foo".dup.ptr));
+    SETCAR(e, Rf_install("foo\0".dup.ptr));
 
     val = R_tryEval(e, R_GlobalEnv, &errorOccurred);
 
