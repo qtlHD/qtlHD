@@ -21,7 +21,7 @@ import std.algorithm;
 alias std.algorithm.find find;
 
 
-import qtl.core.map_functions;
+import qtl.core.genetic_map_functions;
 import qtl.core.hmm_f2;
 
 // The comments are based on the Ruby/Biolib-R/qtl integration
@@ -106,12 +106,15 @@ unittest {
   auto c1 = find!("a[0].name == \"1\"")(c_mslist)[0];
   auto ms1 = c1[1].sort;
   writeln(ms1);
+  writeln(" -- Chromosome 1");
   auto rfs = recombination_fractions(ms1);
   assert(rfs.length==12);
   assert(to!string(rfs[0])[0..9]=="0.0098688");
   assert(to!string(rfs[1])=="0.189685");
   // Chromosome X
-  writeln(recombination_fractions(msx));
+  writeln(" -- Chromosome X");
+  writeln("    msx.length: ", msx.length);
+  writeln("    ", recombination_fractions(msx));
   assert(to!string(recombination_fractions(msx)[0])=="0.285633");
   // expand map for each chromosome
   double totalexpsize = 0.0;
@@ -124,12 +127,13 @@ unittest {
   assert(to!string(totalexpsize) == "1104.29",to!string(totalexpsize));
  
   // test rfs after expansion
+  writeln(" -- Chr 1 with pseudomarkers");
   auto msin1 = new Markers!Marker(ms1);
   auto expanded_ms1 = add_stepped_markers_autosome(msin1,2.5,0);
   auto expanded_recombfs1 = recombination_fractions(expanded_ms1.list);
-  assert(expanded_recombfs1.length==51,to!string(expanded_recombfs1.length));
+  assert(expanded_recombfs1.length==49,to!string(expanded_recombfs1.length));
   assert(to!string(expanded_recombfs1[0])[0..9]=="0.0098688");
-  assert(to!string(expanded_recombfs1[2])=="0.133759");
+  assert(to!string(expanded_recombfs1[2])=="0.0243853");
   // for chromosome 1 (c1, ms1, rfs)
   // calc genotype probabilities (using data.genotypes)
   // here using map.d's Haldane - which should merge with hmm_f2 etc.
