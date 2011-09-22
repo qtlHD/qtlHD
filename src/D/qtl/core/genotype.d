@@ -36,7 +36,22 @@ import qtl.core.primitives;
   (GenotypeCombinatorIndex)
 
   Every marker column has its own combinations defined. So combination #1 may
-  refer to different genotypes, between different marker columns.
+  refer to different genotypes, between different marker columns. 
+
+  Above bit matrix may suggest a form of binary storage/packing/unpacking. In
+  reality we store it as a list of references to TrueGenotype. This is because
+  the bit vectors would get really wide with many true genotypes (K^2 sized).
+  So in above example:
+
+   -1        ->   NA
+    0        ->   [ 0 ]    i.e. [1,1]
+    1        ->   [ 1,2 ]  i.e. [1,2] or [2,2] 
+    2        ->   [ 2 ]    i.e. [2,2]
+
+  To introduce sex chromosomes, we can set one type to a special value (say -1
+  for the missing counterpart of X). The actual type in human would be [1,-1].
+  Sex should be queried at the chromosome level.
+
  */
 
 
