@@ -72,6 +72,13 @@ import qtl.core.primitives;
 
  */
 
+/*
+struct True_RIL {
+  const NA = TrueGenotype(GENOTYPE_NA,GENOTYPE_NA);
+  const A  = TrueGenotype(0,0);
+  const B  = TrueGenotype(1,1);
+}
+*/
 
 /**
  * The follwing is the enum typed genotypes - which are not as
@@ -164,19 +171,49 @@ unittest {
   auto g4 = new TrueGenotype(founder[4],founder[3]);
   assert(g1.heterozygous());
   assert(g2.homozygous());
+  assert(g2.founders[0] == 2);
   // observed genotypes can be any combination of true genotypes
   GenotypeCombinator observed_combi1;
-  observed_combi1 ~= g1;
-  observed_combi1 ~= g2;
+  observed_combi1 ~= *g1;
+  observed_combi1 ~= *g2;
   GenotypeCombinator observed_combi2;
-  observed_combi2 ~= g2;
+  observed_combi2 ~= *g2;
+  assert(observed_combi1.length == 2);
   // observed_combiX already acts as an index, so now we only need 
   // to store the observed genotypes with the marker. The marker/genotype
   // matrix stores references to observed_combiX.
 }
 
 /**
- * Enum style genotypes
+ * Emulate RIL set using Genotype combinator
+ */
+
+/*
+unittest {
+  // One way of introducing true genotypes
+  auto NA = new TrueGenotype(GENOTYPE_NA,GENOTYPE_NA);
+  auto A  = new TrueGenotype(0,0);
+  auto B  = new TrueGenotype(1,1);
+  assert(A.homozygous());
+  assert(B.homozygous());
+  Genotype!True_RIL[] ril;
+  ril ~= set_genotype!True_RIL("-");
+  ril ~= set_genotype!True_RIL("A");
+  ril ~= set_genotype!True_RIL("B");
+  // ril ~= set_genotype!TG_RIL("H"); raises exception
+  // ril ~= set_genotype!TG_RIL("C"); raises exception
+  assert(ril[0].value == True_RIL.NA);
+  assert(ril[1].value == True_RIL.A);
+  assert(ril[2].value == True_RIL.B);
+}
+*/
+
+/** 
+ * Emulate BC using Genotype combinator
+ */
+
+/**
+ * Enum (old) style genotypes
  */
 
 unittest {
