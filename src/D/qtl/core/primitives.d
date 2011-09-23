@@ -151,7 +151,7 @@ struct Genotype(T) {
   string toString(){
     if(to!int(value) != GENOTYPE_NA){
       return to!string(value);
-    }else{
+    } else {
       return "-";
     }
   }
@@ -203,7 +203,7 @@ alias uint FounderIndex;
  * potentially, be directional (see also genotype.d)
  */
 
-class TrueGenotype {
+struct TrueGenotype {
   Tuple!(FounderIndex,FounderIndex) founders;
   this(FounderIndex founder1,FounderIndex founder2) {
     founders = Tuple!(FounderIndex,FounderIndex)(founder1, founder2);
