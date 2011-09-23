@@ -59,15 +59,13 @@ import qtl.core.primitives;
   one paternal genotype.
 
   With SNP markers, two representations can be supported using this genotyping
-  system. In the first, each SNP is treated as a marker - therefor there are
+  system. In the first, each SNP is treated as a marker - therefore there are
   always two genotypes involved. This is the simplest approach. The second
   approach works at the allele level. SNPs are combined into ORFs, or genes.
-  Multiple allele combinations can be supported with our genotyping
+  Multiple allele combinations can be supported with this genotyping
   representation.
 
  */
-
-
 
 enum RIL { NA = GENOTYPE_NA, A, B };
 enum F2  { NA = GENOTYPE_NA, A, H, B, HorB, HorA }; 
