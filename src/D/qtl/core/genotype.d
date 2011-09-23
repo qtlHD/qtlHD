@@ -10,17 +10,19 @@ import qtl.core.primitives;
 
 /**
 
-  Discussing storing genotypes:
+  Discussing storing of genotypes:
 
-  The number of possible real genotypes at a marker location is limited, as they
-  depend on the number of founders (K^2 types). Unfortunately, due to technology, 
-  there are a lot more 'observed' genotypes - i.e. combinations of possible genotypes,
+  The number of possible true, or real, genotypes at a marker location is
+  limited, as they depend on the number of founders (K^2 types). Unfortunately,
+  due to the scoring technology, there are a lot more 'observed' genotypes -
+  i.e.  combinations of possible true genotypes,
 
-  Inside each dataset, however, there is a limited number of stored combinations. So,
-  rather than setting all types in advance we only create the actual types used in
-  the dataset. The genotype matrix contains pointers to a bit array. The bit array
-  references combinations of supported types. Supported types are Tuples of 'alleles',
-  where alleles are numbers referring to the founders. I.e.
+  Inside each dataset, however, there is a limited number of stored
+  combinations. So, rather than setting all types in advance we only create the
+  actual types used in the dataset. The genotype matrix contains pointers to a
+  bit array. The bit array references combinations of supported types.
+  Supported types are Tuples of 'alleles', where alleles are numbers referring
+  to the founders. I.e.
 
   founders:       [1]   [2]   [3]   [4]
   
@@ -51,6 +53,17 @@ import qtl.core.primitives;
   To introduce sex chromosomes, we can set one type to a special value (say -1
   for the missing counterpart of X). The actual type in human would be [1,-1].
   Sex should be queried at the chromosome level.
+
+  Note that outbreeding can be supported by creating artificial founders
+  consisting of singular genotypes (similar to a RIL), with one maternal and
+  one paternal genotype.
+
+  With SNP markers, two representations can be supported using this genotyping
+  system. In the first, each SNP is treated as a marker - therefor there are
+  always two genotypes involved. This is the simplest approach. The second
+  approach works at the allele level. SNPs are combined into ORFs, or genes.
+  Multiple allele combinations can be supported with our genotyping
+  representation.
 
  */
 
