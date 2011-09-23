@@ -35,7 +35,7 @@ import qtl.core.primitives;
     1        ->   [ 0      1     1     0    0 ]   i.e. [1,2] or [2,2] 
     2        ->   [ 0      0     1     0    0 ]   i.e. [2,2]
 
-  (GenotypeCombinatorIndex)
+  (GenotypeCombinatorIndex - the left column)
 
   Types are defined in primitives.d.
 
@@ -47,6 +47,7 @@ import qtl.core.primitives;
   the bit vectors would get really wide with many true genotypes (K^2 sized).
   So in above example:
 
+   Index          GenotypeCombinator
    -1        ->   NA
     0        ->   [ 0 ]    i.e. [1,1]
     1        ->   [ 1,2 ]  i.e. [1,2] or [2,2] 
@@ -155,14 +156,24 @@ import std.typecons;
 unittest {
   writeln("Unit test" ~ __FILE__);
   // at this point founders are simply numbers
-  FounderIndex[] founder = [ 1, 2, 3, 4, ];
+  FounderIndex[] founder = [ 1, 2, 3, 4, 5 ];
   // create a few genotypes (at a marker location)
-  auto g1 = new TrueGenotype(founder[1],founder[2]);
-  auto g2 = new TrueGenotype(founder[1],founder[1]);
+  auto g1 = new TrueGenotype(founder[0],founder[2]);
+  auto g2 = new TrueGenotype(founder[1],founder[1]); // could be a RIL
+  auto g3 = new TrueGenotype(founder[2],founder[3]);
+  auto g4 = new TrueGenotype(founder[4],founder[3]);
   assert(g1.heterozygous());
   assert(g2.homozygous());
+  // observed genotypes can be any combination of true genotypes
+  GenotypeCombinator observed_combi1;
+  observed_combi1 ~= g1;
+  observed_combi1 ~= g2;
+  GenotypeCombinator observed_combi2;
+  observed_combi2 ~= g2;
+  // observed_combiX already acts as an index, so now we only need 
+  // to store the observed genotypes with the marker. The marker/genotype
+  // matrix stores references to observed_combiX.
 }
-
 
 /**
  * Enum style genotypes

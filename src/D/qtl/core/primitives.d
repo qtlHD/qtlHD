@@ -213,10 +213,11 @@ class TrueGenotype {
 }
 
 /**
- * GenotypeCombinator pints to a TrueGenoType
+ * GenotypeCombinator points to a TrueGenoType - we have a list 
+ * of these for each observed type
  */
 
-alias ref TrueGenotype GenotypeCombinator;
+alias TrueGenotype GenotypeCombinator[];
 
 immutable PHENOTYPE_NA = double.max; // FIXME: needs to be typed to T
 
