@@ -37,6 +37,8 @@ import qtl.core.primitives;
 
   (GenotypeCombinatorIndex)
 
+  Types are defined in primitives.d.
+
   Every marker column has its own combinations defined. So combination #1 may
   refer to different genotypes, between different marker columns. 
 
@@ -49,6 +51,8 @@ import qtl.core.primitives;
     0        ->   [ 0 ]    i.e. [1,1]
     1        ->   [ 1,2 ]  i.e. [1,2] or [2,2] 
     2        ->   [ 2 ]    i.e. [2,2]
+
+  Note that types can be reused - i.e. there are no duplicates defined.
 
   To introduce sex chromosomes, we can set one type to a special value (say -1
   for the missing counterpart of X). The actual type in human would be [1,-1].
@@ -65,6 +69,12 @@ import qtl.core.primitives;
   Multiple allele combinations can be supported with this genotyping
   representation.
 
+ */
+
+
+/**
+ * The follwing is the enum typed genotypes - which are not as
+ * flexible as the newer genotyping scheme, explained above.
  */
 
 enum RIL { NA = GENOTYPE_NA, A, B };
@@ -136,11 +146,29 @@ Genotype!T set_genotype(T)(in string s) {
   }
   return g;
 }
+/**
+ * New style genotypes - support for observed genotypes
+ */
 
-
+import std.typecons; 
 
 unittest {
-  writeln("Unit test " ~ __FILE__);
+  writeln("Unit test" ~ __FILE__);
+  // at this point founders are simply numbers
+  FounderIndex[] founder = [ 1, 2, 3, 4, ];
+  // create a few genotypes (at a marker location)
+  auto g1 = new TrueGenotype(founder[1],founder[2]);
+  auto g2 = new TrueGenotype(founder[1],founder[1]);
+  assert(g1.heterozygous());
+  assert(g2.homozygous());
+}
+
+
+/**
+ * Enum style genotypes
+ */
+
+unittest {
   Genotype!F2[] gs;
   gs ~= set_genotype!F2("-");
   gs ~= set_genotype!F2("A");

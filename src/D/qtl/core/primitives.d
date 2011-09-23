@@ -192,7 +192,8 @@ alias GenoProb[][][] GenoProbs;  // = new double[][][](n_gen,n_ind,n_markers);
 
 
 /**
- * FounderIndex is an index into Founders (see also genotype.d)
+ * FounderIndex is an index into Founders (see also genotype.d). This may
+ * be turned into a Founder ref, later.
  */
 
 alias uint FounderIndex;   
@@ -202,8 +203,20 @@ alias uint FounderIndex;
  * potentially, be directional (see also genotype.d)
  */
 
-alias Tuple!(FounderIndex, FounderIndex) TrueGenotype;
+class TrueGenotype {
+  Tuple!(FounderIndex,FounderIndex) founders;
+  this(FounderIndex founder1,FounderIndex founder2) {
+    founders = Tuple!(FounderIndex,FounderIndex)(founder1, founder2);
+  }
+  auto homozygous()   { return founders[0] == founders[1]; };
+  auto heterozygous() { return !homozygous(); };
+}
 
+/**
+ * GenotypeCombinator pints to a TrueGenoType
+ */
+
+alias ref TrueGenotype GenotypeCombinator;
 
 immutable PHENOTYPE_NA = double.max; // FIXME: needs to be typed to T
 
