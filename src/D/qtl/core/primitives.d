@@ -150,13 +150,10 @@ struct Genotype(T) {
   /// String representation of genotype.
   string toString() {
     static if (is(typeof(to!int(value)==0)==bool)) {
-      // ---- handling when T resolves to an int
-      if (to!int(value) == GENOTYPE_NA) {  
-        return "-";
-      } 
-      else {
-        return to!string(value);
-      }
+      // ---- handling when T resolves to an int (or enum). There
+      //      is another way - by defining int.GENOTYPE_NA. But
+      //      this works, and delegates.
+      return to!int(value) == GENOTYPE_NA ? "-" : to!string(value);
     } 
     else {
       // ---- otherwise delegate to genotype implementation
