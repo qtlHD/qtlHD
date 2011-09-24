@@ -55,13 +55,17 @@ import qtl.core.primitives;
 
   Note that types can be reused - i.e. there are no duplicates defined.
 
-  To introduce sex chromosomes, we can set one type to a special value (say -1
-  for the missing counterpart of X). The actual type in human would be [1,-1].
+  Each marker has a list of GenotypeCombinators. The actual 
+  GenotypeCombinators are also maintained in a separate list - so as
+  to share observed types, rather than duplicating them for each 
+  marker. For this we define ObservedGenotypes, which maintains
+  this list.
+
   Sex should be queried at the chromosome level.
 
   Note that outbreeding can be supported by creating artificial founders
   consisting of singular genotypes (similar to a RIL), with one maternal and
-  one paternal genotype.
+  one paternal genotype as founders.
 
   With SNP markers, two representations can be supported using this genotyping
   system. In the first, each SNP is treated as a marker - therefore there are
@@ -71,6 +75,43 @@ import qtl.core.primitives;
   representation.
 
  */
+
+/**
+ * FounderIndex is an index into Founders. This may be turned into a Founder
+ * ref, later.
+ */
+
+alias uint FounderIndex;   
+
+/**
+ * A true genotype consists of a Tuple of alleles. These alleles can,
+ * potentially, be directional (see also genotype.d)
+ */
+
+class TrueGenotype {
+  Tuple!(FounderIndex,FounderIndex) founders;
+  this(FounderIndex founder1,FounderIndex founder2) {
+    founders = Tuple!(FounderIndex,FounderIndex)(founder1, founder2);
+  }
+  auto homozygous()   { return founders[0] == founders[1]; };
+  auto heterozygous() { return !homozygous(); };
+}
+
+
+/**
+ * GenotypeCombinator points to a TrueGenoType - we have a list 
+ * of these for each observed type
+ */
+
+alias TrueGenotype GenotypeCombinator[];
+
+/** 
+ * ObservedGenotypes tracks all the observed genotypes in a dataset
+ */
+
+class ObservedGenotypes {
+  bool has() { return false; }
+}
 
 /*
 struct True_RIL {
@@ -174,10 +215,10 @@ unittest {
   assert(g2.founders[0] == 2);
   // observed genotypes can be any combination of true genotypes
   GenotypeCombinator observed_combi1;
-  observed_combi1 ~= *g1;
-  observed_combi1 ~= *g2;
+  observed_combi1 ~= g1;
+  observed_combi1 ~= g2;
   GenotypeCombinator observed_combi2;
-  observed_combi2 ~= *g2;
+  observed_combi2 ~= g2;
   assert(observed_combi1.length == 2);
   // observed_combiX already acts as an index, so now we only need 
   // to store the observed genotypes with the marker. The marker/genotype
