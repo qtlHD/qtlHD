@@ -99,18 +99,30 @@ class TrueGenotype {
 
 
 /**
- * GenotypeCombinator points to a TrueGenoType - we have a list 
+ * GenotypeCombinator points to TrueGenoTypes - we have a list 
  * of these for each observed type
  */
 
-alias TrueGenotype GenotypeCombinator[];
+class GenotypeCombinator {
+  TrueGenotype list[];
+}
 
 /** 
- * ObservedGenotypes tracks all the observed genotypes in a dataset
+ * ObservedGenotypes tracks all the observed genotypes in a dataset - 
+ * this is a convenience class mostly.
  */
 
 class ObservedGenotypes {
-  bool has() { return false; }
+  GenotypeCombinator list[];
+  /// Pass in a combination of genotypes, add if not already in list and
+  /// return the actual match.
+  GenotypeCombinator add(GenotypeCombinator combinator) { 
+    // list ~= combinator;
+    return combinator;
+  }
+  GenotypeCombinator find(GenotypeCombinator combinator) {
+    return null;
+  }
 }
 
 /*
@@ -215,11 +227,13 @@ unittest {
   assert(g2.founders[0] == 2);
   // observed genotypes can be any combination of true genotypes
   GenotypeCombinator observed_combi1;
-  observed_combi1 ~= g1;
-  observed_combi1 ~= g2;
+  /*
+  observed_combi1.list ~= g1;
+  observed_combi1.list ~= g2;
   GenotypeCombinator observed_combi2;
-  observed_combi2 ~= g2;
-  assert(observed_combi1.length == 2);
+  observed_combi2.list ~= g2;
+  assert(observed_combi1.list.length == 2);
+  */
   // observed_combiX already acts as an index, so now we only need 
   // to store the observed genotypes with the marker. The marker/genotype
   // matrix stores references to observed_combiX.
