@@ -148,12 +148,19 @@ struct Genotype(T) {
   T value;
   
   /// String representation of genotype.
-  string toString(){
-    // hmmm. This assumes the type can be an int
-    if(to!int(value) != GENOTYPE_NA){  
+  string toString() {
+    static if (is(typeof(to!int(value)==0)==bool)) {
+      // ---- handling when T resolves to an int
+      if (to!int(value) == GENOTYPE_NA) {  
+        return "-";
+      } 
+      else {
+        return to!string(value);
+      }
+    } 
+    else {
+      // ---- otherwise delegate to genotype implementation
       return to!string(value);
-    } else {
-      return "-";
     }
   }
 }
