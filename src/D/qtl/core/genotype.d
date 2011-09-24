@@ -242,6 +242,8 @@ unittest {
   assert(ril[0].value == RIL.NA);
   assert(ril[1].value == RIL.A);
   assert(ril[2].value == RIL.B);
+  assert(to!string(ril[0]) == "-");
+  assert(to!string(ril[1]) == "A", to!string(ril[1]));
 }
 
 import std.algorithm;
