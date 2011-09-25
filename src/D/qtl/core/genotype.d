@@ -96,6 +96,22 @@ class TrueGenotype {
   this(TrueGenotype g) { founders = g.founders; }
   auto homozygous()   { return founders[0] == founders[1]; };
   auto heterozygous() { return !homozygous(); };
+  int opCmp(Object other) {
+    auto founders2 = (cast(TrueGenotype)other).founders;
+    if (founders[0] > founders2[0]) return 1;
+    if (founders[0] < founders2[0]) return -1;
+    if (founders[1] > founders2[1]) return 1;
+    if (founders[1] < founders2[1]) return -1;
+    return 0;
+  }
+  bool opEquals(Object other) {
+    auto founders2 = (cast(TrueGenotype)other).founders;
+    return founders[0] == founders2[0] && founders[1] == founders2[1];
+  }
+  string toString() { 
+    uint f0 = founders[0]; uint f1 = founders[1];
+    return '(' ~ to!string(f0) ~ ',' ~ to!string(f1) ~ ')';
+  }
 }
 
 
@@ -112,6 +128,12 @@ class GenotypeCombinator {
     foreach(m; list) { if (m.founders == g.founders) return m; }
     list ~= g; 
     return g;
+  }
+  // match combinators (are they the same?)
+  bool match(GenotypeCombinator gc) {
+    writeln(gc.list.sort);
+    writeln(list.sort);
+    return (gc.list.sort == list.sort); // not the fastest way ;)
   }
 }
 
@@ -248,6 +270,12 @@ unittest {
   auto observed_combi2 = new GenotypeCombinator;
   observed_combi2.list ~= g2;
   assert(observed_combi2.list.length == 1);
+  assert(observed_combi2.match(observed_combi2));
+  assert(!observed_combi1.match(observed_combi2));
+  auto observed_combi1a = new GenotypeCombinator;
+  observed_combi1a.add(g2a);
+  observed_combi1a.add(g1);
+  assert(observed_combi1.match(observed_combi1a));
   // observed_combiX already acts as an index, so now we only need 
   // to store the observed genotypes with the marker. The marker/genotype
   // matrix stores references to observed_combiX.
