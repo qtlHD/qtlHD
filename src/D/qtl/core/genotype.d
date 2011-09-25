@@ -93,6 +93,7 @@ class TrueGenotype {
   this(FounderIndex founder1,FounderIndex founder2) {
     founders = Tuple!(FounderIndex,FounderIndex)(founder1, founder2);
   }
+  this(TrueGenotype g) { founders = g.founders; }
   auto homozygous()   { return founders[0] == founders[1]; };
   auto heterozygous() { return !homozygous(); };
 }
@@ -104,16 +105,23 @@ class TrueGenotype {
  */
 
 class GenotypeCombinator {
-  TrueGenotype list[];
+  TrueGenotype[] list;
+
+  // uniquely add a genotype. Return match.
+  TrueGenotype add(TrueGenotype g) { 
+    foreach(m; list) { if (m.founders == g.founders) return m; }
+    list ~= g; 
+    return g;
+  }
 }
 
 /** 
  * ObservedGenotypes tracks all the observed genotypes in a dataset - 
- * this is a convenience class mostly.
+ * this is a convenience class, mostly.
  */
 
 class ObservedGenotypes {
-  GenotypeCombinator list[];
+  GenotypeCombinator[] list;
   /// Pass in a combination of genotypes, add if not already in list and
   /// return the actual match.
   GenotypeCombinator add(GenotypeCombinator combinator) { 
@@ -218,22 +226,28 @@ unittest {
   // at this point founders are simply numbers
   FounderIndex[] founder = [ 1, 2, 3, 4, 5 ];
   // create a few genotypes (at a marker location)
-  auto g1 = new TrueGenotype(founder[0],founder[2]);
-  auto g2 = new TrueGenotype(founder[1],founder[1]); // could be a RIL
-  auto g3 = new TrueGenotype(founder[2],founder[3]);
-  auto g4 = new TrueGenotype(founder[4],founder[3]);
+  auto g1  = new TrueGenotype(founder[0],founder[2]);
+  auto g2  = new TrueGenotype(founder[1],founder[1]); // could be a RIL
+  auto g2a = new TrueGenotype(founder[1],founder[1]); // duplicate
+  auto g3  = new TrueGenotype(founder[2],founder[3]);
+  auto g4  = new TrueGenotype(founder[4],founder[3]);
   assert(g1.heterozygous());
   assert(g2.homozygous());
   assert(g2.founders[0] == 2);
   // observed genotypes can be any combination of true genotypes
-  GenotypeCombinator observed_combi1;
-  /*
-  observed_combi1.list ~= g1;
-  observed_combi1.list ~= g2;
-  GenotypeCombinator observed_combi2;
-  observed_combi2.list ~= g2;
+  auto observed_combi1 = new GenotypeCombinator;
+  observed_combi1.add(g1);
+  observed_combi1.add(g2);
+  observed_combi1.add(g2); // test for duplicate add
   assert(observed_combi1.list.length == 2);
-  */
+  observed_combi1.add(g2); // test for duplicate add
+  assert(observed_combi1.list.length == 2);
+  auto testg = observed_combi1.add(g2a); // test for duplicate add
+  assert(testg == g2);
+  assert(observed_combi1.list.length == 2);
+  auto observed_combi2 = new GenotypeCombinator;
+  observed_combi2.list ~= g2;
+  assert(observed_combi2.list.length == 1);
   // observed_combiX already acts as an index, so now we only need 
   // to store the observed genotypes with the marker. The marker/genotype
   // matrix stores references to observed_combiX.
