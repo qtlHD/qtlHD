@@ -145,6 +145,10 @@ class GenotypeCombinator {
     add(g);
     return this;
   }
+  GenotypeCombinator opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
+    foreach(g ; c.list ) { add(g); };
+    return this;
+  }
   auto length() { return list.length; }
   bool opEquals(Object other) {
     auto rhs = cast(GenotypeCombinator)other;
@@ -287,7 +291,7 @@ unittest {
 
 /** 
  * Directional F2 with ambiguous scoring:
- * F2  { NA, A, AB, BA, B, HorB, HorA }; 
+ * F2  { NA, A, B, AB, BA, HorB, HorA }; 
  */
 
 unittest {
@@ -296,12 +300,28 @@ unittest {
   A ~= new TrueGenotype(0,0);
   auto B  = new GenotypeCombinator("B");
   B ~= new TrueGenotype(1,1);
-  assert(NA.name == "NA");
-  assert(A.name == "A");
+  auto AB  = new GenotypeCombinator("AB");
+  AB ~= new TrueGenotype(0,1);
+  auto BA  = new GenotypeCombinator("BA");
+  BA ~= new TrueGenotype(1,0);
+  auto HorB  = new GenotypeCombinator("HorB",["C"]);
+  HorB ~= B;
+  HorB ~= AB;
+  HorB ~= BA;
+  auto HorA  = new GenotypeCombinator("HorA",["D"]);
+  HorA ~= A;
+  HorA ~= AB;
+  HorA ~= BA;
   auto tracker = new ObservedGenotypes();
   tracker ~= NA;
   tracker ~= A;
   tracker ~= B;
+  tracker ~= AB;
+  tracker ~= BA;
+  tracker ~= HorA;
+  tracker ~= HorB;
+  writeln(HorA);
+  assert(to!string(HorA) == "[(0,0), (0,1), (1,0)]");
 }
 
 /**
