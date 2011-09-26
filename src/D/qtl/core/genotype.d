@@ -259,17 +259,17 @@ unittest {
  */
 
 unittest {
-  auto na = new GenotypeCombinator("NA",["-"]);
-  auto a  = new GenotypeCombinator("A");
-  a ~= new TrueGenotype(0,0);
-  auto b  = new GenotypeCombinator("B");
-  b ~= new TrueGenotype(1,1);
-  assert(na.name == "NA");
-  assert(a.name == "A");
+  auto NA = new GenotypeCombinator("NA",["-"]);
+  auto A  = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto B  = new GenotypeCombinator("B");
+  B ~= new TrueGenotype(1,1);
+  assert(NA.name == "NA");
+  assert(A.name == "A");
   auto tracker = new ObservedGenotypes();
-  tracker ~= na;
-  tracker ~= a;
-  tracker ~= b;
+  tracker ~= NA;
+  tracker ~= A;
+  tracker ~= B;
   GenotypeCombinator ril[];  // create a set of observed genotypes
   // now find them by name
   ril ~= tracker.fetch("-");
@@ -286,8 +286,23 @@ unittest {
 }
 
 /** 
- * Emulate BC using Genotype combinator
+ * Directional F2 with ambiguous scoring:
+ * F2  { NA, A, AB, BA, B, HorB, HorA }; 
  */
+
+unittest {
+  auto NA = new GenotypeCombinator("NA",["-"]);
+  auto A = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto B  = new GenotypeCombinator("B");
+  B ~= new TrueGenotype(1,1);
+  assert(NA.name == "NA");
+  assert(A.name == "A");
+  auto tracker = new ObservedGenotypes();
+  tracker ~= NA;
+  tracker ~= A;
+  tracker ~= B;
+}
 
 /**
  * Enum (old) style genotypes
