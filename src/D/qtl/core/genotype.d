@@ -324,16 +324,16 @@ unittest {
 
 /**
  * Emulate RIL set using Genotype combinator
+ * RIL { NA = GENOTYPE_NA, A, B };
  */
 
-/*
 unittest {
-  // One way of introducing true genotypes
-  auto NA = new TrueGenotype(GENOTYPE_NA,GENOTYPE_NA);
+  auto NA = new GenotypeCombinator();
   auto A  = new TrueGenotype(0,0);
   auto B  = new TrueGenotype(1,1);
   assert(A.homozygous());
   assert(B.homozygous());
+  /*
   Genotype!True_RIL[] ril;
   ril ~= set_genotype!True_RIL("-");
   ril ~= set_genotype!True_RIL("A");
@@ -343,8 +343,8 @@ unittest {
   assert(ril[0].value == True_RIL.NA);
   assert(ril[1].value == True_RIL.A);
   assert(ril[2].value == True_RIL.B);
+  */
 }
-*/
 
 /** 
  * Emulate BC using Genotype combinator
