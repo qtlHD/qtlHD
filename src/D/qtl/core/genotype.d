@@ -162,6 +162,11 @@ class ObservedGenotypes {
   GenotypeCombinator find(GenotypeCombinator combinator) {
     return null;
   }
+  ObservedGenotypes opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
+    add(c);
+    return this;
+  }
+  auto length() { return list.length; }
 }
 
 /*
@@ -279,7 +284,7 @@ unittest {
   assert(observed_combi1.list.length == 2);
   observed_combi1 ~= g2; // tests also for duplicate add
   assert(observed_combi1.list.length == 2);
-  auto testg = observed_combi1.add(g2a);
+  auto testg = observed_combi1.add(g2a); // we want the return type
   assert(testg == g2);
   assert(observed_combi1.list.length == 2);
   auto observed_combi2 = new GenotypeCombinator;
@@ -288,32 +293,33 @@ unittest {
   assert(observed_combi2 == observed_combi2);
   assert(observed_combi1 != observed_combi2);
   auto observed_combi1a = new GenotypeCombinator;
-  observed_combi1a.add(g2a);
-  observed_combi1a.add(g1);
+  observed_combi1a ~= g2a;
+  observed_combi1a ~= g1;
   assert(observed_combi1 == observed_combi1a);
   // observed_combi already acts as an index, so now we only need 
   // to store the observed genotypes with the marker. The marker/genotype
   // matrix stores references to observed_combiX by reference. Say
-  // we have a marker column, and 2 individuals:
-  auto marker = new GenotypeCombinator[](2);
-  marker[0] = new GenotypeCombinator;
-  assert(to!string(marker[0]) == "[NA]", to!string(marker[0]));
-  marker[1] = new GenotypeCombinator;
-  marker[1].add(g1);
-  marker[1].add(g2); // add 2nd possible genotype
-  marker[1].add(g2); // duplicate type 
-  assert(to!string(marker[1]) == "[(1,3), (2,2)]");
-  assert(marker[1].list == [g1,g2]);
-  assert(marker[1] != marker[0]);
-  // you see, each marker/individual simply contains a list of true (possible)
+  // we have a marker column, and 2 individuals (2 observed genotypes):
+  auto observed = new GenotypeCombinator[](2);
+  observed[0] = new GenotypeCombinator;
+  observed[1] = new GenotypeCombinator;
+  // currently there is no content:
+  assert(to!string(observed[0]) == "[NA]", to!string(observed[0]));
+  observed[1] ~= g1;
+  observed[1] ~= g2; // add 2nd possible genotype
+  observed[1] ~= g2; // duplicate type 
+  assert(to!string(observed[1]) == "[(1,3), (2,2)]");
+  assert(observed[1].list == [g1,g2]);
+  assert(observed[1] != observed[0]);
+  // you see, each observed/individual simply contains a list of true (possible)
   // genotypes. To keep track of observed genotypes you may use
-  auto observed = new ObservedGenotypes();
-  observed.add(marker[0]);
-  observed.add(marker[1]);
-  auto test = observed.add(marker[1]); // add duplicate
-  assert(test == marker[1]);
+  auto tracker = new ObservedGenotypes();
+  tracker ~= observed[0];
+  tracker ~= observed[1];
+  auto test = tracker.add(observed[1]); // add duplicate
+  assert(test == observed[1]);
   assert(test == observed_combi1); // No duplication!
-  assert(observed.list.length == 2);
+  assert(tracker.length == 2);
 }
 
 /**
