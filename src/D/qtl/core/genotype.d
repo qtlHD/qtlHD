@@ -142,7 +142,7 @@ class GenotypeCombinator {
     if (isNA) return "[NA]";
     return to!string(list);
   }
-  bool isNA() { return list.length == 0; }
+  bool isNA() { return length == 0; }
 }
 
 /** 
@@ -275,10 +275,11 @@ unittest {
   observed_combi1.add(g2); // call add directly
   observed_combi1.add(g2); // tests also for duplicate add
   writeln(observed_combi1.list);
+  assert(!observed_combi1.isNA);
   assert(observed_combi1.list.length == 2);
   observed_combi1 ~= g2; // tests also for duplicate add
   assert(observed_combi1.list.length == 2);
-  auto testg = (observed_combi1 ~= g2a); // tests also for duplicate add
+  auto testg = observed_combi1.add(g2a);
   assert(testg == g2);
   assert(observed_combi1.list.length == 2);
   auto observed_combi2 = new GenotypeCombinator;
