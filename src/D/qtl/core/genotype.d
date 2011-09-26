@@ -136,6 +136,10 @@ class GenotypeCombinator {
     list ~= g; 
     return g;
   }
+  GenotypeCombinator opOpAssign(string op)(TrueGenotype g) if (op == "~") {
+    add(g);
+    return this;
+  }
   bool opEquals(Object other) {
     auto rhs = cast(GenotypeCombinator)other;
     return (list.sort == rhs.list.sort); // probably not the fastest way ;)
@@ -271,7 +275,7 @@ unittest {
   assert(g2.founders[0] == 2);
   // observed genotypes can be any combination of true genotypes
   auto observed_combi1 = new GenotypeCombinator;
-  observed_combi1.add(g1);
+  observed_combi1 ~= g1;
   observed_combi1.add(g2);
   observed_combi1.add(g2); // tests also for duplicate add
   writeln(observed_combi1.list);
@@ -311,6 +315,10 @@ unittest {
   auto observed = new ObservedGenotypes();
   observed.add(marker[0]);
   observed.add(marker[1]);
+  auto test = observed.add(marker[1]); // add duplicate
+  assert(test == marker[1]);
+  assert(test == observed_combi1); // No duplication!
+  assert(observed.list.length == 2);
 }
 
 /**
