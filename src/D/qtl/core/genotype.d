@@ -114,13 +114,6 @@ class TrueGenotype {
   }
 }
 
-class GenotypeNA : TrueGenotype {
-  this() { super(-1,-1); }
-  string toString() { 
-    return "(NA)";
-  }
-}
-
 /**
  * GenotypeCombinator points to TrueGenoTypes - we have a list 
  * of these for each observed type - as it is defined in the
@@ -145,9 +138,11 @@ class GenotypeCombinator {
     auto rhs = cast(GenotypeCombinator)other;
     return (list.sort == rhs.list.sort); // probably not the fastest way ;)
   }
-  string toString() { 
+  string toString() {
+    if (isNA) return "[NA]";
     return to!string(list);
   }
+  bool isNA() { return list.length == 0; }
 }
 
 /** 
@@ -301,9 +296,7 @@ unittest {
   // we have a marker column, and 2 individuals:
   auto marker = new GenotypeCombinator[](2);
   marker[0] = new GenotypeCombinator;
-  auto na  = new GenotypeNA();
-  marker[0].add(na);
-  assert(to!string(marker[0]) == "[(NA)]", to!string(marker[0]));
+  assert(to!string(marker[0]) == "[NA]", to!string(marker[0]));
   marker[1] = new GenotypeCombinator;
   marker[1].add(g1);
   marker[1].add(g2); // add 2nd possible genotype
