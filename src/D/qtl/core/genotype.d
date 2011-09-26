@@ -249,24 +249,26 @@ unittest {
  */
 
 unittest {
-  auto na = new GenotypeCombinator("NA");
+  auto na = new GenotypeCombinator("NA","-");
   auto a  = new GenotypeCombinator("A");
+  a ~= new TrueGenotype(0,0);
   auto b  = new GenotypeCombinator("B");
+  b ~= new TrueGenotype(1,1);
   assert(na.name == "NA");
   assert(a.name == "A");
-  a ~= new TrueGenotype(0,0);
-  b ~= new TrueGenotype(1,1);
-  /*
-  Genotype!True_RIL[] ril;
-  ril ~= set_genotype!True_RIL("-");
-  ril ~= set_genotype!True_RIL("A");
-  ril ~= set_genotype!True_RIL("B");
-  // ril ~= set_genotype!TG_RIL("H"); raises exception
-  // ril ~= set_genotype!TG_RIL("C"); raises exception
-  assert(ril[0].value == True_RIL.NA);
-  assert(ril[1].value == True_RIL.A);
-  assert(ril[2].value == True_RIL.B);
-  */
+  auto tracker = new ObservedGenotypes();
+  tracker ~= na;
+  tracker ~= a;
+  tracker ~= b;
+  auto ril = GenotypeCombinator[];  // one set of observed genotypes
+  ril ~= set_genotype(tracker,"-");
+  ril ~= set_genotype(tracker,"NA");
+  ril ~= set_genotype(tracker,"A");
+  ril ~= set_genotype(tracker,"B");
+  // ril ~= set_genotype(tracker,"C"); raises exception
+  assert(ril[0].value.isNA);
+  assert(ril[1].value.name == "A");
+  assert(ril[2].value.name == "B");
 }
 
 /** 
