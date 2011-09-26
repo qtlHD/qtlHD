@@ -321,6 +321,7 @@ unittest {
   tracker ~= HorA;
   tracker ~= HorB;
   writeln(HorA);
+  assert(HorA.name == "HorA");
   assert(to!string(HorA) == "[(0,0), (0,1), (1,0)]");
 }
 
