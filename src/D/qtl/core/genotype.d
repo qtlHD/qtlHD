@@ -123,9 +123,18 @@ class TrueGenotype {
 class GenotypeCombinator {
   TrueGenotype[] list;
   string name;
+  string alternatives[];
 
-  this(string name = "?") { this.name = name; }
+  this(string name = "?", string alternatives[] = []) { 
+    this.name = name; this.alternatives = alternatives; }
 
+  bool match(in string s) {
+    if (s == name) return true;
+    foreach (n; alternatives) {
+      if (s == n) return true; 
+    }
+    return false;
+  }
   // uniquely add a genotype. Return match.
   TrueGenotype add(TrueGenotype g) { 
     foreach(m; list) { if (m.founders == g.founders) return m; }
@@ -162,8 +171,9 @@ class ObservedGenotypes {
     list ~= c; 
     return c;
   }
-  GenotypeCombinator find(GenotypeCombinator combinator) {
-    return null;
+  GenotypeCombinator fetch(in string s) {
+    foreach(m; list) { if (m.match(s)) return m; }
+    throw new Exception("Unknown genotype " ~ s ~ " for GenotypeCombinator");
   }
   ObservedGenotypes opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
     add(c);
@@ -249,7 +259,7 @@ unittest {
  */
 
 unittest {
-  auto na = new GenotypeCombinator("NA","-");
+  auto na = new GenotypeCombinator("NA",["-"]);
   auto a  = new GenotypeCombinator("A");
   a ~= new TrueGenotype(0,0);
   auto b  = new GenotypeCombinator("B");
@@ -260,15 +270,19 @@ unittest {
   tracker ~= na;
   tracker ~= a;
   tracker ~= b;
-  auto ril = GenotypeCombinator[];  // one set of observed genotypes
-  ril ~= set_genotype(tracker,"-");
-  ril ~= set_genotype(tracker,"NA");
-  ril ~= set_genotype(tracker,"A");
-  ril ~= set_genotype(tracker,"B");
-  // ril ~= set_genotype(tracker,"C"); raises exception
-  assert(ril[0].value.isNA);
-  assert(ril[1].value.name == "A");
-  assert(ril[2].value.name == "B");
+  GenotypeCombinator ril[];  // create a set of observed genotypes
+  // now find them by name
+  ril ~= tracker.fetch("-");
+  ril ~= tracker.fetch("NA");
+  ril ~= tracker.fetch("A");
+  ril ~= tracker.fetch("B");
+  // ril ~= tracker.fetch("C"); // raises exception!
+  assert(ril[0].isNA);
+  assert(ril[1].isNA);
+  assert(ril[2].name == "A");
+  assert(to!string(ril[2]) == "[(0,0)]");
+  assert(ril[3].name == "B");
+  assert(to!string(ril[3]) == "[(1,1)]");
 }
 
 /** 
