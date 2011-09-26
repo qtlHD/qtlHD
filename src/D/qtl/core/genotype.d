@@ -84,8 +84,8 @@ import qtl.core.primitives;
 alias uint FounderIndex;   
 
 /**
- * A true genotype consists of a Tuple of alleles. These alleles can,
- * potentially, be directional (see also genotype.d)
+ * A true genotype consists of a Tuple of genotypes/alleles - one from each
+ * (founder) parent. These genotypes can, potentially, be directional 
  */
 
 class TrueGenotype {
@@ -114,10 +114,17 @@ class TrueGenotype {
   }
 }
 
+class GenotypeNA : TrueGenotype {
+  this() { super(-1,-1); }
+  string toString() { 
+    return "(NA)";
+  }
+}
 
 /**
  * GenotypeCombinator points to TrueGenoTypes - we have a list 
- * of these for each observed type
+ * of these for each observed type - as it is defined in the
+ * dataset.
  */
 
 class GenotypeCombinator {
@@ -129,26 +136,28 @@ class GenotypeCombinator {
     list ~= g; 
     return g;
   }
-  // match combinators (are they the same?)
-  bool match(GenotypeCombinator gc) {
-    writeln(gc.list.sort);
-    writeln(list.sort);
-    return (gc.list.sort == list.sort); // not the fastest way ;)
+  bool opEquals(Object other) {
+    auto rhs = cast(GenotypeCombinator)other;
+    return (list.sort == rhs.list.sort); // probably not the fastest way ;)
+  }
+  string toString() { 
+    return to!string(list);
   }
 }
 
 /** 
- * ObservedGenotypes tracks all the observed genotypes in a dataset - 
- * this is a convenience class, mostly.
+ * ObservedGenotypes tracks all the observed genotypes in a dataset, for the
+ * full set, or at a marker position.  This is a convenience class, mostly.
  */
 
 class ObservedGenotypes {
   GenotypeCombinator[] list;
   /// Pass in a combination of genotypes, add if not already in list and
   /// return the actual match.
-  GenotypeCombinator add(GenotypeCombinator combinator) { 
-    // list ~= combinator;
-    return combinator;
+  GenotypeCombinator add(GenotypeCombinator c) { 
+    foreach(m; list) { if (m == c) return m; }
+    list ~= c; 
+    return c;
   }
   GenotypeCombinator find(GenotypeCombinator combinator) {
     return null;
@@ -243,6 +252,10 @@ Genotype!T set_genotype(T)(in string s) {
 
 import std.typecons; 
 
+/**
+ * Unit tests for TrueGenotype and GenotypeCombinators
+ */
+
 unittest {
   writeln("Unit test" ~ __FILE__);
   // at this point founders are simply numbers
@@ -260,25 +273,44 @@ unittest {
   auto observed_combi1 = new GenotypeCombinator;
   observed_combi1.add(g1);
   observed_combi1.add(g2);
-  observed_combi1.add(g2); // test for duplicate add
+  observed_combi1.add(g2); // tests also for duplicate add
+  writeln(observed_combi1.list);
   assert(observed_combi1.list.length == 2);
-  observed_combi1.add(g2); // test for duplicate add
+  observed_combi1.add(g2); // tests also for duplicate add
   assert(observed_combi1.list.length == 2);
-  auto testg = observed_combi1.add(g2a); // test for duplicate add
+  auto testg = observed_combi1.add(g2a); // tests also for duplicate add
   assert(testg == g2);
   assert(observed_combi1.list.length == 2);
   auto observed_combi2 = new GenotypeCombinator;
   observed_combi2.list ~= g2;
   assert(observed_combi2.list.length == 1);
-  assert(observed_combi2.match(observed_combi2));
-  assert(!observed_combi1.match(observed_combi2));
+  assert(observed_combi2 == observed_combi2);
+  assert(observed_combi1 != observed_combi2);
   auto observed_combi1a = new GenotypeCombinator;
   observed_combi1a.add(g2a);
   observed_combi1a.add(g1);
-  assert(observed_combi1.match(observed_combi1a));
-  // observed_combiX already acts as an index, so now we only need 
+  assert(observed_combi1 == observed_combi1a);
+  // observed_combi already acts as an index, so now we only need 
   // to store the observed genotypes with the marker. The marker/genotype
-  // matrix stores references to observed_combiX.
+  // matrix stores references to observed_combiX by reference. Say
+  // we have a marker column, and 2 individuals:
+  auto marker = new GenotypeCombinator[](2);
+  marker[0] = new GenotypeCombinator;
+  auto na  = new GenotypeNA();
+  marker[0].add(na);
+  assert(to!string(marker[0]) == "[(NA)]", to!string(marker[0]));
+  marker[1] = new GenotypeCombinator;
+  marker[1].add(g1);
+  marker[1].add(g2); // add 2nd possible genotype
+  marker[1].add(g2); // duplicate type 
+  assert(to!string(marker[1]) == "[(1,3), (2,2)]");
+  assert(marker[1].list == [g1,g2]);
+  assert(marker[1] != marker[0]);
+  // you see, each marker/individual simply contains a list of true (possible)
+  // genotypes. To keep track of observed genotypes you may use
+  auto observed = new ObservedGenotypes();
+  observed.add(marker[0]);
+  observed.add(marker[1]);
 }
 
 /**
