@@ -122,6 +122,9 @@ class TrueGenotype {
 
 class GenotypeCombinator {
   TrueGenotype[] list;
+  string name;
+
+  this(string name = "?") { this.name = name; }
 
   // uniquely add a genotype. Return match.
   TrueGenotype add(TrueGenotype g) { 
@@ -169,88 +172,6 @@ class ObservedGenotypes {
   auto length() { return list.length; }
 }
 
-/*
-struct True_RIL {
-  const NA = TrueGenotype(GENOTYPE_NA,GENOTYPE_NA);
-  const A  = TrueGenotype(0,0);
-  const B  = TrueGenotype(1,1);
-}
-*/
-
-/**
- * The follwing is the enum typed genotypes - which are not as
- * flexible as the newer genotyping scheme, explained above.
- */
-
-enum RIL { NA = GENOTYPE_NA, A, B };
-enum F2  { NA = GENOTYPE_NA, A, H, B, HorB, HorA }; 
-enum F2pk {AA, AB, BA, BB}; // pk = "phase known"
-enum BC  { NA = GENOTYPE_NA, A, H };
-
-Genotype!T set_genotype(T)(in string s) {
-  Genotype!T g;
-  static if (T.stringof == "RIL") {
-    switch(s) {
-      case "-":
-        g.value = T.NA;
-        break;  
-      case "A":
-        g.value = T.A;
-        break;
-      case "AA":
-        g.value = T.A;
-        break;        
-      case "B":
-        g.value = T.B;
-        break;
-      case "BB":
-        g.value = T.A;
-        break;
-      default:
-        throw new Exception("Unknown genotype " ~ s ~ " for " ~ T.stringof);
-    }
-  }
-  static if (T.stringof == "BC") {
-    switch(s) {
-      case "-":
-        g.value = T.NA;
-        break;  
-      case "A":
-        g.value = T.A;
-        break;
-      case "H":
-        g.value = T.H;
-        break;
-      default:
-        throw new Exception("Unknown genotype " ~ s ~ " for " ~ T.stringof);
-    }
-  }
-  static if (T.stringof == "F2") {
-    switch(s) {
-      case "-":
-        g.value = T.NA;
-        break;  
-      case "A":
-        g.value = T.A;
-        break;
-      case "H":
-        g.value = T.H;
-        break;
-      case "B":
-        g.value = T.B;
-        break;
-      case "C":
-        g.value = T.HorB;
-        break;
-      case "D":
-        g.value = T.HorA;
-        break;
-      default:
-        throw new Exception("Unknown genotype " ~ s ~ " for " ~ T.stringof);
-    }
-  }
-  return g;
-}
 /**
  * New style genotypes - support for observed genotypes
  */
@@ -323,16 +244,18 @@ unittest {
 }
 
 /**
- * Emulate RIL set using Genotype combinator
- * RIL { NA = GENOTYPE_NA, A, B };
+ * RIL set using Genotype combinator
+ * RIL { NA, A, B };
  */
 
 unittest {
-  auto NA = new GenotypeCombinator();
-  auto A  = new TrueGenotype(0,0);
-  auto B  = new TrueGenotype(1,1);
-  assert(A.homozygous());
-  assert(B.homozygous());
+  auto na = new GenotypeCombinator("NA");
+  auto a  = new GenotypeCombinator("A");
+  auto b  = new GenotypeCombinator("B");
+  assert(na.name == "NA");
+  assert(a.name == "A");
+  a ~= new TrueGenotype(0,0);
+  b ~= new TrueGenotype(1,1);
   /*
   Genotype!True_RIL[] ril;
   ril ~= set_genotype!True_RIL("-");
@@ -352,7 +275,80 @@ unittest {
 
 /**
  * Enum (old) style genotypes
+ *
+ * The follwing are the enum typed genotypes - which are not as
+ * flexible as the newer genotyping scheme, explained above.
  */
+
+enum RIL { NA = GENOTYPE_NA, A, B };
+enum F2  { NA = GENOTYPE_NA, A, H, B, HorB, HorA }; 
+enum F2pk {AA, AB, BA, BB}; // pk = "phase known"
+enum BC  { NA = GENOTYPE_NA, A, H };
+
+Genotype!T set_genotype(T)(in string s) {
+  Genotype!T g;
+  static if (T.stringof == "RIL") {
+    switch(s) {
+      case "-":
+        g.value = T.NA;
+        break;  
+      case "A":
+        g.value = T.A;
+        break;
+      case "AA":
+        g.value = T.A;
+        break;        
+      case "B":
+        g.value = T.B;
+        break;
+      case "BB":
+        g.value = T.A;
+        break;
+      default:
+        throw new Exception("Unknown genotype " ~ s ~ " for " ~ T.stringof);
+    }
+  }
+  static if (T.stringof == "BC") {
+    switch(s) {
+      case "-":
+        g.value = T.NA;
+        break;  
+      case "A":
+        g.value = T.A;
+        break;
+      case "H":
+        g.value = T.H;
+        break;
+      default:
+        throw new Exception("Unknown genotype " ~ s ~ " for " ~ T.stringof);
+    }
+  }
+  static if (T.stringof == "F2") {
+    switch(s) {
+      case "-":
+        g.value = T.NA;
+        break;  
+      case "A":
+        g.value = T.A;
+        break;
+      case "H":
+        g.value = T.H;
+        break;
+      case "B":
+        g.value = T.B;
+        break;
+      case "C":
+        g.value = T.HorB;
+        break;
+      case "D":
+        g.value = T.HorA;
+        break;
+      default:
+        throw new Exception("Unknown genotype " ~ s ~ " for " ~ T.stringof);
+    }
+  }
+  return g;
+}
 
 unittest {
   Genotype!F2[] gs;
