@@ -140,6 +140,7 @@ class GenotypeCombinator {
     add(g);
     return this;
   }
+  auto length() { return list.length; }
   bool opEquals(Object other) {
     auto rhs = cast(GenotypeCombinator)other;
     return (list.sort == rhs.list.sort); // probably not the fastest way ;)
