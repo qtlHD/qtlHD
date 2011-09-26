@@ -272,8 +272,8 @@ unittest {
   // observed genotypes can be any combination of true genotypes
   auto observed_combi1 = new GenotypeCombinator;
   observed_combi1 ~= g1;
-  observed_combi1.add(g2); // call add directly
-  observed_combi1.add(g2); // tests also for duplicate add
+  observed_combi1 ~= g2;
+  observed_combi1 ~= g2; // tests also for duplicate add
   writeln(observed_combi1.list);
   assert(!observed_combi1.isNA);
   assert(observed_combi1.list.length == 2);
