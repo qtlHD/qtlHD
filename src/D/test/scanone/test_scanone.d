@@ -7,7 +7,7 @@ module test.scanone.test_scanone;
 import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
-import qtl.core.genotype;
+import qtl.core.deprecate.genotype_enum;
 import qtl.core.marker;
 import qtl.core.map;
 import qtl.core.make_map;
