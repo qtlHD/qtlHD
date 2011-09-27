@@ -85,7 +85,7 @@ alias uint FounderIndex;
 
 /**
  * A true genotype consists of a Tuple of genotypes/alleles - one from each
- * (founder) parent. These genotypes can, potentially, be directional 
+ * (founder) parent. These genotypes can be directional 
  */
 
 class TrueGenotype {
@@ -117,21 +117,39 @@ class TrueGenotype {
 /**
  * GenotypeCombinator points to TrueGenoTypes - we have a list 
  * of these for each observed type - as it is defined in the
- * dataset.
+ * dataset. The list is filled with a combination of true
+ * genotypes, while reading in the data(file). This means the 
+ * minimal amount of memory is used for the (exhaustive) set of
+ * combinations of genotypes.
+ *
+ * To prevent duplication of stored types, when a new combination
+ * is added, the add function only stores new types, and returns
+ * the existing one in the list.
+ *
+ * GenotypeCombinator may be parametrized in the future - i.e.
+ * to support other underlying true genotypes, and the accepted
+ * encoding.
  */
 
 class GenotypeCombinator {
+  alias string Encoding;
+
   TrueGenotype[] list;
-  string name;
-  string alternatives[];
+  string name; // the display name
+  Encoding encoding[]; // a list of encoding types
 
-  this(string name = "?", string alternatives[] = []) { 
-    this.name = name; this.alternatives = alternatives; }
-
-  bool match(in string s) {
-    if (s == name) return true;
-    foreach (n; alternatives) {
-      if (s == n) return true; 
+  // initialize a combinator by name. If code is undefined name 
+  // is also used for input encoding
+  this(string name, Encoding code = null) { 
+    this.name = name; 
+    if (code) add_encoding(code);
+    else add_encoding(name);
+  }
+  void add_encoding(Encoding code) { this.encoding ~= code; }
+  // see if an input matches
+  bool match(in Encoding code) {
+    foreach (n; encoding) {
+      if (code == n) return true; 
     }
     return false;
   }
@@ -211,7 +229,7 @@ unittest {
   assert(g2.homozygous());
   assert(g2.founders[0] == 2);
   // observed genotypes can be any combination of true genotypes
-  auto observed1 = new GenotypeCombinator;
+  auto observed1 = new GenotypeCombinator("OBSERVE1");
   observed1 ~= g1;
   observed1 ~= g2;
   observed1 ~= g2; // tests also for duplicate add
@@ -223,12 +241,12 @@ unittest {
   auto testg = observed1.add(g2a); // we want the return type
   assert(testg == g2);
   assert(observed1.list.length == 2);
-  auto observed2 = new GenotypeCombinator;
+  auto observed2 = new GenotypeCombinator("OBSERVE2");
   observed2.list ~= g2;
   assert(observed2.list.length == 1);
   assert(observed2 == observed2);
   assert(observed1 != observed2);
-  auto observed1a = new GenotypeCombinator;
+  auto observed1a = new GenotypeCombinator("OBSERVE1A");
   observed1a ~= g2a;
   observed1a ~= g1;
   assert(observed1 == observed1a);
@@ -237,8 +255,8 @@ unittest {
   // matrix stores references to observedX by reference. Say
   // we have a marker column, and 2 individuals (2 observed genotypes):
   auto observed = new GenotypeCombinator[](2);
-  observed[0] = new GenotypeCombinator;
-  observed[1] = new GenotypeCombinator;
+  observed[0] = new GenotypeCombinator("0");
+  observed[1] = new GenotypeCombinator("1");
   // currently there is no content:
   assert(to!string(observed[0]) == "[NA]", to!string(observed[0]));
   observed[1] ~= g1;
@@ -264,7 +282,7 @@ unittest {
  */
 
 unittest {
-  auto NA = new GenotypeCombinator("NA",["-"]);
+  auto NA = new GenotypeCombinator("NA","-");
   auto A  = new GenotypeCombinator("A");
   A ~= new TrueGenotype(0,0);
   auto B  = new GenotypeCombinator("B");
@@ -278,6 +296,7 @@ unittest {
   GenotypeCombinator ril[];  // create a set of observed genotypes
   // now find them by name
   ril ~= tracker.fetch("-");
+  NA.add_encoding("NA"); // also support NA inputs
   ril ~= tracker.fetch("NA");
   ril ~= tracker.fetch("A");
   ril ~= tracker.fetch("B");
@@ -296,7 +315,7 @@ unittest {
  */
 
 unittest {
-  auto NA = new GenotypeCombinator("NA",["-"]);
+  auto NA = new GenotypeCombinator("NA","-");
   auto A = new GenotypeCombinator("A");
   A ~= new TrueGenotype(0,0);
   auto B  = new GenotypeCombinator("B");
@@ -305,11 +324,11 @@ unittest {
   AB ~= new TrueGenotype(0,1);
   auto BA  = new GenotypeCombinator("BA");
   BA ~= new TrueGenotype(1,0);
-  auto HorB  = new GenotypeCombinator("HorB",["C"]);
+  auto HorB  = new GenotypeCombinator("HorB","C");
   HorB ~= B;
   HorB ~= AB;
   HorB ~= BA;
-  auto HorA  = new GenotypeCombinator("HorA",["D"]);
+  auto HorA  = new GenotypeCombinator("HorA","D");
   HorA ~= A;
   HorA ~= AB;
   HorA ~= BA;
