@@ -30,7 +30,7 @@ import qtl.core.primitives;
 
   combinations: (GenotypeCombinator[])
 
-   -1        ->   NA
+   -1        ->   []                              i.e. NA
     0        ->   [ 1      0     0     0    0 ]   i.e. [1,1]
     1        ->   [ 0      1     1     0    0 ]   i.e. [1,2] or [2,2] 
     2        ->   [ 0      0     1     0    0 ]   i.e. [2,2]
@@ -48,18 +48,18 @@ import qtl.core.primitives;
   So in above example:
 
    Index          GenotypeCombinator
-   -1        ->   NA
+   -1        ->   []       i.e. NA
     0        ->   [ 0 ]    i.e. [1,1]
     1        ->   [ 1,2 ]  i.e. [1,2] or [2,2] 
     2        ->   [ 2 ]    i.e. [2,2]
 
-  Note that types can be reused - i.e. there are no duplicates defined.
+  Note that types are reused - i.e. there are no duplicates defined.
 
-  Each marker has a list of GenotypeCombinators. The actual 
-  GenotypeCombinators are also maintained in a separate list - so as
-  to share observed types, rather than duplicating them for each 
-  marker. For this we define ObservedGenotypes, which maintains
-  this list.
+  Each marker has a list of GenotypeCombinators. The actual GenotypeCombinators
+  are also maintained in a separate list - so as to share observed types, a
+  tracker, rather than duplicating them for each marker. For this we define
+  ObservedGenotypes, which maintains this list. The tracker can be used
+  for a full dataset, or for each marker individually.
 
   Sex should be queried at the chromosome level.
 
@@ -163,7 +163,8 @@ class GenotypeCombinator {
 
 /** 
  * ObservedGenotypes tracks all the observed genotypes in a dataset, for the
- * full set, or at a marker position.  This is a convenience class, mostly.
+ * full set, or at a marker position.  This tracker is a convenience class,
+ * mostly.
  */
 
 class ObservedGenotypes {
@@ -210,30 +211,30 @@ unittest {
   assert(g2.homozygous());
   assert(g2.founders[0] == 2);
   // observed genotypes can be any combination of true genotypes
-  auto observed_combi1 = new GenotypeCombinator;
-  observed_combi1 ~= g1;
-  observed_combi1 ~= g2;
-  observed_combi1 ~= g2; // tests also for duplicate add
-  writeln(observed_combi1.list);
-  assert(!observed_combi1.isNA);
-  assert(observed_combi1.list.length == 2);
-  observed_combi1 ~= g2; // tests also for duplicate add
-  assert(observed_combi1.list.length == 2);
-  auto testg = observed_combi1.add(g2a); // we want the return type
+  auto observed1 = new GenotypeCombinator;
+  observed1 ~= g1;
+  observed1 ~= g2;
+  observed1 ~= g2; // tests also for duplicate add
+  writeln(observed1.list);
+  assert(!observed1.isNA);
+  assert(observed1.list.length == 2);
+  observed1 ~= g2; // tests also for duplicate add
+  assert(observed1.list.length == 2);
+  auto testg = observed1.add(g2a); // we want the return type
   assert(testg == g2);
-  assert(observed_combi1.list.length == 2);
-  auto observed_combi2 = new GenotypeCombinator;
-  observed_combi2.list ~= g2;
-  assert(observed_combi2.list.length == 1);
-  assert(observed_combi2 == observed_combi2);
-  assert(observed_combi1 != observed_combi2);
-  auto observed_combi1a = new GenotypeCombinator;
-  observed_combi1a ~= g2a;
-  observed_combi1a ~= g1;
-  assert(observed_combi1 == observed_combi1a);
-  // observed_combi already acts as an index, so now we only need 
+  assert(observed1.list.length == 2);
+  auto observed2 = new GenotypeCombinator;
+  observed2.list ~= g2;
+  assert(observed2.list.length == 1);
+  assert(observed2 == observed2);
+  assert(observed1 != observed2);
+  auto observed1a = new GenotypeCombinator;
+  observed1a ~= g2a;
+  observed1a ~= g1;
+  assert(observed1 == observed1a);
+  // observed already acts as an index, so now we only need 
   // to store the observed genotypes with the marker. The marker/genotype
-  // matrix stores references to observed_combiX by reference. Say
+  // matrix stores references to observedX by reference. Say
   // we have a marker column, and 2 individuals (2 observed genotypes):
   auto observed = new GenotypeCombinator[](2);
   observed[0] = new GenotypeCombinator;
@@ -253,7 +254,7 @@ unittest {
   tracker ~= observed[1];
   auto test = tracker.add(observed[1]); // add duplicate
   assert(test == observed[1]);
-  assert(test == observed_combi1); // No duplication!
+  assert(test == observed1); // No duplication!
   assert(tracker.length == 2);
 }
 
