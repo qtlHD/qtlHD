@@ -6,7 +6,7 @@ module qtl.core.hmm_bc;
 
 import std.math, std.stdio, std.path;
 import std.exception;
-import qtl.core.genotype;
+import qtl.core.deprecate.genotype_enum;
 import qtl.core.primitives;
 import qtl.core.genetic_map_functions;
 import qtl.core.hmm_calcgenoprob;

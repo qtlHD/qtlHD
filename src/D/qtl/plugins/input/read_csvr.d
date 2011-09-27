@@ -7,7 +7,7 @@ module qtl.plugins.input.read_csvr;
 import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
-import qtl.core.genotype;
+import qtl.core.deprecate.genotype_enum;
 
 import std.stdio;
 import std.conv;

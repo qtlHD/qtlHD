@@ -14,7 +14,7 @@ import std.math;
 import std.string;
 import std.conv;
 import std.exception;
-import qtl.core.genotype;
+import qtl.core.deprecate.genotype_enum;
 import qtl.plugins.input.read_csv;
 
 // import core.stdc.stdlib;  // for malloc

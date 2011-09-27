@@ -7,7 +7,7 @@ module qtl.util.csv2xgap;
 import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
-import qtl.core.genotype;
+import qtl.core.deprecate.genotype_enum;
 import qtl.core.xgap;
 import qtl.plugins.input.read_csvr;
 import qtl.plugins.input.read_csv;

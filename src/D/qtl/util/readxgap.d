@@ -7,7 +7,7 @@ module qtl.util.readxgap;
 import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
-import qtl.core.genotype;
+import qtl.core.deprecate.genotype_enum;
 import qtl.core.xgap.xgap;
 import qtl.core.xgap.read_xgapbin;
 
