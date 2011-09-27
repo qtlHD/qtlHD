@@ -19,8 +19,8 @@ import std.conv;
 import std.string;
 import std.path;
 
-/** 
- * Read a simple CSV file containing marker names, chromosome nrs, position, 
+/**
+ * Read a simple CSV file containing marker names, chromosome nrs, position,
  * phenotype and genotype - such as the listeria.csv file used in R/qtl.
  *
  * The cross type is injected as XType. An XType works as long as it is
@@ -28,7 +28,7 @@ import std.path;
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
- 
+
 class ReadSimpleCSV(XType) {
   private File f;
   string[] phenotypenames;
@@ -38,7 +38,7 @@ class ReadSimpleCSV(XType) {
   Phenotype!double[][] phenotypes;
   Genotype!XType[][] genotypes;
   size_t n_phenotypes;
-  
+
   double** getPhenotypesForMQM(){
     double** pheno = newmatrix!double(n_phenotypes,individuals.length);
     for(auto p=0;p<n_phenotypes;p++){
@@ -49,7 +49,7 @@ class ReadSimpleCSV(XType) {
     }
     return pheno;
   }
-  
+
   char** getGenotypesForMQM(){
     char** geno = newmatrix!char(markers.length,individuals.length);
     for(int m=0;m<markers.length;m++){
@@ -60,7 +60,7 @@ class ReadSimpleCSV(XType) {
     }
     return geno;
   }
-  
+
   int* getChromosomesForMQM(){
     int* chromo = newvector!int(markers.length);
     for(int i=0;i<markers.length;i++){
@@ -68,7 +68,7 @@ class ReadSimpleCSV(XType) {
     }
     return chromo;
   }
-  
+
   double* getDistancesForMQM(){
     double* dist = newvector!double(markers.length);
     for(int i=0;i<markers.length;i++){
@@ -91,7 +91,7 @@ class ReadSimpleCSV(XType) {
     if (cnames.length != n_columns) throw new Exception("# Chromosomes out of range");
 
     // find first non-blank (indicating last phenotype columns)
-    
+
     foreach (i, cname; cnames)
     {
       if(cname != "") {
@@ -103,7 +103,7 @@ class ReadSimpleCSV(XType) {
     // create Marker objects; have m.id be column within phenotypes or within genotypes
     foreach (i, mname; header)
     {
-      Marker m = new Marker(MARKER_POSITION_UNKNOWN, mname, cast(uint)(i-n_phenotypes)); 
+      Marker m = new Marker(MARKER_POSITION_UNKNOWN, mname, cast(uint)(i-n_phenotypes));
       ms ~= m;
     }
 
@@ -142,7 +142,7 @@ class ReadSimpleCSV(XType) {
       Phenotype!double[] ps;
       ps.reserve(n_columns);
       foreach(field; fields[0..n_phenotypes]) {
-	ps ~= set_phenotype!double(field);
+        ps ~= set_phenotype!double(field);
       }
       phenotypes ~= ps;
       // set genotype
