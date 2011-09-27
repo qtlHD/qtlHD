@@ -7,7 +7,7 @@ module qtl.plugins.output.write_xgapbin;
 import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
-import qtl.core.genotype;
+import qtl.core.deprecate.genotype_enum;
 import qtl.core.xgap.xgap;
 
 import std.stdio;

@@ -5,7 +5,7 @@
 module qtl.core.hmm_f2;
 
 import std.math, std.stdio, std.path;
-import qtl.core.genotype;
+import qtl.core.deprecate.genotype_enum;
 import qtl.core.primitives;
 import qtl.plugins.input.read_csv;
 import qtl.core.genetic_map_functions;

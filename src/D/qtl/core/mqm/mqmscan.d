@@ -10,7 +10,7 @@ import std.stdio;
 import std.algorithm;
 import std.math;
 import std.string;
-import qtl.core.genotype;
+import qtl.core.deprecate.genotype_enum;
 import qtl.plugins.input.read_csv;
 
 //Load the R-bindings

@@ -15,7 +15,7 @@ import std.math;
 alias std.algorithm.find find;
 
 import qtl.core.primitives;
-import qtl.core.genotype;
+import qtl.core.deprecate.genotype_enum;
 
 /**
  * In R/qtl one function existed for create.map (in util.R), now split into
