@@ -194,10 +194,12 @@ class ObservedGenotypes {
     list ~= c; 
     return c;
   }
-  GenotypeCombinator fetch(in string s) {
+  /// Decode an input to an (observed) genotype
+  GenotypeCombinator decode(in string s) {
     foreach(m; list) { if (m.match(s)) return m; }
     throw new Exception("Unknown genotype " ~ s ~ " for GenotypeCombinator");
   }
+  /// Define =~ to combine combinators
   ObservedGenotypes opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
     add(c);
     return this;
@@ -281,7 +283,33 @@ unittest {
  * RIL { NA, A, B };
  */
 
+class RIL {
+  GenotypeCombinator NA = null, A = null, B = null;
+  this() {
+    NA = new GenotypeCombinator("NA");
+    A  = new GenotypeCombinator("A");
+    A ~= new TrueGenotype(0,0);
+    B  = new GenotypeCombinator("B");
+    B ~= new TrueGenotype(1,1);
+    NA.add_encoding("-"); 
+    A.add_encoding("AA"); 
+    B.add_encoding("BB"); 
+  }
+}
+
 unittest {
+  auto ril = new RIL;
+  auto tracker = new ObservedGenotypes();
+  tracker ~= ril.NA;
+  tracker ~= ril.A;
+  tracker ~= ril.B;
+  assert(tracker.decode("-") == ril.NA);
+  assert(tracker.decode("A") == ril.A);
+  assert(tracker.decode("AA") == ril.A);
+}
+
+unittest {
+  // We can also roll our own types
   auto NA = new GenotypeCombinator("NA");
   auto A  = new GenotypeCombinator("A");
   A ~= new TrueGenotype(0,0);
@@ -296,11 +324,11 @@ unittest {
   GenotypeCombinator ril[];  // create a set of observed genotypes
   // now find them by name
   NA.add_encoding("-"); // also support dash inputs for NA
-  ril ~= tracker.fetch("-");
-  ril ~= tracker.fetch("NA");
-  ril ~= tracker.fetch("A");
-  ril ~= tracker.fetch("B");
-  // ril ~= tracker.fetch("C"); // raises exception!
+  ril ~= tracker.decode("-");
+  ril ~= tracker.decode("NA");
+  ril ~= tracker.decode("A");
+  ril ~= tracker.decode("B");
+  // ril ~= tracker.decode("C"); // raises exception!
   assert(ril[0].isNA);
   assert(ril[1].isNA);
   assert(ril[2].name == "A");
