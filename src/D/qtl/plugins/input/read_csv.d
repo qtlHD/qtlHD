@@ -39,6 +39,7 @@ class ReadSimpleCSV(XType) {
   Genotype!XType[][] genotypes;
   size_t n_phenotypes;
 
+  // evil code
   double** getPhenotypesForMQM(){
     double** pheno = newmatrix!double(n_phenotypes,individuals.length);
     for(auto p=0;p<n_phenotypes;p++){
@@ -50,6 +51,7 @@ class ReadSimpleCSV(XType) {
     return pheno;
   }
 
+  // evil code
   char** getGenotypesForMQM(){
     char** geno = newmatrix!char(markers.length,individuals.length);
     for(int m=0;m<markers.length;m++){
@@ -61,6 +63,7 @@ class ReadSimpleCSV(XType) {
     return geno;
   }
 
+  // evil code
   int* getChromosomesForMQM(){
     int* chromo = newvector!int(markers.length);
     for(int i=0;i<markers.length;i++){
@@ -69,6 +72,7 @@ class ReadSimpleCSV(XType) {
     return chromo;
   }
 
+  // evil code
   double* getDistancesForMQM(){
     double* dist = newvector!double(markers.length);
     for(int i=0;i<markers.length;i++){
