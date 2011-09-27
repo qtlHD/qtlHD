@@ -282,7 +282,7 @@ unittest {
  */
 
 unittest {
-  auto NA = new GenotypeCombinator("NA","-");
+  auto NA = new GenotypeCombinator("NA");
   auto A  = new GenotypeCombinator("A");
   A ~= new TrueGenotype(0,0);
   auto B  = new GenotypeCombinator("B");
@@ -295,8 +295,8 @@ unittest {
   tracker ~= B;
   GenotypeCombinator ril[];  // create a set of observed genotypes
   // now find them by name
+  NA.add_encoding("-"); // also support dash inputs for NA
   ril ~= tracker.fetch("-");
-  NA.add_encoding("NA"); // also support NA inputs
   ril ~= tracker.fetch("NA");
   ril ~= tracker.fetch("A");
   ril ~= tracker.fetch("B");
