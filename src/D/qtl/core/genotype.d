@@ -309,7 +309,7 @@ unittest {
 }
 
 unittest {
-  // We can also roll our own types
+  // We can also roll our own types (to create a RIL)
   auto NA = new GenotypeCombinator("NA");
   auto A  = new GenotypeCombinator("A");
   A ~= new TrueGenotype(0,0);
@@ -336,6 +336,35 @@ unittest {
   assert(ril[3].name == "B");
   assert(to!string(ril[3]) == "[(1,1)]");
 }
+
+/**
+ * BC implementation
+ * BC  { NA, A, H };
+ */
+
+class BC {
+  GenotypeCombinator NA, A, H;
+  this() {
+    NA = new GenotypeCombinator("NA");
+    A  = new GenotypeCombinator("A");
+    A ~= new TrueGenotype(0,0);
+    H  = new GenotypeCombinator("H");
+    H ~= new TrueGenotype(1,0);
+    NA.add_encoding("-"); 
+  }
+}
+
+unittest {
+  auto ril = new BC;
+  auto tracker = new ObservedGenotypes();
+  tracker ~= ril.NA;
+  tracker ~= ril.A;
+  tracker ~= ril.H;
+  assert(tracker.decode("-") == ril.NA);
+  assert(tracker.decode("A") == ril.A);
+  assert(tracker.decode("H") == ril.H);
+}
+
 
 /** 
  * Directional F2 with ambiguous scoring:
