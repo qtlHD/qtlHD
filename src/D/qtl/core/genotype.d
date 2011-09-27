@@ -197,7 +197,7 @@ class ObservedGenotypes {
   /// Decode an input to an (observed) genotype
   GenotypeCombinator decode(in string s) {
     foreach(m; list) { if (m.match(s)) return m; }
-    throw new Exception("Unknown genotype " ~ s ~ " for GenotypeCombinator");
+    throw new Exception("Unknown genotype " ~ s);
   }
   /// Define =~ to combine combinators
   ObservedGenotypes opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
@@ -205,6 +205,9 @@ class ObservedGenotypes {
     return this;
   }
   auto length() { return list.length; }
+  string toString() {
+    return to!string(list);
+  }
 }
 
 /**
@@ -363,6 +366,60 @@ unittest {
   assert(tracker.decode("-") == ril.NA);
   assert(tracker.decode("A") == ril.A);
   assert(tracker.decode("H") == ril.H);
+}
+
+/**
+ * F2 set using Genotype combinator
+ * F2  { NA, A, H, B, HorB, HorA }; 
+ */
+
+class F2 {
+  GenotypeCombinator NA, A, B, H, HorB, HorA;
+  alias HorB C;
+  alias HorA D;
+  this() {
+    auto aa = new TrueGenotype(0,0);
+    auto bb = new TrueGenotype(1,1);
+    auto ab = new TrueGenotype(0,1);
+    NA = new GenotypeCombinator("NA");
+    A  = new GenotypeCombinator("A");
+    A ~= aa;
+    B  = new GenotypeCombinator("B");
+    B ~= bb;
+    H  = new GenotypeCombinator("H");
+    H ~= ab;
+    HorB  = new GenotypeCombinator("HorB","C");
+    HorB ~= ab;
+    HorB ~= bb;
+    HorA  = new GenotypeCombinator("HorA","D");
+    HorA ~= ab;
+    HorA ~= aa;
+    NA.add_encoding("-"); 
+    A.add_encoding("AA"); 
+    B.add_encoding("BB"); 
+    H.add_encoding("AB"); 
+    H.add_encoding("BA"); 
+  }
+}
+
+unittest {
+  auto f2 = new F2;
+  auto tracker = new ObservedGenotypes();
+  tracker ~= f2.NA;
+  tracker ~= f2.A;
+  tracker ~= f2.B;
+  tracker ~= f2.H;
+  tracker ~= f2.HorB;
+  tracker ~= f2.HorA;
+  assert(f2.HorB == f2.C);
+  assert(tracker.decode("-") == f2.NA);
+  assert(tracker.decode("A") == f2.A);
+  assert(tracker.decode("B") == f2.B);
+  // assert(tracker.decode("H") == f2.H);
+  // assert(tracker.decode("C") == f2.HorB);
+  writeln(f2.HorA.encoding);
+  writeln(tracker);
+  assert(tracker.decode("D") == f2.HorA);
 }
 
 
