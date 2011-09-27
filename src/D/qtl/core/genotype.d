@@ -284,7 +284,7 @@ unittest {
  */
 
 class RIL {
-  GenotypeCombinator NA = null, A = null, B = null;
+  GenotypeCombinator NA, A, B;
   this() {
     NA = new GenotypeCombinator("NA");
     A  = new GenotypeCombinator("A");
