@@ -11,7 +11,7 @@ import qtl.core.deprecate.genotype_enum;
 import qtl.core.marker;
 import qtl.core.map;
 import qtl.core.make_map;
-import qtl.plugins.input.read_csv;
+import qtl.plugins.deprecate.read_csv;
 import qtl.core.scanone_hk;
 import std.stdio;
 import std.conv;

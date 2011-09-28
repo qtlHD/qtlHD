@@ -133,6 +133,7 @@ class TrueGenotype {
 
 class GenotypeCombinator {
   alias string Encoding;
+  GenotypeCombinator value; 
 
   TrueGenotype[] list;
   string name; // the display name
@@ -141,6 +142,7 @@ class GenotypeCombinator {
   // initialize a combinator by name. If code is undefined name 
   // is also used for input encoding
   this(string name, Encoding code = null) { 
+    value = this;
     this.name = name; 
     if (code) add_encoding(code);
     else add_encoding(name);
@@ -340,6 +342,9 @@ unittest {
   assert(to!string(ril[3]) == "[(1,1)]");
 }
 
+class ObservedRIL {
+}
+
 /**
  * BC implementation
  * BC  { NA, A, H };
@@ -357,15 +362,37 @@ class BC {
   }
 }
 
+class ObservedBC {
+  BC crosstype;
+  ObservedGenotypes tracker;
+  this() {
+    auto bc = new BC;
+    tracker = new ObservedGenotypes();
+    tracker ~= bc.NA;
+    tracker ~= bc.A;
+    tracker ~= bc.H;
+    crosstype = bc;
+  }
+  /// Decode an input to an (observed) genotype
+  auto decode(in string s) {
+    return tracker.decode(s);
+  }
+  auto length() { return tracker.length; }
+  string toString() {
+    return to!string(tracker);
+  }
+
+}
+
 unittest {
-  auto ril = new BC;
+  auto bc = new BC;
   auto tracker = new ObservedGenotypes();
-  tracker ~= ril.NA;
-  tracker ~= ril.A;
-  tracker ~= ril.H;
-  assert(tracker.decode("-") == ril.NA);
-  assert(tracker.decode("A") == ril.A);
-  assert(tracker.decode("H") == ril.H);
+  tracker ~= bc.NA;
+  tracker ~= bc.A;
+  tracker ~= bc.H;
+  assert(tracker.decode("-") == bc.NA);
+  assert(tracker.decode("A") == bc.A);
+  assert(tracker.decode("H") == bc.H);
 }
 
 /**
@@ -402,6 +429,30 @@ class F2 {
   }
 }
 
+class ObservedF2 {
+  F2 crosstype;
+  ObservedGenotypes tracker;
+  this() {
+    auto f2 = new F2;
+    tracker = new ObservedGenotypes();
+    tracker ~= f2.NA;
+    tracker ~= f2.A;
+    tracker ~= f2.B;
+    tracker ~= f2.H;
+    tracker ~= f2.HorB;
+    tracker ~= f2.HorA;
+    crosstype = f2;
+  }
+  /// Decode an input to an (observed) genotype
+  auto decode(in string s) {
+    return tracker.decode(s);
+  }
+  auto length() { return tracker.length; }
+  string toString() {
+    return to!string(tracker);
+  }
+}
+
 unittest {
   auto f2 = new F2;
   auto tracker = new ObservedGenotypes();
@@ -420,6 +471,15 @@ unittest {
   writeln(f2.HorA.encoding);
   writeln(tracker);
   assert(tracker.decode("D") == f2.HorA);
+}
+
+unittest {
+  // the quick way is to used the predefined ObservedF2
+  auto tracker = new ObservedF2;
+  auto f2 = tracker.crosstype;
+  assert(tracker.decode("-") == f2.NA);
+  assert(tracker.decode("A") == f2.A);
+  assert(tracker.decode("B") == f2.B);
 }
 
 
