@@ -17,7 +17,7 @@ import std.path;
 import std.file;
 
 import qtl.plugins.input.read_csvr;
-import qtl.plugins.input.read_csv;
+import qtl.plugins.deprecate.read_csv;
 
 /** 
  * Convert a simple CSVR file containing marker names, chromosome nrs, position, 
