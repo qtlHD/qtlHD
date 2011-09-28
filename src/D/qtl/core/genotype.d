@@ -133,7 +133,6 @@ class TrueGenotype {
 
 class GenotypeCombinator {
   alias string Encoding;
-  GenotypeCombinator value; 
 
   TrueGenotype[] list;
   string name; // the display name
@@ -142,7 +141,6 @@ class GenotypeCombinator {
   // initialize a combinator by name. If code is undefined name 
   // is also used for input encoding
   this(string name, Encoding code = null) { 
-    value = this;
     this.name = name; 
     if (code) add_encoding(code);
     else add_encoding(name);
@@ -179,6 +177,8 @@ class GenotypeCombinator {
     return to!string(list);
   }
   bool isNA() { return length == 0; }
+  // compatibility function - deprecate
+  auto value() { return this; } 
 }
 
 /** 
