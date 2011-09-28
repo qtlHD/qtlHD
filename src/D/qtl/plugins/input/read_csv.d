@@ -39,48 +39,6 @@ class ReadSimpleCSV(XType) {
   Genotype!XType[][] genotypes;
   size_t n_phenotypes;
 
-  // evil code
-  double** getPhenotypesForMQM(){
-    double** pheno = newmatrix!double(n_phenotypes,individuals.length);
-    for(auto p=0;p<n_phenotypes;p++){
-      for(auto i=0;i<individuals.length;i++){
-        //writefln("%d %d %f",p,i,phenotypes[i][p].value);
-        pheno[p][i] = phenotypes[i][p].value;
-      }
-    }
-    return pheno;
-  }
-
-  // evil code
-  char** getGenotypesForMQM(){
-    char** geno = newmatrix!char(markers.length,individuals.length);
-    for(int m=0;m<markers.length;m++){
-      for(int i=0;i<individuals.length;i++){
-        //writefln("%d %d %f",m,i,genotypes[i][m].value);
-        geno[m][i] = 'A';
-      }
-    }
-    return geno;
-  }
-
-  // evil code
-  int* getChromosomesForMQM(){
-    int* chromo = newvector!int(markers.length);
-    for(int i=0;i<markers.length;i++){
-      chromo[i] = markers[i].chromosome.id;
-    }
-    return chromo;
-  }
-
-  // evil code
-  double* getDistancesForMQM(){
-    double* dist = newvector!double(markers.length);
-    for(int i=0;i<markers.length;i++){
-      dist[i] = markers[i].position;
-    }
-    return dist;
-  }
-
   this(in string fn) {
     f = File(fn,"r");
     individuals = new Individuals();
