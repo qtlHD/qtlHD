@@ -12,7 +12,7 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.matrices;
 import qtl.core.phenotype;
-import qtl.core.deprecate.genotype_enum;
+import qtl.core.genotype;
 
 import std.stdio;
 import std.conv;
@@ -29,18 +29,22 @@ import std.path;
  * The file is parsed once on class instantiation. Elements can be queried.
  */
 
-class ReadSimpleCSV(XType) {
+class ReadSimpleCSV(XType,ObservedXType) {
   private File f;
+  XType crosstype;
+  ObservedXType tracker;
   string[] phenotypenames;
   Marker[] markers;
   Individuals individuals;
   Chromosome[string] chromosomes;
   Phenotype!double[][] phenotypes;
-  Genotype!XType[][] genotypes;
+  GenotypeCombinator[][] genotypes;
   size_t n_phenotypes;
 
   this(in string fn) {
     f = File(fn,"r");
+    scope(exit) f.close();
+    tracker = new ObservedXType; // this may become a parameter
     individuals = new Individuals();
     // read markers
     Marker[] ms;
@@ -108,15 +112,16 @@ class ReadSimpleCSV(XType) {
       }
       phenotypes ~= ps;
       // set genotype
-      Genotype!XType[] gs;
+      crosstype = new XType;
+      GenotypeCombinator[] gs;
+      // we use the predefined crosstype tracker
       gs.reserve(n_columns);  // pre-allocate memory (just good practise)
       foreach (field; fields[n_phenotypes..$]) {
-        gs ~= set_genotype!XType(strip(field));
+        gs ~= tracker.decode(strip(field));
       }
       genotypes ~= gs;
       individuals.list ~= new Individual(n_individual);
     }
-    f.close();
   }
 }
 
@@ -127,7 +132,8 @@ unittest {
   writeln("  - reading CSV " ~ fn);
   Marker m2 = new Marker(4.8);
   auto markers = [ m2 ];
-  auto data = new ReadSimpleCSV!F2(fn);
+  auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
+  auto F2 = data.crosstype;
   assert(data.markers.length == 133, to!string(data.markers.length));
   assert(data.phenotypenames[0] == "T264");
   assert(data.markers[0].name == "D10M44");
@@ -155,7 +161,7 @@ unittest {
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","hyper.csv");
   writeln("  - reading CSV " ~ fn);
-  auto data = new ReadSimpleCSV!F2(fn);
+  auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
   assert(data.markers.length == 174, to!string(data.markers.length));
   assert(data.phenotypenames == ["bp", "sex"]);
   assert(data.markers[3].name == "D1Mit178");
@@ -172,6 +178,7 @@ unittest {
   assert(data.phenotypes[29][1].value == 1);
   assert(data.phenotypes[30][1].value == 1);
   // Check genotype
+  auto F2 = data.crosstype;
   assert(data.genotypes[1][0].value == F2.H);
   assert(data.genotypes[1][1].value == F2.H);
   assert(data.genotypes[2][3].value == F2.NA);
@@ -182,7 +189,7 @@ unittest {
   alias std.path.join join;
   auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","hyper_noX.csv");
   writeln("  - reading CSV " ~ fn);
-  auto data = new ReadSimpleCSV!BC(fn);
+  auto data = new ReadSimpleCSV!(BC,ObservedBC)(fn);
   assert(data.markers.length == 170, to!string(data.markers.length));
   assert(data.phenotypenames == ["bp", "sex"]);
   assert(data.markers[3].name == "D1Mit178");
@@ -198,6 +205,7 @@ unittest {
   assert(data.phenotypes[29][1].value == 1);
   assert(data.phenotypes[30][1].value == 1);
   // Check genotype
+  auto BC = data.crosstype;
   assert(data.genotypes[1][0].value == BC.H);
   assert(data.genotypes[1][1].value == BC.H);
   assert(data.genotypes[2][3].value == BC.NA);

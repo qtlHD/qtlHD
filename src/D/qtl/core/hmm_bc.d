@@ -14,7 +14,7 @@ import qtl.core.hmm_util;
 import qtl.core.hmm_estmap;
 
 // things for the unit tests 
-import qtl.plugins.input.read_csv;
+import qtl.plugins.deprecate.read_csv;
 import std.path;
 
 

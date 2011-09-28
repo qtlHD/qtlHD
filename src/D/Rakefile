@@ -33,7 +33,8 @@ if ARGV.index("DEBUG=TRUE")
   print "Adding debug information!\n"
 end
 core_dfiles = Dir.glob("./qtl/core/*.d")
-deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d")
+deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
+  Dir.glob("./qtl/plugins/deprecate/*.d")
 lib_dfiles = Dir.glob("./qtl/core/libs/*.d")
 io_dfiles = Dir.glob("./qtl/plugins/input/*.d")
 xgap_dfiles = Dir.glob("./qtl/core/xgap/*.d")
