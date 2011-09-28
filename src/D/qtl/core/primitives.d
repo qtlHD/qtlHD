@@ -133,9 +133,12 @@ class PseudoMarker : Marker {
   { super(_chromosome, _position); }
 }
 
-immutable GENOTYPE_NA = -1;
+immutable GENOTYPE_NA = -1; // don't use
 
 /**
+ * Note: Genotype is deprecated - use GenotypeCombinator instead!
+ * (see genotype.d)
+ *
  * Genotype is the most primitive representation of a genotype. The type
  * can be any type T (normally char or uint, but other objects may be
  * possible).
