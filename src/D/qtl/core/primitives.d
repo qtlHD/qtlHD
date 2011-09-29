@@ -148,6 +148,7 @@ immutable GENOTYPE_NA = -1; // don't use
  */
 
 struct Genotype(T) {
+  // deprecated
   T value;
   
   /// String representation of genotype.
