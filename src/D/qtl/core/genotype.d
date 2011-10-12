@@ -634,8 +634,7 @@ unittest {
   auto encoded = "
 GENOTYPE NA,- as None         
 GENOTYPE A as 0,0
-GENOTYPE B as 1,1
-GENOTYPE BB as 1,1
+GENOTYPE B,BB as 1,1
 GENOTYPE C,CC as 2,2         # alias
 GENOTYPE AB as 1,0           # directional
 GENOTYPE BA as 0,1
@@ -656,7 +655,7 @@ GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
   assert(tracker.decode("BB") == cross.gc["BB"]);
   assert(tracker.decode("AB") == cross.gc["AB"]);
   assert(tracker.decode("AorB") == cross.gc["AorB"]);
-  // assert(tracker.decode("B") == cross.gc["B"]);
+  assert(tracker.decode("B") == cross.gc["B"]);
   // writeln(cross["AorB"].encoding);
   writeln(tracker);
 }
