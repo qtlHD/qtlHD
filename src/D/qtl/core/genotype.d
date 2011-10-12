@@ -540,8 +540,16 @@ unittest {
  * GENOTYPE NA,- as None         
  *
  * and should be in the header, close to the start, of the file. The
- * identifier (A,B, etc) can be any string. 
+ * identifier (A,B, etc) can be any string.
  *
+ * Note: duplicates are not allowed, so don't do
+ *
+ * GENOTYPE B as 1,1
+ * GENOTYPE BB as 1,1
+ *
+ * but
+ *
+ * GENOTYPE B,BB as 1,1
  */
 
 class EncodedCross {
@@ -604,35 +612,9 @@ class EncodedCross {
   }
 }
 
-class ObservedEncoded {
-  EncodedCross crosstype;
-  ObservedGenotypes tracker;
-  this() {
-  /*
-    auto f2 = new F2;
-    tracker = new ObservedGenotypes();
-    tracker ~= f2.NA;
-    tracker ~= f2.A;
-    tracker ~= f2.B;
-    tracker ~= f2.H;
-    tracker ~= f2.HorB;
-    tracker ~= f2.HorA;
-    crosstype = f2;
-  */
-  }
-  /// Decode an input to an (observed) genotype
-  auto decode(in string s) {
-    return tracker.decode(s);
-  }
-  auto length() { return tracker.length; }
-  string toString() {
-    return to!string(tracker);
-  }
-}
-
 unittest {
   auto encoded = "
-GENOTYPE NA,- as None         
+GENOTYPE NA,- as None        
 GENOTYPE A as 0,0
 GENOTYPE B,BB as 1,1
 GENOTYPE C,CC as 2,2         # alias
@@ -652,23 +634,15 @@ GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
   assert(tracker.decode("NA") == cross.gc["NA"]);
   assert(tracker.decode("-") == cross.gc["NA"]);
   assert(tracker.decode("A") == cross.gc["A"]);
-  assert(tracker.decode("BB") == cross.gc["BB"]);
+  assert(tracker.decode("B") == cross.gc["B"]);
+  assert(tracker.decode("CC") == cross.gc["C"]);
+  // assert(tracker.decode("BB") == cross.gc["BB"]); <- error
+  assert(tracker.decode("BB") == cross.gc["B"]); //  <- OK
   assert(tracker.decode("AB") == cross.gc["AB"]);
   assert(tracker.decode("AorB") == cross.gc["AorB"]);
-  assert(tracker.decode("B") == cross.gc["B"]);
   // writeln(cross["AorB"].encoding);
   writeln(tracker);
 }
 
-unittest {
-  /*
-  // the quick way is to used the predefined ObservedF2
-  auto tracker = new ObservedF2;
-  auto f2 = tracker.crosstype;
-  assert(tracker.decode("-") == f2.NA);
-  assert(tracker.decode("A") == f2.A);
-  assert(tracker.decode("B") == f2.B);
-  */
-}
 
 
