@@ -634,6 +634,7 @@ unittest {
   auto encoded = "
 GENOTYPE NA,- as None         
 GENOTYPE A as 0,0
+GENOTYPE B as 1,1
 GENOTYPE BB as 1,1
 GENOTYPE C,CC as 2,2         # alias
 GENOTYPE AB as 1,0           # directional
@@ -645,7 +646,30 @@ GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
 
   auto cross = new EncodedCross(split(encoded,"\n"));
   auto tracker = new ObservedGenotypes();
+  // add genotypes to tracker
+  foreach (legaltype; cross.gc) {
+    tracker ~= legaltype;
+  }
+  assert(tracker.decode("NA") == cross.gc["NA"]);
+  assert(tracker.decode("-") == cross.gc["NA"]);
+  assert(tracker.decode("A") == cross.gc["A"]);
+  assert(tracker.decode("BB") == cross.gc["BB"]);
+  assert(tracker.decode("AB") == cross.gc["AB"]);
+  assert(tracker.decode("AorB") == cross.gc["AorB"]);
+  // assert(tracker.decode("B") == cross.gc["B"]);
+  // writeln(cross["AorB"].encoding);
+  writeln(tracker);
+}
 
+unittest {
+  /*
+  // the quick way is to used the predefined ObservedF2
+  auto tracker = new ObservedF2;
+  auto f2 = tracker.crosstype;
+  assert(tracker.decode("-") == f2.NA);
+  assert(tracker.decode("A") == f2.A);
+  assert(tracker.decode("B") == f2.B);
+  */
 }
 
 
