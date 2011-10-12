@@ -6,11 +6,13 @@ module qtl.core.genotype;
 
 import std.conv;
 import std.stdio;
+import std.string;
+import std.typecons;
 import qtl.core.primitives;
 
 /**
 
-  Discussing storing of genotypes:
+  Genotypes:
 
   The number of possible true, or real, genotypes at a marker location is
   limited, as they depend on the number of founders (K^2 types). Unfortunately,
@@ -81,7 +83,8 @@ import qtl.core.primitives;
  * ref, later.
  */
 
-alias uint FounderIndex;   
+alias uint FounderIndex;
+alias Tuple!(FounderIndex,FounderIndex) Alleles;
 
 /**
  * A true genotype consists of a Tuple of genotypes/alleles - one from each
@@ -89,9 +92,9 @@ alias uint FounderIndex;
  */
 
 class TrueGenotype {
-  Tuple!(FounderIndex,FounderIndex) founders;
+  Alleles founders;  // simple Tuple!(i,i)
   this(FounderIndex founder1,FounderIndex founder2) {
-    founders = Tuple!(FounderIndex,FounderIndex)(founder1, founder2);
+    founders = Alleles(founder1, founder2);
   }
   this(TrueGenotype g) { founders = g.founders; }
   auto homozygous()   { return founders[0] == founders[1]; };
@@ -517,6 +520,132 @@ unittest {
   writeln(HorA);
   assert(HorA.name == "HorA");
   assert(to!string(HorA) == "[(0,0), (0,1), (1,0)]");
+}
+
+/**
+ * Structure for reading encoded CSV files. In above examples the Genotype is
+ * predefined at compile time. Here we define the genotype at run time.  The
+ * encoding can be in a separate file, or within file. An encoding, numbers
+ * referring to founders, simply reads:
+ *
+ * GENOTYPE A as 0,0
+ * GENOTYPE BB as 1,1
+ * GENOTYPE C,CC as 2,2         # alias
+ * GENOTYPE AB as 1,0           # directional
+ * GENOTYPE BA as 0,1
+ * GENOTYPE AC,CA as 0,2 2,0    # not directional
+ * GENOTYPE CA,F as 2,0 0,2     # alias
+ * GENOTYPE AorB as 0,0 1,1
+ * GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0
+ * GENOTYPE NA,- as None         
+ *
+ * and should be in the header, close to the start, of the file. The
+ * identifier (A,B, etc) can be any string. 
+ *
+ */
+
+class EncodedCross {
+  GenotypeCombinator[string] gc;
+  this(string list[]) {
+    // parse list
+    foreach(line ; list) {
+       writeln(line);
+       if (line.strip() == "") continue;
+       auto result = parse_line(line);
+       auto names = result[0];
+       auto truetypes = result[1];
+       auto n = names[0];
+       gc[n] = new GenotypeCombinator(n);
+       foreach (tt ; truetypes) {
+          gc[n] ~= tt;
+       }
+       foreach (n_alias ; names[1..$]) {
+          gc[n].add_encoding(n_alias); 
+       }
+       writeln("--->",gc[n].encoding,gc[n]);
+    }
+  }
+
+  /**
+   * Return name (aliases) and possible true genotypes
+   */
+  Tuple!(string[],TrueGenotype[]) parse_line(string s) 
+  out(result) {
+    auto names = result[0];
+    auto tgs = result[0];
+    assert(names.length >= 1);
+    assert(tgs.length >= 1);
+  }
+  body {
+    auto tokens = split(s," ");
+    if (tokens[0] != "GENOTYPE")
+      throw new Exception("Expected GENOTYPE for " ~ s);
+    int i = 0;
+    string names[];
+    foreach(name ; tokens[1..$]) {
+      if (name == "as") break;
+      foreach(n2 ; split(name,",")) {
+        names ~= n2;
+      }
+      i++;
+    }
+    TrueGenotype[] tgs;
+    foreach(tt ; tokens[i+2..$]) {
+      writeln("<",tt,">");
+      if (tt == "#" || tt == "" || tt == "None") break;
+      auto alleles = split(tt,",");
+      if (alleles.length != 2)
+        throw new Exception("Malformed genotype in " ~ s);
+      uint a1 = to!uint(alleles[0]);
+      uint a2 = to!uint(alleles[1]);
+      tgs ~= new TrueGenotype(a1,a2);
+    }
+    return tuple(names, tgs);
+  }
+}
+
+class ObservedEncoded {
+  EncodedCross crosstype;
+  ObservedGenotypes tracker;
+  this() {
+  /*
+    auto f2 = new F2;
+    tracker = new ObservedGenotypes();
+    tracker ~= f2.NA;
+    tracker ~= f2.A;
+    tracker ~= f2.B;
+    tracker ~= f2.H;
+    tracker ~= f2.HorB;
+    tracker ~= f2.HorA;
+    crosstype = f2;
+  */
+  }
+  /// Decode an input to an (observed) genotype
+  auto decode(in string s) {
+    return tracker.decode(s);
+  }
+  auto length() { return tracker.length; }
+  string toString() {
+    return to!string(tracker);
+  }
+}
+
+unittest {
+  auto encoded = "
+GENOTYPE NA,- as None         
+GENOTYPE A as 0,0
+GENOTYPE BB as 1,1
+GENOTYPE C,CC as 2,2         # alias
+GENOTYPE AB as 1,0           # directional
+GENOTYPE BA as 0,1
+GENOTYPE AC,CA as 0,2 2,0    # not directional
+GENOTYPE CA,F as 2,0 0,2     # alias
+GENOTYPE AorB as 0,0 1,1
+GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
+
+  auto cross = new EncodedCross(split(encoded,"\n"));
+  auto tracker = new ObservedGenotypes();
+
 }
 
 
