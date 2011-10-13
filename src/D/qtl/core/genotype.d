@@ -8,6 +8,7 @@ import std.conv;
 import std.stdio;
 import std.string;
 import std.typecons;
+import std.exception;
 import qtl.core.primitives;
 
 /**
@@ -584,6 +585,8 @@ class EncodedGenotype {
       }
       i++;
     }
+    if (i > tokens.length-2) 
+      throw new Exception("Expected 'as' for " ~ s);
     TrueGenotype[] tgs;
     foreach(tt ; tokens[i+2..$]) {
       writeln("<",tt,">");
@@ -606,8 +609,19 @@ unittest {
   assert(to!string(eg.genotypes) == "[(0,0)]");
   eg = new EncodedGenotype("GENOTYPE AC,CA as 0,2 2,0    # not directional");
   assert(eg.names == ["AC","CA"]);
-  assert(to!string(eg.genotypes) == "[(0,2),(2,0)]");
-  // eg = new EncodedGenotype("GENOTYPE A as (0,0)");
+  assert(to!string(eg.genotypes) == "[(0,2), (2,0)]", to!string(eg.genotypes));
+  eg = new EncodedGenotype("GENOTYPE NA,- as None  ");
+  assert(eg.names == ["NA","-"]);
+  assert(to!string(eg.genotypes) == "[]", to!string(eg.genotypes));
+  eg = new EncodedGenotype("GENOTYPE A AA as 0,0");
+  assert(eg.names == ["A","AA"]);
+  // faulty ones are more interesting
+  assertThrown(new EncodedGenotype("GENOTYPE A as (0,0)"));
+  assertThrown(new EncodedGenotype("ENOTYPE A as 0,0"));
+  assertThrown(new EncodedGenotype(" GENOTYPE A as 0,0"));
+  assertThrown(new EncodedGenotype("GENOTYPE A 0,0"));
+  assertThrown(new EncodedGenotype("GENOTYPE A 0"));
+  assertThrown(new EncodedGenotype("GENOTYPE A 0,A"));
 }
 
 class EncodedCross {
