@@ -552,26 +552,13 @@ unittest {
  * GENOTYPE B,BB as 1,1
  */
 
-class EncodedCross {
-  GenotypeCombinator[string] gc;
-  this(string list[]) {
-    // parse list
-    foreach(line ; list) {
-       writeln(line);
-       if (line.strip() == "") continue;
-       auto result = parse_line(line);
-       auto names = result[0];
-       auto truetypes = result[1];
-       auto n = names[0];
-       gc[n] = new GenotypeCombinator(n);
-       foreach (tt ; truetypes) {
-          gc[n] ~= tt;
-       }
-       foreach (n_alias ; names[1..$]) {
-          gc[n].add_encoding(n_alias); 
-       }
-       writeln("--->",gc[n].encoding,gc[n]);
-    }
+class EncodedGenotype {
+  string names[];
+  TrueGenotype genotypes[];
+  this(string s) {
+    auto tuple = parse_line(s);
+    names = tuple[0];
+    genotypes = tuple[1];
   }
 
   /**
@@ -610,6 +597,28 @@ class EncodedCross {
     }
     return tuple(names, tgs);
   }
+}
+
+class EncodedCross {
+  GenotypeCombinator[string] gc;
+  this(string list[]) {
+    // parse list
+    foreach(line ; list) {
+       writeln(line);
+       if (line.strip() == "") continue;
+       auto line_item = new EncodedGenotype(line);
+       auto n = line_item.names[0];
+       gc[n] = new GenotypeCombinator(n);
+       foreach (tt ; line_item.genotypes) {
+          gc[n] ~= tt;
+       }
+       foreach (n_alias ; line_item.names[1..$]) {
+          gc[n].add_encoding(n_alias); 
+       }
+       writeln("--->",gc[n].encoding,gc[n]);
+    }
+  }
+
 }
 
 unittest {
