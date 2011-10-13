@@ -543,7 +543,7 @@ unittest {
  * and should be in the header, close to the start, of the file. The
  * identifier (A,B, etc) can be any string.
  *
- * Note: duplicates are not allowed, so don't do
+ * Note: duplicates are undefined, so don't do
  *
  * GENOTYPE B as 1,1
  * GENOTYPE BB as 1,1
@@ -631,17 +631,25 @@ class EncodedCross {
     foreach(line ; list) {
        writeln(line);
        if (line.strip() == "") continue;
-       auto line_item = new EncodedGenotype(line);
-       auto n = line_item.names[0];
-       gc[n] = new GenotypeCombinator(n);
-       foreach (tt ; line_item.genotypes) {
-          gc[n] ~= tt;
-       }
-       foreach (n_alias ; line_item.names[1..$]) {
-          gc[n].add_encoding(n_alias); 
-       }
-       writeln("--->",gc[n].encoding,gc[n]);
+       add(line);
     }
+  }
+
+  EncodedGenotype add(string line) {
+    auto line_item = new EncodedGenotype(line);
+    auto n = line_item.names[0];
+    if (n in gc) 
+      throw new Exception("Duplicate " ~ line);
+      
+    gc[n] = new GenotypeCombinator(n);
+    foreach (tt ; line_item.genotypes) {
+       gc[n] ~= tt;
+    }
+    foreach (n_alias ; line_item.names[1..$]) {
+       gc[n].add_encoding(n_alias); 
+    }
+    writeln("--->",gc[n].encoding,gc[n]);
+    return line_item;
   }
 
 }
@@ -676,6 +684,18 @@ GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
   assert(tracker.decode("AorB") == cross.gc["AorB"]);
   // writeln(cross["AorB"].encoding);
   writeln(tracker);
+  // Test for duplicates
+  encoded = "
+GENOTYPE A as 0,0
+GENOTYPE A as 1,1
+";
+  assertThrown(new EncodedCross(split(encoded,"\n")));
+  // This is legal, though probably undefined
+  encoded = "
+GENOTYPE A as 0,0
+GENOTYPE AA as 0,0
+";
+  assertNotThrown(new EncodedCross(split(encoded,"\n")));
 }
 
 
