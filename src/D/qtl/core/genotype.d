@@ -600,9 +600,11 @@ class EncodedGenotype {
 }
 
 unittest {
-  auto eg = new EncodedGenotype("GENOTYPE A as (0,0)");
+  writeln("test");
+  auto eg = new EncodedGenotype("GENOTYPE A as 0,0");
   assert(eg.names == ["A"]);
   assert(to!string(eg.genotypes) == "[(0,0)]");
+  // eg = new EncodedGenotype("GENOTYPE A as (0,0)");
 }
 
 class EncodedCross {
