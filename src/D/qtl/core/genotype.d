@@ -604,6 +604,9 @@ unittest {
   auto eg = new EncodedGenotype("GENOTYPE A as 0,0");
   assert(eg.names == ["A"]);
   assert(to!string(eg.genotypes) == "[(0,0)]");
+  eg = new EncodedGenotype("GENOTYPE AC,CA as 0,2 2,0    # not directional");
+  assert(eg.names == ["AC","CA"]);
+  assert(to!string(eg.genotypes) == "[(0,2),(2,0)]");
   // eg = new EncodedGenotype("GENOTYPE A as (0,0)");
 }
 
