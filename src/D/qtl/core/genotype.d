@@ -6,11 +6,14 @@ module qtl.core.genotype;
 
 import std.conv;
 import std.stdio;
+import std.string;
+import std.typecons;
+import std.exception;
 import qtl.core.primitives;
 
 /**
 
-  Discussing storing of genotypes:
+  Genotypes:
 
   The number of possible true, or real, genotypes at a marker location is
   limited, as they depend on the number of founders (K^2 types). Unfortunately,
@@ -81,7 +84,8 @@ import qtl.core.primitives;
  * ref, later.
  */
 
-alias uint FounderIndex;   
+alias uint FounderIndex;
+alias Tuple!(FounderIndex,FounderIndex) Alleles;
 
 /**
  * A true genotype consists of a Tuple of genotypes/alleles - one from each
@@ -89,9 +93,9 @@ alias uint FounderIndex;
  */
 
 class TrueGenotype {
-  Tuple!(FounderIndex,FounderIndex) founders;
+  Alleles founders;  // simple Tuple!(i,i)
   this(FounderIndex founder1,FounderIndex founder2) {
-    founders = Tuple!(FounderIndex,FounderIndex)(founder1, founder2);
+    founders = Alleles(founder1, founder2);
   }
   this(TrueGenotype g) { founders = g.founders; }
   auto homozygous()   { return founders[0] == founders[1]; };
@@ -518,5 +522,181 @@ unittest {
   assert(HorA.name == "HorA");
   assert(to!string(HorA) == "[(0,0), (0,1), (1,0)]");
 }
+
+/**
+ * Structure for reading encoded CSV files. In above examples the Genotype is
+ * predefined at compile time. Here we define the genotype at run time.  The
+ * encoding can be in a separate file, or within file. An encoding, numbers
+ * referring to founders, simply reads:
+ *
+ * GENOTYPE A as 0,0
+ * GENOTYPE BB as 1,1
+ * GENOTYPE C,CC as 2,2         # alias
+ * GENOTYPE AB as 1,0           # directional
+ * GENOTYPE BA as 0,1
+ * GENOTYPE AC,CA as 0,2 2,0    # not directional
+ * GENOTYPE CA,F as 2,0 0,2     # alias
+ * GENOTYPE AorB as 0,0 1,1
+ * GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0
+ * GENOTYPE NA,- as None         
+ *
+ * and should be in the header, close to the start, of the file. The
+ * identifier (A,B, etc) can be any string.
+ *
+ * Note: duplicates are undefined, so don't do
+ *
+ * GENOTYPE B as 1,1
+ * GENOTYPE BB as 1,1
+ *
+ * but
+ *
+ * GENOTYPE B,BB as 1,1
+ */
+
+class EncodedGenotype {
+  string names[];
+  TrueGenotype genotypes[];
+  this(string s) {
+    auto tuple = parse_line(s);
+    names = tuple[0];
+    genotypes = tuple[1];
+  }
+
+  /**
+   * Return name (aliases) and possible true genotypes
+   */
+  Tuple!(string[],TrueGenotype[]) parse_line(string s) 
+  out(result) {
+    auto names = result[0];
+    auto tgs = result[0];
+    assert(names.length >= 1);
+    assert(tgs.length >= 1);
+  }
+  body {
+    auto tokens = split(s," ");
+    if (tokens[0] != "GENOTYPE")
+      throw new Exception("Expected GENOTYPE for " ~ s);
+    int i = 0;
+    string names[];
+    foreach(name ; tokens[1..$]) {
+      if (name == "as") break;
+      foreach(n2 ; split(name,",")) {
+        names ~= n2;
+      }
+      i++;
+    }
+    if (i > tokens.length-2) 
+      throw new Exception("Expected 'as' for " ~ s);
+    TrueGenotype[] tgs;
+    foreach(tt ; tokens[i+2..$]) {
+      writeln("<",tt,">");
+      if (tt == "#" || tt == "" || tt == "None") break;
+      auto alleles = split(tt,",");
+      if (alleles.length != 2)
+        throw new Exception("Malformed genotype in " ~ s);
+      uint a1 = to!uint(alleles[0]);
+      uint a2 = to!uint(alleles[1]);
+      tgs ~= new TrueGenotype(a1,a2);
+    }
+    return tuple(names, tgs);
+  }
+}
+
+unittest {
+  writeln("test");
+  auto eg = new EncodedGenotype("GENOTYPE A as 0,0");
+  assert(eg.names == ["A"]);
+  assert(to!string(eg.genotypes) == "[(0,0)]");
+  eg = new EncodedGenotype("GENOTYPE AC,CA as 0,2 2,0    # not directional");
+  assert(eg.names == ["AC","CA"]);
+  assert(to!string(eg.genotypes) == "[(0,2), (2,0)]", to!string(eg.genotypes));
+  eg = new EncodedGenotype("GENOTYPE NA,- as None  ");
+  assert(eg.names == ["NA","-"]);
+  assert(to!string(eg.genotypes) == "[]", to!string(eg.genotypes));
+  eg = new EncodedGenotype("GENOTYPE A AA as 0,0");
+  assert(eg.names == ["A","AA"]);
+  // faulty ones are more interesting
+  assertThrown(new EncodedGenotype("GENOTYPE A as (0,0)"));
+  assertThrown(new EncodedGenotype("ENOTYPE A as 0,0"));
+  assertThrown(new EncodedGenotype(" GENOTYPE A as 0,0"));
+  assertThrown(new EncodedGenotype("GENOTYPE A 0,0"));
+  assertThrown(new EncodedGenotype("GENOTYPE A 0"));
+  assertThrown(new EncodedGenotype("GENOTYPE A 0,A"));
+}
+
+class EncodedCross {
+  GenotypeCombinator[string] gc;
+  this(string list[]) {
+    // parse list
+    foreach(line ; list) {
+       writeln(line);
+       if (line.strip() == "") continue;
+       add(line);
+    }
+  }
+
+  EncodedGenotype add(string line) {
+    auto line_item = new EncodedGenotype(line);
+    auto n = line_item.names[0];
+    if (n in gc) 
+      throw new Exception("Duplicate " ~ line);
+      
+    gc[n] = new GenotypeCombinator(n);
+    foreach (tt ; line_item.genotypes) {
+       gc[n] ~= tt;
+    }
+    foreach (n_alias ; line_item.names[1..$]) {
+       gc[n].add_encoding(n_alias); 
+    }
+    writeln("--->",gc[n].encoding,gc[n]);
+    return line_item;
+  }
+
+}
+
+unittest {
+  auto encoded = "
+GENOTYPE NA,- as None        
+GENOTYPE A as 0,0
+GENOTYPE B,BB as 1,1
+GENOTYPE C,CC as 2,2         # alias
+GENOTYPE AB as 1,0           # directional
+GENOTYPE BA as 0,1
+GENOTYPE AC,CA as 0,2 2,0    # not directional
+GENOTYPE CA,F as 2,0 0,2     # alias
+GENOTYPE AorB as 0,0 1,1
+GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
+
+  auto cross = new EncodedCross(split(encoded,"\n"));
+  auto tracker = new ObservedGenotypes();
+  // add genotypes to tracker
+  foreach (legaltype; cross.gc) {
+    tracker ~= legaltype;
+  }
+  assert(tracker.decode("NA") == cross.gc["NA"]);
+  assert(tracker.decode("-") == cross.gc["NA"]);
+  assert(tracker.decode("A") == cross.gc["A"]);
+  assert(tracker.decode("B") == cross.gc["B"]);
+  assert(tracker.decode("CC") == cross.gc["C"]);
+  // assert(tracker.decode("BB") == cross.gc["BB"]); <- error
+  assert(tracker.decode("BB") == cross.gc["B"]); //  <- OK
+  assert(tracker.decode("AB") == cross.gc["AB"]);
+  assert(tracker.decode("AorB") == cross.gc["AorB"]);
+  // writeln(cross["AorB"].encoding);
+  writeln(tracker);
+  // Test for duplicates
+  encoded = "
+GENOTYPE A as 0,0
+GENOTYPE A as 1,1
+";
+  assertThrown(new EncodedCross(split(encoded,"\n")));
+  // This is legal, though probably undefined
+  encoded = "
+GENOTYPE A as 0,0
+GENOTYPE AA as 0,0
+";
+  assertNotThrown(new EncodedCross(split(encoded,"\n")));
+}
+
 
 
