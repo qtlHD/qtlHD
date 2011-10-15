@@ -553,53 +553,69 @@ unittest {
  * GENOTYPE B,BB as 1,1
  */
 
+/**
+ * Fetch an observed genotype definition from a string. 
+ * Returns name (aliases) and true genotypes. The input string
+ * is of format
+ *
+ *   GENOTYPE name1,name2[,...] as uint,uint uint,uint [...]
+ *
+ * On error this function will throw an exception.
+ *
+ * See genotype.d for more information
+ *
+ *
+ */
+
+Tuple!(string[],TrueGenotype[]) parse_observed_genotype_string(string s) 
+out(result) {
+  auto names = result[0];
+  auto tgs = result[0];
+  assert(names.length >= 1);
+  assert(tgs.length >= 1);
+}
+body {
+  auto tokens = split(s," ");
+  if (tokens[0] != "GENOTYPE")
+    throw new Exception("Expected GENOTYPE for " ~ s);
+  int i = 0;
+  string names[];
+  foreach(name ; tokens[1..$]) {
+    if (name == "as") break;
+    foreach(n2 ; split(name,",")) {
+      names ~= n2;
+    }
+    i++;
+  }
+  if (i > tokens.length-2) 
+    throw new Exception("Expected 'as' for " ~ s);
+  TrueGenotype[] tgs;
+  foreach(tt ; tokens[i+2..$]) {
+    // writeln("<",tt,">");
+    if (tt == "#" || tt == "" || tt == "None") break;
+    auto alleles = split(tt,",");
+    if (alleles.length != 2)
+      throw new Exception("Malformed genotype in " ~ s);
+    uint a1 = to!uint(alleles[0]);
+    uint a2 = to!uint(alleles[1]);
+    tgs ~= new TrueGenotype(a1,a2);
+  }
+  return tuple(names, tgs);
+}
+
+/** 
+ * Convenience object for parsing observed genotype definition
+ * strings. The result is stored in names and genotypes arrays.
+ */
 class EncodedGenotype {
   string names[];
   TrueGenotype genotypes[];
   this(string s) {
-    auto tuple = parse_line(s);
+    auto tuple = parse_observed_genotype_string(s);
     names = tuple[0];
     genotypes = tuple[1];
   }
 
-  /**
-   * Return name (aliases) and possible true genotypes
-   */
-  Tuple!(string[],TrueGenotype[]) parse_line(string s) 
-  out(result) {
-    auto names = result[0];
-    auto tgs = result[0];
-    assert(names.length >= 1);
-    assert(tgs.length >= 1);
-  }
-  body {
-    auto tokens = split(s," ");
-    if (tokens[0] != "GENOTYPE")
-      throw new Exception("Expected GENOTYPE for " ~ s);
-    int i = 0;
-    string names[];
-    foreach(name ; tokens[1..$]) {
-      if (name == "as") break;
-      foreach(n2 ; split(name,",")) {
-        names ~= n2;
-      }
-      i++;
-    }
-    if (i > tokens.length-2) 
-      throw new Exception("Expected 'as' for " ~ s);
-    TrueGenotype[] tgs;
-    foreach(tt ; tokens[i+2..$]) {
-      writeln("<",tt,">");
-      if (tt == "#" || tt == "" || tt == "None") break;
-      auto alleles = split(tt,",");
-      if (alleles.length != 2)
-        throw new Exception("Malformed genotype in " ~ s);
-      uint a1 = to!uint(alleles[0]);
-      uint a2 = to!uint(alleles[1]);
-      tgs ~= new TrueGenotype(a1,a2);
-    }
-    return tuple(names, tgs);
-  }
 }
 
 unittest {
