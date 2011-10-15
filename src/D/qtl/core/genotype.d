@@ -620,6 +620,9 @@ class EncodedGenotype {
 
 unittest {
   writeln("test");
+  auto tuple = parse_observed_genotype_string("GENOTYPE A as 0,0");
+  assert(tuple[0] == ["A"]);
+  assert(to!string(tuple[1]) == "[(0,0)]");
   auto eg = new EncodedGenotype("GENOTYPE A as 0,0");
   assert(eg.names == ["A"]);
   assert(to!string(eg.genotypes) == "[(0,0)]");
