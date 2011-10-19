@@ -34,7 +34,7 @@ class(mapss[["X"]]) <- "X"
 
 # simulate cross
 set.seed(72922275)
-x <- sim.cross(mapss, n.ind=250, type="4way", model=c(2, 30, 0.2, 0.5, 0.8))
+x <- sim.cross(mapss, n.ind=250, type="4way", model=c(2, 30, 0.2, 0.5, 0.8), m=10)
 
 # include some males
 x$pheno$sex <- sample(0:1, nind(x), repl=TRUE)
