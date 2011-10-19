@@ -1,0 +1,11 @@
+Simulated data for 4-way cross
+
+Source/orig_haplotypes.csv    markers, locations, and parental haplotypes
+Source/sim4way.R              R code to simulate data (run from within Source/)
+
+haplotypes.csv                marker names and parental haplotypes
+map.csv                       sex-averaged genetic map
+map_sexsp.csv                 sex-specific genetic map
+phenotypes.csv                phenotype data (including sex and ID)
+genotypes_ind-by-mar.csv      genotype data, organized as individuals x markers
+genotypes_mar-by-ind.csv      genotype data, organized as markers x individuals
