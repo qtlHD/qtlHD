@@ -1,0 +1,10 @@
+Simulated data for Collaborative Cross
+
+Source/MUGAGtypes.csv         SNP data for a bunch of inbred strains (from http://csbio.unc.edu/CCstatus/MUGAGtypes.csv)
+Source/pull_parents.pl        Pull 8 parents of CC; fill in missing/het calls
+Source/simCC.R                Simulate CC lines
+
+map.csv                       Physical map of SNPs (positions in basepairs)
+parents.csv                   Genotypes of 8 parental strains
+crossinfo.csv                 Order of cross for each of 250 simulated lines
+genotypes.csv                 Genotype data for 250 simulated CC lines
