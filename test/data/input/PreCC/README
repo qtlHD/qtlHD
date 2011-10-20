@@ -1,0 +1,10 @@
+Simulated data for pre-CC [just chr 18, 19, X]
+
+Source/chr*.csv               SNP data for the *actual* preCC (from Aylor et al., Genome Res 21: 1213-1222, 2011)
+Source/pull_parents.pl        Pull 8 parents and split out the map
+Source/sim_preCC.R            Simulate pre-CC lines
+
+map.csv                       Physical map of SNPs (positions in basepairs)
+parents.csv                   Genotypes of 8 parental strains
+genotypes.csv                 Genotype data for 150 simulated pre-CC individuals
+phenotype.csv                 Order of cross, no. generations (the k in G_2:F_k), and sex for each 
