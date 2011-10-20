@@ -75,7 +75,8 @@ write.table(cbind("marker"=markernames(cc), ccg), file="../genotypes.csv", sep="
 
 # cross info
 crossinfo <- matrix(as.character(cc$cross), nrow=250)
-rownames(crossinfo) <- id
-for(i in 1:8)
-  crossinfo <- gsub(i, LETTERS[i], crossinfo)
-write.table(crossinfo, file="../crossinfo.csv", sep=",", row.names=TRUE, col.names=FALSE, quote=FALSE)
+#rownames(crossinfo) <- id
+for(i in 1:8)  crossinfo <- gsub(i, LETTERS[i], crossinfo)
+crossinfo <- apply(crossinfo, 1, paste, collapse="")
+crossinfo <- cbind(id=id, cross=crossinfo)
+write.table(crossinfo, file="../crossinfo.csv", sep=",", row.names=FALSE, col.names=TRUE, quote=FALSE)
