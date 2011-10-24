@@ -165,7 +165,7 @@ class ReadSimpleCSV(XType) {
 unittest {
   writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
-  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
+  auto fn = dirName(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv");
   writeln("  - reading CSV " ~ fn);
   Marker m2 = new Marker(4.8);
   auto markers = [ m2 ];
@@ -195,7 +195,7 @@ unittest {
 
 unittest {
   alias std.path.join join;
-  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","hyper.csv");
+  auto fn = dirName(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","hyper.csv");
   writeln("  - reading CSV " ~ fn);
   auto data = new ReadSimpleCSV!F2(fn);
   assert(data.markers.length == 174, to!string(data.markers.length));
@@ -222,7 +222,7 @@ unittest {
 
 unittest {
   alias std.path.join join;
-  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","hyper_noX.csv");
+  auto fn = dirName(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","hyper_noX.csv");
   writeln("  - reading CSV " ~ fn);
   auto data = new ReadSimpleCSV!BC(fn);
   assert(data.markers.length == 170, to!string(data.markers.length));

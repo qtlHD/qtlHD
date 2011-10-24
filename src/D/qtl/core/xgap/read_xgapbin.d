@@ -181,8 +181,8 @@ unittest{
   writeln("Unit test " ~ __FILE__);
   writeln("  - writing XBIN ");
   alias std.path.join join;
-  auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.csvr");
-  auto outfn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin");
+  auto infn = dirName(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.csvr");
+  auto outfn = dirName(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin");
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
   auto indata = new CSVrReader!RIL(infn);
   auto result = new BinaryWriter!(CSVrReader!RIL,RIL)(indata,outfn);
