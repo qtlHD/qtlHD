@@ -8,6 +8,7 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.deprecate.genotype_enum;
+import qtl.core.deprecate.mqm_types;
 import qtl.core.marker;
 import qtl.core.map;
 import qtl.core.matrices;
@@ -33,12 +34,12 @@ version (Windows) {
     double function(int Nind, int *Nmark, char** cofactor, char** marker, 
                double* y, int* f1genotype, int Backwards, double **QTL,double** mapdistance,
                int **Chromo,int Nrun,int RMLorML, double windowsize,double stepsize, double stepmin,double stepmax,double
-               alfa,int em,int out_Naug,int **INDlist,char reestimate, char
+               alfa,int em,int out_Naug,int **INDlist,char reestimate, MQMCrossType
                crosstype,bool dominance,int verbose) analyseF2;
     int function(char*** markers,int* nind, int* augmentednind, int** INDlist,
                   double neglect_unlikely, int max_totalaugment, int max_indaugment,
                   double*** pheno_value,int nmark, int* chr, double* mapdistance,
-                  int augment_strategy, char crosstype,int verbose) mqmaugmentfull; 
+                  int augment_strategy, MQMCrossType crosstype,int verbose) mqmaugmentfull; 
   }
   
   static this(){
@@ -53,12 +54,12 @@ version (Windows) {
     double analyseF2(int Nind, int *Nmark, char** cofactor, char** marker, 
                double* y, int* f1genotype, int Backwards, double **QTL,double** mapdistance,
                int **Chromo,int Nrun,int RMLorML, double windowsize,double stepsize, double stepmin,double stepmax,double
-               alfa,int em,int out_Naug,int **INDlist,char reestimate, char
+               alfa,int em,int out_Naug,int **INDlist,char reestimate, MQMCrossType
                crosstype,bool dominance,int verbose);
     int mqmaugmentfull(char*** markers,int* nind, int* augmentednind, int** INDlist,
                   double neglect_unlikely, int max_totalaugment, int max_indaugment,
                   double*** pheno_value,int nmark, int* chr, double* mapdistance,
-                  int augment_strategy, char crosstype,int verbose);
+                  int augment_strategy, MQMCrossType crosstype,int verbose);
   }
 }
 
@@ -78,7 +79,7 @@ unittest{
   writeln("  - CHR DONE !!!");
   int* f1genotype = doRange(0,nind).ptr;
   double* mapdistance = indata.getDistancesForMQM();
-  char crosstype = 'F';
+  MQMCrossType crosstype = MQMCrossType.CF2;
   char* cofactors = doArray!char(nmark,'0').ptr;
   writeln("  - COF DONE !!!");
   int verbose = 1;
