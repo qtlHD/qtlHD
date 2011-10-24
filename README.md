@@ -17,7 +17,7 @@ After D installation, try the build and test script (which needs
 
 ## Platforms
 
-qtlHD is developed and tested on OSX, Microsoft Windows and Debian Linux.
+qtlHD is developed and tested on Mac OS X, Microsoft Windows and Debian Linux.
 
 ## License
 
