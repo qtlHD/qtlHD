@@ -8,7 +8,7 @@ high-throughput data; for example for RNA-seq.
 
 To compile qtlHD a recent edition of the [D compiler][D] is needed:
 
-    DMD32 D Compiler v2.053
+    DMD32 D Compiler v2.055
 
 After D installation, try the build and test script (which needs
 [rake][rake]):
