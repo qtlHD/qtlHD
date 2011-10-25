@@ -96,8 +96,8 @@ class CSVrReader(XType) {
 
 unittest{
   writeln("Unit test " ~ __FILE__);
-  alias std.path.join join;
-  auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.csvr");
+  alias std.path.buildPath buildPath;
+  auto infn = dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr");
   writeln("  - reading CSVR " ~ infn);
   auto data = new CSVrReader!RIL(infn);
 }
