@@ -224,9 +224,10 @@ unittest {
 }
 
 /**
- * Unit tests for the Flex cross. A flex cross can read a data file without
- * assuming what is in the file. Observed genotypes are added to the tracker
- * beforehand, as the parser has to know what an A, B or H symbol means.
+ * Unit tests for the Flex cross. A flex cross can (potentially) read a data
+ * file without assuming what is in the file. Observed genotypes are added to
+ * the tracker beforehand, as the parser has to know what an A, B or H symbol
+ * means.
  */
 
 unittest {
