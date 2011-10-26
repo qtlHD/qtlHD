@@ -65,7 +65,7 @@ class XbinConverter{
 unittest{
   writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
-  auto outfn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin");
+  auto outfn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin"));
   auto data = new XbinReader(outfn);
   auto convertor = new XbinConverter();
   auto phenotypes = convertor.toPhenotype!double(data.load(0));
