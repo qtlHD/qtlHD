@@ -224,11 +224,9 @@ unittest {
 }
 
 /**
- * Unit tests for the Flex cross. A flex cross can read a data file
- * without assuming what is in the file. Observed genotypes are 
- * added to the tracker, while reading the data.
- *
- * Reading the listeria set should lead to the same F2.
+ * Unit tests for the Flex cross. A flex cross can read a data file without
+ * assuming what is in the file. Observed genotypes are added to the tracker
+ * beforehand, as the parser has to know what an A, B or H symbol means.
  */
 
 unittest {
@@ -270,8 +268,5 @@ GENOTYPE D as 1,1 0,1";
   assert(data.genotypes[1][0] == data.tracker.decode("NA"));
   assert(data.genotypes[1][1] == data.tracker.decode("B"));
   assert(data.individuals.length == 120);
-
-  // foreach(name; data.chromosomes.keys.sort) {
-  // }
 }
 
