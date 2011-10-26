@@ -5,6 +5,8 @@
 module qtl.core.hmm_f2;
 
 import std.math, std.stdio, std.path;
+import std.conv;
+
 import qtl.core.deprecate.genotype_enum;
 import qtl.core.primitives;
 import qtl.plugins.deprecate.read_csv;
@@ -559,7 +561,6 @@ unittest {
 }
 
 
-
 // estmap
 // mixin estmapCode!(F2, F2pk);
 
@@ -567,7 +568,7 @@ unittest {
   writeln("Unit test " ~ __FILE__);
   writeln("    unit test estmap for F2:");
   alias std.path.join join;
-  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
+  auto fn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv"));
   writeln("      - read CSV " ~ fn);
   auto data = new ReadSimpleCSV!F2(fn);
   

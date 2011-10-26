@@ -32,7 +32,7 @@ unittest {
 
   writeln("Unit test " ~ __FILE__);
   alias std.path.join join;
-  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
+  auto fn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv"));
   writeln("  - reading CSV " ~ fn);
   Marker m2 = new Marker(4.8);
   auto markers = [ m2 ];

@@ -6,6 +6,8 @@ module qtl.core.hmm_bc;
 
 import std.math, std.stdio, std.path;
 import std.exception;
+import std.conv;
+
 import qtl.core.deprecate.genotype_enum;
 import qtl.core.primitives;
 import qtl.core.genetic_map_functions;
@@ -147,7 +149,7 @@ unittest {
 unittest {
   writeln("    unit test calcGenoprob for BC:");
   alias std.path.join join;
-  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","hyper_noX.csv");
+  auto fn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","hyper_noX.csv"));
   writeln("      - read CSV " ~ fn);
   auto data = new ReadSimpleCSV!BC(fn);
   
@@ -314,7 +316,7 @@ unittest {
 unittest {
   writeln("    unit test estmapBC:");
   alias std.path.join join;
-  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","hyper_noX.csv");
+  auto fn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","hyper_noX.csv"));
   writeln("      - read CSV " ~ fn);
   auto data = new ReadSimpleCSV!BC(fn);
   
