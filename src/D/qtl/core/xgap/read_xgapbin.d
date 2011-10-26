@@ -90,10 +90,10 @@ class XbinReader {
     for(int x=0;x<(h.nrow*h.ncol);x++){
       if(h.type == MatrixType.VARCHARMATRIX){
         lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
-        start = (skip + ((h.nrow*h.ncol)*int.sizeof));      
+        start = cast(int) (skip + ((h.nrow*h.ncol)*int.sizeof));      
       }else{
         lengths ~= byteToInt(inputbuffer[skip..(skip+int.sizeof)]);
-        start = (skip + int.sizeof);
+        start = cast(int) (skip + int.sizeof);
       }
     }
     switch(h.type){
@@ -181,8 +181,8 @@ unittest{
   writeln("Unit test " ~ __FILE__);
   writeln("  - writing XBIN ");
   alias std.path.join join;
-  auto infn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.csvr");
-  auto outfn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin");
+  auto infn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.csvr"));
+  auto outfn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","multitrait.xbin"));
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
   auto indata = new CSVrReader!RIL(infn);
   auto result = new BinaryWriter!(CSVrReader!RIL,RIL)(indata,outfn);
