@@ -524,6 +524,45 @@ unittest {
 }
 
 /**
+ * Flex implementation
+ */
+
+class Flex {
+  GenotypeCombinator NA, A, H;
+  this() {
+    NA = new GenotypeCombinator("NA");
+    A  = new GenotypeCombinator("A");
+    A ~= new TrueGenotype(0,0);
+    H  = new GenotypeCombinator("H");
+    H ~= new TrueGenotype(1,0);
+    NA.add_encoding("-"); 
+  }
+}
+
+class ObservedFlex {
+  Flex crosstype;
+  ObservedGenotypes tracker;
+  this() {
+    auto bc = new Flex;
+    tracker = new ObservedGenotypes();
+    tracker ~= bc.NA;
+    tracker ~= bc.A;
+    tracker ~= bc.H;
+    crosstype = bc;
+  }
+  /// Decode an input to an (observed) genotype
+  auto decode(in string s) {
+    return tracker.decode(s);
+  }
+  auto length() { return tracker.length; }
+  string toString() {
+    return to!string(tracker);
+  }
+
+}
+
+
+/**
  * Structure for reading encoded CSV files. In above examples the Genotype is
  * predefined at compile time. Here we define the genotype at run time.  The
  * encoding can be in a separate file, or within file. An encoding, numbers
