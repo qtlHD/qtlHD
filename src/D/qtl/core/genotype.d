@@ -528,13 +528,9 @@ unittest {
  */
 
 class Flex {
-  GenotypeCombinator NA, A, H;
+  GenotypeCombinator NA;
   this() {
     NA = new GenotypeCombinator("NA");
-    A  = new GenotypeCombinator("A");
-    A ~= new TrueGenotype(0,0);
-    H  = new GenotypeCombinator("H");
-    H ~= new TrueGenotype(1,0);
     NA.add_encoding("-"); 
   }
 }
@@ -543,12 +539,10 @@ class ObservedFlex {
   Flex crosstype;
   ObservedGenotypes tracker;
   this() {
-    auto bc = new Flex;
+    auto flex = new Flex;
     tracker = new ObservedGenotypes();
-    tracker ~= bc.NA;
-    tracker ~= bc.A;
-    tracker ~= bc.H;
-    crosstype = bc;
+    tracker ~= flex.NA;
+    crosstype = flex;
   }
   /// Decode an input to an (observed) genotype
   auto decode(in string s) {
