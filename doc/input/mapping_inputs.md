@@ -90,7 +90,8 @@ is equal to:
       ...
       # --- Data Founder end
 
-Likewise, phenotypes and markers can have symbol to value substitutions.
+Likewise, individuals, phenotypes, markers and chromosomes can have symbol to
+value substitutions.
 
 Observed genotypes have a somewhat more complex symbol to value substitution.
 To translate a genotype symbol to multiple possible (observed) true genotypes,
@@ -126,11 +127,11 @@ The genotype file contains markers (columns) x individuals (rows), giving the
 (observed) genotypes. The values can either be numbers, or symbols (but not
 both). Valid genotypes could be (tab delimited):
 
-        # --- Data begin
+        # --- Data Observed begin
         Ind1   A   AorB   1   1,1   0,1   0,1|1,1
         Ind2   H   AorH   NA  1,1   1,1     1,1
         ...
-        # --- Data end
+        # --- Data Observed end
 
 where the last marker of Ind1 represents, for example, an AorH. Note the
 use of NA - which is the standard name in qtlHD for a missing value. Also
@@ -138,6 +139,18 @@ note the lack of marker names. Marker names are listed in the symbol table,
 or are deduced from the marker map file.
 
 # The marker map file
+
+The marker map contains a list of markers and their locations. E.g.
+
+        # --- Data Location begin
+        M1   I   100.0
+        M2   I   2000.0
+        M3   X   100.0
+        M4   X   1500.0
+        ...
+        # --- Data Location end
+
+where, again, markernames and chromosomes can be symbols.
 
 # The phenotype file
 
