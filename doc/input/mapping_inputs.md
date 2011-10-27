@@ -30,10 +30,19 @@ Each file is described individually in
 * Marker map file    - marker (sex) chromosome positions
 * Phenotype file     - individual x phenotypes
 
-Before describing the formats we describe the general file/section header 
-layout.
+Before describing the formats we describe parser logic, and the general
+file/section header layout.
 
-# Headers
+# Parser logic
+
+Any line that starts with a Hash # symbol is considered a comment. Meta-data
+for the parser starts with # --- Command - so hash and three dashes.
+
+A comment may start also later in a line. This is signified by multiple
+spaces, a hash and a space. Not tabs after are allowed. Not all sections
+will allow these types of comments.
+
+# Header layout
 
 A header should be easily recognizable, and give a version. Every file 
 or file section should start with a commented line (using spaces)
@@ -128,21 +137,25 @@ The genotype file contains markers (columns) x individuals (rows), giving the
 both). Valid genotypes could be (tab delimited):
 
         # --- Data Observed begin
+        #     M1   M2    M3   M4    M5      M6   
         Ind1   A   AorB   1   1,1   0,1   0,1|1,1
         Ind2   H   AorH   NA  1,1   1,1     1,1
         ...
         # --- Data Observed end
 
-where the last marker of Ind1 represents, for example, an AorH. Note the
-use of NA - which is the standard name in qtlHD for a missing value. Also
-note the lack of marker names. Marker names are listed in the symbol table,
-or are deduced from the marker map file.
+where the last marker of Ind1 represents, for example, an AorH. Note the use of
+NA - which is the standard name in qtlHD for a missing value. Also note the
+treatment of marker names. Marker names are normally listed in the symbol
+table, or are deduced from the marker map file. The names in the columns are
+normally ignored (as they start with a Hash #). 
 
 # The marker map file
 
-The marker map contains a list of markers and their locations. E.g.
+The marker map contains a list of markers and their chromosome + locations.
+E.g.
 
         # --- Data Location begin
+        #   Chr   Pos
         M1   I   100.0
         M2   I   2000.0
         M3   X   100.0
@@ -153,4 +166,17 @@ The marker map contains a list of markers and their locations. E.g.
 where, again, markernames and chromosomes can be symbols.
 
 # The phenotype file
+
+The phenotype file contains a list of individuals and their phenotypic values.
+E.g.
+
+        # --- Data Phenotypes begin
+        #    Sex   Pheno
+        Ind1   X   100.0
+        Ind2   I   2000.0
+        ...
+        # --- Data Phenotypes end
+
+Where the phenotype names are listed in the symbols file. The optional 
+name row is ignored by qtlHD as it starts with a Hash symbol.
 
