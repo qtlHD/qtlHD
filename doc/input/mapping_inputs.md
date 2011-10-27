@@ -77,6 +77,17 @@ A possible founder symbol table
       A/J 0
       C57BL/6J 1
       129S1/SvImJ 2
+      ...
+      # --- Data Founder end
+
+When leaving out the numbers, they will be created automatically. So above
+is equal to:
+
+      # --- Data Founder begin
+      A/J
+      C57BL/6J
+      129S1/SvImJ
+      ...
       # --- Data Founder end
 
 Likewise, phenotypes and markers can have symbol to value substitutions.
@@ -95,6 +106,7 @@ a possible genotype symbol table:
       AC CA as 0,2 2,0    # not directional
       D as 3              # expands to 3,3
       E as A/J            # Founder symbol expands to 0,0
+      ...
       # --- Data Genotype end
 
 A symbol is always a string, and can contain spaces (but no tabs). Note that
@@ -117,7 +129,7 @@ both). Valid genotypes could be (tab delimited):
         # --- Data begin
         Ind1   A   AorB   1   1,1   0,1   0,1|1,1
         Ind2   H   AorH   NA  1,1   1,1     1,1
-        (...)
+        ...
         # --- Data end
 
 where the last marker of Ind1 represents, for example, an AorH. Note the
