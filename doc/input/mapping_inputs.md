@@ -171,9 +171,9 @@ The phenotype file contains a list of individuals and their phenotypic values.
 E.g.
 
         # --- Data Phenotypes begin
-        #    Sex   Pheno
-        Ind1   X   100.0
-        Ind2   I   2000.0
+        #    Sex   P1      P2
+        Ind1   X   100.0   45
+        Ind2   I   2000.0  46
         ...
         # --- Data Phenotypes end
 
