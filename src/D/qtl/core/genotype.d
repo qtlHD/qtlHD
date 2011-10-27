@@ -60,9 +60,9 @@ import qtl.core.primitives;
 
   Each marker has a list of GenotypeCombinators. The actual GenotypeCombinators
   are also maintained in a separate list - so as to share observed types, a
-  tracker, rather than duplicating them for each marker. For this we define
-  ObservedGenotypes, which maintains this list. The tracker can be used
-  for a full dataset, or for each marker individually.
+  symbol tracker named symbols, rather than duplicating them for each marker.
+  For this we define ObservedGenotypes, which maintains this list. The symbols
+  can be used for a full dataset, or for each marker individually.
 
   Sex should be queried at the chromosome level.
 
@@ -187,8 +187,8 @@ class GenotypeCombinator {
 
 /** 
  * ObservedGenotypes tracks all the observed genotypes in a dataset, for the
- * full set, or at a marker position.  This tracker is a convenience class,
- * mostly.
+ * full set, or at a marker position.  This symbol tracker is a convenience
+ * class, mostly.
  */
 
 class ObservedGenotypes {
@@ -278,13 +278,13 @@ unittest {
   assert(observed[1] != observed[0]);
   // you see, each observed/individual simply contains a list of true (possible)
   // genotypes. To keep track of observed genotypes you may use
-  auto tracker = new ObservedGenotypes();
-  tracker ~= observed[0];
-  tracker ~= observed[1];
-  auto test = tracker.add(observed[1]); // add duplicate
+  auto symbols = new ObservedGenotypes();
+  symbols ~= observed[0];
+  symbols ~= observed[1];
+  auto test = symbols.add(observed[1]); // add duplicate
   assert(test == observed[1]);
   assert(test == observed1); // No duplication!
-  assert(tracker.length == 2);
+  assert(symbols.length == 2);
 }
 
 /**
@@ -308,13 +308,13 @@ class RIL {
 
 unittest {
   auto ril = new RIL;
-  auto tracker = new ObservedGenotypes();
-  tracker ~= ril.NA;
-  tracker ~= ril.A;
-  tracker ~= ril.B;
-  assert(tracker.decode("-") == ril.NA);
-  assert(tracker.decode("A") == ril.A);
-  assert(tracker.decode("AA") == ril.A);
+  auto symbols = new ObservedGenotypes();
+  symbols ~= ril.NA;
+  symbols ~= ril.A;
+  symbols ~= ril.B;
+  assert(symbols.decode("-") == ril.NA);
+  assert(symbols.decode("A") == ril.A);
+  assert(symbols.decode("AA") == ril.A);
 }
 
 unittest {
@@ -326,18 +326,18 @@ unittest {
   B ~= new TrueGenotype(1,1);
   assert(NA.name == "NA");
   assert(A.name == "A");
-  auto tracker = new ObservedGenotypes();
-  tracker ~= NA;
-  tracker ~= A;
-  tracker ~= B;
+  auto symbols = new ObservedGenotypes();
+  symbols ~= NA;
+  symbols ~= A;
+  symbols ~= B;
   GenotypeCombinator ril[];  // create a set of observed genotypes
   // now find them by name
   NA.add_encoding("-"); // also support dash inputs for NA
-  ril ~= tracker.decode("-");
-  ril ~= tracker.decode("NA");
-  ril ~= tracker.decode("A");
-  ril ~= tracker.decode("B");
-  // ril ~= tracker.decode("C"); // raises exception!
+  ril ~= symbols.decode("-");
+  ril ~= symbols.decode("NA");
+  ril ~= symbols.decode("A");
+  ril ~= symbols.decode("B");
+  // ril ~= symbols.decode("C"); // raises exception!
   assert(ril[0].isNA);
   assert(ril[1].isNA);
   assert(ril[2].name == "A");
@@ -368,35 +368,35 @@ class BC {
 
 class ObservedBC {
   BC crosstype;
-  ObservedGenotypes tracker;
+  ObservedGenotypes symbols;
   this() {
     auto bc = new BC;
-    tracker = new ObservedGenotypes();
-    tracker ~= bc.NA;
-    tracker ~= bc.A;
-    tracker ~= bc.H;
+    symbols = new ObservedGenotypes();
+    symbols ~= bc.NA;
+    symbols ~= bc.A;
+    symbols ~= bc.H;
     crosstype = bc;
   }
   /// Decode an input to an (observed) genotype
   auto decode(in string s) {
-    return tracker.decode(s);
+    return symbols.decode(s);
   }
-  auto length() { return tracker.length; }
+  auto length() { return symbols.length; }
   string toString() {
-    return to!string(tracker);
+    return to!string(symbols);
   }
 
 }
 
 unittest {
   auto bc = new BC;
-  auto tracker = new ObservedGenotypes();
-  tracker ~= bc.NA;
-  tracker ~= bc.A;
-  tracker ~= bc.H;
-  assert(tracker.decode("-") == bc.NA);
-  assert(tracker.decode("A") == bc.A);
-  assert(tracker.decode("H") == bc.H);
+  auto symbols = new ObservedGenotypes();
+  symbols ~= bc.NA;
+  symbols ~= bc.A;
+  symbols ~= bc.H;
+  assert(symbols.decode("-") == bc.NA);
+  assert(symbols.decode("A") == bc.A);
+  assert(symbols.decode("H") == bc.H);
 }
 
 /**
@@ -435,55 +435,55 @@ class F2 {
 
 class ObservedF2 {
   F2 crosstype;
-  ObservedGenotypes tracker;
+  ObservedGenotypes symbols;
   this() {
     auto f2 = new F2;
-    tracker = new ObservedGenotypes();
-    tracker ~= f2.NA;
-    tracker ~= f2.A;
-    tracker ~= f2.B;
-    tracker ~= f2.H;
-    tracker ~= f2.HorB;
-    tracker ~= f2.HorA;
+    symbols = new ObservedGenotypes();
+    symbols ~= f2.NA;
+    symbols ~= f2.A;
+    symbols ~= f2.B;
+    symbols ~= f2.H;
+    symbols ~= f2.HorB;
+    symbols ~= f2.HorA;
     crosstype = f2;
   }
   /// Decode an input to an (observed) genotype
   auto decode(in string s) {
-    return tracker.decode(s);
+    return symbols.decode(s);
   }
-  auto length() { return tracker.length; }
+  auto length() { return symbols.length; }
   string toString() {
-    return to!string(tracker);
+    return to!string(symbols);
   }
 }
 
 unittest {
   auto f2 = new F2;
-  auto tracker = new ObservedGenotypes();
-  tracker ~= f2.NA;
-  tracker ~= f2.A;
-  tracker ~= f2.B;
-  tracker ~= f2.H;
-  tracker ~= f2.HorB;
-  tracker ~= f2.HorA;
+  auto symbols = new ObservedGenotypes();
+  symbols ~= f2.NA;
+  symbols ~= f2.A;
+  symbols ~= f2.B;
+  symbols ~= f2.H;
+  symbols ~= f2.HorB;
+  symbols ~= f2.HorA;
   assert(f2.HorB == f2.C);
-  assert(tracker.decode("-") == f2.NA);
-  assert(tracker.decode("A") == f2.A);
-  assert(tracker.decode("B") == f2.B);
-  // assert(tracker.decode("H") == f2.H);
-  // assert(tracker.decode("C") == f2.HorB);
+  assert(symbols.decode("-") == f2.NA);
+  assert(symbols.decode("A") == f2.A);
+  assert(symbols.decode("B") == f2.B);
+  // assert(symbols.decode("H") == f2.H);
+  // assert(symbols.decode("C") == f2.HorB);
   writeln(f2.HorA.encoding);
-  writeln(tracker);
-  assert(tracker.decode("D") == f2.HorA);
+  writeln(symbols);
+  assert(symbols.decode("D") == f2.HorA);
 }
 
 unittest {
   // the quick way is to used the predefined ObservedF2
-  auto tracker = new ObservedF2;
-  auto f2 = tracker.crosstype;
-  assert(tracker.decode("-") == f2.NA);
-  assert(tracker.decode("A") == f2.A);
-  assert(tracker.decode("B") == f2.B);
+  auto symbols = new ObservedF2;
+  auto f2 = symbols.crosstype;
+  assert(symbols.decode("-") == f2.NA);
+  assert(symbols.decode("A") == f2.A);
+  assert(symbols.decode("B") == f2.B);
 }
 
 
@@ -510,14 +510,14 @@ unittest {
   HorA ~= A;
   HorA ~= AB;
   HorA ~= BA;
-  auto tracker = new ObservedGenotypes();
-  tracker ~= NA;
-  tracker ~= A;
-  tracker ~= B;
-  tracker ~= AB;
-  tracker ~= BA;
-  tracker ~= HorA;
-  tracker ~= HorB;
+  auto symbols = new ObservedGenotypes();
+  symbols ~= NA;
+  symbols ~= A;
+  symbols ~= B;
+  symbols ~= AB;
+  symbols ~= BA;
+  symbols ~= HorA;
+  symbols ~= HorB;
   writeln(HorA);
   assert(HorA.name == "HorA");
   assert(to!string(HorA) == "[(0,0), (0,1), (1,0)]");
@@ -537,20 +537,20 @@ class Flex {
 
 class ObservedFlex {
   Flex crosstype;
-  ObservedGenotypes tracker;
+  ObservedGenotypes symbols;
   this() {
     auto flex = new Flex;
-    tracker = new ObservedGenotypes();
-    tracker ~= flex.NA;
+    symbols = new ObservedGenotypes();
+    symbols ~= flex.NA;
     crosstype = flex;
   }
   /// Decode an input to an (observed) genotype
   auto decode(in string s) {
-    return tracker.decode(s);
+    return symbols.decode(s);
   }
-  auto length() { return tracker.length; }
+  auto length() { return symbols.length; }
   string toString() {
-    return to!string(tracker);
+    return to!string(symbols);
   }
 
 }
@@ -722,22 +722,22 @@ GENOTYPE AorB as 0,0 1,1
 GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
 
   auto cross = new EncodedCross(split(encoded,"\n"));
-  auto tracker = new ObservedGenotypes();
-  // add genotypes to tracker
+  auto symbols = new ObservedGenotypes();
+  // add genotypes to symbols
   foreach (legaltype; cross.gc) {
-    tracker ~= legaltype;
+    symbols ~= legaltype;
   }
-  assert(tracker.decode("NA") == cross.gc["NA"]);
-  assert(tracker.decode("-") == cross.gc["NA"]);
-  assert(tracker.decode("A") == cross.gc["A"]);
-  assert(tracker.decode("B") == cross.gc["B"]);
-  assert(tracker.decode("CC") == cross.gc["C"]);
-  // assert(tracker.decode("BB") == cross.gc["BB"]); <- error
-  assert(tracker.decode("BB") == cross.gc["B"]); //  <- OK
-  assert(tracker.decode("AB") == cross.gc["AB"]);
-  assert(tracker.decode("AorB") == cross.gc["AorB"]);
+  assert(symbols.decode("NA") == cross.gc["NA"]);
+  assert(symbols.decode("-") == cross.gc["NA"]);
+  assert(symbols.decode("A") == cross.gc["A"]);
+  assert(symbols.decode("B") == cross.gc["B"]);
+  assert(symbols.decode("CC") == cross.gc["C"]);
+  // assert(symbols.decode("BB") == cross.gc["BB"]); <- error
+  assert(symbols.decode("BB") == cross.gc["B"]); //  <- OK
+  assert(symbols.decode("AB") == cross.gc["AB"]);
+  assert(symbols.decode("AorB") == cross.gc["AorB"]);
   // writeln(cross["AorB"].encoding);
-  writeln(tracker);
+  writeln(symbols);
   // Test for duplicates
   encoded = "
 GENOTYPE A as 0,0
