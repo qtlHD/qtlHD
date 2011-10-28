@@ -167,7 +167,7 @@ from 1,0.
 For example
 
         # --- Set Genotype begin
-        Directional False
+        Directional True                  # default
         # --- Set Genotype end
 
 # The marker map file
