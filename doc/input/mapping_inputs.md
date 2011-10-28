@@ -29,6 +29,7 @@ Each file is described individually in
 * Genotype file      - marker x individual genotyping
 * Marker map file    - marker (sex) chromosome positions
 * Phenotype file     - individual x phenotypes
+* Manifest file      - optional
 
 Before describing the formats we describe parser logic, and the general
 file/section header layout.
@@ -230,4 +231,19 @@ represents a simple value expansion. A type says someting about possible
 values. When a type is illegal (say a float for an int), or a type falls
 outside a predefined set, which can be checked with P2, P3, P4, and P5, the
 software should throw an error.
+
+# Manifest file
+
+The optional Manifest file, or section, describes the contents and locations
+of the other files/sections, including an MD5 checksum. Example:
+
+      # --- qtlHD-in-x.x Manifest Description
+      # --- Sections begin
+      Symbol symbols.tab 72c66969011ef06999007c4d38ab3c4e
+      Genotype data.tab d4ba9bc0e1e72135c61d4e6699bd4197
+      Phenotype data.tab d4ba9bc0e1e72135c61d4e6699bd4197
+      ...
+      # --- Sections end
+
+Note two sections are in one file.
 
