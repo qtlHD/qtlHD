@@ -121,9 +121,10 @@ a possible genotype symbol table:
 
 A symbol is always a string, and can contain spaces (but no tabs). Note that
 remarks are also allowed, starting with # and a space.  The 'as' keyword splits
-aliased symbols and multiple genotypes. The genotype numbers refer to the
-founders. If founders have symbols, these symbols can be used too. Symbols are
-simply expanded to their numeric values.
+aliased symbols and multiple genotypes (make sure there is no symbol named
+'as'!). The genotype numbers refer to the founders. If founders have symbols,
+these symbols can be used too. Symbols are simply expanded to their numeric
+values.
 
 # The founder file
 
@@ -179,4 +180,24 @@ E.g.
 
 Where the phenotype names are listed in the symbols file. The optional 
 name row is ignored by qtlHD as it starts with a Hash symbol.
+
+Phenotypic values can have types. E.g. floating point (which is the default
+type), integer, binary, discrete, and perhaps ranges. These are defined in the
+header, using the phenotype names:
+
+        # --- Type Phenotypes begin
+        Sex Discrete                        # types are automatically found from data
+        P1  Float                           # double precision value with floating point (default)
+        P2  Integer
+        P3  Ranges 0..1 1..4 4..112 112..$  # valid ranges
+        P4  Discrete  T,N,S                 # predefined discrete types
+        P5  Integer 1..$                    # only values larger than 1
+        ...
+        # --- Type Phenotypes end
+
+Note that types are not symbols. A symbol, defined in the symbol file,
+represents a simple value expansion. A type says someting about possible
+values. When a type is illegal (say a float for an int), or a type falls
+outside a predefined set, which can be checked with P2, P3, P4, and P5, the
+software should throw an error.
 
