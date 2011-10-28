@@ -241,14 +241,46 @@ header, using the phenotype names:
         P3  Ranges 0..1 1..4 4..112 112..$  # valid ranges
         P4  Discrete  T,N,S                 # predefined discrete types
         P5  Integer 1..$                    # only values larger than 1
+        P6  Percentage 0..100               # Percentages with range (floating point)
         ...
         # --- Type Phenotypes end
 
 Note that types are not symbols. A symbol, defined in the symbol file,
 represents a simple value expansion. A type says someting about possible
 values. When a type is illegal (say a float for an int), or a type falls
-outside a predefined set, which can be checked with P2, P3, P4, and P5, the
+outside a predefined set, which can be checked with P2, P3, P4, P5, and P6, the
 software should throw an error.
+
+In addition, every Phenotype section can have a header with batch properties. A
+number of properties are standardized, such as Date, Time, Location, Author,
+Temperature.  Other fields can be added freely. So
+
+        # --- Set Phenotypes begin
+        Id batch001
+        Date 20111027
+        Time 10:11:00
+        Location Nema lab
+        Author John Smith
+        Temperature 25C
+        Remark Humid day
+        Daylight 8.5 hours
+        Week 3
+        ...
+        # --- Set Phenotypes end
+
+Each 'Set' belongs to the 'Data' section. They are tied together in another
+table named Property, which mirrors the Data table using the 'Id' field:
+
+        # --- Property Phenotypes begin
+        #     P1        P2
+        Ind1  batch001  batch002
+        Ind2  batch002  batch001
+        ...
+        # --- Data Phenotypes end
+
+
+This allows phenotype measurements to be split out according to other
+parameters. 
 
 # Manifest file
 
