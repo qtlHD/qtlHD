@@ -45,8 +45,8 @@ class BinaryWriter(Reader, XType) {
   
   void write_matrix(T)(T[][] towrite, File outfile, MatrixType t = MatrixType.EMPTY, MatrixClass mclass = MatrixClass.EMPTY){
     XgapMatrixHeader header = XgapMatrixHeader(xgap_magicnumber, t, mclass);
-    header.nrow = towrite.length;
-    header.ncol = towrite[0].length;
+    header.nrow = cast(int) towrite.length;
+    header.ncol = cast(int) towrite[0].length;
     int datasize = 0;
     int[] elementsizes;
     switch(t){
@@ -56,21 +56,21 @@ class BinaryWriter(Reader, XType) {
         break;
       case MatrixType.INTMATRIX:
         elementsizes ~= int.sizeof;
-        datasize = (int.sizeof)*(header.nrow * header.ncol);
+        datasize = cast(int) (int.sizeof)*(header.nrow * header.ncol);
         break;        
       case MatrixType.DOUBLEMATRIX:
         elementsizes ~= double.sizeof;
-        datasize = (double.sizeof)*(header.nrow * header.ncol);
+        datasize = cast(int) (double.sizeof)*(header.nrow * header.ncol);
         break;        
       case MatrixType.FIXEDCHARMATRIX:
         string s = to!string(towrite[0][0]);
-        elementsizes ~= char.sizeof * s.length;
-        datasize = (char.sizeof * s.length)*(header.nrow * header.ncol);
+        elementsizes ~= cast(int) (char.sizeof * s.length);
+        datasize = cast(int) (char.sizeof * s.length)*(header.nrow * header.ncol);
         break;        
       case MatrixType.VARCHARMATRIX:
         for(int r=0;r < towrite.length;r++){
           for(int c=0;c < towrite[r].length;c++){
-            elementsizes ~= char.sizeof * to!string(towrite[r][c]).length;
+            elementsizes ~= cast(int) (char.sizeof * to!string(towrite[r][c]).length);
             datasize += char.sizeof * to!string(towrite[r][c]).length;
           }
         }
@@ -78,7 +78,7 @@ class BinaryWriter(Reader, XType) {
       default:
         break;
     }
-    header.size = XgapMatrixHeader.sizeof + (elementsizes.length*4) + datasize;
+    header.size = cast(int) (XgapMatrixHeader.sizeof + (elementsizes.length*4) + datasize);
     myWrite([header],outfile);
     myWrite(elementsizes,outfile);
     foreach(T[] e;towrite){
@@ -106,15 +106,15 @@ class BinaryWriter(Reader, XType) {
 unittest {
   writeln("Unit test " ~ __FILE__);
   alias std.path.buildPath buildPath;
-  auto infn = dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr");
-  auto outfn = dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin");
+  auto infn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr"));
+  auto outfn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin"));
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
   auto data = new CSVrReader!RIL(infn);
   auto result = new BinaryWriter!(CSVrReader!RIL,RIL)(data,outfn);
   writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn), toKb(outfn));
   
-  auto infn1 = dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv");
-  auto outfn1 = dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","listeria.xbin");
+  auto infn1 = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv"));
+  auto outfn1 = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","listeria.xbin"));
   writeln("  - reading CSVR " ~ infn1 ~" to " ~ outfn1);
   auto data1 = new ReadSimpleCSV!F2(infn1);
   auto result1 = new BinaryWriter!(ReadSimpleCSV!F2,F2)(data1,outfn1);
