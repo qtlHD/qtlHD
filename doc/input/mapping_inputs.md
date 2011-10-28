@@ -126,6 +126,12 @@ aliased symbols and multiple genotypes (make sure there is no symbol named
 these symbols can be used too. Symbols are simply expanded to their numeric
 values.
 
+'None' is a reserved symbol. In data files 'NA' is the identifier for a missing
+value, or None. You can add symbols for None. In above example we allow dash '-' to 
+represent a missing value.
+
+Other reserved symbols are 'True' and 'False'.
+
 # The founder file
 
 A founder file contains information about the founders useful for algorithms.
@@ -149,6 +155,20 @@ NA - which is the standard name in qtlHD for a missing value. Also note the
 treatment of marker names. Marker names are normally listed in the symbol
 table, or are deduced from the marker map file. The names in the columns are
 normally ignored (as they start with a Hash #). 
+
+The pipe letter '|' in '0,1|1,1' acts as an 'or' combinator for numeric values.
+Do not combine symbols in that way. 'A|B', for example, is illegal. For that
+case define a new symbol, e.g. 'AorB'.
+
+In the header properties can be defined. Current properties are Directional 
+(default True), which assumes the genotype is directional, i.e. 0,1 differs
+from 1,0.
+
+For example
+
+        # --- Set Genotype begin
+        Directional False
+        # --- Set Genotype end
 
 # The marker map file
 
