@@ -142,6 +142,24 @@ Other reserved symbols are 'True' and 'False'.
 A founder file contains information about the founders useful for algorithms.
 Possibilities are cross description and allele frequencies.
 
+The file, or section, starts with
+
+      # --- qtlHD-in-x.x Founder Description
+
+An example of founder allele frequencies, the probability at each marker
+position
+
+        # --- Data Frequencies begin
+        # Founder F1 F2 F3 F4
+        M1
+        A 0.25 0.25 0.25 0.25
+        B 0.20 0.30 0.20 0.30
+        M2
+        A 0.0  0.0  1.0  0.0
+        B 0.0  0.0  0.5  0.5
+        ...
+        # --- Data Frequencies end
+
 # The genotype file
 
 The genotype file contains markers (columns) x individuals (rows), giving the
