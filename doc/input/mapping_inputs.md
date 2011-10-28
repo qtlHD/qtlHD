@@ -76,7 +76,11 @@ one. And note again that qtlHD is the reference implementation.
 
 # The symbol file
 
-The symbol file substitutes symbols with values. A block should start/end with
+The symbol file substitutes symbols with values. The first line should be
+
+      # --- qtlHD-in-x.x Symbol Description
+
+A block should start/end with
 
       # --- Data Type begin/end
 
@@ -141,7 +145,13 @@ Possibilities are cross description and allele frequencies.
 
 The genotype file contains markers (columns) x individuals (rows), giving the
 (observed) genotypes. The values can either be numbers, or symbols (but not
-both). Valid genotypes could be (tab delimited):
+both). 
+
+The file, or section, starts with
+
+      # --- qtlHD-in-x.x Genotype Description
+
+Valid genotypes could be (tab delimited):
 
         # --- Data Observed begin
         #     M1   M2    M3   M4    M5      M6   
