@@ -65,7 +65,7 @@ class XbinConverter{
 unittest{
   writeln("Unit test " ~ __FILE__);
   alias std.path.buildPath buildPath;
-  auto outfn = dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin");
+  auto outfn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin"));
   auto data = new XbinReader(outfn);
   auto convertor = new XbinConverter();
   auto phenotypes = convertor.toPhenotype!double(data.load(0));

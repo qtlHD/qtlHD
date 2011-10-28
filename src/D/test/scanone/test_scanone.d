@@ -32,7 +32,7 @@ unittest {
 
   writeln("Unit test " ~ __FILE__);
   alias std.path.buildPath buildPath;
-  auto fn = dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data","input","listeria.csv");
+  auto fn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data","input","listeria.csv"));
   writeln("  - reading CSV " ~ fn);
   Marker m2 = new Marker(4.8);
   auto markers = [ m2 ];
