@@ -95,7 +95,9 @@ struct XgapMatrixHeader{
 }
 
 struct XgapMatrixNames{
+  int[]         rowlengths;
   string[]      rownames;
+  int[]         collengths;
   string[]      colnames;
 }
 

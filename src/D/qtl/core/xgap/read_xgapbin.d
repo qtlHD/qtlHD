@@ -70,7 +70,7 @@ class XbinReader {
     return data;
   }
   
-  alias Tuple!(int, string[]) NameSkip;
+  alias Tuple!(int, int[], string[]) NameSkip;
   
   NameSkip getNames(int skip, int number){
     int[] lengths;
@@ -84,7 +84,7 @@ class XbinReader {
       data ~= byteToString(inputbuffer[skip..skip+s]);
       skip += s;
     }
-    return NameSkip(skip,data);
+    return NameSkip(skip,lengths,data);
   }
   
  /*
@@ -106,11 +106,13 @@ class XbinReader {
     XgapMatrixNames names;
     NameSkip tmp = getNames(skip,h.nrow);
     skip += tmp[0];
-    names.rownames = tmp[1];
+    names.rowlengths = tmp[1];
+    names.rownames = tmp[2];
     
     tmp = getNames(skip,h.ncol);
     skip += tmp[0];
-    names.colnames = tmp[1];
+    names.collengths = tmp[1];
+    names.colnames = tmp[2];
     
     returnmatrix.names = names;
     int start; //In matrix location of start fo the data
