@@ -81,7 +81,12 @@ class XbinReader {
     skip = skip + (number*int.sizeof);
     for(int x=0;x<number;x++){
       int s = lengths[x];
-      data ~= byteToString(inputbuffer[skip..skip+s]);
+      writeln(to!string(s));
+      if(s != 0){
+        data ~= byteToString(inputbuffer[skip..skip+s]);
+      }else{
+        data ~= "";
+      }
       skip += s;
     }
     return NameSkip(skip,lengths,data);
@@ -103,7 +108,7 @@ class XbinReader {
     returnmatrix.header = h;
     skip += XgapMatrixHeader.sizeof;
 
-    XgapMatrixNames names;
+  /*  XgapMatrixNames names;
     NameSkip tmp = getNames(skip,h.nrow);
     skip += tmp[0];
     names.rowlengths = tmp[1];
@@ -115,6 +120,7 @@ class XbinReader {
     names.colnames = tmp[2];
     
     returnmatrix.names = names;
+    */
     int start; //In matrix location of start fo the data
 
     int[] lengths;
