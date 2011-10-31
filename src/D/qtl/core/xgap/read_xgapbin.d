@@ -14,6 +14,7 @@ import qtl.plugins.input.read_csvr;
 import qtl.plugins.output.write_xgapbin;
 
 import std.stdio;
+import std.typecons;
 import std.conv;
 import std.string;
 import std.path;
@@ -69,6 +70,23 @@ class XbinReader {
     return data;
   }
   
+  alias Tuple!(int, string[]) NameSkip;
+  
+  NameSkip getNames(int skip, int number){
+    int[] lengths;
+    string[] data;
+    for(int x=0;x<number;x++){
+      lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
+    }
+    skip = skip + (number*int.sizeof);
+    for(int x=0;x<number;x++){
+      int s = lengths[x];
+      data ~= byteToString(inputbuffer[skip..skip+s]);
+      skip += s;
+    }
+    return NameSkip(skip,data);
+  }
+  
  /*
   * Loads the matrixid'th XgapMatrix from the file
   */
@@ -85,8 +103,19 @@ class XbinReader {
     returnmatrix.header = h;
     skip += XgapMatrixHeader.sizeof;
 
-    int[] lengths;
+    XgapMatrixNames names;
+    NameSkip tmp = getNames(skip,h.nrow);
+    skip += tmp[0];
+    names.rownames = tmp[1];
+    
+    tmp = getNames(skip,h.ncol);
+    skip += tmp[0];
+    names.colnames = tmp[1];
+    
+    returnmatrix.names = names;
     int start; //In matrix location of start fo the data
+
+    int[] lengths;
     for(int x=0;x<(h.nrow*h.ncol);x++){
       if(h.type == MatrixType.VARCHARMATRIX){
         lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
