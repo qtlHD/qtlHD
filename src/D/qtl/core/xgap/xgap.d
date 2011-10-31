@@ -96,9 +96,7 @@ struct XgapMatrixHeader{
 
 struct XgapMatrixNames{
   string[]      rownames;
-  int[]         row_lengths;
   string[]      colnames;
-  int[]         col_lengths;
 }
 
 //A matrix is defined as a header with data
