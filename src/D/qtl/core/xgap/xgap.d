@@ -82,7 +82,7 @@ class XgapMatrixData(T) : Container{
  * For more information see: doc/input/XGap.md
  */
 struct XgapMatrixHeader{
-  MagicNumber     magicn = xgap_magicnumber;
+  MagicNumber   magicn = xgap_magicnumber;
   
   MatrixType    type;
   MatrixClass   mclass;
@@ -94,9 +94,17 @@ struct XgapMatrixHeader{
   byte[4]       pad16b;
 }
 
+struct XgapMatrixNames{
+  string[]      rownames;
+  int[]         row_lengths;
+  string[]      colnames;
+  int[]         col_lengths;
+}
+
 //A matrix is defined as a header with data
 class XgapMatrix {
   XgapMatrixHeader  header;
+  XgapMatrixNames   names;
   Container data;
 }
 
