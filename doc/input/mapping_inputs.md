@@ -143,7 +143,7 @@ these symbols can be used too. Symbols are simply expanded to their numeric
 values.
 
 `None` is a reserved symbol. In data files `NA` is the identifier for a missing
-value, or `None`. You can add symbols for `None`. In above example we allow dash `-` to 
+value, or `None`. You can add symbols for `None`. In the above example we allow dash `-` to 
 represent a missing value.
 
 Other reserved symbols are `True` and `False` (and, as mentioned
