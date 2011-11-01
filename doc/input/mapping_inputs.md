@@ -1,13 +1,15 @@
 # Mapping inputs
 
 In general, file standards for QTL mapping are a muddle. The basic premises,
-however, are pretty straightforward. Here, for qtlHD we propose a 'final'
+however, are pretty straightforward. For qtlHD, we propose a 'final'
 tab-delimited format that will also have a binary (and perhaps XML) counterpart
 representation. A choice for tab-delimited (or TSV, tab separated value) files
-is made to secure human readability (and editability!) of data. Since TSV files
+is made to secure human readability (and editability!) of data. 
+**[But one shouldn't edit such files "by hand".]**
+Since TSV files
 contain no 'grammar' we describe content and set options through section header
 information. In principle we attempt to DRY (do not repeat yourself) and sparse
-data (no inclusion of zero values). The idea is to have a simple
+data (no inclusion of zero values). The idea is to have a simple,
 straightforward standard that can be applied to 95% of cases, is easily
 readable by humans, and easily parsable by software.
 
@@ -15,7 +17,7 @@ In addition, the new tab delimited format should be versioned, extensible,
 handle names with spaces (except tabs), and allow some validation of section
 sizes. Section data is either TSV, or JSON. JSON is used for tree like data
 structures.  Finally, we support both multi-file and single-file
-representations of the same data. The single file represenstation simply being
+representations of the same data. The single file representation is simply 
 a concatenation of other files.
 
 Note: The qtlHD project is the single authority for the file standard. qtlHD
@@ -26,10 +28,19 @@ Each file is described individually in
 * Symbol file        - symbols used to describe (observed) genotypes, 
                        markers, founders, individuals and phenotypes
 * Founder file       - Founder and cross layout
-* Genotype file      - marker x individual genotyping
+* Genotype file      - marker x individual genotypes
 * Marker map file    - marker (sex) chromosome positions
-* Phenotype file     - individual x phenotypes
+* Phenotype file     - individual x phenotypes (covariates are
+                       included as phenotypes)
 * Manifest file      - optional
+
+Additional files will match one of these formats.  For example, we may
+need a "Phenotype covariate" file, containing covariates that describe
+the phenotypes (for example, the age for a given body weight
+phenotype, or the chromosome and position and sequence of the
+transcript for a gene expression phenotype).  This phenotype covariate
+file can be in the same format as the phenotype file, but instead of
+individual x phenotype, it will be phenotype x "phenotype covariate".
 
 Before describing the formats we describe parser logic, and the general
 file/section header layout.
@@ -37,11 +48,11 @@ file/section header layout.
 # Parser logic
 
 Any line that starts with a Hash # symbol is considered a comment. Meta-data
-for the parser starts with # --- Command - so hash and three dashes.
+for the parser starts with `# --- <Command>` - so hash and three dashes.
 
 A comment may start also later in a line. This is signified by multiple
-spaces, a hash and a space. Not tabs after are allowed. Not all sections
-will allow these types of comments.
+spaces, a hash and a space. No tabs after an end-of-line comment are allowed. Not all sections
+will allow these end-of-line comments.
 
 # Header layout
 
@@ -50,8 +61,8 @@ or file section should start with a commented line (using spaces)
 
       # --- qtlHD-in-x.x Sectionname Description
 
-where x.x is the file format version and name represents the section name. The 
-description is a free string. Valid section headers are, for example
+where `x.x` is the file format version and `Sectionname` represents the section name. The 
+description is a free string. Valid section headers are, for example,
 
       # --- qtlHD-in-0.9 Genotype Mouse CC JAX
       # --- qtlHD-in-0.9 Phenotype Mouse CC JAX - Our experiment/date
@@ -72,7 +83,7 @@ and ends with
       # --- Data Name end
 
 This is an extensible data format. To avoid getting all different formats,
-again, try to fit your data model in an existing format, before adding a new
+again, try to fit your data model in an existing format before adding a new
 one. And note again that qtlHD is the reference implementation.
 
 # The symbol file
@@ -125,17 +136,18 @@ a possible genotype symbol table:
       # --- Data Genotype end
 
 A symbol is always a string, and can contain spaces (but no tabs). Note that
-remarks are also allowed, starting with # and a space.  The 'as' keyword splits
-aliased symbols and multiple genotypes (make sure there is no symbol named
-'as'!). The genotype numbers refer to the founders. If founders have symbols,
+remarks are also allowed, starting with # and a space.  The `as` keyword splits
+aliased symbols and multiple genotypes (`as` is a reserved symbol). 
+The genotype numbers refer to the founders. If founders have symbols,
 these symbols can be used too. Symbols are simply expanded to their numeric
 values.
 
-'None' is a reserved symbol. In data files 'NA' is the identifier for a missing
-value, or None. You can add symbols for None. In above example we allow dash '-' to 
+`None` is a reserved symbol. In data files `NA` is the identifier for a missing
+value, or `None`. You can add symbols for `None`. In above example we allow dash `-` to 
 represent a missing value.
 
-Other reserved symbols are 'True' and 'False'.
+Other reserved symbols are `True` and `False` (and, as mentioned
+above, `as`).
 
 # The founder file
 
@@ -185,13 +197,13 @@ treatment of marker names. Marker names are normally listed in the symbol
 table, or are deduced from the marker map file. The names in the columns are
 normally ignored (as they start with a Hash #). 
 
-The pipe letter '|' in '0,1|1,1' acts as an 'or' combinator for numeric values.
-Do not combine symbols in that way. 'A|B', for example, is illegal. For that
-case define a new symbol, e.g. 'AorB'.
+The pipe letter `|` in `0,1|1,1` acts as an 'or' combinator for numeric values.
+Do not combine symbols in that way. `A|B`, for example, is illegal. For that
+case define a new symbol, e.g. `AorB`.
 
 In the header properties can be defined. Current properties are Directional 
-(default True), which assumes the genotype is directional, i.e. 0,1 differs
-from 1,0.
+(default `True`), which assumes the genotype is directional, e.g. `0,1` differs
+from `1,0`.
 
 For example
 
@@ -202,7 +214,7 @@ For example
 # The marker map file
 
 The marker map contains a list of markers and their chromosome + locations.
-E.g.
+For example,
 
         # --- Data Location begin
         #   Chr   Pos
@@ -213,12 +225,14 @@ E.g.
         ...
         # --- Data Location end
 
-where, again, markernames and chromosomes can be symbols.
+where, again, marker names and chromosomes can be symbols.
+
+**[How do we indicate the scale of the locations (e.g., cM or bp or Mbp)?]**
 
 # The phenotype file
 
 The phenotype file contains a list of individuals and their phenotypic values.
-E.g.
+For example,
 
         # --- Data Phenotypes begin
         #    Sex   P1      P2
@@ -230,7 +244,7 @@ E.g.
 Where the phenotype names are listed in the symbols file. The optional 
 name row is ignored by qtlHD as it starts with a Hash symbol.
 
-Phenotypic values can have types. E.g. floating point (which is the default
+Phenotypic values can have types. For example, floating point (which is the default
 type), integer, binary, discrete, and perhaps ranges. These are defined in the
 header, using the phenotype names:
 
@@ -246,9 +260,9 @@ header, using the phenotype names:
         # --- Type Phenotypes end
 
 Note that types are not symbols. A symbol, defined in the symbol file,
-represents a simple value expansion. A type says someting about possible
+represents a simple value expansion. A type says something about possible
 values. When a type is illegal (say a float for an int), or a type falls
-outside a predefined set, which can be checked with P2, P3, P4, P5, and P6, the
+outside a predefined set, which can be checked with `P2`, `P3`, `P4`, `P5`, and `P6`, the
 software should throw an error.
 
 In addition, every Phenotype section can have a header with batch properties. A
@@ -269,7 +283,7 @@ Temperature.  Other fields can be added freely. So
         # --- Set Phenotypes end
 
 Each 'Set' belongs to the 'Data' section. They are tied together in another
-table named Property, which mirrors the Data table using the 'Id' field:
+table named Property, which mirrors the Data table using the `Id` field:
 
         # --- Property Phenotypes begin
         #     P1        P2
@@ -285,7 +299,7 @@ parameters.
 # Manifest file
 
 The optional Manifest file, or section, describes the contents and locations
-of the other files/sections, including an MD5 checksum. Example:
+of the other files/sections, including an MD5 checksum. For example:
 
       # --- qtlHD-in-x.x Manifest Description
       # --- Sections begin
@@ -295,5 +309,5 @@ of the other files/sections, including an MD5 checksum. Example:
       ...
       # --- Sections end
 
-Note two sections are in one file.
+Note that, in this example, two of the sections are together in one file.
 
