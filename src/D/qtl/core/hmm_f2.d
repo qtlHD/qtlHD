@@ -461,8 +461,8 @@ unittest {
 
 unittest {
   writeln("    unit test calcGenoprob for F2:");
-  alias std.path.join join;
-  auto fn = dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv");
+  alias std.path.buildPath buildPath;
+  auto fn = dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data","input","listeria.csv");
   writeln("      - read CSV " ~ fn);
   auto data = new ReadSimpleCSV!F2(fn);
   
@@ -567,8 +567,8 @@ unittest {
 unittest {
   writeln("Unit test " ~ __FILE__);
   writeln("    unit test estmap for F2:");
-  alias std.path.join join;
-  auto fn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","listeria.csv"));
+  alias std.path.buildPath buildPath;
+  auto fn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data","input","listeria.csv"));
   writeln("      - read CSV " ~ fn);
   auto data = new ReadSimpleCSV!F2(fn);
   
