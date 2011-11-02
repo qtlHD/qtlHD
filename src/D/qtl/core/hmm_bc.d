@@ -148,8 +148,8 @@ unittest {
 
 unittest {
   writeln("    unit test calcGenoprob for BC:");
-  alias std.path.join join;
-  auto fn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","hyper_noX.csv"));
+  alias std.path.buildPath buildPath;
+  auto fn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data","input","hyper_noX.csv"));
   writeln("      - read CSV " ~ fn);
   auto data = new ReadSimpleCSV!BC(fn);
   
@@ -315,8 +315,7 @@ unittest {
 
 unittest {
   writeln("    unit test estmapBC:");
-  alias std.path.join join;
-  auto fn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","test","data","input","hyper_noX.csv"));
+  auto fn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data","input","hyper_noX.csv"));
   writeln("      - read CSV " ~ fn);
   auto data = new ReadSimpleCSV!BC(fn);
   
