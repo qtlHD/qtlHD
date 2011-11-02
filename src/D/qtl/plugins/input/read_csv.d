@@ -246,8 +246,8 @@ GENOTYPE D as 1,1 0,1";
   foreach (legaltype; types.gc) {
     observed.symbols ~= legaltype;
   }
-  alias std.path.join join;
-  auto fn = to!string(dirname(__FILE__) ~ sep ~ join("..","..","..","..","..","test","data","input","listeria.csv"));
+  alias std.path.buildPath buildPath;
+  auto fn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv"));
   writeln("  - reading CSV (for Flex) " ~ fn);
   auto data = new ReadSimpleCSV!(Flex,ObservedFlex)(fn, observed);
   auto cross = data.crosstype;
