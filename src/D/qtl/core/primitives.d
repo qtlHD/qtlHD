@@ -345,7 +345,10 @@ class Markers(M) {
   M[] list;  // Unordered marker list May become an SList.
   this() {}
   this(in Markers!M markers) {
-    list = markers.list.dup;  // make sure to clone all data
+    // list = markers.list.dup;  // make sure to clone all data
+    foreach(m ; markers.list) {
+      list ~= cast(M) m;
+    }
   }
   this(M[] markers) {
     list = markers.dup;

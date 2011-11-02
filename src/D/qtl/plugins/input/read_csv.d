@@ -23,8 +23,11 @@ import std.path;
  * Read a simple CSV file containing marker names, chromosome nrs, position,
  * phenotype and genotype - such as the listeria.csv file used in R/qtl.
  *
- * The cross type is injected as XType. An XType works as long as it is
- * a known Genotype class (BC, F2, RIL).
+ * The cross type is injected as XType. An XType works as long as it is a known
+ * Genotype class (e.g. BC, F2, RIL, Flex). Observed genotypes are handled as
+ * 'fixed' in this implementation. That is, we already know the observed types
+ * before reading the genotype data file. The symbols hands back matching
+ * (observed) genotypes.
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
@@ -32,7 +35,7 @@ import std.path;
 class ReadSimpleCSV(XType,ObservedXType) {
   private File f;
   XType crosstype;
-  ObservedXType tracker;
+  ObservedXType symbols;
   string[] phenotypenames;
   Marker[] markers;
   Individuals individuals;
@@ -41,10 +44,15 @@ class ReadSimpleCSV(XType,ObservedXType) {
   GenotypeCombinator[][] genotypes;
   size_t n_phenotypes;
 
-  this(in string fn) {
+  this(in string fn, ObservedXType observed = null) {
     f = File(fn,"r");
     scope(exit) f.close();
-    tracker = new ObservedXType; // this may become a parameter
+    if (observed is null)
+      symbols = new ObservedXType;
+    else
+      symbols = observed;
+    writeln(symbols);
+    // symbols = new ObservedXType; // this may become a parameter
     individuals = new Individuals();
     // read markers
     Marker[] ms;
@@ -114,10 +122,10 @@ class ReadSimpleCSV(XType,ObservedXType) {
       // set genotype
       crosstype = new XType;
       GenotypeCombinator[] gs;
-      // we use the predefined crosstype tracker
+      // we use the predefined crosstype symbols
       gs.reserve(n_columns);  // pre-allocate memory (just good practise)
       foreach (field; fields[n_phenotypes..$]) {
-        gs ~= tracker.decode(strip(field));
+        gs ~= symbols.decode(strip(field));
       }
       genotypes ~= gs;
       individuals.list ~= new Individual(n_individual);
@@ -148,9 +156,12 @@ unittest {
   // Check phenotype
   assert(data.phenotypes[29][0].value == PHENOTYPE_NA, to!string(data.phenotypes[29][0].value));
   assert(data.phenotypes[30][0].value == 74.417);
-  // Check genotype
+  // Check genotype (hard coded)
   assert(data.genotypes[1][0] == F2.NA);
   assert(data.genotypes[1][1] == F2.B);
+  // This should also work
+  assert(data.genotypes[1][0] == data.symbols.decode("NA"));
+  assert(data.genotypes[1][1] == data.symbols.decode("B"));
   assert(data.individuals.length == 120);
 
   // foreach(name; data.chromosomes.keys.sort) {
@@ -210,5 +221,53 @@ unittest {
   assert(data.genotypes[1][1] == BC.H);
   assert(data.genotypes[2][3] == BC.NA);
   assert(data.genotypes[2][4] == BC.A);
+}
+
+/**
+ * Unit tests for the Flex cross. A flex cross can (potentially) read a data
+ * file without assuming what is in the file. Observed genotypes are added to
+ * the symbols beforehand, as the parser has to know what an A, B or H symbol
+ * means.
+ */
+
+unittest {
+  writeln("Unit test " ~ __FILE__);
+  auto encoded = "
+GENOTYPE NA,- as None        
+GENOTYPE A as 0,0
+GENOTYPE B as 1,1
+GENOTYPE H as 0,1
+GENOTYPE C as 0,0 0,1
+GENOTYPE D as 1,1 0,1";
+
+  auto types = new EncodedCross(split(encoded,"\n"));
+  auto observed = new ObservedFlex();
+  // add genotypes to symbols
+  foreach (legaltype; types.gc) {
+    observed.symbols ~= legaltype;
+  }
+  alias std.path.buildPath buildPath;
+  auto fn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv"));
+  writeln("  - reading CSV (for Flex) " ~ fn);
+  auto data = new ReadSimpleCSV!(Flex,ObservedFlex)(fn, observed);
+  auto cross = data.crosstype;
+  assert(data.markers.length == 133, to!string(data.markers.length));
+  assert(data.phenotypenames[0] == "T264");
+  assert(data.markers[0].name == "D10M44");
+  assert(data.markers[0].id == 0);
+  assert(data.markers[0].chromosome.name == "1",data.markers[0].chromosome.name);
+  assert(data.markers[1].id == 1);
+  // Check chromosomes
+  assert(data.chromosomes.length == 20, to!string(data.chromosomes.length));
+  assert(data.chromosomes["X"].id == ID_UNKNOWN);
+  assert(data.chromosomes["7"].id == 7);
+  assert(data.markers[2].position == 24.84773, "Marker position not matching");
+  // Check phenotype
+  assert(data.phenotypes[29][0].value == PHENOTYPE_NA, to!string(data.phenotypes[29][0].value));
+  assert(data.phenotypes[30][0].value == 74.417);
+  // Check genotype
+  assert(data.genotypes[1][0] == data.symbols.decode("NA"));
+  assert(data.genotypes[1][1] == data.symbols.decode("B"));
+  assert(data.individuals.length == 120);
 }
 
