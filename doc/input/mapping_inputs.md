@@ -224,9 +224,12 @@ For example,
         ...
         # --- Data Location end
 
-where, again, marker names and chromosomes can be symbols.
+where, again, marker names and chromosomes can be symbols. Position is in 
+cM by default. To override, you can set it to base pairs (bp or Mbp).
 
-**[How do we indicate the scale of the locations (e.g., cM or bp or Mbp)?]**
+        # --- Set Location begin
+        Position cM                       # cM (default), bp or Mbp
+        # --- Set Location end
 
 # The phenotype file
 
@@ -326,6 +329,7 @@ When sections are in separate files, prefix the extension with _sectionname
   filename_phenotype.qtab  
   filename_symbol.qtab  
   filename_founder.qtab  
+  filename_location.qtab  
   filename_manifest.qtab  
   filename_genotype.qbin    - for the binary edition 
 
