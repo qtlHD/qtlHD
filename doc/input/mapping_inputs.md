@@ -5,7 +5,6 @@ however, are pretty straightforward. For qtlHD, we propose a 'final'
 tab-delimited format that will also have a binary (and perhaps XML) counterpart
 representation. A choice for tab-delimited (or TSV, tab separated value) files
 is made to secure human readability (and editability!) of data. 
-**[But one shouldn't edit such files "by hand".]**
 Since TSV files
 contain no 'grammar' we describe content and set options through section header
 information. In principle we attempt to DRY (do not repeat yourself) and sparse
@@ -225,9 +224,12 @@ For example,
         ...
         # --- Data Location end
 
-where, again, marker names and chromosomes can be symbols.
+where, again, marker names and chromosomes can be symbols. Position is in 
+cM by default. To override, you can set it to base pairs (bp or Mbp).
 
-**[How do we indicate the scale of the locations (e.g., cM or bp or Mbp)?]**
+        # --- Set Location begin
+        Position cM                       # cM (default), bp or Mbp
+        # --- Set Location end
 
 # The phenotype file
 
@@ -310,4 +312,25 @@ of the other files/sections, including an MD5 checksum. For example:
       # --- Sections end
 
 Note that, in this example, two of the sections are together in one file.
+
+# qtlHD filename conventions
+
+The following filename extensions are used by convention
+
+  filename.qtab    - for the textual TSV edition
+  filename.qbin    - for the binary edition 
+  filename.qbin.gz - for the binary edition, zipped 
+  filename.qxml    - for the xml edition
+
+When sections are in separate files, prefix the extension with _sectionname
+(lower case). Examples are
+
+  filename_genotype.qtab    - for the textual TSV edition
+  filename_phenotype.qtab  
+  filename_symbol.qtab  
+  filename_founder.qtab  
+  filename_location.qtab  
+  filename_manifest.qtab  
+  filename_genotype.qbin    - for the binary edition 
+
 
