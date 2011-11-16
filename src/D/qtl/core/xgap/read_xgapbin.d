@@ -79,7 +79,7 @@ class XbinReader {
       lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
     }
     skip = skip + (number*int.sizeof);
-    for(int x=0;x<number;x++){
+   /* for(int x=0;x<number;x++){
       int s = lengths[x];
       writeln(to!string(s));
       if(s != 0){
@@ -87,9 +87,9 @@ class XbinReader {
       }else{
         data ~= "";
       }
-      skip += s;
-    }
-    return NameSkip(skip,lengths,data);
+   //   skip += s;
+    }*/
+    return NameSkip((number*int.sizeof),lengths,data);
   }
   
  /*
@@ -102,25 +102,29 @@ class XbinReader {
     int skip = XgapFileHeader.sizeof;
     for(int i=0;i < matrixid;i++){
       skip += headers[i].size;
+      NameSkip tmp = getNames(skip,headers[i].nrow);
+      skip += tmp[0];
     }
     XgapMatrix returnmatrix = new XgapMatrix();
     XgapMatrixHeader h = headers[matrixid];
     returnmatrix.header = h;
     skip += XgapMatrixHeader.sizeof;
-
-  /*  XgapMatrixNames names;
+    writefln("%d",skip);
+  //*  XgapMatrixNames names;
     NameSkip tmp = getNames(skip,h.nrow);
+    writefln("tmp[0]=%d %d",tmp[0],skip);
     skip += tmp[0];
-    names.rowlengths = tmp[1];
-    names.rownames = tmp[2];
+   // names.rowlengths = tmp[1];
+   // names.rownames = tmp[2];
     
-    tmp = getNames(skip,h.ncol);
-    skip += tmp[0];
-    names.collengths = tmp[1];
-    names.colnames = tmp[2];
+   // tmp = getNames(skip,h.ncol);
+    //writefln("tmp[0]=%d, %d",tmp[0],skip);
+  //  skip += tmp[0];
+  //  names.collengths = tmp[1];
+  //  names.colnames = tmp[2];
     
-    returnmatrix.names = names;
-    */
+//    returnmatrix.names = names;
+
     int start; //In matrix location of start fo the data
 
     int[] lengths;
@@ -182,7 +186,9 @@ class XbinReader {
     XgapMatrixHeader header = convbyte!(XgapMatrixHeader)(inputbuffer[start..start+XgapMatrixHeader.sizeof]);
     writefln("      Matrix %d, type=%d, rows: %d, columns: %d", matrix, header.type, header.nrow, header.ncol);
     headers ~= header;
-    return header.size;
+    NameSkip tmp = getNames(start,header.nrow);
+    writefln("  %d    tmp[0]=%d",start,tmp[0]);
+    return header.size+tmp[0];
   }
   
  /*

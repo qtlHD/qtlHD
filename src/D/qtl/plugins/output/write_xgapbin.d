@@ -81,25 +81,25 @@ class BinaryWriter(Reader, XType) {
     header.size = cast(int) (XgapMatrixHeader.sizeof + (elementsizes.length*4) + datasize);
     myWrite([header],outfile);
     //Here we need to write rownames and colnames, Now STUBS
-   /* int[] rowlength;
-    string[] rownames;
+   int[] rowlength;
+   // string[] rownames;
     for(auto r=0;r<header.nrow;r++){
-      rowlength ~= 0;
-      rownames ~= "";
+     rowlength ~= 0;
+     // rownames ~= "";
     }
     myWrite(rowlength,outfile);
-    myWrite(rownames,outfile);
+    //myWrite(rownames,outfile);
     
-    int[] collength;
-    string[] colnames;
-    for(auto c=0;c<header.ncol;c++){
-      collength ~= 0;
-      colnames ~= "";
-    }
+    //int[] collength;
+    //string[] colnames;
+    //for(auto c=0;c<header.ncol;c++){
+    //  collength ~= 0;
+    //  //colnames ~= "";
+   // }
 
-    myWrite(collength,outfile);
-    myWrite(colnames,outfile);
-    */
+    //myWrite(collength,outfile);
+    //myWrite(colnames,outfile);
+  
     myWrite(elementsizes,outfile);
     foreach(T[] e;towrite){
       myWrite(e,outfile,t);
