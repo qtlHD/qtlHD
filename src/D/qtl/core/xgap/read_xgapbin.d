@@ -197,7 +197,7 @@ class XbinReader {
   int parseMatrixHeader(ubyte[] buffer, int matrix, int start){
     XgapMatrixHeader header = convbyte!(XgapMatrixHeader)(inputbuffer[start..start+XgapMatrixHeader.sizeof]);
     headers ~= header;
-    XgapMatrixNames matrixnames = getNames(start+XgapMatrixHeader.sizeof,header);
+    XgapMatrixNames matrixnames = getNames(cast(int)(start+XgapMatrixHeader.sizeof),header);
     names ~= matrixnames;
     writefln("      Matrix %d, type=%d, rows: %d, columns: %d, %d %d", matrix, header.type, header.nrow, header.ncol,header.size,matrixnames.size);
     return header.size + matrixnames.size;
