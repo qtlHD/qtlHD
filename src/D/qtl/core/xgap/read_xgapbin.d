@@ -77,23 +77,19 @@ class XbinReader {
       data.rowlengths ~= byteToInt(inputbuffer[(start+(r*int.sizeof))..(start + int.sizeof + (r*int.sizeof))]);
     }
     auto skip = start + (header.nrow*int.sizeof);
- /*   for(int r=0;r<header.nrow;r++){
+    for(int r=0;r<header.nrow;r++){
       if(data.rowlengths[r] != 0){
         data.rownames ~= byteToString(inputbuffer[skip..skip+data.rowlengths[r]]);
       }else{
         data.rownames ~= "";
       }
       skip += data.rowlengths[r];
-    } */
-    writefln("Done with rows: %d",skip);
+    }
     for(int c=0;c<header.ncol;c++){
-    writeln(byteToInt(inputbuffer[(skip+(c*int.sizeof))..(skip + int.sizeof + (c*int.sizeof))]));
       data.collengths ~= byteToInt(inputbuffer[(skip+(c*int.sizeof))..(skip + int.sizeof + (c*int.sizeof))]);
     }
     skip = skip + (header.ncol*int.sizeof);
-    /*
     for(int c=0;c<header.ncol;c++){
-      writeln(to!string(data.collengths[c]));
       if(data.collengths[c] != 0){
         data.colnames ~= byteToString(inputbuffer[skip..skip+data.collengths[c]]);
       }else{
@@ -101,7 +97,6 @@ class XbinReader {
       }
       skip += data.collengths[c];
     }
-    */
     data.size = cast(int)(skip - start);
     return data;
   }
@@ -122,20 +117,9 @@ class XbinReader {
     XgapMatrixHeader h = headers[matrixid];
     returnmatrix.header = h;
     skip += XgapMatrixHeader.sizeof;
-    writefln("%d",skip);
   //*  XgapMatrixNames names;
     returnmatrix.names = getNames(skip,h);
     skip += returnmatrix.names.size;
-   // names.rowlengths = tmp[1];
-   // names.rownames = tmp[2];
-    
-   // tmp = getNames(skip,h.ncol);
-    //writefln("tmp[0]=%d, %d",tmp[0],skip);
-  //  skip += tmp[0];
-  //  names.collengths = tmp[1];
-  //  names.colnames = tmp[2];
-    
-//    returnmatrix.names = names;
 
     int start; //In matrix location of start fo the data
 
@@ -199,7 +183,7 @@ class XbinReader {
     headers ~= header;
     XgapMatrixNames matrixnames = getNames(cast(int)(start+XgapMatrixHeader.sizeof),header);
     names ~= matrixnames;
-    writefln("      Matrix %d, type=%d, rows: %d, columns: %d, %d %d", matrix, header.type, header.nrow, header.ncol,header.size,matrixnames.size);
+    writefln("      Matrix %d, type=%d, rows: %d, columns: %d, %d %d", matrix, header.type, header.nrow, header.ncol, header.size, matrixnames.size);
     return header.size + matrixnames.size;
   }
   
