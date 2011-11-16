@@ -88,17 +88,17 @@ class BinaryWriter(Reader, XType) {
       rownames ~= "A";
     }
     myWrite(rowlength,outfile);
-    //myWrite(rownames,outfile);
+    myWrite(rownames,outfile,MatrixType.VARCHARMATRIX);
     
     int[] collength;
     string[] colnames;
     for(auto c=0;c<header.ncol;c++){
       collength ~= 2;
-      colnames ~= "B";
+      colnames ~= "BA";
     }
 
     myWrite(collength,outfile);
-    //myWrite(colnames,outfile);
+    myWrite(colnames,outfile,MatrixType.VARCHARMATRIX);
   
     myWrite(elementsizes,outfile);
     foreach(T[] e;towrite){
