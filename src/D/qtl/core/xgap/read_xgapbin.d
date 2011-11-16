@@ -102,7 +102,7 @@ class XbinReader {
       skip += data.collengths[c];
     }
     */
-    data.size = skip - start;
+    data.size = cast(int)(skip - start);
     return data;
   }
   
