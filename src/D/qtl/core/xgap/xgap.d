@@ -95,6 +95,7 @@ struct XgapMatrixHeader{
 }
 
 struct XgapMatrixNames{
+  int           size;     //So we can skip
   int[]         rowlengths;
   string[]      rownames;
   int[]         collengths;
