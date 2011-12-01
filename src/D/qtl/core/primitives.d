@@ -355,7 +355,7 @@ class MarkerRef(T)
  */
 
 class Markers(M) {
-  M[] list;  // Unordered marker list May become an SList.
+  mixin ActList!M; 
   this() {}
   this(in Markers!M markers) {
     // list = markers.list.dup;  // make sure to clone all data
@@ -478,7 +478,7 @@ unittest {
   // find by name
   assert(markers.find("m1").name == "m1");
   uint[] result;
-  foreach ( m ; markers.list ) {
+  foreach ( m ; markers ) {
     result ~= m.marker.id;
   }
   assert(result==cast(uint[])[1,2,3]);
@@ -490,7 +490,7 @@ unittest {
   }
   assert(result==cast(uint[])[1,2,3,2,3,1],to!string(result));
   auto ms = markers.sorted(); 
-  foreach ( m ; ms.list ) {
+  foreach ( m ; ms ) {
     result ~= m.marker.id; // add sorted marker list (1,3,2)
   }
   assert(result==cast(uint[])[1,2,3,2,3,1,1,3,2],to!string(result));
