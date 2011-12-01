@@ -20,7 +20,7 @@ import std.file;
  * Write a tabular qtlHD phenotype file. 
  */
 
-void write_phenotype_qtab(P)(File f, in Individuals individuals, in string[] phenotypenames, in P[][] phenotypes) {
+void write_phenotype_qtab(P)(File f, in Individuals individuals, string[] phenotypenames, P[][] phenotypes) {
   f.writeln("# --- Data Phenotypes begin");
   // write markers as a comment
   f.write("#");
@@ -31,7 +31,7 @@ void write_phenotype_qtab(P)(File f, in Individuals individuals, in string[] phe
   foreach(i, ind; individuals.list) {
     f.write(ind.name);
     foreach(p; phenotypes[i].list) {
-      f.write("\t",p.value);
+      f.write("\t",p.toString);
     }
     f.writeln("");
   }
