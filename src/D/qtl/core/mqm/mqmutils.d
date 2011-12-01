@@ -12,8 +12,8 @@ import std.math;
 import std.string;
 import std.conv;
 import qtl.core.deprecate.genotype_enum;
-import qtl.core.libs.r;
-import qtl.plugins.input.read_csv;
+import qtl.core.libs.rlib;
+
 
 double LogNormal(double residual, double variance){
   return dnorm(residual,0,sqrt(variance),0);

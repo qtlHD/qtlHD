@@ -53,7 +53,7 @@ class RSession{
     int result = -1;
 
     Rf_protect(e = Rf_allocVector(LANGSXP, 1));
-    SETCAR(e, Rf_install("foo\0".dup.ptr));
+    SETCAR(e, Rf_install("sum\0".dup.ptr));
 
     val = R_tryEval(e, R_GlobalEnv, &errorOccurred);
 
@@ -62,7 +62,7 @@ class RSession{
       result = INTEGER(val)[0];
       Rf_unprotect(1);
     }else{
-      writeln("An error occurred when calling foo");
+      writeln("An error occurred when calling sum()");
     }
     Rf_unprotect(1); /* e / Assume we have an INTSXP here. */
     return(result);
