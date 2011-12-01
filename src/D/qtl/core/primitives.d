@@ -213,7 +213,7 @@ struct Phenotype(T) {
   T value;
   
   /// String representation of phenotype.
-  string toString(){
+  const string toString(){
     if(to!double(value) != PHENOTYPE_NA){
       return to!string(value);
     }else{
