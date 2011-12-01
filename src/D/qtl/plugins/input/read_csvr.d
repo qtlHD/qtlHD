@@ -1,5 +1,7 @@
 /**
  * Read CSVR format
+ *
+ * Note: This implementation handles everything through one object. This may change later.
  **/
 
 module qtl.plugins.input.read_csvr;

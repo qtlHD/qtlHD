@@ -1,5 +1,5 @@
 /**
- * XGap types 
+ * XGap (primitive) types 
  **/
 
 module qtl.core.xgap.xgap;

@@ -2,6 +2,9 @@
  * Plugin for reading simple CSV files
  *
  *   rm read_csv ; dmd -unittest qtl/plugins/input/read_csv.d qtl/core/*.d ; time ./read_csv
+ *
+ * Note: this implementation reads everything into an object. We may switch to a Tuple
+ * implementation later.
  */
 
 module qtl.plugins.input.read_csv;
