@@ -1,5 +1,5 @@
 /**
- * XGap converter
+ * XGap converter - translate between XGap types and qtlHD primitives
  **/
 
 module qtl.core.xgap.converter;

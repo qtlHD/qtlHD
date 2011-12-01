@@ -1,5 +1,8 @@
 /**
- * Write binary XGap format
+ * Read binary XGap format
+ *
+ * Note: this may move to plugins
+ *
  **/
  
 module qtl.core.xgap.read_xgapbin;
