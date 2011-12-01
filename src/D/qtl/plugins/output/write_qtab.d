@@ -21,6 +21,13 @@ import std.file;
  */
 
 void write_phenotype_qtab(P)(File f, in Individuals individuals, in string[] phenotypenames, in P[][] phenotypes) {
+  // first we write the names and types
+  f.writeln("# --- Type Phenotypes begin");
+  foreach(n; phenotypenames) {
+    f.writeln(n,"\tFloat");
+  }
+  f.writeln("# --- Type Phenotypes end");
+
   f.writeln("# --- Data Phenotypes begin");
   // write markers as a comment
   f.write("#");
