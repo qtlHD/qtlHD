@@ -23,7 +23,7 @@ import std.algorithm;
 
 Tuple!(string, string[]) parse_phenotype_qtab(string line) {
   auto fields1 = split(line,"\t");
-  auto fields = std.array.array(map!"strip(a)"(fields1));
+  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
   auto ind = (fields.length > 0 ? strip(fields[0]) : null);
   auto phenotypes = (fields.length > 1 ? fields[1..$] : null);
   return tuple(ind,phenotypes);
