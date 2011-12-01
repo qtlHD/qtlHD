@@ -1,12 +1,15 @@
 csv2xgap
 read_csv
 read_csvr
+write_qtab
+read_qtab
 write_xgapbin
 read_xgapbin
 test_scanone
 test_scanone_listeria
 tags.json
 tags
+*.qtab
 *.c
 *.cpp
 *.h
