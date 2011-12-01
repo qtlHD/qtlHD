@@ -80,6 +80,7 @@ exe_list = {
   'read_csv' => { :path => './qtl/plugins/input', :list => core_dfiles },
   'read_csvr' => { :path => './qtl/plugins/input', :list => core_dfiles + io_dfiles },
   'write_qtab' => { :path => './qtl/plugins/output', :list => core_dfiles + io_dfiles },
+  'read_qtab' => { :path => './qtl/plugins/input', :list => core_dfiles + io_dfiles },
   'test_scanone' => { :path => './test/scanone', :list => core_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + io_dfiles + mqm_dfiles },
   'write_xgapbin' => { :path => './qtl/plugins/output', :list => core_dfiles + io_dfiles + xgap_dfiles },
@@ -154,9 +155,9 @@ task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do
 end
 
 desc "Test qtlHD qtab"
-task :test_qtab => [ 'write_qtab' ] do
+task :test_qtab => [ 'write_qtab', 'read_qtab' ] do
   sh "./write_qtab" 
-  # sh "./read_qtab" 
+  sh "./read_qtab" 
 end
 
 
