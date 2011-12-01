@@ -40,7 +40,7 @@ void write_phenotype_qtab(P)(File f, in Individuals individuals, in string[] phe
     foreach(p; phenotypes[i].list) {
       f.write("\t",p.toString);
     }
-    f.writeln("");
+    f.writeln;
   }
   f.writeln("# --- Data Phenotypes end");
 }
