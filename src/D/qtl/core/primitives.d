@@ -62,9 +62,22 @@ mixin template MarkerInfo() {
   Position position;          /// Marker position - content depends on map
 }
 
+/**
+ * Mixing in ActList will create a list of T, and turn the class into an
+ * iterator
+ */
+
 mixin template ActList(T) {
   T[] list;
   const size_t length() { return list.length; }
+  // The functional way of creating an iterator in D - called by 'foreach'
+  int opApply(int delegate(ref T) call) {
+    foreach (item ; list) {
+      auto result = call(item);
+      if (result) return result; // result <> 0 when 'foreach' bails out early
+    }
+    return 0;
+  }
 }
 
 /** 
