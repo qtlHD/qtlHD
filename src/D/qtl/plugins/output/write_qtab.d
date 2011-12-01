@@ -20,8 +20,14 @@ import std.file;
  * Write a tabular qtlHD phenotype file. 
  */
 
-void write_phenotype_qtab(P)(File f, in Individuals individuals, in P[][] phenotypes) {
+void write_phenotype_qtab(P)(File f, in Individuals individuals, in string[] phenotypenames, in P[][] phenotypes) {
   f.writeln("# --- Data Phenotypes begin");
+  // write markers as a comment
+  f.write("#");
+  foreach(n; phenotypenames) {
+    f.write("\t",n);
+  }
+  f.writeln;
   foreach(i, ind; individuals.list) {
     f.write(ind.name);
     foreach(p; phenotypes[i].list) {
@@ -38,6 +44,6 @@ unittest {
   auto fn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv"));
   auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
   auto f = File("test_phenotype.qtab","w");
-  write_phenotype_qtab(f, data.individuals, data.phenotypes);
+  write_phenotype_qtab(f, data.individuals, data.phenotypenames, data.phenotypes);
   f.close();
 }
