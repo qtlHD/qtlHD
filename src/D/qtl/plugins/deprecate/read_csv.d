@@ -13,6 +13,7 @@ import qtl.core.chromosome;
 import qtl.core.matrices;
 import qtl.core.phenotype;
 import qtl.core.deprecate.genotype_enum;
+import qtl.core.deprecate.mqm_types;
 
 import std.stdio;
 import std.conv;
@@ -57,7 +58,20 @@ class ReadSimpleCSV(XType) {
     for(int m=0;m<markers.length;m++){
       for(int i=0;i<individuals.length;i++){
         //writefln("%d %d %f",m,i,genotypes[i][m].value);
-        geno[m][i] = 'A';
+        switch(to!string(genotypes[i][m])){
+          case "NA":
+          geno[m][i] = MQMMarker.MMISSING;
+          break;
+          case "A":
+          geno[m][i] = MQMMarker.MAA;
+          break;
+          case "B":
+          geno[m][i] = MQMMarker.MBB;
+          break;
+          default:
+          geno[m][i] = MQMMarker.MMISSING;
+          break;
+        }
       }
     }
     return geno;

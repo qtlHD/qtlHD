@@ -14,6 +14,7 @@ import qtl.plugins.input.read_csvr;
 import qtl.plugins.output.write_xgapbin;
 
 import std.stdio;
+import std.typecons;
 import std.conv;
 import std.string;
 import std.path;
@@ -22,6 +23,7 @@ import std.file;
 class XbinReader {
   XgapFileHeader      header;         //Binary file header
   XgapMatrixHeader[]  headers;        //Matrix headers
+  XgapMatrixNames[]   names;          //Row and column names for the matrices
   private File    f;              //File pointer
   ubyte[]         inputbuffer;    //Buffered file content
   bool            correct;        //Is the file correct?
@@ -69,6 +71,36 @@ class XbinReader {
     return data;
   }
   
+  XgapMatrixNames getNames(int start, XgapMatrixHeader header){
+    XgapMatrixNames data;
+    for(int r=0;r<header.nrow;r++){
+      data.rowlengths ~= byteToInt(inputbuffer[(start+(r*int.sizeof))..(start + int.sizeof + (r*int.sizeof))]);
+    }
+    auto skip = start + (header.nrow*int.sizeof);
+    for(int r=0;r<header.nrow;r++){
+      if(data.rowlengths[r] != 0){
+        data.rownames ~= byteToString(inputbuffer[skip..skip+data.rowlengths[r]]);
+      }else{
+        data.rownames ~= "";
+      }
+      skip += data.rowlengths[r];
+    }
+    for(int c=0;c<header.ncol;c++){
+      data.collengths ~= byteToInt(inputbuffer[(skip+(c*int.sizeof))..(skip + int.sizeof + (c*int.sizeof))]);
+    }
+    skip = skip + (header.ncol*int.sizeof);
+    for(int c=0;c<header.ncol;c++){
+      if(data.collengths[c] != 0){
+        data.colnames ~= byteToString(inputbuffer[skip..skip+data.collengths[c]]);
+      }else{
+        data.colnames ~= "";
+      }
+      skip += data.collengths[c];
+    }
+    data.size = cast(int)(skip - start);
+    return data;
+  }
+  
  /*
   * Loads the matrixid'th XgapMatrix from the file
   */
@@ -79,14 +111,19 @@ class XbinReader {
     int skip = XgapFileHeader.sizeof;
     for(int i=0;i < matrixid;i++){
       skip += headers[i].size;
+      skip += names[i].size;
     }
     XgapMatrix returnmatrix = new XgapMatrix();
     XgapMatrixHeader h = headers[matrixid];
     returnmatrix.header = h;
     skip += XgapMatrixHeader.sizeof;
+  //*  XgapMatrixNames names;
+    returnmatrix.names = getNames(skip,h);
+    skip += returnmatrix.names.size;
+
+    int start; //In matrix location of start fo the data
 
     int[] lengths;
-    int start; //In matrix location of start fo the data
     for(int x=0;x<(h.nrow*h.ncol);x++){
       if(h.type == MatrixType.VARCHARMATRIX){
         lengths ~= byteToInt(inputbuffer[(skip+(x*int.sizeof))..(skip + int.sizeof + (x*int.sizeof))]);
@@ -143,9 +180,11 @@ class XbinReader {
   */
   int parseMatrixHeader(ubyte[] buffer, int matrix, int start){
     XgapMatrixHeader header = convbyte!(XgapMatrixHeader)(inputbuffer[start..start+XgapMatrixHeader.sizeof]);
-    writefln("      Matrix %d, type=%d, rows: %d, columns: %d", matrix, header.type, header.nrow, header.ncol);
     headers ~= header;
-    return header.size;
+    XgapMatrixNames matrixnames = getNames(cast(int)(start+XgapMatrixHeader.sizeof),header);
+    names ~= matrixnames;
+    writefln("      Matrix %d, type=%d, rows: %d, columns: %d, %d %d", matrix, header.type, header.nrow, header.ncol, header.size, matrixnames.size);
+    return header.size + matrixnames.size;
   }
   
  /*
