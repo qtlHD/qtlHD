@@ -1,6 +1,6 @@
 This directory contains all the D code for qtlHD.
 
-To create binaries run rake. Rake tasks ar listed with
+To create binaries run rake. Rake tasks are listed with
 
   rake -T
 
