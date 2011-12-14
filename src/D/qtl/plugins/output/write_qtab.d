@@ -46,11 +46,19 @@ void write_phenotype_qtab(P)(File f, in Individuals individuals, in string[] phe
 }
 
 unittest {
+  // in this unit test we read a CSV file, and write it into 
+  // valid qtab formatted files. Note the read_qtab unit tests
+  // read these same files in for testing
   writeln("Unit test " ~ __FILE__);
   alias std.path.buildPath buildPath;
-  auto fn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv"));
+  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+  auto fn = to!string(buildPath(dir,"input","listeria.csv"));
   auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
-  auto f = File("test_phenotype.qtab","w");
+  // write the phenotype file
+  auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
+  auto f = File(pheno_fn,"w");
   write_phenotype_qtab(f, data.individuals, data.phenotypenames, data.phenotypes);
   f.close();
+  // write the genotype file
+
 }

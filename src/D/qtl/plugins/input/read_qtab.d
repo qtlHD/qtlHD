@@ -30,11 +30,12 @@ Tuple!(string, string[]) parse_phenotype_qtab(string line) {
 }
 
 /**
- * Low level qtlHD qtab parser
+ * Low level qtlHD qtab parser. Read the file in sections, and
+ * delegate to the appropriate readers.
  */
 void read_qtab(string fn) {
   auto f = File(fn,"r");
-  scope(exit) f.close();
+  scope(exit) f.close(); // always close the file on function exit
   string buf;
   while (f.readln(buf)) {
     if (strip(buf) == "# --- Data Phenotypes begin") {

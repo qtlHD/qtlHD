@@ -31,3 +31,4 @@ tmp
 *.xbin
 cdc.d
 read_csv
+*.qtab
