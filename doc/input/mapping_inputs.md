@@ -1,5 +1,7 @@
 # Mapping inputs
 
+Version 0.1 (December 2011)
+
 In general, file standards for QTL mapping are a muddle. The basic premises,
 however, are pretty straightforward. For qtlHD, we propose a 'final'
 tab-delimited format that will also have a binary (and perhaps XML) counterpart
