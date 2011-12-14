@@ -108,11 +108,11 @@ class TrueGenotype {
     if (founders[1] < founders2[1]) return -1;
     return 0;
   }
-  bool opEquals(Object other) {
+  const bool opEquals(Object other) {
     auto founders2 = (cast(TrueGenotype)other).founders;
     return founders[0] == founders2[0] && founders[1] == founders2[1];
   }
-  string toString() { 
+  const string toString() { 
     uint f0 = founders[0]; uint f1 = founders[1];
     return '(' ~ to!string(f0) ~ ',' ~ to!string(f1) ~ ')';
   }
@@ -171,16 +171,20 @@ class GenotypeCombinator {
     foreach(g ; c.list ) { add(g); };
     return this;
   }
-  auto length() { return list.length; }
+  const auto length() { return list.length; }
   bool opEquals(Object other) {
     auto rhs = cast(GenotypeCombinator)other;
     return (list.sort == rhs.list.sort); // probably not the fastest way ;)
   }
-  string toString() {
+  const string toString() {
     if (isNA) return "[NA]";
     return to!string(list);
   }
-  bool isNA() { return length == 0; }
+  const string toEncoding() {
+    // if (isNA) return "[NA]";
+    return name;
+  }
+  const bool isNA() { return length == 0; }
   // compatibility function - deprecate
   auto value() { return this; } 
 }

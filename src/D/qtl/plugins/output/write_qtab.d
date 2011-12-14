@@ -20,7 +20,7 @@ import std.file;
  * Write a tabular qtlHD genotype file. 
  */
 
-void write_genotype_qtab(File f, string descr, in Individuals individuals, in Marker[] markers) {
+void write_genotype_qtab(G)(File f, string descr, in Individuals individuals, in Marker[] markers, in G[][] genotypes) {
   f.writeln("# --- qtlHD-in-0.1 Genotype " ~ descr);
   f.writeln("# --- Data Genotypes begin");
   // write markers as a comment
@@ -31,9 +31,9 @@ void write_genotype_qtab(File f, string descr, in Individuals individuals, in Ma
   f.writeln;
   foreach(i, ind; individuals.list) {
     f.write(ind.name);
-    // foreach(p; phenotypes[i]) {
-    //  f.write("\t",p.toString);
-    // }
+    foreach(g ; genotypes[i]) {
+      f.write("\t",g.toEncoding);
+    }
     f.writeln;
   }
   f.writeln("# --- Data Genotypes end");
@@ -86,6 +86,6 @@ unittest {
   // write the genotype file
   auto geno_fn = to!string(buildPath(dir,"regression","test_genotype.qtab"));
   f = File(geno_fn,"w");
-  write_genotype_qtab(f, "Test", data.individuals, data.markers);
+  write_genotype_qtab(f, "Test", data.individuals, data.markers, data.genotypes);
   f.close();
 }
