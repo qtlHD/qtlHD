@@ -28,7 +28,7 @@ void write_symbol_qtab(File f, string descr, ObservedGenotypes observed) {
   f.writeln("# --- Symbol Genotypes begin");
   foreach(symbol ; observed.list) {
     f.write(symbol.toEncoding,"\tas");
-    f.write("\t",symbol);
+    f.write("\t",symbol.toTrueGenotypes);
     f.writeln();
   }
   f.writeln("# --- Symbol Genotypes end");
