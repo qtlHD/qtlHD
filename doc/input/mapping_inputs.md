@@ -100,22 +100,22 @@ A block should start/end with
 
 A possible founder symbol table
 
-      # --- Data Founder begin
+      # --- Symbol Founder begin
       A/J 0
       C57BL/6J 1
       129S1/SvImJ 2
       ...
-      # --- Data Founder end
+      # --- Symbol Founder end
 
 When leaving out the numbers, they will be created automatically. So above
 is equal to:
 
-      # --- Data Founder begin
+      # --- Symbol Founder begin
       A/J
       C57BL/6J
       129S1/SvImJ
       ...
-      # --- Data Founder end
+      # --- Symbol Founder end
 
 Likewise, individuals, phenotypes, markers and chromosomes can have symbol to
 value substitutions.
@@ -124,7 +124,7 @@ Observed genotypes have a somewhat more complex symbol to value substitution.
 To translate a genotype symbol to multiple possible (observed) true genotypes,
 a possible genotype symbol table:
 
-      # --- Data Genotype begin
+      # --- Symbol Genotype begin
       NA - as None        
       A as 0,0
       B BB as 1,1
@@ -135,7 +135,7 @@ a possible genotype symbol table:
       D as 3              # expands to 3,3
       E as A/J            # Founder symbol expands to 0,0
       ...
-      # --- Data Genotype end
+      # --- Symbol Genotype end
 
 A symbol is always a string, and can contain spaces (but no tabs). Note that
 remarks are also allowed, starting with # and a space.  The `as` keyword splits

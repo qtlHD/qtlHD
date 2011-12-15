@@ -16,8 +16,26 @@ import std.string;
 import std.path;
 import std.file;
 
+immutable string VER = "0.1";
+string ID = "qtlHD-in-" ~ VER;
+
 /**
- * Write a tabular qtlHD genotype file. 
+ * Write a tabular qtlHD symbol section
+ */
+
+void write_symbol_qtab(File f, string descr, ObservedGenotypes observed) {
+  f.writeln("# --- ",ID," Symbol ",descr);
+  f.writeln("# --- Symbol Genotypes begin");
+  foreach(symbol ; observed.list) {
+    f.write(symbol.toEncoding,"\tas");
+    f.write("\t",symbol);
+    f.writeln();
+  }
+  f.writeln("# --- Symbol Genotypes end");
+}
+
+/**
+ * Write a tabular qtlHD genotype section
  */
 
 void write_genotype_qtab(G)(File f, string descr, in Individuals individuals, in Marker[] markers, in G[][] genotypes) {
@@ -40,7 +58,7 @@ void write_genotype_qtab(G)(File f, string descr, in Individuals individuals, in
 }
 
 /**
- * Write a tabular qtlHD phenotype file. 
+ * Write a tabular qtlHD phenotype section
  */
 
 void write_phenotype_qtab(P)(File f, string descr, in Individuals individuals, in string[] phenotypenames, in P[][] phenotypes) {
@@ -83,9 +101,17 @@ unittest {
   auto f = File(pheno_fn,"w");
   write_phenotype_qtab(f, "Test", data.individuals, data.phenotypenames, data.phenotypes);
   f.close();
-  // write the genotype file
+  writeln("Wrote ", pheno_fn);
+  // write the genotype file 
   auto geno_fn = to!string(buildPath(dir,"regression","test_genotype.qtab"));
   f = File(geno_fn,"w");
   write_genotype_qtab(f, "Test", data.individuals, data.markers, data.genotypes);
   f.close();
+  writeln("Wrote ", geno_fn);
+  // write the symbol file 
+  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
+  f = File(symbol_fn,"w");
+  write_symbol_qtab(f, "Test", data.symbols.symbols);
+  f.close();
+  writeln("Wrote ", symbol_fn);
 }
