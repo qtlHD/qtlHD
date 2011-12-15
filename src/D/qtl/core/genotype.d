@@ -112,9 +112,12 @@ class TrueGenotype {
     auto founders2 = (cast(TrueGenotype)other).founders;
     return founders[0] == founders2[0] && founders[1] == founders2[1];
   }
-  const string toString() { 
+  const string toTrueGenotype() { 
     uint f0 = founders[0]; uint f1 = founders[1];
-    return '(' ~ to!string(f0) ~ ',' ~ to!string(f1) ~ ')';
+    return to!string(f0) ~ ',' ~ to!string(f1);
+  }
+  const string toString() { 
+    return '(' ~ toTrueGenotype ~ ')';
   }
 }
 
@@ -184,6 +187,11 @@ class GenotypeCombinator {
     // if (isNA) return "[NA]";
     return name;
   }
+  const string toTrueGenotypes() {
+    auto ret = "";
+    foreach (n ; list) { ret ~= " " ~ n.toTrueGenotype; }
+    return ret;
+  }
   const bool isNA() { return length == 0; }
   // compatibility function - deprecate
   auto value() { return this; } 
@@ -215,7 +223,7 @@ class ObservedGenotypes {
     return this;
   }
   auto length() { return list.length; }
-  string toString() {
+  const string toString() {
     return to!string(list);
   }
 }
