@@ -24,16 +24,16 @@ a concatenation of other files.
 Note: The qtlHD project is the single authority for the file standard. qtlHD
 acts as a reference implementation.
 
-Each file is described individually in
+Each section (or file) is described individually in
 
-* Symbol file        - symbols used to describe (observed) genotypes, 
+* Symbol             - symbols used to describe (observed) genotypes, 
                        markers, founders, individuals and phenotypes
-* Founder file       - Founder and cross layout
-* Genotype file      - marker x individual genotypes
-* Marker map file    - marker (sex) chromosome positions
-* Phenotype file     - individual x phenotypes (covariates are
+* Founder            - Founder and cross layout
+* Genotype           - marker x individual genotypes
+* Marker map         - marker (sex) chromosome positions
+* Phenotype          - individual x phenotypes (covariates are
                        included as phenotypes)
-* Manifest file      - optional
+* Manifest           - optional
 
 Additional files will match one of these formats.  For example, we may
 need a "Phenotype covariate" file, containing covariates that describe
@@ -87,9 +87,10 @@ This is an extensible data format. To avoid getting all different formats,
 again, try to fit your data model in an existing format before adding a new
 one. And note again that qtlHD is the reference implementation.
 
-# The symbol file
+# The symbol section
 
-The symbol file substitutes symbols with values. The first line should be
+The symbol section, or file, substitutes symbols with values. The first line
+should be
 
       # --- qtlHD-in-x.x Symbol Description
 
@@ -150,10 +151,10 @@ represent a missing value.
 Other reserved symbols are `True` and `False` (and, as mentioned
 above, `as`).
 
-# The founder file
+# The founder section
 
-A founder file contains information about the founders useful for algorithms.
-Possibilities are cross description and allele frequencies.
+A founder section, or file, contains information about the founders useful for
+algorithms.  Possibilities are cross description and allele frequencies.
 
 The file, or section, starts with
 
@@ -173,11 +174,11 @@ position
         ...
         # --- Data Frequencies end
 
-# The genotype file
+# The genotype section
 
-The genotype file contains markers (columns) x individuals (rows), giving the
-(observed) genotypes. The values can either be numbers, or symbols (but not
-both). 
+The genotype section, or file, contains markers (columns) x individuals (rows),
+giving the (observed) genotypes. The values can either be numbers, or symbols
+(but not both). 
 
 The file, or section, starts with
 
@@ -212,7 +213,7 @@ For example
         Directional True                  # default
         # --- Set Genotype end
 
-# The marker map file
+# The marker map section
 
 The marker map contains a list of markers and their chromosome + locations.
 For example,
@@ -233,9 +234,9 @@ cM by default. To override, you can set it to base pairs (bp or Mbp).
         Position cM                       # cM (default), bp or Mbp
         # --- Set Location end
 
-# The phenotype file
+# The phenotype section
 
-The phenotype file contains a list of individuals and their phenotypic values.
+The phenotype section, or file, contains a list of individuals and their phenotypic values.
 For example,
 
         # --- Data Phenotypes begin
@@ -263,7 +264,7 @@ header, using the phenotype names:
         ...
         # --- Type Phenotypes end
 
-Note that types are not symbols. A symbol, defined in the symbol file,
+Note that types are not symbols. A symbol, defined in the symbol section,
 represents a simple value expansion. A type says something about possible
 values. When a type is illegal (say a float for an int), or a type falls
 outside a predefined set, which can be checked with `P2`, `P3`, `P4`, `P5`, and `P6`, the
@@ -300,10 +301,10 @@ table named Property, which mirrors the Data table using the `Id` field:
 This allows phenotype measurements to be split out according to other
 parameters. 
 
-# Manifest file
+# Manifest section
 
-The optional Manifest file, or section, describes the contents and locations
-of the other files/sections, including an MD5 checksum. For example:
+The optional Manifest section or file describes the contents and locations
+of the other sections and files, including an MD5 checksum. For example:
 
       # --- qtlHD-in-x.x Manifest Description
       # --- Sections begin
@@ -313,7 +314,8 @@ of the other files/sections, including an MD5 checksum. For example:
       ...
       # --- Sections end
 
-Note that, in this example, two of the sections are together in one file.
+Note that, in this example, two of the sections are together in one file, and
+share the same MD5.
 
 # qtlHD filename conventions
 
