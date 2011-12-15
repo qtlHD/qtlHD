@@ -98,8 +98,8 @@ class TrueGenotype {
     founders = Alleles(founder1, founder2);
   }
   this(TrueGenotype g) { founders = g.founders; }
-  auto homozygous()   { return founders[0] == founders[1]; };
-  auto heterozygous() { return !homozygous(); };
+  bool homozygous()   { return founders[0] == founders[1]; };
+  bool heterozygous() { return !homozygous(); };
   int opCmp(Object other) {
     auto founders2 = (cast(TrueGenotype)other).founders;
     if (founders[0] > founders2[0]) return 1;
@@ -183,14 +183,21 @@ class GenotypeCombinator {
     if (isNA) return "[NA]";
     return to!string(list);
   }
+  const string toEncodings() {
+    auto ret = "";
+    foreach (e ; encoding) { 
+      ret ~= " " ~ to!string(e);
+    } 
+    return ret[1..$];
+  }
   const string toEncoding() {
-    // if (isNA) return "[NA]";
     return name;
   }
   const string toTrueGenotypes() {
+    if (list.length == 0) return "None";
     auto ret = "";
     foreach (n ; list) { ret ~= " " ~ n.toTrueGenotype; }
-    return ret;
+    return ret[1..$];
   }
   const bool isNA() { return length == 0; }
   // compatibility function - deprecate
