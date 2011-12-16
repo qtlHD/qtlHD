@@ -87,8 +87,8 @@ CLEAN.include(clean_exe_list)
 exe_list = { 
   'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles },
   'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + deprecated_dfiles },
-  'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + all_dfiles },
-  'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + all_dfiles },
+  'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + csv_dfiles },
+  'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + csv_dfiles },
   'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles },
   'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles },
   'test_scanone' => { :path => './test/scanone', :list => core_dfiles + scanone_dfiles },
