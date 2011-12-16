@@ -1,1 +1,3 @@
 Plugins are pluggable components for qtlHD
+
+Every plugin is stored in its own directory.
