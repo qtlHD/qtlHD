@@ -145,12 +145,12 @@ class GenotypeCombinator {
   string name; // the display name
   Encoding encoding[]; // a list of encoding types
 
-  // initialize a combinator by name. If code is undefined name 
+  // initialize a combinator by name. name 
   // is also used for input encoding
   this(string name, Encoding code = null) { 
     this.name = name; 
+    add_encoding(name);
     if (code) add_encoding(code);
-    else add_encoding(name);
   }
   void add_encoding(Encoding code) { this.encoding ~= code; }
   // see if an input matches
