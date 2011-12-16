@@ -32,11 +32,10 @@ if ARGV.index("DEBUG=TRUE")
   d_debug = D_DEBUG
   print "Adding debug information!\n"
 end
-core_dfiles = Dir.glob("./qtl/core/*.d") + Dir.glob("./qtl/core/map/*.d") + 
-              Dir.glob(".qtl/core/hmm/*.d") + Dir.glob("./qtl/core/util/*.d")
-deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
-  Dir.glob("./qtl/plugins/deprecate/*.d")
-lib_dfiles = Dir.glob("./qtl/core/libs/*.d")
+core_dfiles = Dir.glob("./qtl/core/*.d") 
+map_dfiles  = Dir.glob("./qtl/core/map/*.d")
+hmm_dfiles  = Dir.glob(".qtl/core/hmm/*.d") 
+util_dfiles = Dir.glob("./qtl/core/util/*.d")
 csv_dfiles = Dir.glob("./qtl/plugins/csv/*.d")
 csvr_dfiles = Dir.glob("./qtl/plugins/csvr/*.d")
 qtab_dfiles = Dir.glob("./qtl/plugins/qtab/*.d")
@@ -44,9 +43,13 @@ xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d")
 renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d")
 scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
-core_dfiles += deprecated_dfiles;
-all_dfiles = core_dfiles + lib_dfiles + csv_dfiles + csvr_dfiles + qtab_dfiles + 
-             xgap_dfiles 
+deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
+  Dir.glob("./qtl/plugins/deprecate/*.d")
+
+all_core_dfiles = core_dfiles + map_dfiles + hmm_dfiles + util_dfiles
+all_dfiles = all_core_dfiles + 
+             csv_dfiles + csvr_dfiles + qtab_dfiles + xgap_dfiles +
+             deprecated_dfiles
 
 def suffix
   if windows? then
@@ -83,11 +86,11 @@ CLEAN.include(clean_exe_list)
 
 exe_list = { 
   'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles },
-  'read_csvr' => { :path => './qtl/plugins/csvr', :list => core_dfiles + csvr_dfiles },
+  'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + deprecated_dfiles },
   'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + all_dfiles },
   'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + all_dfiles },
-  'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => core_dfiles + xgap_dfiles + csvr_dfiles },
-  'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => core_dfiles + xgap_dfiles + csvr_dfiles },
+  'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles },
+  'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles },
   'test_scanone' => { :path => './test/scanone', :list => core_dfiles + scanone_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles},
 }
