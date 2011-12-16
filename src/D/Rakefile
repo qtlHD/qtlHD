@@ -82,14 +82,14 @@ CLEAN.include(clean_exe_list)
 # The compile targets
 
 exe_list = { 
-  'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles },
+  'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles },
   'read_csvr' => { :path => './qtl/plugins/csvr', :list => core_dfiles + csvr_dfiles },
   'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + all_dfiles },
   'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + all_dfiles },
-  'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => core_dfiles + xgap_dfiles },
-  'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => core_dfiles + xgap_dfiles },
-  'test_scanone' => { :path => './test/scanone', :list => core_dfiles },
-  'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles },
+  'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => core_dfiles + xgap_dfiles + csvr_dfiles },
+  'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => core_dfiles + xgap_dfiles + csvr_dfiles },
+  'test_scanone' => { :path => './test/scanone', :list => core_dfiles + scanone_dfiles },
+  'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles},
 }
 
 exe_list.each do | fn, attr | 
@@ -165,6 +165,11 @@ task :test_qtab => [ 'read_qtab', 'write_qtab' ] do
   sh "./read_qtab" 
 end
 
+desc "Test CSV"
+task :test_csv => [ :read_csv ]
+
+desc "Test CSVr"
+task :test_csvr => [ :read_csvr ]
 
 desc "Test all"
 task :test_all => [:clean, :test_csv, :test_csvr, :test_xgap, :test_qtab ]
