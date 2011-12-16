@@ -10,8 +10,8 @@ import qtl.core.phenotype;
 import qtl.core.deprecate.genotype_enum;
 import qtl.plugins.xgap.xgap;
 import qtl.plugins.csvr.read_csvr;
-import qtl.plugins.csv.read_csv;
-import qtl.plugins.xgap.read_interface;
+import qtl.plugins.deprecate.read_csv;
+// import qtl.plugins.xgap.read_interface;
 import qtl.plugins.xgap.write_xgapbin;
 
 import std.stdio;

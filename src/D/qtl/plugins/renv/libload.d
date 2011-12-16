@@ -2,7 +2,7 @@
  * Shared library loader
  **/
 
-module qtl.core.libs.libload;
+module qtl.plugins.renv.libload;
 
 //D 2.0 std imports
 private import std.loader;

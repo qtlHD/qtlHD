@@ -30,7 +30,7 @@ void message(string s) {
 }
 
 version (Windows) {
-  import qtl.core.libs.libload;
+  import qtl.plugins.renv.libload;
   import std.loader;
 }else{
   pragma(lib, "blas");

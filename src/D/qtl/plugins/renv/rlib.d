@@ -2,7 +2,7 @@
  * Functions exported by Rlib
  */
 
-module qtl.core.libs.rlib;
+module qtl.plugins.renv.rlib;
 
 import std.stdio;
 import std.conv;
@@ -111,7 +111,7 @@ const S4SXP = 25;
 const FUNSXP = 99;
 
 version (Windows) {
-  import qtl.core.libs.libload;
+  import qtl.plugins.renv.libload;
   import std.loader;
   
   SEXPREC* R_GlobalEnv;

@@ -1,11 +1,11 @@
-module qtl.core.libs.rsession;
+module qtl.plugins.renv.rsession;
 
 import std.stdio;
 import std.conv;
 import std.process;
 import std.regex;
 //import std.c.stdlib;
-import qtl.core.libs.rlib;
+import qtl.plugins.renv.rlib;
 
 /** 
  * Represents an R session object which is used to initialize a new session

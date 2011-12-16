@@ -25,7 +25,7 @@ alias std.algorithm.find find;
 
 static bool VERBOSE = false;
 
-import qtl.core.libs.libload;
+import qtl.plugins.renv.libload;
 import std.loader;
 
 

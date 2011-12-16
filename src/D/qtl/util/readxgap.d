@@ -8,8 +8,8 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.deprecate.genotype_enum;
-import qtl.core.xgap.xgap;
-import qtl.core.xgap.read_xgapbin;
+import qtl.plugins.xgap.xgap;
+import qtl.plugins.xgap.read_xgapbin;
 
 import std.stdio;
 import std.conv;
