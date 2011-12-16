@@ -4,7 +4,7 @@
  * NOTE: this module is under development
  */
 
-module qtl.core.scanone_hk;
+module qtl.core.scanone.scanone_hk;
 
 import std.container;
 import qtl.core.primitives;
@@ -15,7 +15,7 @@ import std.string;
 import std.conv;
 import std.exception;
 import qtl.core.deprecate.genotype_enum;
-import qtl.plugins.input.read_csv;
+import qtl.plugins.csv.read_csv;
 
 // import core.stdc.stdlib;  // for malloc
 // import core.stdc.string;  // for memcpy

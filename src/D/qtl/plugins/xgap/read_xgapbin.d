@@ -1,8 +1,6 @@
 /**
  * Read binary XGap format
  *
- * Note: this may move to plugins
- *
  **/
  
 module qtl.core.xgap.read_xgapbin;
@@ -13,8 +11,8 @@ import qtl.core.phenotype;
 import qtl.core.deprecate.genotype_enum;
 import qtl.core.xgap.xgap;
 
-import qtl.plugins.input.read_csvr;
-import qtl.plugins.output.write_xgapbin;
+import qtl.plugins.csvr.read_csvr;
+import qtl.plugins.xgap.write_xgapbin;
 
 import std.stdio;
 import std.typecons;

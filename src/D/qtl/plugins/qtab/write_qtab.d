@@ -2,13 +2,13 @@
  * Write tabular qtlHD files (.qtab)
  */
 
-module qtl.plugins.output.write_qtab;
+module qtl.plugins.qtab.write_qtab;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
-import qtl.plugins.input.read_csv;  // for testing
+import qtl.plugins.csv.read_csv;  // for testing
 
 import std.stdio;
 import std.conv;

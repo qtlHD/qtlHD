@@ -4,7 +4,7 @@
  * Note: This implementation handles everything through one object. This may change later.
  **/
 
-module qtl.plugins.input.read_csvr;
+module qtl.plugins.csvr.read_csvr;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
