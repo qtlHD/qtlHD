@@ -12,7 +12,7 @@ import std.math;
 import std.string;
 import std.conv;
 import qtl.core.deprecate.genotype_enum;
-import qtl.core.libs.rlib;
+import qtl.plugins.renv.rlib;
 
 
 double LogNormal(double residual, double variance){
