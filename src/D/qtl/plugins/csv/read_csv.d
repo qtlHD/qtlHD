@@ -1,19 +1,17 @@
 /**
  * Plugin for reading simple CSV files
  *
- *   rm read_csv ; dmd -unittest qtl/plugins/input/read_csv.d qtl/core/*.d ; time ./read_csv
- *
  * Note: this implementation reads everything into an object. We may switch to a Tuple
  * implementation later.
  */
 
-module qtl.plugins.input.read_csv;
+module qtl.plugins.csv.read_csv;
 
 import core.memory;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
-// import qtl.core.matrices;
+import qtl.core.util.matrix;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 

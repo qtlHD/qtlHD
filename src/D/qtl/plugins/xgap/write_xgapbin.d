@@ -2,7 +2,7 @@
  * Write binary XGap files
  **/
 
-module qtl.plugins.output.write_xgapbin;
+module qtl.plugins.xgap.write_xgapbin;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
@@ -16,7 +16,7 @@ import std.string;
 import std.path;
 import std.file;
 
-import qtl.plugins.input.read_csvr;
+import qtl.plugins.csvr.read_csvr;
 import qtl.plugins.deprecate.read_csv;
 
 /** 

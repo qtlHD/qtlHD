@@ -2,7 +2,7 @@
  * Read tabular qtlHD files (.qtab)
  */
 
-module qtl.plugins.input.read_qtab;
+module qtl.plugins.qtab.read_qtab;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;

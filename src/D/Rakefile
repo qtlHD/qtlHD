@@ -17,9 +17,9 @@
 
 require 'rake/clean'
 
-PROG = 'read_csv'  # this will change 
-BINARIES = [PROG, :csv2xgap ]
-TESTS = [ 'read_csv' ]
+PROG = 'read_qtab'  # this will change to a utility
+BINARIES = [PROG, 'write_qtab' ]
+TESTS = [ :test_qtab ]
 
 D_TEST  = "-unittest"
 d_test  = D_TEST
@@ -32,7 +32,7 @@ if ARGV.index("DEBUG=TRUE")
   d_debug = D_DEBUG
   print "Adding debug information!\n"
 end
-core_dfiles = Dir.glob("./qtl/core/*.d")
+core_dfiles = Dir.glob("./qtl/core/*.d") + Dir.glob("./qtl/util/*.d")
 deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
   Dir.glob("./qtl/plugins/deprecate/*.d")
 lib_dfiles = Dir.glob("./qtl/core/libs/*.d")
@@ -79,12 +79,14 @@ CLEAN.include(clean_exe_list)
 # The compile targets
 
 exe_list = { 
-  'test_csv' => { :path => './qtl/plugins/input', :list => core_dfiles },
-  'test_csvr' => { :path => './qtl/plugins/input', :list => core_dfiles + csvr_dfiles },
-  'test_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles },
+  'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles },
+  'read_csvr' => { :path => './qtl/plugins/csv', :list => core_dfiles + csvr_dfiles },
+  'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles },
+  'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + all_dfiles },
+  'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => core_dfiles + xgap_dfiles },
+  'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => core_dfiles + xgap_dfiles },
   'test_scanone' => { :path => './test/scanone', :list => core_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles },
-  'test_xgapbin' => { :path => './qtl/plugins/output', :list => core_dfiles + xgap_dfiles }
 }
 
 exe_list.each do | fn, attr | 
@@ -115,7 +117,7 @@ exe_list.each do | fn, attr |
 end
 
 file "csv2xgap" => core_dfiles do
-  sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/output/write_xgapbin.d"
+  sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/xgap/write_xgapbin.d"
 end
 
 # ---- Standard tasks

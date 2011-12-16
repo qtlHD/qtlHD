@@ -11,7 +11,7 @@ import std.algorithm;
 import std.math;
 import std.string;
 import qtl.core.deprecate.genotype_enum;
-import qtl.plugins.input.read_csv;
+import qtl.plugins.csvr.read_csv;
 
 //Load the R-bindings
 import qtl.core.mqm.mqmutils;
