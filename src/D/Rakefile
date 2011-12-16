@@ -36,12 +36,14 @@ core_dfiles = Dir.glob("./qtl/core/*.d")
 deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
   Dir.glob("./qtl/plugins/deprecate/*.d")
 lib_dfiles = Dir.glob("./qtl/core/libs/*.d")
-io_dfiles = Dir.glob("./qtl/plugins/input/*.d")
-io_dfiles += Dir.glob("./qtl/plugins/output/write_qtab.d")
-xgap_dfiles = Dir.glob("./qtl/core/xgap/*.d")
+csv_dfiles = Dir.glob("./qtl/plugins/csv/*.d")
+csvr_dfiles = Dir.glob("./qtl/plugins/csvr/*.d")
+qtab_dfiles = Dir.glob("./qtl/plugins/qtab/*.d")
+xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
 core_dfiles += deprecated_dfiles;
-all_dfiles = core_dfiles + lib_dfiles + io_dfiles 
+all_dfiles = core_dfiles + lib_dfiles + csv_dfiles + csvr_dfiles + qtab_dfiles + 
+             xgap_dfiles + mqm_dfiles
 
 def suffix
   if windows? then
@@ -77,14 +79,12 @@ CLEAN.include(clean_exe_list)
 # The compile targets
 
 exe_list = { 
-  'read_csv' => { :path => './qtl/plugins/input', :list => core_dfiles },
-  'read_csvr' => { :path => './qtl/plugins/input', :list => core_dfiles + io_dfiles },
-  'write_qtab' => { :path => './qtl/plugins/output', :list => core_dfiles + io_dfiles },
-  'read_qtab' => { :path => './qtl/plugins/input', :list => core_dfiles + io_dfiles },
+  'test_csv' => { :path => './qtl/plugins/input', :list => core_dfiles },
+  'test_csvr' => { :path => './qtl/plugins/input', :list => core_dfiles + csvr_dfiles },
+  'test_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles },
   'test_scanone' => { :path => './test/scanone', :list => core_dfiles },
-  'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + io_dfiles + mqm_dfiles },
-  'write_xgapbin' => { :path => './qtl/plugins/output', :list => core_dfiles + io_dfiles + xgap_dfiles },
-  'read_xgapbin' => { :path => './qtl/core/xgap', :list => core_dfiles + io_dfiles + xgap_dfiles + ['./qtl/plugins/output/write_xgapbin.d'] }
+  'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles },
+  'test_xgapbin' => { :path => './qtl/plugins/output', :list => core_dfiles + xgap_dfiles }
 }
 
 exe_list.each do | fn, attr | 
@@ -155,12 +155,12 @@ task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do
 end
 
 desc "Test qtlHD qtab"
-task :test_qtab => [ 'write_qtab', 'read_qtab' ] do
+task :test_qtab => [ 'read_qtab', 'write_qtab' ] do
   sh "./write_qtab" 
   sh "./read_qtab" 
 end
 
 
 desc "Test all"
-task :test_all => [:clean, :read_csv, :read_csvr, :test_xgap, :test_qtab ]
+task :test_all => [:clean, :test_csv, :test_csvr, :test_xgap, :test_qtab ]
 
