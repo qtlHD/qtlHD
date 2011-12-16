@@ -9,10 +9,10 @@ import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.deprecate.genotype_enum;
 import qtl.core.marker;
-import qtl.core.map;
-import qtl.core.make_map;
+import qtl.core.map.map;
+import qtl.core.map.make_map;
 import qtl.plugins.deprecate.read_csv;
-import qtl.core.scanone_hk;
+import qtl.core.scanone.scanone_hk;
 import std.stdio;
 import std.conv;
 import std.string;
@@ -21,8 +21,8 @@ import std.algorithm;
 alias std.algorithm.find find;
 
 
-import qtl.core.genetic_map_functions;
-import qtl.core.hmm_f2;
+import qtl.core.map.genetic_map_functions;
+import qtl.core.hmm.hmm_f2;
 
 // The comments are based on the Ruby/Biolib-R/qtl integration
 

@@ -2,7 +2,7 @@
  * Genetic map function module
  **/
 
-module qtl.core.genetic_map_functions;
+module qtl.core.map.genetic_map_functions;
 
 import std.stdio;
 import std.math;

@@ -18,7 +18,7 @@
 require 'rake/clean'
 
 PROG = 'read_qtab'  # this will change to a utility
-BINARIES = [PROG, 'write_qtab' ]
+BINARIES = [PROG]
 TESTS = [ :test_qtab ]
 
 D_TEST  = "-unittest"
@@ -32,7 +32,8 @@ if ARGV.index("DEBUG=TRUE")
   d_debug = D_DEBUG
   print "Adding debug information!\n"
 end
-core_dfiles = Dir.glob("./qtl/core/*.d") + Dir.glob("./qtl/core/util/*.d")
+core_dfiles = Dir.glob("./qtl/core/*.d") + Dir.glob("./qtl/core/map/*.d") + 
+              Dir.glob(".qtl/core/hmm/*.d") + Dir.glob("./qtl/core/util/*.d")
 deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
   Dir.glob("./qtl/plugins/deprecate/*.d")
 lib_dfiles = Dir.glob("./qtl/core/libs/*.d")
@@ -41,10 +42,11 @@ csvr_dfiles = Dir.glob("./qtl/plugins/csvr/*.d")
 qtab_dfiles = Dir.glob("./qtl/plugins/qtab/*.d")
 xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d")
 renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d")
+scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
 core_dfiles += deprecated_dfiles;
 all_dfiles = core_dfiles + lib_dfiles + csv_dfiles + csvr_dfiles + qtab_dfiles + 
-             xgap_dfiles + mqm_dfiles + renv_dfiles
+             xgap_dfiles 
 
 def suffix
   if windows? then
@@ -81,7 +83,7 @@ CLEAN.include(clean_exe_list)
 
 exe_list = { 
   'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles },
-  'read_csvr' => { :path => './qtl/plugins/csv', :list => core_dfiles + csvr_dfiles },
+  'read_csvr' => { :path => './qtl/plugins/csvr', :list => core_dfiles + csvr_dfiles },
   'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + all_dfiles },
   'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_dfiles + all_dfiles },
   'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => core_dfiles + xgap_dfiles },

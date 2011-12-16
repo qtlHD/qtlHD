@@ -2,15 +2,15 @@
  * hmm_util
  */
 
-module qtl.core.hmm_util;
+module qtl.core.hmm.hmm_util;
 
 import std.stdio;
 import std.math;
 
-import qtl.core.genetic_map_functions;
+import qtl.core.map.genetic_map_functions;
 import qtl.core.primitives;
-import qtl.core.hmm_f2;
-import qtl.core.hmm_bc;
+import qtl.core.hmm.hmm_f2;
+import qtl.core.hmm.hmm_bc;
 
 // Calculate addlog(a,b) = log[exp(a) + exp(b)]
 double addlog(double a, double b)
