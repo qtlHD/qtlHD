@@ -2,7 +2,7 @@
  * Module for making a new map with inserted inter-marker locations
  */
 
-module qtl.core.make_map;
+module qtl.core.map.make_map;
 
 import std.container;
 import std.stdio;

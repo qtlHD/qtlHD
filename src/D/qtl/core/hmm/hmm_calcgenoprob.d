@@ -2,16 +2,16 @@
  * calc_genoprob
  */
 
-module qtl.core.hmm_calcgenoprob;
+module qtl.core.hmm.hmm_calcgenoprob;
 
 import std.string;
 import std.conv;
 import std.stdio;
 import std.math;
 import qtl.core.primitives;
-import qtl.core.hmm_bc;
-import qtl.core.hmm_f2;
-import qtl.core.hmm_util;
+import qtl.core.hmm.hmm_bc;
+import qtl.core.hmm.hmm_f2;
+import qtl.core.hmm.hmm_util;
 
 // calculate QTL genotype probabilities
 double[][][] calc_geno_prob(T)(in Genotype!T[][] genotypes, in double[] rec_frac, in double error_prob)

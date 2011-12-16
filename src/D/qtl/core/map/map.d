@@ -2,10 +2,10 @@
  * Functions for the map 
  */
 
-module qtl.core.map;
+module qtl.core.map.map;
 
 import qtl.core.primitives;
-import qtl.core.genetic_map_functions;
+import qtl.core.map.genetic_map_functions;
 
 import std.algorithm;
 import std.math;

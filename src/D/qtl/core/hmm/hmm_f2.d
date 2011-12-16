@@ -2,7 +2,7 @@
  * hmm_f2
  **/
 
-module qtl.core.hmm_f2;
+module qtl.core.hmm.hmm_f2;
 
 import std.math, std.stdio, std.path;
 import std.conv;
@@ -10,10 +10,10 @@ import std.conv;
 import qtl.core.deprecate.genotype_enum;
 import qtl.core.primitives;
 import qtl.plugins.deprecate.read_csv;
-import qtl.core.genetic_map_functions;
-import qtl.core.hmm_calcgenoprob;
-import qtl.core.hmm_util;
-import qtl.core.hmm_estmap;
+import qtl.core.map.genetic_map_functions;
+import qtl.core.hmm.hmm_calcgenoprob;
+import qtl.core.hmm.hmm_util;
+import qtl.core.hmm.hmm_estmap;
 
 // things for the unit tests 
 import std.path;
