@@ -9,6 +9,7 @@ import std.stdio;
 import std.string;
 import std.typecons;
 import std.exception;
+import std.algorithm;
 import qtl.core.primitives;
 
 /**
@@ -154,12 +155,7 @@ class GenotypeCombinator {
   }
   void add_encoding(Encoding code) { this.encoding ~= code; }
   // see if an input matches
-  bool match(in Encoding code) {
-    foreach (n; encoding) {
-      if (code == n) return true; 
-    }
-    return false;
-  }
+  bool match(in Encoding code) { return canFind(encoding,code); }
   // uniquely add a genotype. Return match.
   TrueGenotype add(TrueGenotype g) { 
     foreach(m; list) { if (m.founders == g.founders) return m; }
