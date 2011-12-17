@@ -25,13 +25,13 @@ string ID = "qtlHD-in-" ~ VER;
 
 void write_symbol_qtab(File f, string descr, ObservedGenotypes observed) {
   f.writeln("# --- ",ID," Symbol ",descr);
-  f.writeln("# --- Symbol Genotypes begin");
+  f.writeln("# --- Symbol Genotype begin");
   foreach(symbol ; observed.list) {
     f.write(symbol.toEncodings," as ");
     f.write(symbol.toTrueGenotypes);
     f.writeln();
   }
-  f.writeln("# --- Symbol Genotypes end");
+  f.writeln("# --- Symbol Genotype end");
 }
 
 /**
@@ -40,7 +40,7 @@ void write_symbol_qtab(File f, string descr, ObservedGenotypes observed) {
 
 void write_genotype_qtab(G)(File f, string descr, in Individuals individuals, in Marker[] markers, in G[][] genotypes) {
   f.writeln("# --- qtlHD-in-0.1 Genotype " ~ descr);
-  f.writeln("# --- Data Genotypes begin");
+  f.writeln("# --- Data Genotype begin");
   // write markers as a comment
   f.write("#");
   foreach(m; markers) {
@@ -54,7 +54,7 @@ void write_genotype_qtab(G)(File f, string descr, in Individuals individuals, in
     }
     f.writeln;
   }
-  f.writeln("# --- Data Genotypes end");
+  f.writeln("# --- Data Genotype end");
 }
 
 /**
@@ -64,13 +64,13 @@ void write_genotype_qtab(G)(File f, string descr, in Individuals individuals, in
 void write_phenotype_qtab(P)(File f, string descr, in Individuals individuals, in string[] phenotypenames, in P[][] phenotypes) {
   f.writeln("# --- qtlHD-in-0.1 Phenotype " ~ descr);
   // first we write the names and types
-  f.writeln("# --- Type Phenotypes begin");
+  f.writeln("# --- Type Phenotype begin");
   foreach(n; phenotypenames) {
     f.writeln(n,"\tFloat");
   }
-  f.writeln("# --- Type Phenotypes end");
+  f.writeln("# --- Type Phenotype end");
 
-  f.writeln("# --- Data Phenotypes begin");
+  f.writeln("# --- Data Phenotype begin");
   // write phenotype names as a comment
   f.write("#");
   foreach(n; phenotypenames) {
@@ -84,7 +84,7 @@ void write_phenotype_qtab(P)(File f, string descr, in Individuals individuals, i
     }
     f.writeln;
   }
-  f.writeln("# --- Data Phenotypes end");
+  f.writeln("# --- Data Phenotype end");
 }
 
 unittest {
