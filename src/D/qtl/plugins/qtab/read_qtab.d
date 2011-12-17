@@ -4,11 +4,6 @@
 
 module qtl.plugins.qtab.read_qtab;
 
-import qtl.core.primitives;
-import qtl.core.chromosome;
-import qtl.core.phenotype;
-import qtl.core.genotype;
-
 import std.stdio;
 import std.conv;
 import std.string;
@@ -16,6 +11,11 @@ import std.path;
 import std.file;
 import std.typecons;
 import std.algorithm;
+
+import qtl.core.primitives;
+import qtl.core.chromosome;
+import qtl.core.phenotype;
+import qtl.core.genotype;
 
 /**
  * Read a tabular qtlHD symbol genotype line - splits the line on
@@ -51,9 +51,11 @@ Tuple!(string, string[]) parse_phenotype_qtab(string line) {
 
 /**
  * Low level qtlHD qtab parser. Read the file in sections, and
- * delegate to the appropriate readers.
+ * delegate to the appropriate readers. Values are allocated
+ * in memory and returned in a Tuple.
  */
-void read_qtab(string fn) {
+Tuple!(P[]) read_qtab(P)(string fn) {
+  P ret_phenotypes[];  // single list
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
   string buf;
@@ -72,13 +74,17 @@ void read_qtab(string fn) {
       while (f.readln(buf)) { 
         if (strip(buf) == "# --- Data Phenotype end")
            break;
+        if (buf[0] == '#') continue;
         auto res = parse_phenotype_qtab(buf);
         auto ind = res[0];
-        auto ps  = res[1];
-        // writeln(ind,"\t",ps);
+        auto fields  = res[1];
+        writeln(ind,"\t",fields);
+        auto ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
+        ret_phenotypes ~= ps;
       }
     }
   }
+  return tuple(ret_phenotypes);
 }
 
 unittest {
@@ -87,9 +93,9 @@ unittest {
   auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
   writeln("reading ",symbol_fn);
-  read_qtab(symbol_fn);
+  read_qtab!(Phenotype!double)(symbol_fn);
   auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
   writeln("reading ",pheno_fn);
-  read_qtab(pheno_fn);
+  read_qtab!(Phenotype!double)(pheno_fn);
 }
 
