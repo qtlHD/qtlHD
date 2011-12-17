@@ -18,15 +18,23 @@ import std.typecons;
 import std.algorithm;
 
 /**
- * Read a tabular qtlHD symbol genotype line
+ * Read a tabular qtlHD symbol genotype line - splits the line on
+ * spaces, followed by looking for 'as'. E.g.
+ *
+ *   AC CA as 0,2 2,0
+ *
+ * gets returned as
+ *
+ *   Tuple(["AC","CA"],["0,2","2,0"])
  */
 
-Tuple!(string, string[]) parse_symbol_genotype_qtab(string line) {
+Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
   auto fields1 = split(line," ");
   auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
-  auto ind = (fields.length > 0 ? strip(fields[0]) : null);
-  auto phenotypes = (fields.length > 1 ? fields[1..$] : null);
-  return tuple(ind,phenotypes);
+  auto res = find(fields,"as");
+  auto genotypes = (res.length > 1 ? res[1..$] : null);
+  auto symbols = fields[0..$-genotypes.length-1];
+  return tuple(symbols,genotypes);
 }
 
 /**
@@ -55,9 +63,9 @@ void read_qtab(string fn) {
         if (strip(buf) == "# --- Symbol Genotype end")
            break;
         auto res = parse_symbol_genotype_qtab(buf);
-        auto ind = res[0];
-        auto ps  = res[1];
-        writeln(ind,"\t",ps);
+        auto symbols = res[0];
+        auto genotypes = res[1];
+        writeln(symbols,"\t",genotypes);
       }
     }
     if (strip(buf) == "# --- Data Phenotype begin") {
@@ -67,7 +75,7 @@ void read_qtab(string fn) {
         auto res = parse_phenotype_qtab(buf);
         auto ind = res[0];
         auto ps  = res[1];
-        writeln(ind,"\t",ps);
+        // writeln(ind,"\t",ps);
       }
     }
   }
