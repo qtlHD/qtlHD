@@ -239,12 +239,12 @@ cM by default. To override, you can set it to base pairs (bp or Mbp).
 The phenotype section, or file, contains a list of individuals and their phenotypic values.
 For example,
 
-        # --- Data Phenotypes begin
+        # --- Data Phenotype begin
         #    Sex   P1      P2
         Ind1   X   100.0   45
         Ind2   I   2000.0  46
         ...
-        # --- Data Phenotypes end
+        # --- Data Phenotype end
 
 Where the phenotype names are listed in the symbols file. The optional 
 name row is ignored by qtlHD as it starts with a Hash symbol.
@@ -253,7 +253,7 @@ Phenotypic values can have types. For example, floating point (which is the defa
 type), integer, binary, discrete, and perhaps ranges. These are defined in the
 header, using the phenotype names:
 
-        # --- Type Phenotypes begin
+        # --- Type Phenotype begin
         Sex Discrete                        # types are automatically found from data
         P1  Float                           # double precision value with floating point (default)
         P2  Integer
@@ -262,7 +262,7 @@ header, using the phenotype names:
         P5  Integer 1..$                    # only values larger than 1
         P6  Percentage 0..100               # Percentages with range (floating point)
         ...
-        # --- Type Phenotypes end
+        # --- Type Phenotype end
 
 Note that types are not symbols. A symbol, defined in the symbol section,
 represents a simple value expansion. A type says something about possible
@@ -274,7 +274,7 @@ In addition, every Phenotype section can have a header with batch properties. A
 number of properties are standardized, such as Date, Time, Location, Author,
 Temperature.  Other fields can be added freely. So
 
-        # --- Set Phenotypes begin
+        # --- Set Phenotype begin
         Id batch001
         Date 20111027
         Time 10:11:00
@@ -285,7 +285,7 @@ Temperature.  Other fields can be added freely. So
         Daylight 8.5 hours
         Week 3
         ...
-        # --- Set Phenotypes end
+        # --- Set Phenotype end
 
 Each 'Set' belongs to the 'Data' section. They are tied together in another
 table named Property, which mirrors the Data table using the `Id` field:
