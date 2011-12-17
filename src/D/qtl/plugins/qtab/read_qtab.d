@@ -54,8 +54,8 @@ Tuple!(string, string[]) parse_phenotype_qtab(string line) {
  * delegate to the appropriate readers. Values are allocated
  * in memory and returned in a Tuple.
  */
-Tuple!(P[]) read_qtab(P)(string fn) {
-  P ret_phenotypes[];  // single list
+Tuple!(P[][]) read_qtab(P)(string fn) {
+  P ret_phenotypes[][];  // single list
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
   string buf;
@@ -79,7 +79,7 @@ Tuple!(P[]) read_qtab(P)(string fn) {
         auto ind = res[0];
         auto fields  = res[1];
         writeln(ind,"\t",fields);
-        auto ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
+        P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
         ret_phenotypes ~= ps;
       }
     }
@@ -96,6 +96,13 @@ unittest {
   read_qtab!(Phenotype!double)(symbol_fn);
   auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
   writeln("reading ",pheno_fn);
-  read_qtab!(Phenotype!double)(pheno_fn);
+  auto p_res = read_qtab!(Phenotype!double)(pheno_fn);
+  Phenotype!double[][] pheno = p_res[0];
+  writeln(pheno);
+  foreach(p ; pheno[0]) { 
+    writeln(p);
+  }
+  // assert(pheno[0][0].value == 118.317);
+  // assert(pheno[0][2].value == 194.917);
 }
 
