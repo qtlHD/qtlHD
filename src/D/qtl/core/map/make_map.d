@@ -211,10 +211,7 @@ unittest {
   auto uniq_list = uniq!"a.get_position() == b.get_position()"(list);
   auto pos_list = map!"a.get_position()"(uniq_list);
   assert(equal(pos_list,[9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]), to!string(pos_list));
-  auto ts = map!"to!double(a)"(pos_list);
-  // nudge mar Result into a double[]
-  double ds[];
-  foreach (u ; pos_list) { ds ~= u; }  // this can be done better, I am sure
+  auto ds = std.array.array(map!"to!double(a)"(pos_list));
   assert(ds[1] == 10);
   assert(ds.length == 23); // tis proof 
 
