@@ -267,7 +267,7 @@ unittest {
   observed1 ~= g1;
   observed1 ~= g2;
   observed1 ~= g2; // tests also for duplicate add
-  writeln(observed1.list);
+  // writeln(observed1.list);
   assert(!observed1.isNA);
   assert(observed1.list.length == 2);
   observed1 ~= g2; // tests also for duplicate add
@@ -495,8 +495,8 @@ unittest {
   assert(symbols.decode("B") == f2.B);
   // assert(symbols.decode("H") == f2.H);
   // assert(symbols.decode("C") == f2.HorB);
-  writeln(f2.HorA.encoding);
-  writeln(symbols);
+  // writeln(f2.HorA.encoding);
+  // writeln(symbols);
   assert(symbols.decode("D") == f2.HorA);
 }
 
@@ -541,7 +541,7 @@ unittest {
   symbols ~= BA;
   symbols ~= HorA;
   symbols ~= HorB;
-  writeln(HorA);
+  // writeln(HorA);
   assert(HorA.name == "HorA");
   assert(to!string(HorA) == "[(0,0), (0,1), (1,0)]");
 }
@@ -675,7 +675,6 @@ class EncodedGenotype {
 }
 
 unittest {
-  writeln("test");
   auto tuple = parse_observed_genotype_string("GENOTYPE A as 0,0");
   assert(tuple[0] == ["A"]);
   assert(to!string(tuple[1]) == "[(0,0)]");
@@ -706,7 +705,7 @@ class EncodedCross {
   this(string list[]) {
     // parse list
     foreach(line ; list) {
-       writeln(line);
+       // writeln(line);
        if (line.strip() == "") continue;
        add(line);
     }
@@ -725,7 +724,7 @@ class EncodedCross {
     foreach (n_alias ; line_item.names[1..$]) {
        gc[n].add_encoding(n_alias); 
     }
-    writeln("--->",gc[n].encoding,gc[n]);
+    // writeln("--->",gc[n].encoding,gc[n]);
     return line_item;
   }
 
@@ -760,7 +759,7 @@ GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
   assert(symbols.decode("AB") == cross.gc["AB"]);
   assert(symbols.decode("AorB") == cross.gc["AorB"]);
   // writeln(cross["AorB"].encoding);
-  writeln(symbols);
+  // writeln(symbols);
   // Test for duplicates
   encoded = "
 GENOTYPE A as 0,0
