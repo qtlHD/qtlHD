@@ -175,25 +175,33 @@ class GenotypeCombinator {
     auto rhs = cast(GenotypeCombinator)other;
     return (list.sort == rhs.list.sort); // probably not the fastest way ;)
   }
+  /**
+   * Return a string format of the combinator in the form "[(p1,p2)]"
+   */
   const string toString() {
     if (isNA) return "[NA]";
     return to!string(list);
   }
+  /**
+   * Return a string format using the encoder types, e.g, "A B H"
+   */
   const string toEncodings() {
-    auto ret = "";
-    foreach (e ; encoding) { 
-      ret ~= " " ~ to!string(e);
-    } 
-    return ret[1..$];
+    auto a = map!"to!string(a)"(encoding);
+    return join(a," ");
   }
+  /**
+   * Return the primary encoder as a string
+   */
   const string toEncoding() {
     return name;
   }
+  /**
+   * Return the combinator true genotypes as a string, e.g. "0,0 1,0"
+   */
   const string toTrueGenotypes() {
     if (list.length == 0) return "None";
-    auto ret = "";
-    foreach (n ; list) { ret ~= " " ~ n.toTrueGenotype; }
-    return ret[1..$];
+    auto a = map!"a.toTrueGenotype"(list);
+    return join(a," ");
   }
   const bool isNA() { return length == 0; }
   // compatibility function - deprecate
