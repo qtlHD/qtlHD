@@ -50,21 +50,21 @@ void read_qtab(string fn) {
   scope(exit) f.close(); // always close the file on function exit
   string buf;
   while (f.readln(buf)) {
-    if (strip(buf) == "# --- Data Phenotype begin") {
-      while (f.readln(buf)) { 
-        if (strip(buf) == "# --- Data Phenotype end")
-           break;
-        auto res = parse_phenotype_qtab(buf);
-        auto ind = res[0];
-        auto ps  = res[1];
-        writeln(ind,"\t",ps);
-      }
-    }
     if (strip(buf) == "# --- Symbol Genotype begin") {
       while (f.readln(buf)) { 
         if (strip(buf) == "# --- Symbol Genotype end")
            break;
         auto res = parse_symbol_genotype_qtab(buf);
+        auto ind = res[0];
+        auto ps  = res[1];
+        writeln(ind,"\t",ps);
+      }
+    }
+    if (strip(buf) == "# --- Data Phenotype begin") {
+      while (f.readln(buf)) { 
+        if (strip(buf) == "# --- Data Phenotype end")
+           break;
+        auto res = parse_phenotype_qtab(buf);
         auto ind = res[0];
         auto ps  = res[1];
         writeln(ind,"\t",ps);
