@@ -55,7 +55,7 @@ Tuple!(string, string[]) parse_phenotype_qtab(string line) {
  * in memory and returned in a Tuple.
  */
 Tuple!(P[][]) read_qtab(P)(string fn) {
-  P ret_phenotypes[][];  // single list
+  P ret_phenotypes[][];  // return matrix
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
   string buf;
@@ -98,11 +98,9 @@ unittest {
   writeln("reading ",pheno_fn);
   auto p_res = read_qtab!(Phenotype!double)(pheno_fn);
   Phenotype!double[][] pheno = p_res[0];
-  writeln(pheno);
-  foreach(p ; pheno[0]) { 
-    writeln(p);
-  }
-  // assert(pheno[0][0].value == 118.317);
-  // assert(pheno[0][2].value == 194.917);
+  // 1st ind, 1st phenotype
+  assert(pheno[0][0].value == 118.317);
+  // 3rd ind, 1st phenotype
+  assert(pheno[2][0].value == 194.917);
 }
 
