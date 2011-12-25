@@ -129,6 +129,7 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
       combinator.add_encoding(s);
     }
     foreach (g ; genotype_strs) { 
+      if (g == "None") continue;
       combinator ~= new TrueGenotype(g);
     }
     writeln(combinator.toEncodings);
@@ -146,12 +147,10 @@ unittest {
   writeln("reading ",symbol_fn);
   auto f = File(symbol_fn,"r");
   auto symbols = read_genotype_symbol_qtab(f);
-  writeln(symbols.decode("A"));
-  writeln(symbols.decode("B"));
-  assert(symbols.decode("A") == new TrueGenotype(0,0));
-  assert(symbols.decode("B") == new TrueGenotype(1,1));
-  assert(symbols.decode("BB") == new TrueGenotype(1,1));
-  assert(symbols.decode("H") == new TrueGenotype(0,1));
+  assert(symbols.decode("A") == symbols.decode("AA"));
+  assert(to!string(symbols.decode("A")) == "[(0,0)]");
+  assert(to!string(symbols.decode("H")) == "[(0,1)]");
+  assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1)]", to!string(symbols.decode("HorA")));
 }
 
 

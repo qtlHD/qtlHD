@@ -101,7 +101,6 @@ class TrueGenotype {
   this(TrueGenotype g) { founders = g.founders; }
   // read true genotypes as a comma separated string, e.g. "0,0" or "1,0".
   this(in string str) {
-    if (str == "None") return;
     auto fields = split(strip(str),",");  
     if (fields.length != 2)
       throw new Exception("Can not parse field " ~ str);
