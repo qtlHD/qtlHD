@@ -17,24 +17,8 @@ import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 
-/**
- * Read a tabular qtlHD symbol genotype line - splits the line on
- * spaces, followed by looking for 'as'. E.g.
- *
- *   AC CA as 0,2 2,0
- *
- * gets returned as
- *
- *   Tuple(["AC","CA"],["0,2","2,0"])
- */
-
-Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
-  auto fields1 = split(line," ");
-  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
-  auto res = find(fields,"as");
-  auto genotypes = (res.length > 1 ? res[1..$] : null);
-  auto symbols = fields[0..$-genotypes.length-1];
-  return tuple(symbols,genotypes);
+unittest {
+  writeln("Unit test " ~ __FILE__);
 }
 
 /**
@@ -48,6 +32,7 @@ Tuple!(string, string[]) parse_phenotype_qtab(string line) {
   auto phenotypes = (fields.length > 1 ? fields[1..$] : null);
   return tuple(ind,phenotypes);
 }
+
 
 /**
  * Low level qtlHD qtab parser. Read the file in sections, and
@@ -78,7 +63,7 @@ Tuple!(P[][]) read_qtab(P)(string fn) {
         auto res = parse_phenotype_qtab(buf);
         auto ind = res[0];
         auto fields  = res[1];
-        writeln(ind,"\t",fields);
+        // writeln(ind,"\t",fields);
         P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
         ret_phenotypes ~= ps;
       }
@@ -88,12 +73,9 @@ Tuple!(P[][]) read_qtab(P)(string fn) {
 }
 
 unittest {
-  writeln("Unit test " ~ __FILE__);
+  // Phenotype reader
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
-  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
-  writeln("reading ",symbol_fn);
-  read_qtab!(Phenotype!double)(symbol_fn);
   auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
   writeln("reading ",pheno_fn);
   auto p_res = read_qtab!(Phenotype!double)(pheno_fn);
@@ -103,4 +85,71 @@ unittest {
   // 3rd ind, 1st phenotype
   assert(pheno[2][0].value == 194.917);
 }
+
+/**
+ * Read a tabular qtlHD symbol genotype line - splits the line on
+ * spaces, followed by looking for 'as'. E.g.
+ *
+ *   AC CA as 0,2 2,0
+ *
+ * gets returned as
+ *
+ *   Tuple(["AC","CA"],["0,2","2,0"])
+ */
+
+Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
+  auto fields1 = split(line," ");
+  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
+  auto res = find(fields,"as");
+  auto genotypes = (res.length > 1 ? res[1..$] : null);
+  auto symbols = fields[0..$-genotypes.length-1];
+  return tuple(symbols,genotypes);
+}
+
+/**
+ * Parse genotype symbol table
+ *
+ * Returns an ObservedGenotypes container
+ */
+
+ObservedGenotypes read_genotype_symbol_qtab(File f) {
+  auto observed = new ObservedGenotypes();
+  string buf;
+  while (f.readln(buf)) {
+    if (strip(buf) == "# --- Symbol Genotype end")
+       break;
+    if (buf[0] == '#') continue;
+    
+    auto res = parse_symbol_genotype_qtab(buf);
+    auto symbol_names = res[0];
+    auto genotype_strs = res[1];
+    writeln(symbol_names,"\t",genotype_strs);
+    auto combinator = new GenotypeCombinator(symbol_names[0]);
+    foreach (s ; symbol_names[1..$]) {
+      combinator.add_encoding(s);
+    }
+    foreach (g ; genotype_strs) { 
+      combinator ~= new TrueGenotype(g);
+    }
+    writeln(combinator.toEncodings);
+    observed ~= combinator;
+  }
+  writeln(observed);
+  return observed;
+}
+
+unittest {
+  // Symbol and genotype reader
+  alias std.path.buildPath buildPath;
+  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
+  writeln("reading ",symbol_fn);
+  auto f = File(symbol_fn,"r");
+  auto symbols = read_genotype_symbol_qtab(f);
+  writeln(symbols);
+  writeln(symbols.decode("A"));
+  assert(symbols.decode("A") == new TrueGenotype(0,0));
+  assert(symbols.decode("H") == new TrueGenotype(0,1));
+}
+
 
