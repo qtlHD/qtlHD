@@ -99,6 +99,16 @@ class TrueGenotype {
     founders = Alleles(founder1, founder2);
   }
   this(TrueGenotype g) { founders = g.founders; }
+  // read true genotypes as a comma separated string, e.g. "0,0" or "1,0".
+  this(in string str) {
+    if (str == "None") return;
+    auto fields = split(strip(str),",");  
+    if (fields.length != 2)
+      throw new Exception("Can not parse field " ~ str);
+    auto field1 = to!uint(fields[0]);
+    auto field2 = to!uint(fields[1]);
+    founders = Alleles(field1,field2);
+  }
   bool homozygous()   { return founders[0] == founders[1]; };
   bool heterozygous() { return !homozygous(); };
   int opCmp(Object other) {
@@ -262,6 +272,11 @@ unittest {
   assert(g1.heterozygous());
   assert(g2.homozygous());
   assert(g2.founders[0] == 2);
+  // create TrueGenotype from string
+  assert(new TrueGenotype("0,0") == new TrueGenotype(0,0));
+  assert(new TrueGenotype("1,0") == new TrueGenotype(1,0));
+  assert(new TrueGenotype("1,2") == new TrueGenotype(1,2));
+
   // observed genotypes can be any combination of true genotypes
   auto observed1 = new GenotypeCombinator("OBSERVE1");
   observed1 ~= g1;
