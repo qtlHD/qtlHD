@@ -236,7 +236,7 @@ class ObservedGenotypes {
   /// Decode an input to an (observed) genotype
   GenotypeCombinator decode(in string s) {
     foreach(m; list) { if (m.match(s)) return m; }
-    throw new Exception("Unknown genotype " ~ s);
+    throw new Exception("Fail to decode genotype " ~ s);
   }
   /// Define =~ to combine combinators
   ObservedGenotypes opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
