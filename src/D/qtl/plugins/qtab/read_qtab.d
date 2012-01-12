@@ -33,6 +33,18 @@ Tuple!(string, string[]) parse_phenotype_qtab(string line) {
   return tuple(ind,phenotypes);
 }
 
+/**
+ * Read a tabular qtlHD genotype line
+ */
+
+Tuple!(string, string[]) parse_genotype_qtab(string line) {
+  auto fields1 = split(line,"\t");
+  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
+  auto ind = (fields.length > 0 ? strip(fields[0]) : null);
+  auto data = (fields.length > 1 ? fields[1..$] : null);
+  return tuple(ind,data);
+}
+
 
 /**
  * Low level qtlHD qtab parser. Read the file in sections, and
@@ -139,18 +151,30 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
   return observed;
 }
 
-ObservedGenotypes[][] read_genotype_qtab(File f, in ObservedGenotypes observed) {
+Tuple!(Individuals, ObservedGenotypes[][]) read_genotype_qtab(File f, ObservedGenotypes symbols) {
+  Individuals ret_individuals;
   ObservedGenotypes ret_genotypes[][];  // return matrix
   string buf;
+  // note, we skip the marker names - they are for reference only
   while (f.readln(buf)) {
     if (strip(buf) == "# --- Data Observed end")
        break;
     if (buf[0] == '#') continue;
     
-    /* auto res = parse_genotype_qtab(buf);
-    auto symbol_names = res[0];
-    auto genotype_strs = res[1];
-    writeln(symbol_names,"\t",genotype_strs);
+    auto res = parse_genotype_qtab(buf);
+    auto individual = res[0];   // string
+    auto genotype_ind = res[1]; // array of string
+    // writeln(individual,"\t",genotype_ind);
+
+    // For every genotype symbol (A,B,H,C, etc) we need to find the 
+    // matching ObservedGenotype, which is derived from the symbol 
+    // table accompanying the genotype data. Next we add the reference
+    // to the genotype matrix.
+    foreach(g ; genotype_ind) {
+      auto genotype = symbols.decode(g);
+    }
+    
+    /* @@
     auto combinator = new GenotypeCombinator(symbol_names[0]);
     foreach (s ; symbol_names[1..$]) {
       combinator.add_encoding(s);
@@ -165,7 +189,7 @@ ObservedGenotypes[][] read_genotype_qtab(File f, in ObservedGenotypes observed) 
   writeln(observed);
   */
   }
-  return ret_genotypes;
+  return tuple(ret_individuals, ret_genotypes);
 }
 
 unittest {
