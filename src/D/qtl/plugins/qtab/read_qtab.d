@@ -205,7 +205,19 @@ unittest {
   auto ret = read_genotype_qtab(f1, symbols);
   auto individuals = ret[0];
   auto genotype_matrix = ret[1];
-  writeln(individuals.list[0].name,genotype_matrix[0]);
+  // Show the first individual and genotypes
+  // writeln(individuals.list[0].name,genotype_matrix[0]);
+  // by symbol
+  assert(genotype_matrix[0][0] == symbols.decode("B"));
+  assert(genotype_matrix[0][3] == symbols.decode("H"));
+  // by founders
+  assert(genotype_matrix[0][0].list[0].homozygous == true);
+  assert(genotype_matrix[0][0].list[0].founders[0] == 1);
+  assert(genotype_matrix[0][0].list[0].founders[1] == 1);
+  assert(genotype_matrix[0][3].list[0].heterozygous == true);
+  assert(genotype_matrix[0][3].list[0].founders[0] == 0);
+  assert(genotype_matrix[0][3].list[0].founders[1] == 1);
+  // assert(genotype_matrix[0][3].list[0] == 1);
 }
 
 
