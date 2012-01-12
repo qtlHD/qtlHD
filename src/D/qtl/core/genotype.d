@@ -217,6 +217,8 @@ class GenotypeCombinator {
   auto value() { return this; } 
 }
 
+alias GenotypeCombinator Gref;  // short name for referencing a combinator
+
 /** 
  * ObservedGenotypes tracks all the observed genotypes in a dataset, for the
  * full set, or at a marker position.  This symbol tracker is a convenience

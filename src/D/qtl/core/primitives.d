@@ -1,4 +1,4 @@
-/** 
+/**
  * This module contains the primitive objects used for QTL mapping.
  *
  * Test the module with 
@@ -70,6 +70,7 @@ mixin template MarkerInfo() {
 mixin template ActList(T) {
   T[] list;
   const size_t length() { return list.length; }
+
   // The functional way of creating an iterator in D - called by 'foreach'
   int opApply(int delegate(ref T) call) {
     foreach (item ; list) {
@@ -77,6 +78,10 @@ mixin template ActList(T) {
       if (result) return result; // result <> 0 when 'foreach' bails out early
     }
     return 0;
+  }
+  T add(T item) { 
+    list ~= item;
+    return item;
   }
 }
 
@@ -302,6 +307,16 @@ class Individual {
 
 class Individuals {
   mixin ActList!Individual;
+  Individuals opOpAssign(string op)(string name) if (op == "~") {
+    list ~= new Individual(name);
+    return this;
+  }
+  Individuals opOpAssign(string op)(Individual ind) if (op == "~") {
+    writeln(ind);
+    // list ~= ind.dup;
+    return this;
+  }
+
 }
 
 /******************************************************************************
@@ -369,6 +384,7 @@ class Markers(M) {
   void add(in Marker m) {
     list ~= new M(m);
   }
+
   const auto sorted() { 
     auto ms = new Markers(this); // make a copy
     sort(ms.list); // sorts in place

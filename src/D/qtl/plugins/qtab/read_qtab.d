@@ -151,9 +151,9 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
   return observed;
 }
 
-Tuple!(Individuals, ObservedGenotypes[][]) read_genotype_qtab(File f, ObservedGenotypes symbols) {
-  Individuals ret_individuals;
-  ObservedGenotypes ret_genotypes[][];  // return matrix
+Tuple!(Individuals, Gref[][]) read_genotype_qtab(File f, ObservedGenotypes symbols) {
+  Individuals ret_individuals = new Individuals;
+  Gref ret_genotypes[][];  // return matrix
   string buf;
   // note, we skip the marker names - they are for reference only
   while (f.readln(buf)) {
@@ -162,32 +162,24 @@ Tuple!(Individuals, ObservedGenotypes[][]) read_genotype_qtab(File f, ObservedGe
     if (buf[0] == '#') continue;
     
     auto res = parse_genotype_qtab(buf);
-    auto individual = res[0];   // string
-    auto genotype_ind = res[1]; // array of string
-    // writeln(individual,"\t",genotype_ind);
+    auto name_ind_str = res[0];   // string
+    auto genotype_ind_str = res[1]; // array of string
+    // writeln(individual,"\t",genotype_ind_str);
 
     // For every genotype symbol (A,B,H,C, etc) we need to find the 
     // matching ObservedGenotype, which is derived from the symbol 
     // table accompanying the genotype data. Next we add the reference
     // to the genotype matrix.
-    foreach(g ; genotype_ind) {
-      auto genotype = symbols.decode(g);
+    Gref[] genotype_ind;
+    genotype_ind.reserve(genotype_ind_str.length);
+
+    foreach(g ; genotype_ind_str) {
+      auto genotype = symbols.decode(g); // genotype is now a reference
+      genotype_ind ~= genotype;
     }
     
-    /* @@
-    auto combinator = new GenotypeCombinator(symbol_names[0]);
-    foreach (s ; symbol_names[1..$]) {
-      combinator.add_encoding(s);
-    }
-    foreach (g ; genotype_strs) { 
-      if (g == "None") continue;
-      combinator ~= new TrueGenotype(g);
-    }
-    writeln(combinator.toEncodings);
-    observed ~= combinator;
-  }
-  writeln(observed);
-  */
+    ret_individuals.list ~= new Individual(name_ind_str);
+    ret_genotypes ~= genotype_ind;
   }
   return tuple(ret_individuals, ret_genotypes);
 }
@@ -210,8 +202,10 @@ unittest {
   auto genotype_fn = to!string(buildPath(dir,"regression","test_genotype.qtab"));
   writeln("reading ",genotype_fn);
   auto f1 = File(genotype_fn,"r");
-  auto genotypes = read_genotype_qtab(f1, symbols);
-
+  auto ret = read_genotype_qtab(f1, symbols);
+  auto individuals = ret[0];
+  auto genotype_matrix = ret[1];
+  writeln(individuals.list[0].name,genotype_matrix[0]);
 }
 
 
