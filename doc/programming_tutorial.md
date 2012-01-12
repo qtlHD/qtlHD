@@ -164,13 +164,66 @@ container (defined in genotype.d) named symbols using
 Now we read the genotype matrix with
 
           auto f = File(genotype_fn,"r");
-          auto genotypes = read_genotype_qtab(f);
+          auto ret = read_genotype_qtab(f1, symbols);
+          auto individuals = ret[0];
+          auto genotype_matrix = ret[1];
+          // Show the first individual and genotypes
+          writeln(individuals.list[0].name,genotype_matrix[0]);
 
-which gives a matrix of references to symbols, or ObservedGenotypes(!). I.e.
-the dataset has a limited number of symbols. In the case of F2 it would be A,
-B, H, and perhaps a few combinations. The genotype matrix simply references
-these symbols. This allows us to get at the true genotypes by querying the
-relevant symbol or ObservedGenotypes container.
+which returns a Tuple with individuals and accompanying genotypes, in a matrix of references to symbols, i.e. GenotypeCombinators(!). For convenience we named these
+Gref. So a matrix of references to (observed) genotype combinators is defined as
+
+          Gref genotype_matrix[][]
+
+This implies that the matrix contains only references (pointers) to a limited
+number of symbols. Which is efficient. In the case of F2 it would be A, B, H,
+and perhaps a few combinations theref, such as HorA and HorB. The genotype
+matrix simply references these symbols. This allows us to get at the true
+genotypes by querying the relevant symbol or ObservedGenotypes container. To 
+use this genotype, we can match the decoder:
+
+          assert(genotype_matrix[0][0] == symbols.decode("B"));
+          assert(genotype_matrix[0][3] == symbols.decode("H"));
+
+or we can ask for the true genotypes using a symbol
+
+          assert(genotype_matrix[0][0] == symbols.decode("B"));
+          assert(genotype_matrix[0][3] == symbols.decode("H"));
+
+or we can query the founder parents directly
+
+          assert(genotype_matrix[0][0].list[0].homozygous == true);
+          assert(genotype_matrix[0][0].list[0].founders[0] == 1);
+          assert(genotype_matrix[0][0].list[0].founders[1] == 1);
+          assert(genotype_matrix[0][3].list[0].heterozygous == true);
+          assert(genotype_matrix[0][3].list[0].founders[0] == 0);
+          assert(genotype_matrix[0][3].list[0].founders[1] == 1);
+
+(we may add some syntactic sugar later). Note both B and H have
+one set of parents. If there are more, as in the case of HorB for marker
+M you get
+
+          assert(genotype_matrix[0][M].list[0].heterozygous == true);
+          assert(genotype_matrix[0][M].list[0].founders[0] == 0);
+          assert(genotype_matrix[0][M].list[0].founders[1] == 1);
+          assert(genotype_matrix[0][M].list[1].homozygous == true);
+          assert(genotype_matrix[0][M].list[1].founders[0] == 1);
+          assert(genotype_matrix[0][M].list[1].founders[1] == 1);
+
+in other words, we can digest the founder combination for every symbol, which
+is the information we gave qtlHD with the symbol table:
+
+        # --- qtlHD-in-0.1 Symbol Test
+        # --- Symbol Genotype begin
+        NA - as None
+        A AA as 0,0
+        B BB as 1,1
+        H AB BA as 0,1
+        HorB C as 0,1 1,1
+        HorA D as 0,0 0,1
+        # --- Symbol Genotype end
+
+At this stage you should know how to use the phenotype and genotype matrices.
 
 ## More ...
 
