@@ -139,18 +139,55 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
   return observed;
 }
 
+ObservedGenotypes[][] read_genotype_qtab(File f, in ObservedGenotypes observed) {
+  ObservedGenotypes ret_genotypes[][];  // return matrix
+  string buf;
+  while (f.readln(buf)) {
+    if (strip(buf) == "# --- Data Observed end")
+       break;
+    if (buf[0] == '#') continue;
+    
+    /* auto res = parse_genotype_qtab(buf);
+    auto symbol_names = res[0];
+    auto genotype_strs = res[1];
+    writeln(symbol_names,"\t",genotype_strs);
+    auto combinator = new GenotypeCombinator(symbol_names[0]);
+    foreach (s ; symbol_names[1..$]) {
+      combinator.add_encoding(s);
+    }
+    foreach (g ; genotype_strs) { 
+      if (g == "None") continue;
+      combinator ~= new TrueGenotype(g);
+    }
+    writeln(combinator.toEncodings);
+    observed ~= combinator;
+  }
+  writeln(observed);
+  */
+  }
+  return ret_genotypes;
+}
+
 unittest {
   // Symbol and genotype reader
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
+  // First read symbol information (the GenotypeCombinators)
   writeln("reading ",symbol_fn);
   auto f = File(symbol_fn,"r");
   auto symbols = read_genotype_symbol_qtab(f);
+  // Test working of symbols
   assert(symbols.decode("A") == symbols.decode("AA"));
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
   assert(to!string(symbols.decode("H")) == "[(0,1)]");
   assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1)]", to!string(symbols.decode("HorA")));
+  // Read genotype matrix
+  auto genotype_fn = to!string(buildPath(dir,"regression","test_genotype.qtab"));
+  writeln("reading ",genotype_fn);
+  auto f1 = File(genotype_fn,"r");
+  auto genotypes = read_genotype_qtab(f1, symbols);
+
 }
 
 

@@ -1,8 +1,8 @@
 # qtlHD programming tutorial
 
-This is a gentle (we hope) introduction to data structures and programming
-qtlHD.  If you are a C coder, we believe the largest problem has to do with
-templates (i.e. generics). The second largest problem is, probably, concepts of
+This is a somewhat gentle (we hope) introduction to data structures and
+programming qtlHD.  If you are a C coder, we believe the largest problem is
+templates (aka generics). The second largest problem is, probably, concepts of
 functional programming. As we tend to minimize OOP, we do not think we get into
 problems there.
 
@@ -141,6 +141,36 @@ repeating the above, so every symbol in the table points to its
 matching GenotypeCombinator (the list of true genotypes).
 
 It is GenotypeCombinators that we will be using for our algorithms.
+
+## Reading qtab genotypes
+
+Now we have the genotype symbols we can parse the qtab genotype table. As
+described in the qtab format (see link in introduction) this is a matrix of
+marker by individual, containing the observed genotypes, e.g. A, B, H, HorB,
+etc. The symbols that can be used are defined in the symbol table, which
+relates them to the actual genotype. So A would be 0,0 (the genotype of father
+and mother is 0), B is 1,1, H is 1,0 (or 0,1), HorA is an observed genotype,
+which can be either H or B at the marker location. Obviously you can define
+your own symbols. Often C is chosen for HorA, and D for HorB. Any symbol (a
+string of text) can be mapped against a list of allowed genotypes. In the
+future we may even support polyploidity.
+
+In the previous section we read the symbol table into a ObservedGenotypes
+container (defined in genotype.d) named symbols using
+
+          auto f = File(symbol_fn,"r");
+          auto symbols = read_genotype_symbol_qtab(f);
+
+Now we read the genotype matrix with
+
+          auto f = File(genotype_fn,"r");
+          auto genotypes = read_genotype_qtab(f);
+
+which gives a matrix of references to symbols, or ObservedGenotypes(!). I.e.
+the dataset has a limited number of symbols. In the case of F2 it would be A,
+B, H, and perhaps a few combinations. The genotype matrix simply references
+these symbols. This allows us to get at the true genotypes by querying the
+relevant symbol or ObservedGenotypes container.
 
 ## More ...
 
