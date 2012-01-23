@@ -154,7 +154,7 @@ represent a missing value.
 Other reserved symbols are `True` and `False` (and, as mentioned
 above, `as`).
 
-An example can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_symbol.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
+An example of a symbol reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_symbol.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
 
 # The founder section
 
@@ -239,7 +239,7 @@ cM by default. To override, you can set it to base pairs (bp or Mbp).
         Position cM                       # cM (default), bp or Mbp
         # --- Set Location end
 
-An example can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_genotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
+An example of a genotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_genotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
 
 
 # The phenotype section
@@ -309,7 +309,7 @@ table named Property, which mirrors the Data table using the `Id` field:
 This allows phenotype measurements to be split out according to other
 parameters. 
 
-An example can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_phenotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
+An example of a phenotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_phenotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
 
 # Manifest section
 
