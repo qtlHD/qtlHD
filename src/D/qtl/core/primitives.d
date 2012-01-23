@@ -113,9 +113,10 @@ class Marker {
     this(m.position, m.name, m.id);
     chromosome = cast(Chromosome)m.chromosome;
   }
-  this(Chromosome _chromosome, double _position) {
+  this(Chromosome _chromosome, double _position, string _name = null) {
     chromosome = _chromosome, position = _position;
-    id = ID_UNKNOWN, name = MARKER_NAME_UNKNOWN; // FIXME: auto init
+    id = ID_UNKNOWN;
+    name = (_name ? _name : MARKER_NAME_UNKNOWN); // FIXME: auto init
   }
 
   Position get_position() { return position; }

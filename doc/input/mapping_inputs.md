@@ -25,9 +25,10 @@ representations of the same data. The single file representation is simply
 a concatenation of other files.
 
 Note: The qtlHD project is the single authority for the qtab file standard.
-qtlHD, itself, acts as a reference implementation.
+qtlHD, itself, acts as a reference implementation. A qtab R writer (from R/qtl 
+data structures) can be found in the [qtlHD source tree](https://github.com/pjotrp/qtlHD/tree/master/src/R).
 
-Each section (or file) is described individually in
+Each qtab section (or qtab file) is described individually in
 
 * Symbol             - symbols used to describe (observed) genotypes, 
                        markers, founders, individuals and phenotypes
@@ -179,6 +180,8 @@ position
         ...
         # --- Data Frequencies end
 
+*Note: support for the qtab founder section is not yet implemented in qtlHD*
+
 # The genotype section
 
 The genotype section, or file, contains markers (columns) x individuals (rows),
@@ -218,6 +221,9 @@ For example
         Directional True                  # default
         # --- Set Genotype end
 
+An example of a genotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_genotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
+
+
 # The marker map section
 
 The marker map contains a list of markers and their chromosome + locations.
@@ -239,7 +245,7 @@ cM by default. To override, you can set it to base pairs (bp or Mbp).
         Position cM                       # cM (default), bp or Mbp
         # --- Set Location end
 
-An example of a genotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_genotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
+An example of a marker map reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_marker_map.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
 
 
 # The phenotype section
@@ -309,7 +315,7 @@ table named Property, which mirrors the Data table using the `Id` field:
 This allows phenotype measurements to be split out according to other
 parameters. 
 
-An example of a phenotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_phenotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
+An example of a phenotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_phenotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). Note that qtab phenotype is only partially implemented in qtlHD.
 
 # Manifest section
 
@@ -347,4 +353,5 @@ When sections are in separate files, prefix the extension with _sectionname
   filename_manifest.qtab  
   filename_genotype.qbin    - for the binary edition 
 
+*Note: support for the qtab manifest section is not yet implemented in qtlHD*
 
