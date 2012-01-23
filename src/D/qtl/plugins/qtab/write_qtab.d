@@ -97,19 +97,19 @@ unittest {
   auto fn = to!string(buildPath(dir,"input","listeria.csv"));
   auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
   // write the phenotype file
-  auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
+  auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab.new"));
   auto f = File(pheno_fn,"w");
   write_phenotype_qtab(f, "Test", data.individuals, data.phenotypenames, data.phenotypes);
   f.close();
   writeln("Wrote ", pheno_fn);
   // write the genotype file 
-  auto geno_fn = to!string(buildPath(dir,"regression","test_genotype.qtab"));
+  auto geno_fn = to!string(buildPath(dir,"regression","test_genotype.qtab.new"));
   f = File(geno_fn,"w");
   write_genotype_qtab(f, "Test", data.individuals, data.markers, data.genotypes);
   f.close();
   writeln("Wrote ", geno_fn);
   // write the symbol file 
-  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
+  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab.new"));
   f = File(symbol_fn,"w");
   write_symbol_qtab(f, "Test", data.symbols.symbols);
   f.close();
