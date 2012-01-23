@@ -29,7 +29,9 @@ types, such as individuals and phenotypenames, as explicit input
 parameters into the function. That way we can see in one go what the
 interface is like. This interface is predictable:
 
+```D
         void write_phenotype_qtab(P)(File f, string descr, in Individuals individuals, in string[] phenotypenames, in P[][] phenotypes)
+```
 
 i.e. what you see is what you get.
 If we had passed in the ReadSimpleCSV object as an opaque unit, in typical OOP fashion, we would not
@@ -38,10 +40,12 @@ really know what elements/attributes the function would use, or even modify.
 Next, in read_qtab.d, read_qtab reads the record and returns the phenotype qtab
 file into a Tuple. Here we access a phenotype matrix
 
+```D
         auto res = read_qtab!(Phenotype!double)(pheno_fn);
         Phenotype!double[][] pheno = res[0];
         // 1st ind, 1st phenotype
         assert(pheno[0][0].value == 118.317);
+```
 
 please check this code. Is it clear what happens? read_qtab uses a
 Phenotype!double type (I grant the exclamation mark is a bit strange syntax).
@@ -56,18 +60,24 @@ mark to pass the template parameter(s).
 In the function read_qtab you can see Phenotype!double is used as a
 matrix of values (P[][]). The phenotypes get parsed in the data file section
 
+```D
         if (strip(buf) == "# --- Data Phenotype begin") 
+```
 
 where
 
+```D
         auto res = parse_phenotype_qtab(buf);
+```
 
 parses the input string into substrings (returning a Tuple of the
 ID, and the values as an array of strings).
 
 The next one is a bit of functional magic
 
+```D
         P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
+```
 
 The function map!(func)(list) takes a list (or array), and applies func to list,
 returning a new list. It is similar to the R apply function.
@@ -79,10 +89,12 @@ a 'bag' of different data structures.
 
 Finally, we test for values with
 
+```D
         // get the first element of the Tuple (there is only one now):
         Phenotype!double[][] pheno = p_res[0];
         // test 1st ind, 1st phenotype
         assert(pheno[0][0].value == 118.317);
+```
 
 The test passes.
 
@@ -119,6 +131,7 @@ There are three basic types (in genotype.d):
 
 The unittest in read_qtab reads
 
+```D
         unittest {
         The unittest in read_qtab:
 
@@ -137,6 +150,7 @@ The unittest in read_qtab reads
           assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1)]", to!string(symbo
         ls.decode("HorA")));
         }
+```
 
 which parses the symbol file, and loads above data structures. The three
 asserts do a symbol lookup and find the observed genotypes, as stored
@@ -164,22 +178,28 @@ future we may even support polyploidity.
 In the previous section we read the symbol table into a ObservedGenotypes
 container (defined in genotype.d) named symbols using
 
+```D
           auto f = File(symbol_fn,"r");
           auto symbols = read_genotype_symbol_qtab(f);
+```
 
 Now we read the genotype matrix with
 
+```D
           auto f = File(genotype_fn,"r");
           auto ret = read_genotype_qtab(f1, symbols);
           auto individuals = ret[0];
           auto genotype_matrix = ret[1];
           // Show the first individual and genotypes
           writeln(individuals.list[0].name,genotype_matrix[0]);
+```
 
 which returns a Tuple with individuals and accompanying genotypes, in a matrix of references to symbols, i.e. GenotypeCombinators(!). For convenience we named these
 Gref. So a matrix of references to (observed) genotype combinators is defined as
 
+```D
           Gref genotype_matrix[][]
+```
 
 This implies that the matrix contains only references (pointers) to a limited
 number of symbols. Which is efficient. In the case of F2 it would be A, B, H,
@@ -188,33 +208,41 @@ matrix simply references these symbols. This allows us to get at the true
 genotypes by querying the relevant symbol or ObservedGenotypes container. To 
 use this genotype, we can match the decoder:
 
+```D
           assert(genotype_matrix[0][0] == symbols.decode("B"));
           assert(genotype_matrix[0][3] == symbols.decode("H"));
+```
 
 or we can ask for the true genotypes using a symbol
 
+```D
           assert(genotype_matrix[0][0] == symbols.decode("B"));
           assert(genotype_matrix[0][3] == symbols.decode("H"));
+```
 
 or we can query the founder parents directly
 
+```D
           assert(genotype_matrix[0][0].list[0].homozygous == true);
           assert(genotype_matrix[0][0].list[0].founders[0] == 1);
           assert(genotype_matrix[0][0].list[0].founders[1] == 1);
           assert(genotype_matrix[0][3].list[0].heterozygous == true);
           assert(genotype_matrix[0][3].list[0].founders[0] == 0);
           assert(genotype_matrix[0][3].list[0].founders[1] == 1);
+```
 
 (we may add some syntactic sugar later). Note both B and H have
 one set of parents. If there are more, as in the case of HorB for marker
 M you get
 
+```D
           assert(genotype_matrix[0][M].list[0].heterozygous == true);
           assert(genotype_matrix[0][M].list[0].founders[0] == 0);
           assert(genotype_matrix[0][M].list[0].founders[1] == 1);
           assert(genotype_matrix[0][M].list[1].homozygous == true);
           assert(genotype_matrix[0][M].list[1].founders[0] == 1);
           assert(genotype_matrix[0][M].list[1].founders[1] == 1);
+```
 
 in other words, we can digest the founder combination for every symbol, which
 is the information we gave qtlHD with the symbol table:
@@ -238,12 +266,14 @@ The final piece of the QTL mapping puzzle is the marker map. An example can be f
 a marker consists of a name, a chromosome name, and a position on that chromosome. A 
 marker info is defined in primitives.d (unsurprisingly) as 
 
+```D
           mixin template MarkerInfo() {
             mixin Identity;
             mixin Attributes;
             Chromosome chromosome;      /// Reference to Chromosome
             Position position;          /// Marker position - content depends on map
           }
+```
 
 where identity gives it a name. Attributes is perhaps the strange one - we use
 attributes here as a container for non-generic properties. You can imagine a
@@ -255,10 +285,12 @@ it for now.
 First we parse the qtab marker map in *read_qtab.d*, much the same as to what we did
 earlier. Pass in the qtab file (or section) and return a list of markers.
 
+```D
             auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
             assert(markers[0].name == "D10M44");
             assert(markers[0].chromosome.name == "1");
             assert(markers[3].position == 40.4136);
+```
 
 The file parser looks like this
 
@@ -290,7 +322,7 @@ The file parser looks like this
 
 The line parser reads 
 
-```
+```D
           Tuple!(string, string, double) parse_marker_qtab(string line) {
             auto fields1 = split(line,"\t");
             auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
@@ -305,7 +337,9 @@ Pretty straightforward again. Note, however, that the line parser does very litt
 syntax checking. Also a new chromosome object gets created with evey marker object - 
 maybe not what we want. Also, the allocation of 
 
+```D
             M ret_ms[];
+```
 
 is dynamically allocated, and may slow things down with appending markers to
 really large sets. Anyway, no worries for now.
