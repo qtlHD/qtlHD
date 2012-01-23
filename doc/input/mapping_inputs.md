@@ -1,18 +1,21 @@
 # Mapping inputs
 
-Version 0.1 (December 2011)
+Version 0.10 (December 2011)
+
+This document describes the new qtab standard. qtab is a human readable tab
+delimited file format for QTL data.
 
 In general, file standards for QTL mapping are a muddle. The basic premises,
 however, are pretty straightforward. For qtlHD, we propose a 'final'
 tab-delimited format that will also have a binary (and perhaps XML) counterpart
 representation. A choice for tab-delimited (or TSV, tab separated value) files
 is made to secure human readability (and editability!) of data. 
-Since TSV files
-contain no 'grammar' we describe content and set options through section header
-information. In principle we attempt to DRY (do not repeat yourself) and sparse
-data (no inclusion of zero values). The idea is to have a simple,
-straightforward standard that can be applied to 95% of cases, is easily
-readable by humans, and easily parsable by software.
+
+Since TSV files contain no 'grammar' we describe content and set options
+through section header information. In principle we attempt to DRY (do not
+repeat yourself) and sparse data (no inclusion of zero values). The idea is to
+have a simple, straightforward standard that can be applied to 95% of cases, is
+easily readable by humans, and easily parsable by software.
 
 In addition, the new tab delimited format should be versioned, extensible,
 handle names with spaces (except tabs), and allow some validation of section
@@ -21,8 +24,8 @@ structures.  Finally, we support both multi-file and single-file
 representations of the same data. The single file representation is simply 
 a concatenation of other files.
 
-Note: The qtlHD project is the single authority for the file standard. qtlHD
-acts as a reference implementation.
+Note: The qtlHD project is the single authority for the qtab file standard.
+qtlHD, itself, acts as a reference implementation.
 
 Each section (or file) is described individually in
 
@@ -151,6 +154,8 @@ represent a missing value.
 Other reserved symbols are `True` and `False` (and, as mentioned
 above, `as`).
 
+An example of a symbol reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_symbol.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
+
 # The founder section
 
 A founder section, or file, contains information about the founders useful for
@@ -234,6 +239,9 @@ cM by default. To override, you can set it to base pairs (bp or Mbp).
         Position cM                       # cM (default), bp or Mbp
         # --- Set Location end
 
+An example of a genotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_genotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
+
+
 # The phenotype section
 
 The phenotype section, or file, contains a list of individuals and their phenotypic values.
@@ -301,6 +309,8 @@ table named Property, which mirrors the Data table using the `Id` field:
 This allows phenotype measurements to be split out according to other
 parameters. 
 
+An example of a phenotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_phenotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
+
 # Manifest section
 
 The optional Manifest section or file describes the contents and locations
@@ -317,7 +327,7 @@ of the other sections and files, including an MD5 checksum. For example:
 Note that, in this example, two of the sections are together in one file, and
 share the same MD5.
 
-# qtlHD filename conventions
+# qtlHD filenaming conventions
 
 The following filename extensions are used by convention
 
