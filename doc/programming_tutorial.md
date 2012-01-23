@@ -262,6 +262,7 @@ earlier. Pass in the qtab file (or section) and return a list of markers.
 
 The file parser looks like this
 
+```D
           auto read_marker_map_qtab(M)(string fn) {
             M ret_ms[];
             auto f = File(fn,"r");
@@ -285,9 +286,11 @@ The file parser looks like this
             }
             return ret_ms;
           }
+```
 
 The line parser reads 
 
+```
           Tuple!(string, string, double) parse_marker_qtab(string line) {
             auto fields1 = split(line,"\t");
             auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
@@ -296,6 +299,7 @@ The line parser reads
             auto position = (fields.length > 2 ? to!double(strip(fields[2])) : MARKER_POSITION_UNKNOWN);
             return tuple(name,chromosome,position);
           }
+```
 
 Pretty straightforward again. Note, however, that the line parser does very little 
 syntax checking. Also a new chromosome object gets created with evey marker object - 
