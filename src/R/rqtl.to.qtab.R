@@ -44,7 +44,7 @@ rqtl.to.qtab.genotypes <- function(cross, filename="genotypes.qtab", descr = "My
   genotypes <- pull.geno(cross)
   cnt <- 1
   for(n in colnames(genotypes)){
-    cat(file=filename, "\n", sep="", append=TRUE)
+    cat(file=filename, n, "\n", sep="", append=TRUE)
     cnt <- cnt+1
   }
   for(i in 1:nrow(genotypes)){
