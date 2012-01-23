@@ -35,6 +35,15 @@ Tuple!(string, string[]) parse_phenotype_qtab(string line) {
   return tuple(ind,phenotypes);
 }
 
+Tuple!(string, string, double) parse_marker_qtab(string line) {
+  auto fields1 = split(line,"\t");
+  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
+  auto name = (fields.length > 0 ? strip(fields[0]) : null);
+  auto chromosome = (fields.length > 1 ? fields[1] : null);
+  auto position = (fields.length > 2 ? to!double(strip(fields[2])) : MARKER_POSITION_UNKNOWN);
+  return tuple(name,chromosome,position);
+}
+
 /**
  * Read a tabular qtlHD genotype line
  */
@@ -48,12 +57,36 @@ Tuple!(string, string[]) parse_genotype_qtab(string line) {
 }
 
 
+auto read_marker_map_qtab(M)(string fn) {
+  M ret_ms[];
+  auto f = File(fn,"r");
+  scope(exit) f.close(); // always close the file on function exit
+  string buf;
+  while (f.readln(buf)) {
+    if (strip(buf) == "# --- Data Location begin") {
+      while (f.readln(buf)) { 
+        if (strip(buf) == "# --- Data Location end")
+           break;
+        if (buf[0] == '#') continue;
+        auto res = parse_marker_qtab(buf);
+        auto name = res[0];
+        auto cname = res[1];
+        auto c = new Chromosome(cname);
+        auto pos = res[2];
+        auto marker = new Marker(c,pos,name);
+        ret_ms ~= marker;
+      }
+    }
+  }
+  return ret_ms;
+}
+
 /**
  * Low level qtlHD qtab parser. Read the file in sections, and
  * delegate to the appropriate readers. Values are allocated
  * in memory and returned in a Tuple.
  */
-Tuple!(P[][]) read_qtab(P)(string fn) {
+Tuple!(P[][]) read_phenotype_qtab(P)(string fn) {
   P ret_phenotypes[][];  // return matrix
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
@@ -92,12 +125,24 @@ unittest {
   auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
   auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
   writeln("reading ",pheno_fn);
-  auto p_res = read_qtab!(Phenotype!double)(pheno_fn);
+  auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
   Phenotype!double[][] pheno = p_res[0];
   // 1st ind, 1st phenotype
   assert(pheno[0][0].value == 118.317);
   // 3rd ind, 1st phenotype
   assert(pheno[2][0].value == 194.917);
+}
+
+unittest {
+  // Marker map reader
+  alias std.path.buildPath buildPath;
+  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+  auto marker_map_fn = to!string(buildPath(dir,"regression","test_marker_map.qtab"));
+  writeln("reading ",marker_map_fn);
+  auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
+  assert(markers[0].name == "D10M44");
+  assert(markers[0].chromosome.name == "1");
+  assert(markers[3].position == 40.4136);
 }
 
 /**
