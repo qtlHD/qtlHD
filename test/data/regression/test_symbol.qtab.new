@@ -1,0 +1,9 @@
+# --- qtlHD-in-0.1 Symbol Test
+# --- Symbol Genotype begin
+NA - as None
+A AA as 0,0
+B BB as 1,1
+H AB BA as 0,1
+HorB C as 0,1 1,1
+HorA D as 0,0 0,1
+# --- Symbol Genotype end
