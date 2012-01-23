@@ -7,31 +7,32 @@ functional programming. As we tend to minimize OOP, we do not think we get into
 problems there.
 
 First, we will run through some concepts by reading and writing qtab files. See
-also the file
-https://github.com/pjotrp/qtlHD/blob/master/doc/input/mapping_inputs.md for a
-description of the tabulated qtab file format.
+also the 
+[qtab documentation](https://github.com/pjotrp/qtlHD/blob/master/doc/input/mapping_inputs.md) for a
+description of the tabulated qtab file format, and the implemented qtab [reader and writer](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab).
 
 ## Reading qtab phenotypes
 
-Start with the unit tests in read_qtab.d (in directory qtl/plugins/qtab).
-Currently we read the CSV with read_csv.d. The implementation of read_csv.d
+Start with the unit tests in [read_qtab.d](https://github.com/pjotrp/qtlHD/blob/master/src/D/qtl/plugins/qtab/read_qtab.d) (in source code directory qtl/plugins/qtab).
+Currently we read the CSV with *read_csv.d*. The implementation of read_csv.d
 creates a class ReadSimpleCSV wich contains the data as sub-attributes (i.e.
 data.phenotypes), which get referenced in that container, a typical OOP
 approach.  We should use Tuples instead - which we are doing with more recent
-code. The problem is that objects, like ReadSimpleCSV, contain a lot of extra
-bagage, which starts to lead its own life. Tuples are clearly data containers,
-and nothing else. Tuples are totally appropriate when the goal is to only pass
-along data.
+code. The reason to use Tuples is that objects, such as ReadSimpleCSV, contain a lot of extra
+bagage, which starts to lead its own life. Tuples are clearly and solely data containers.
+Nothing else. Tuples are totally appropriate when the goal is to only pass
+data around.
 
-So, in write_qtab.d, we read the CSV data in the contained unittest.
+So, for write_qtab.d, we read the CSV data in the contained unittest.
 Find the function write_phenotype_qtab and you see we pass the data
 types, such as individuals and phenotypenames, as explicit input
 parameters into the function. That way we can see in one go what the
-interface is like. Predictable:
+interface is like. This interface is predictable:
 
         void write_phenotype_qtab(P)(File f, string descr, in Individuals individuals, in string[] phenotypenames, in P[][] phenotypes)
 
-if we had passed in the ReadSimpleCSV object as an opaque unit, we would not
+i.e. what you see is what you get.
+If we had passed in the ReadSimpleCSV object as an opaque unit, in typical OOP fashion, we would not
 really know what elements/attributes the function would use, or even modify.
 
 Next, in read_qtab.d, read_qtab reads the record and returns the phenotype qtab
@@ -43,9 +44,14 @@ file into a Tuple. Here we access a phenotype matrix
         assert(pheno[0][0].value == 118.317);
 
 please check this code. Is it clear what happens? read_qtab uses a
-Phenotype!double type. Later we may implement a call with Phenotype!int, for
-example. That is the concept of generics/templates. The read_qtab!type function
-gets defined, where we set the parameter *type* at compile time.
+Phenotype!double type (I grant the exclamation mark is a bit strange syntax).
+Later we may implement a call with Phenotype!int, for example. That is the
+concept of generics/templates. The read_qtab!type function gets defined, where
+we set the parameter *type* at compile time. The exclamation type combination
+makes the implementation generic for a type. This is called 'generics', where
+Phenotype is a template, and double is the type. JAVA, Scala, C++ all have
+these types of templates. The only difference is that D uses an exclamation
+mark to pass the template parameter(s).
 
 In the function read_qtab you can see Phenotype!double is used as a
 matrix of values (P[][]). The phenotypes get parsed in the data file section
