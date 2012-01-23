@@ -5,9 +5,9 @@
 # last modified Jan, 2012
 # first written Jan, 2012
 #
-# rqtl.to.qtab.symbols
-# rqtl.to.qtab.genotypes
-# rqtl.to.qtab.phenotypes
+# getID
+# rqtl.to.qtab.symbols, rqtl.to.qtab.location, rqtl.to.qtab.genotypes, rqtl.to.qtab.phenotypes
+# rqtl.to.qtab, rqtl.to.qtab.test
 
 getID <- function(){
   VER <- "0.1"
