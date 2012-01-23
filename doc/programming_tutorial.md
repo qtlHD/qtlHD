@@ -231,7 +231,30 @@ is the information we gave qtlHD with the symbol table:
 
 At this stage you should know how to use the phenotype and genotype matrices.
 
-## More ...
+## Reading the marker map
+
+The final piece of the QTL mapping puzzle is the marker map. An example can be found
+[here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_marker_map.qtab). This
+a marker consists of a name, a chromosome name, and a position on that chromosome. A 
+marker info is defined in primitives.d (unsurprisingly) as 
+
+  mixin template MarkerInfo() {
+    mixin Identity;
+    mixin Attributes;
+    Chromosome chromosome;      /// Reference to Chromosome
+    Position position;          /// Marker position - content depends on map
+  }
+
+where identity gives it a name. Attributes is perhaps the strange one - we use
+attributes here as a container for non-generic properties. You can imagine a
+marker to be fictional, or some other feature - this we handle through its
+attributes. Attributes contain information that does not apply to all
+algorithms, but needs to be tracked in some algorithms. Anyway, we can ignore
+it for now.
+
+First we parse the qtab marker map in *read_qtab.d*, much the same as to what we did
+earlier. Pass in the qtab file (or section) and return a list of markers.
+
 
 More to follow...
 
