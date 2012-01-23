@@ -245,7 +245,8 @@ cM by default. To override, you can set it to base pairs (bp or Mbp).
         Position cM                       # cM (default), bp or Mbp
         # --- Set Location end
 
-*Note: support for the qtab marker map section is not yet implemented in qtlHD*
+An example of a marker map reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_marker_map.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
+
 
 # The phenotype section
 
