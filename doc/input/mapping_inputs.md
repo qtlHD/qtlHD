@@ -25,9 +25,10 @@ representations of the same data. The single file representation is simply
 a concatenation of other files.
 
 Note: The qtlHD project is the single authority for the qtab file standard.
-qtlHD, itself, acts as a reference implementation.
+qtlHD, itself, acts as a reference implementation. A qtab R writer (from R/qtl 
+data structures) can be found in the [qtlHD source tree](https://github.com/pjotrp/qtlHD/tree/master/src/R).
 
-Each section (or file) is described individually in
+Each qtab section (or qtab file) is described individually in
 
 * Symbol             - symbols used to describe (observed) genotypes, 
                        markers, founders, individuals and phenotypes
