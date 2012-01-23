@@ -238,12 +238,12 @@ The final piece of the QTL mapping puzzle is the marker map. An example can be f
 a marker consists of a name, a chromosome name, and a position on that chromosome. A 
 marker info is defined in primitives.d (unsurprisingly) as 
 
-  mixin template MarkerInfo() {
-    mixin Identity;
-    mixin Attributes;
-    Chromosome chromosome;      /// Reference to Chromosome
-    Position position;          /// Marker position - content depends on map
-  }
+          mixin template MarkerInfo() {
+            mixin Identity;
+            mixin Attributes;
+            Chromosome chromosome;      /// Reference to Chromosome
+            Position position;          /// Marker position - content depends on map
+          }
 
 where identity gives it a name. Attributes is perhaps the strange one - we use
 attributes here as a container for non-generic properties. You can imagine a
@@ -255,53 +255,53 @@ it for now.
 First we parse the qtab marker map in *read_qtab.d*, much the same as to what we did
 earlier. Pass in the qtab file (or section) and return a list of markers.
 
-    auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
-    assert(markers[0].name == "D10M44");
-    assert(markers[0].chromosome.name == "1");
-    assert(markers[3].position == 40.4136);
+            auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
+            assert(markers[0].name == "D10M44");
+            assert(markers[0].chromosome.name == "1");
+            assert(markers[3].position == 40.4136);
 
 The file parser looks like this
 
-  auto read_marker_map_qtab(M)(string fn) {
-    M ret_ms[];
-    auto f = File(fn,"r");
-    scope(exit) f.close(); // always close the file on function exit
-    string buf;
-    while (f.readln(buf)) {
-      if (strip(buf) == "# --- Data Location begin") {
-        while (f.readln(buf)) { 
-          if (strip(buf) == "# --- Data Location end")
-             break;
-          if (buf[0] == '#') continue;
-          auto res = parse_marker_qtab(buf);
-          auto name = res[0];
-          auto cname = res[1];
-          auto c = new Chromosome(cname);
-          auto pos = res[2];
-          auto marker = new Marker(c,pos,name);
-          ret_ms ~= marker;
-        }
-      }
-    }
-    return ret_ms;
-  }
+          auto read_marker_map_qtab(M)(string fn) {
+            M ret_ms[];
+            auto f = File(fn,"r");
+            scope(exit) f.close(); // always close the file on function exit
+            string buf;
+            while (f.readln(buf)) {
+              if (strip(buf) == "# --- Data Location begin") {
+                while (f.readln(buf)) { 
+                  if (strip(buf) == "# --- Data Location end")
+                     break;
+                  if (buf[0] == '#') continue;
+                  auto res = parse_marker_qtab(buf);
+                  auto name = res[0];
+                  auto cname = res[1];
+                  auto c = new Chromosome(cname);
+                  auto pos = res[2];
+                  auto marker = new Marker(c,pos,name);
+                  ret_ms ~= marker;
+                }
+              }
+            }
+            return ret_ms;
+          }
 
 The line parser reads 
 
-  Tuple!(string, string, double) parse_marker_qtab(string line) {
-    auto fields1 = split(line,"\t");
-    auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
-    auto name = (fields.length > 0 ? strip(fields[0]) : null);
-    auto chromosome = (fields.length > 1 ? fields[1] : null);
-    auto position = (fields.length > 2 ? to!double(strip(fields[2])) : MARKER_POSITION_UNKNOWN);
-    return tuple(name,chromosome,position);
-  }
+          Tuple!(string, string, double) parse_marker_qtab(string line) {
+            auto fields1 = split(line,"\t");
+            auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
+            auto name = (fields.length > 0 ? strip(fields[0]) : null);
+            auto chromosome = (fields.length > 1 ? fields[1] : null);
+            auto position = (fields.length > 2 ? to!double(strip(fields[2])) : MARKER_POSITION_UNKNOWN);
+            return tuple(name,chromosome,position);
+          }
 
 Pretty straightforward again. Note, however, that the line parser does very little 
 syntax checking. Also a new chromosome object gets created with evey marker object - 
 maybe not what we want. Also, the allocation of 
 
-    M ret_ms[];
+            M ret_ms[];
 
 is dynamically allocated, and may slow things down with appending markers to
 really large sets. Anyway, no worries for now.
