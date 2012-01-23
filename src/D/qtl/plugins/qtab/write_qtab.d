@@ -1,5 +1,7 @@
 /**
  * Write tabular qtlHD files (.qtab)
+ *
+ * See ./doc/input/mapping_inputs.md for a definition of the qtab standard
  */
 
 module qtl.plugins.qtab.write_qtab;
@@ -20,7 +22,7 @@ immutable string VER = "0.1";
 string ID = "qtlHD-in-" ~ VER;
 
 /**
- * Write a tabular qtlHD symbol section
+ * Write a qtab (tabular) qtlHD symbol section
  */
 
 void write_symbol_qtab(File f, string descr, ObservedGenotypes observed) {
@@ -33,6 +35,24 @@ void write_symbol_qtab(File f, string descr, ObservedGenotypes observed) {
   }
   f.writeln("# --- Symbol Genotype end");
 }
+
+/**
+ * Write a qtab (tabular) qtlHD marker map section
+ */
+
+void write_marker_map_qtab(File f, string descr, Marker[] markers) {
+  f.writeln("# --- ",ID," Location ",descr);
+  f.writeln("# --- Data Location begin");
+  f.writeln("#\tChr\tPos");
+  foreach(m ; markers.list) {
+    f.write(m.name);
+    f.write("\t",m.chromosome.name);
+    f.write("\t",m.position);
+    f.writeln();
+  }
+  f.writeln("# --- Data Location end");
+}
+
 
 /**
  * Write a tabular qtlHD genotype section
@@ -89,8 +109,8 @@ void write_phenotype_qtab(P)(File f, string descr, in Individuals individuals, i
 
 unittest {
   // in this unit test we read a CSV file, and write it into 
-  // valid qtab formatted files. Note the read_qtab unit tests
-  // read these same files in for testing
+  // valid qtab formatted files in the regression directory. Note the read_qtab unit tests
+  // read these same files, for testing
   writeln("Unit test " ~ __FILE__);
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
@@ -102,6 +122,12 @@ unittest {
   write_phenotype_qtab(f, "Test", data.individuals, data.phenotypenames, data.phenotypes);
   f.close();
   writeln("Wrote ", pheno_fn);
+  // write the marker map file 
+  auto marker_map_fn = to!string(buildPath(dir,"regression","test_marker_map.qtab.new"));
+  f = File(marker_map_fn,"w");
+  write_marker_map_qtab(f, "Test", data.markers);
+  f.close();
+  writeln("Wrote ", marker_map_fn);
   // write the genotype file 
   auto geno_fn = to!string(buildPath(dir,"regression","test_genotype.qtab.new"));
   f = File(geno_fn,"w");
