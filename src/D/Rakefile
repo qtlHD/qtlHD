@@ -17,7 +17,8 @@
 
 require 'rake/clean'
 
-PROG = 'read_qtab'  # this will change to a utility
+BUILD_SHLIBS = false  # static/shared library targets
+PROG = 'read_qtab'    # this will change to a utility
 BINARIES = [PROG]
 TESTS = [ :test_qtab ]
 
@@ -53,7 +54,7 @@ all_dfiles = all_core_dfiles +
              csv_dfiles + csvr_dfiles + qtab_dfiles + xgap_dfiles +
              deprecated_dfiles
 
-def suffix
+def shlib_suffix
   if windows? then
     return "dll"
   else
@@ -61,7 +62,7 @@ def suffix
   end
 end
 
-def prefix
+def shlib_prefix
   if windows? then
     return ""
   else
@@ -73,18 +74,33 @@ def windows?
   return RUBY_PLATFORM =~ /(:?mswin|mingw)/
 end
 
-#Unix files
+LIB_EXT =       # set build target library file name
+  if BUILD_SHLIBS
+    shlib_suffix
+  else
+    if(windows?) then 'lib' else 'a' end 
+  end
+
+LIB_QTAB = shlib_prefix + 'qtab.' + LIB_EXT
+
+# Unix files
 CLEAN.include('*.o')
 CLEAN.include('*.dep')
 CLEAN.include('*.deps')
-#Win32 files
+# Win32 files
 CLEAN.include('*.obj','*.exe','*.map')
 CLEAN.include('test.*', '*.xbin')
-#Created test executabels
+# Lib files
+CLEAN.include("*.#{LIB_EXT}")
+# Created test executabels
 clean_exe_list = Dir.glob("*").find_all { |fn| File.executable?(fn) and !File.directory?(fn) }
 CLEAN.include(clean_exe_list)
 
 # The compile targets
+
+lib_list = { 
+  LIB_QTAB => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_read_dfiles },
+}
 
 exe_list = { 
   'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles },
@@ -96,6 +112,14 @@ exe_list = {
   'test_scanone' => { :path => './test/scanone', :list => core_dfiles + scanone_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles},
 }
+
+lib_list.each do | fn, attr |
+  path = attr[:path]
+  list = attr[:list]
+  file fn => list do
+    sh "dmd -lib -O -of#{fn} #{list.join(' ')}"
+  end
+end
 
 exe_list.each do | fn, attr | 
   path = attr[:path]
@@ -131,7 +155,10 @@ end
 # ---- Standard tasks
 
 desc "Default builds and tests #{PROG}"
-task :default => [:build, :test]
+task :default => [:build_libs, :build, :test]
+
+desc "Build default libraries"
+task :build_libs => [ LIB_QTAB ]
 
 desc "Build default binaries"
 task :build => TESTS
