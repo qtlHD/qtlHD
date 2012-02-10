@@ -14,3 +14,7 @@ tags
 *.cpp
 *.h
 *.hpp
+*.a
+*.so
+*.dll
+*.lib
