@@ -15,7 +15,7 @@ Phenotype!T set_phenotype(T)(in string s) {
   if(s == "NA" || s == "-"){
     p.value = to!T(PHENOTYPE_NA);
   }else{
-    if(s.indexOf(".") != -1){
+    if(s.indexOf(".") != -1){  // FIXME: this should only be for floats
       p.value = to!T(s);
     }else{
       p.value = to!T(s~".0");
