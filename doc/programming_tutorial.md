@@ -149,6 +149,9 @@ The unittest in read_qtab reads
           assert(to!string(symbols.decode("H")) == "[(0,1)]");
           assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1)]", to!string(symbo
         ls.decode("HorA")));
+          // It is also possible to encode directly with
+          assert(to!string(symbols.decode("0,0")) == "[(0,0)]");
+          assert(to!string(symbols.decode("0,1")) == "[(0,1)]");
         }
 ```
 
