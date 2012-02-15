@@ -236,6 +236,7 @@ class ObservedGenotypes {
   }
   /// Decode an input to an (observed) genotype
   GenotypeCombinator decode(in string s) {
+    // decode by symbol name
     foreach(m; list) { if (m.match(s)) return m; }
     throw new Exception("Fail to decode genotype \"" ~ s ~ "\"");
   }
@@ -354,6 +355,8 @@ unittest {
   assert(symbols.decode("-") == ril.NA);
   assert(symbols.decode("A") == ril.A);
   assert(symbols.decode("AA") == ril.A);
+  assert(symbols.decode("0,0") == ril.A);
+  assert(symbols.decode("1,1") == ril.B);
 }
 
 unittest {
@@ -514,6 +517,9 @@ unittest {
   // writeln(f2.HorA.encoding);
   // writeln(symbols);
   assert(symbols.decode("D") == f2.HorA);
+  assert(symbols.decode("1,1") == f2.B);
+  assert(symbols.decode("0,1") == f2.H);
+  assert(symbols.decode("1,0") == f2.H);
 }
 
 unittest {
@@ -774,6 +780,11 @@ GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
   assert(symbols.decode("BB") == cross.gc["B"]); //  <- OK
   assert(symbols.decode("AB") == cross.gc["AB"]);
   assert(symbols.decode("AorB") == cross.gc["AorB"]);
+  assert(symbols.decode("0,0") == cross.gc["A"]);
+  assert(symbols.decode("1,1") == cross.gc["B"]);
+  assert(symbols.decode("1,0") == cross.gc["AB"]);
+  assert(symbols.decode("0,1") == cross.gc["BA"]);
+  assert(symbols.decode("0,0|1,1") == cross.gc["AorB"]);
   // writeln(cross["AorB"].encoding);
   // writeln(symbols);
   // Test for duplicates
