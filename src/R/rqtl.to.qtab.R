@@ -43,14 +43,16 @@ rqtl.to.qtab.genotypes <- function(cross, filename="genotypes.qtab", descr = "My
   cat(file=filename, "# --- Data Genotype begin", "\n", sep="", append=TRUE)
   genotypes <- pull.geno(cross)
   cnt <- 1
+  cat(file=filename,"#", sep="", append=TRUE)
   for(n in colnames(genotypes)){
-    cat(file=filename, n, "\n", sep="", append=TRUE)
+    cat(file=filename,"\t", n, sep="", append=TRUE)
     cnt <- cnt+1
   }
+  cat(file=filename,"\n", sep="", append=TRUE)
   for(i in 1:nrow(genotypes)){
     cat(file=filename, "Ind", i, sep="", append=TRUE)
     for(p in 1:ncol(genotypes)){
-      cat(file=filename, "\t", rqtl.symbol.toTG(cross,genotypes[i,p]), sep="", append=TRUE)
+      cat(file=filename, "\t", strsplit(rqtl.symbol.toN(cross,genotypes[i,p])," ")[[1]][1], sep="", append=TRUE)
     }
     cat(file=filename, "\n", sep="", append=TRUE)
   }
@@ -96,6 +98,7 @@ rqtl.to.qtab.test <- function(){
   setwd("e:/github/qtlHD/src/R/")
   source("rqtl.to.qtab.symbols.R")
   source("rqtl.to.qtab.utils.R")
+  source("rqtl.to.qtab.R")
   data(multitrait)
   data(listeria)
   data(hyper)
