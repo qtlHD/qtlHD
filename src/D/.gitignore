@@ -7,6 +7,7 @@ write_xgapbin
 read_xgapbin
 test_scanone
 test_scanone_listeria
+test_hmm
 tags.json
 tags
 *.qtab
