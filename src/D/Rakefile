@@ -109,7 +109,7 @@ exe_list = {
   'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_write_dfiles + csv_dfiles },
   'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles },
   'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles },
-  'test_scanone' => { :path => './test/scanone', :list => core_dfiles + scanone_dfiles },
+  'test_scanone' => { :path => './test/scanone', :list => all_core_dfiles + scanone_dfiles + csv_dfiles + deprecated_dfiles},
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles},
   'test_hmm' => { :path => './test/hmm', :list => all_core_dfiles + qtab_read_dfiles + deprecated_dfiles},
 }
