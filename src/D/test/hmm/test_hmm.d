@@ -27,9 +27,12 @@ unittest {
 
   // Test working of symbols
   assert(symbols.decode("A") == symbols.decode("AA"));
+  assert(to!string(symbols.decode("NA")) == "[NA]");
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
   assert(to!string(symbols.decode("H")) == "[(0,1), (1,0)]");
-  //assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1)]", to!string(symbols.decode("HorA")));
+  assert(to!string(symbols.decode("B")) == "[(1,1)]");
+  assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1)]");
+  assert(to!string(symbols.decode("HorB")) == "[(0,1), (1,1)]");
 
   // Read genotype matrix
   auto genotype_fn = to!string(buildPath(dir,"listeria_genotype.qtab"));
@@ -40,18 +43,46 @@ unittest {
   auto genotype_matrix = ret[1];
 
   // Show the first individual and genotypes
-  // writeln(individuals.list[0].name,genotype_matrix[0]);
+  assert(individuals.list.length == 120);
+  assert(individuals.list[15].name == "16"); 
+  assert(genotype_matrix[119].length == 133);
+
   // by symbol
   assert(genotype_matrix[0][0] == symbols.decode("B"));
   assert(genotype_matrix[0][3] == symbols.decode("H"));
+
+  assert(genotype_matrix[15][0] == symbols.decode("H"));
+  assert(genotype_matrix[15][130] == symbols.decode("HorB"));
+
+  assert(genotype_matrix[18][129] == symbols.decode("B"));
+  assert(genotype_matrix[18][130] == symbols.decode("NA"));
+  assert(genotype_matrix[18][131] == symbols.decode("A"));
+
   // by founders
   assert(genotype_matrix[0][0].list[0].homozygous == true);
+  assert(genotype_matrix[0][0].list[0].heterozygous == false);
   assert(genotype_matrix[0][0].list[0].founders[0] == 1);
   assert(genotype_matrix[0][0].list[0].founders[1] == 1);
+
+  assert(genotype_matrix[0][3].list[0].homozygous == false);
   assert(genotype_matrix[0][3].list[0].heterozygous == true);
   assert(genotype_matrix[0][3].list[0].founders[0] == 0);
   assert(genotype_matrix[0][3].list[0].founders[1] == 1);
-  // assert(genotype_matrix[0][3].list[0] == 1);
+
+  assert(genotype_matrix[15][0].list[0].homozygous == false);
+  assert(genotype_matrix[15][0].list[0].heterozygous == true);
+  assert(genotype_matrix[15][0].list[0].founders[0] == 0);
+  assert(genotype_matrix[15][0].list[0].founders[1] == 1);
+
+  assert(genotype_matrix[18][129].list[0].homozygous == true);
+  assert(genotype_matrix[18][129].list[0].heterozygous == false);
+  assert(genotype_matrix[18][129].list[0].founders[0] == 1);
+  assert(genotype_matrix[18][129].list[0].founders[1] == 1);
+
+  assert(genotype_matrix[18][131].list[0].homozygous == true);
+  assert(genotype_matrix[18][131].list[0].heterozygous == false);
+  assert(genotype_matrix[18][131].list[0].founders[0] == 0);
+  assert(genotype_matrix[18][131].list[0].founders[1] == 0);
 
   // reading phenotypes
   auto pheno_fn = to!string(buildPath(dir,"listeria_phenotype.qtab"));
@@ -74,8 +105,6 @@ unittest {
 }
 
 unittest {
-  writeln("unit test test_hmm :: BC");
-
   // Symbol and genotype reader
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data", "input", "hyper_noX_qtab"));
@@ -86,10 +115,9 @@ unittest {
   auto symbols = read_genotype_symbol_qtab(fs);
 
   // Test working of symbols
-  // assert(symbols.decode("A") == symbols.decode("AA"));
-  // assert(to!string(symbols.decode("A")) == "[(0,0)]");
-  // assert(to!string(symbols.decode("H")) == "[(0,1), (1,0)]");
-  //assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1)]", to!string(symbols.decode("HorA")));
+  assert(to!string(symbols.decode("NA")) == "[NA]");
+  assert(to!string(symbols.decode("A")) == "[(0,0)]");
+  assert(to!string(symbols.decode("H")) == "[(1,0)]");
 
   // Read genotype matrix
   auto genotype_fn = to!string(buildPath(dir,"hyper_noX_genotype.qtab"));
@@ -100,18 +128,34 @@ unittest {
   auto genotype_matrix = ret[1];
 
   // Show the first individual and genotypes
-  // writeln(individuals.list[0].name,genotype_matrix[0]);
+  assert(individuals.list.length == 250);
+  assert(individuals.list[244].name == "245"); 
+  assert(genotype_matrix[244].length == 170);
+
   // by symbol
-  // assert(genotype_matrix[0][0] == symbols.decode("B"));
-  // assert(genotype_matrix[0][3] == symbols.decode("H"));
+  assert(genotype_matrix[239][0] == symbols.decode("NA"));
+  assert(genotype_matrix[239][2] == symbols.decode("A"));
+  assert(genotype_matrix[239][37] == symbols.decode("H"));
+
+  assert(genotype_matrix[244][0] == symbols.decode("NA"));
+  assert(genotype_matrix[244][2] == symbols.decode("H"));
+  assert(genotype_matrix[244][169] == symbols.decode("NA"));
+
+  assert(genotype_matrix[19][0] == symbols.decode("H"));
+  assert(genotype_matrix[19][2] == symbols.decode("A"));
+  assert(genotype_matrix[19][3] == symbols.decode("NA"));
+  assert(genotype_matrix[19][169] == symbols.decode("A"));
+
   // by founders
-  //assert(genotype_matrix[0][0].list[0].homozygous == true);
-  //assert(genotype_matrix[0][0].list[0].founders[0] == 1);
-  //assert(genotype_matrix[0][0].list[0].founders[1] == 1);
-  //assert(genotype_matrix[0][3].list[0].heterozygous == true);
-  //assert(genotype_matrix[0][3].list[0].founders[0] == 0);
-  //assert(genotype_matrix[0][3].list[0].founders[1] == 1);
-  // assert(genotype_matrix[0][3].list[0] == 1);
+  assert(genotype_matrix[239][2].list[0].homozygous == true);
+  assert(genotype_matrix[239][2].list[0].heterozygous == false);
+  assert(genotype_matrix[239][2].list[0].founders[0] == 0);
+  assert(genotype_matrix[239][2].list[0].founders[1] == 0);
+
+  assert(genotype_matrix[244][2].list[0].homozygous == false);
+  assert(genotype_matrix[244][2].list[0].heterozygous == true);
+  assert(genotype_matrix[244][2].list[0].founders[0] == 1);
+  assert(genotype_matrix[244][2].list[0].founders[1] == 0);
 
   // reading phenotypes
   auto pheno_fn = to!string(buildPath(dir,"hyper_noX_phenotype.qtab"));
