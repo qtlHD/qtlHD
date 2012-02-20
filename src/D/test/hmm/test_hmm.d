@@ -103,10 +103,13 @@ unittest {
   auto marker_map_fn = to!string(buildPath(dir,"listeria_marker_map.qtab"));
   writeln("reading ",marker_map_fn);
   auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
+  assert(markers.length == 133);
   assert(markers[0].name == "D10M44");
   assert(markers[0].chromosome.name == "1");
   assert(markers[3].position == 40.4136);
-
+  assert(markers[128].name == "D19M117");
+  assert(markers[128].chromosome.name == "19");
+  assert(markers[128].position == 16.364);
 }
 
 unittest {
@@ -184,10 +187,19 @@ unittest {
   auto marker_map_fn = to!string(buildPath(dir,"hyper_noX_marker_map.qtab"));
   writeln("reading ",marker_map_fn);
   auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
-  //assert(markers[0].name == "D10M44");
-  //assert(markers[0].chromosome.name == "1");
-  //assert(markers[3].position == 40.4136);
-
+  assert(markers.length == 170);
+  assert(markers[0].name == "D1Mit296");
+  assert(markers[0].chromosome.name == "1");
+  assert(markers[0].position == 3.3);
+  assert(markers[3].name == "D1Mit178");
+  assert(markers[3].chromosome.name == "1");
+  assert(markers[3].position == 35);
+  assert(markers[164].name == "D18Mit50");
+  assert(markers[164].chromosome.name == "18");
+  assert(markers[164].position == 26.2);
+  assert(markers[169].name == "D19Mit137");
+  assert(markers[169].chromosome.name == "19");
+  assert(markers[169].position == 55.7);
 }
 
 
