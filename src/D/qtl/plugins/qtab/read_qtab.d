@@ -99,7 +99,7 @@ Tuple!(P[][]) read_phenotype_qtab(P)(string fn) {
         auto res = parse_symbol_genotype_qtab(buf);
         auto symbols = res[0];
         auto genotypes = res[1];
-        writeln(symbols,"\t",genotypes);
+        // writeln(symbols,"\t",genotypes);
       }
     }
     if (strip(buf) == "# --- Data Phenotype begin") {
@@ -182,7 +182,7 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
     auto res = parse_symbol_genotype_qtab(buf);
     auto symbol_names = res[0];
     auto genotype_strs = res[1];
-    writeln(symbol_names,"\t",genotype_strs);
+    // writeln(symbol_names,"\t",genotype_strs);
     auto combinator = new GenotypeCombinator(symbol_names[0]);
     foreach (s ; symbol_names[1..$]) {
       combinator.add_encoding(s);
@@ -191,10 +191,10 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
       if (g == "None") continue;
       combinator ~= new TrueGenotype(g);
     }
-    writeln(combinator.toEncodings);
+    // writeln(combinator.toEncodings);
     observed ~= combinator;
   }
-  writeln(observed);
+  // writeln(observed);
   return observed;
 }
 
