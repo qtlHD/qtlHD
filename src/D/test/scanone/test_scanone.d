@@ -8,7 +8,6 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.deprecate.genotype_enum;
-import qtl.core.marker;
 import qtl.core.map.map;
 import qtl.core.map.make_map;
 import qtl.plugins.deprecate.read_csv;
