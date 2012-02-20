@@ -89,10 +89,15 @@ unittest {
   writeln("reading ",pheno_fn);
   auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
   Phenotype!double[][] pheno = p_res[0];
+
+  assert(pheno.length == 120);
+  foreach(p; pheno) assert(p.length == 1);
+
   // 1st ind, 1st phenotype
   assert(pheno[0][0].value == 118.317);
   // 3rd ind, 1st phenotype
   assert(pheno[2][0].value == 194.917);
+  assert(to!string(pheno[29][0]) == "NA"); // missing value
 
   // Marker map reader
   auto marker_map_fn = to!string(buildPath(dir,"listeria_marker_map.qtab"));
@@ -162,10 +167,18 @@ unittest {
   writeln("reading ",pheno_fn);
   auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
   Phenotype!double[][] pheno = p_res[0];
+
+  assert(pheno.length == 250);
+  foreach(p; pheno) assert(p.length == 2);
   // 1st ind, 1st phenotype
-  //assert(pheno[0][0].value == 118.317);
+  assert(pheno[0][0].value == 109.6);
   // 3rd ind, 1st phenotype
-  //assert(pheno[2][0].value == 194.917);
+  assert(pheno[2][0].value == 110.1);
+  // 133rd ind
+  assert(pheno[132][0].value == 97);
+  // all have 2nd phenotype == 1
+  foreach(ph; pheno)
+    assert(ph[1].value == 1);
 
   // Marker map reader
   auto marker_map_fn = to!string(buildPath(dir,"hyper_noX_marker_map.qtab"));
