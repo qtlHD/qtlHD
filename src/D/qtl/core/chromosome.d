@@ -8,6 +8,7 @@ import std.container;
 import std.conv;
 import std.variant;
 import qtl.core.primitives;
+import std.algorithm; // to use sort()
 
 import std.stdio;
 // import std.container;
@@ -124,4 +125,44 @@ unittest {
   }
   auto chromosome1 = c_mslist[0][0];
   assert(chromosome1.name == "X");
+}
+
+
+// comparison function for sorting
+static bool compare_chromosomes_by_marker_id(Tup)(in Tup a, in Tup b)
+{
+  return a[1][0].id <= b[1][0].id;
+}
+
+
+// sort the chromosomes in the results of get_markers_by_chromosomes
+Tuple!(Chromosome,Ms)[] sort_chromosomes_by_marker_id(Ms)(Tuple!(Chromosome,Ms)[] chr_tuples)
+{
+  sort!(compare_chromosomes_by_marker_id)(chr_tuples);
+  return(chr_tuples);
+}
+
+unittest {
+  writeln("test sort_chromosome_by_marker_id");
+  Marker markers[];
+  int i, j;
+  uint k;
+  for(j=0, k=0; j<5; j++) {
+    for(i=0; i<5; i++, k++) {
+      auto chr = new Chromosome(to!string(j+1));
+      auto marker = new Marker(chr, i*5.0, "marker" ~ to!string(k+1), k);
+      markers ~= marker;
+    }
+  }
+
+  writeln("  Markers split by chromosome:");
+  auto markers_by_chr = get_markers_by_chromosome(markers);
+  foreach(chr; markers_by_chr)
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+
+  writeln("\n  Chromosomes sorted:");
+  auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
+  foreach(chr; markers_by_chr_sorted)
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+  writeln();
 }
