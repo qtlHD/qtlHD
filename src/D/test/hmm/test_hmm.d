@@ -123,7 +123,42 @@ unittest {
 
   // marker id == numeric index
   foreach(i, m; markers) assert(m.id == i);
+
+  // test splitting up of markers into chromosomes
+  //    note: chromosomes not necessarily ordered
+  auto markers_by_chr = get_markers_by_chromosome(markers);
+  writeln("markers_by_chr.length: ", markers_by_chr.length);
+  writeln("markers_by_chr[0].length: ", markers_by_chr[0].length);
+  writeln("markers_by_chr[0][0].name: ", markers_by_chr[0][0].name);
+  writeln("markers_by_chr[0][1][0].name: ", markers_by_chr[0][1][0].name);
+  foreach(chr; markers_by_chr) {
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+    // check that markers within chromosome are in order:
+    //    contiguous ids; non-decreasing position
+    assert(chr[1][0].chromosome.name == chr[0].name);
+    for(auto i=1; i<chr[1].length; i++) {
+      assert(chr[1][i].id == chr[1][i-1].id+1);
+      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].chromosome.name == chr[0].name);
+    }
+  }
+
+  writeln("sorted chromosomes: ");
+  auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
+  foreach(chr; markers_by_chr_sorted) {
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+    // check that markers within chromosome are in order:
+    //    contiguous ids; non-decreasing position
+    assert(chr[1][0].chromosome.name == chr[0].name);
+    for(auto i=1; i<chr[1].length; i++) {
+      assert(chr[1][i].id == chr[1][i-1].id+1);
+      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].chromosome.name == chr[0].name);
+    }
+  }
+
 }
+
 
 unittest {
   alias std.path.buildPath buildPath;
@@ -224,6 +259,38 @@ unittest {
 
   // marker id == numeric index
   foreach(i, m; markers) assert(m.id == i);
+
+  // test splitting up of markers into chromosomes
+  auto markers_by_chr = get_markers_by_chromosome(markers);
+  writeln("markers_by_chr.length: ", markers_by_chr.length);
+  writeln("markers_by_chr[0].length: ", markers_by_chr[0].length);
+  writeln("markers_by_chr[0][0].name: ", markers_by_chr[0][0].name);
+  writeln("markers_by_chr[0][1][0].name: ", markers_by_chr[0][1][0].name);
+  foreach(chr; markers_by_chr) {
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+    // check that markers within chromosome are in order:
+    //    contiguous ids; non-decreasing position
+    assert(chr[1][0].chromosome.name == chr[0].name);
+    for(auto i=1; i<chr[1].length; i++) {
+      assert(chr[1][i].id == chr[1][i-1].id+1);
+      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].chromosome.name == chr[0].name);
+    }
+  }
+
+  writeln("sorted chromosomes: ");
+  auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
+  foreach(chr; markers_by_chr_sorted) {
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+    // check that markers within chromosome are in order:
+    //    contiguous ids; non-decreasing position
+    assert(chr[1][0].chromosome.name == chr[0].name);
+    for(auto i=1; i<chr[1].length; i++) {
+      assert(chr[1][i].id == chr[1][i-1].id+1);
+      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].chromosome.name == chr[0].name);
+    }
+  }
 }
 
 
