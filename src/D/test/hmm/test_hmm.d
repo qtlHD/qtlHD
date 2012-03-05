@@ -25,9 +25,8 @@ unittest {
   auto founder_fn = to!string(buildPath(dir, "listeria_founder.qtab"));
   writeln("reading ", founder_fn);
   auto info = read_founder_settings_qtab(founder_fn);
-  writeln("Cross type: ", info["Cross"]);
-  writeln("Phase:      ", info["Phase"]);
   assert(info["Cross"] == "F2");
+  assert(info["Phase"] == "unknown");
 
   // load symbols
   auto symbol_fn = to!string(buildPath(dir,"listeria_symbol.qtab"));
@@ -122,9 +121,8 @@ unittest {
   assert(markers[128].chromosome.name == "19");
   assert(markers[128].position == 16.364);
 
-  writeln("marker 0 id: ", markers[0].id);
-  writeln("marker 3 id: ", markers[3].id);
-  writeln("marker 128 id: ", markers[128].id);
+  // marker id == numeric index
+  foreach(i, m; markers) assert(m.id == i);
 }
 
 unittest {
@@ -136,7 +134,6 @@ unittest {
   auto founder_fn = to!string(buildPath(dir, "hyper_noX_founder.qtab"));
   writeln("reading ", founder_fn);
   auto info = read_founder_settings_qtab(founder_fn);
-  writeln("Cross type: ", info["Cross"]);
   assert(info["Cross"] == "BC");
 
 
@@ -225,12 +222,8 @@ unittest {
   assert(markers[169].chromosome.name == "19");
   assert(markers[169].position == 55.7);
 
-  writeln("no. markers: ", markers.length);
-  writeln("marker 0 id: ", markers[0].id);
-  writeln("marker 3 id: ", markers[3].id);
-  writeln("marker 164 id: ", markers[164].id);
-  writeln("marker ", markers.length-1, " id: ", markers[markers.length-1].id);
-
+  // marker id == numeric index
+  foreach(i, m; markers) assert(m.id == i);
 }
 
 
