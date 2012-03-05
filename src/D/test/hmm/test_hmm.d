@@ -17,9 +17,19 @@ unittest {
 }
 
 unittest {
-  // Symbol and genotype reader
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data", "input", "listeria_qtab"));
+  auto dir = to!string(dirName(__FILE__) ~ sep ~ 
+		       buildPath("..","..","..","..","test","data", "input", "listeria_qtab"));
+
+  // load founder info 
+  auto founder_fn = to!string(buildPath(dir, "listeria_founder.qtab"));
+  writeln("reading ", founder_fn);
+  auto info = read_founder_settings_qtab(founder_fn);
+  writeln("Cross type: ", info["Cross"]);
+  writeln("Phase:      ", info["Phase"]);
+  assert(info["Cross"] == "F2");
+
+  // load symbols
   auto symbol_fn = to!string(buildPath(dir,"listeria_symbol.qtab"));
   // First read symbol information (the GenotypeCombinators)
   writeln("reading ",symbol_fn);
@@ -114,11 +124,20 @@ unittest {
 }
 
 unittest {
-  // Symbol and genotype reader
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data", "input", "hyper_noX_qtab"));
-  auto symbol_fn = to!string(buildPath(dir,"hyper_noX_symbol.qtab"));
+  auto dir = to!string(dirName(__FILE__) ~ sep ~ 
+		       buildPath("..","..","..","..","test","data", "input", "hyper_noX_qtab"));
+
+  // Read founder info
+  auto founder_fn = to!string(buildPath(dir, "hyper_noX_founder.qtab"));
+  writeln("reading ", founder_fn);
+  auto info = read_founder_settings_qtab(founder_fn);
+  writeln("Cross type: ", info["Cross"]);
+  assert(info["Cross"] == "BC");
+
+
   // First read symbol information (the GenotypeCombinators)
+  auto symbol_fn = to!string(buildPath(dir,"hyper_noX_symbol.qtab"));
   writeln("reading ",symbol_fn);
   auto fs = File(symbol_fn,"r");
   auto symbols = read_genotype_symbol_qtab(fs);
