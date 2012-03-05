@@ -105,6 +105,7 @@ auto read_marker_map_qtab(M)(string fn) {
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
   string buf;
+  uint id=0;
   while (f.readln(buf)) {
     if (strip(buf) == "# --- Data Location begin") {
       while (f.readln(buf)) { 
@@ -116,8 +117,9 @@ auto read_marker_map_qtab(M)(string fn) {
         auto cname = res[1];
         auto c = new Chromosome(cname);
         auto pos = res[2];
-        auto marker = new Marker(c,pos,name);
-        ret_ms ~= marker;
+        auto marker = new Marker(c,pos,name,id);
+	id++;
+	ret_ms ~= marker;
       }
     }
   }
