@@ -121,6 +121,10 @@ unittest {
   assert(markers[128].name == "D19M117");
   assert(markers[128].chromosome.name == "19");
   assert(markers[128].position == 16.364);
+
+  writeln("marker 0 id: ", markers[0].id);
+  writeln("marker 3 id: ", markers[3].id);
+  writeln("marker 128 id: ", markers[128].id);
 }
 
 unittest {
@@ -220,6 +224,13 @@ unittest {
   assert(markers[169].name == "D19Mit137");
   assert(markers[169].chromosome.name == "19");
   assert(markers[169].position == 55.7);
+
+  writeln("no. markers: ", markers.length);
+  writeln("marker 0 id: ", markers[0].id);
+  writeln("marker 3 id: ", markers[3].id);
+  writeln("marker 164 id: ", markers[164].id);
+  writeln("marker ", markers.length-1, " id: ", markers[markers.length-1].id);
+
 }
 
 
