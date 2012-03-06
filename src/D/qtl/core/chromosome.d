@@ -138,8 +138,13 @@ static bool compare_chromosomes_by_marker_id(Tup)(in Tup a, in Tup b)
 // sort the chromosomes in the results of get_markers_by_chromosomes
 Tuple!(Chromosome,Ms)[] sort_chromosomes_by_marker_id(Ms)(Tuple!(Chromosome,Ms)[] chr_tuples)
 {
-  sort!(compare_chromosomes_by_marker_id)(chr_tuples);
-  return(chr_tuples);
+  // need a copy of chr_tuples, so it doesn't get sorted
+  auto output = new Tuple!(Chromosome,Ms)[chr_tuples.length];
+  foreach(i, m; chr_tuples)
+    output[i] = m;
+
+  sort!(compare_chromosomes_by_marker_id)(output);
+  return(output);
 }
 
 unittest {
@@ -165,4 +170,15 @@ unittest {
   foreach(chr; markers_by_chr_sorted)
     writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
   writeln();
+
+  writeln("Has the original marker_by_chr changed?");
+  foreach(chr; markers_by_chr)
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+  writeln();
+
+  // it's the same stuff; just pointed to in a different order
+  for(i=0; i<5; i++) 
+    for(j=0; j<5; j++) 
+      if(markers_by_chr[i] is markers_by_chr_sorted[j]) 
+	writeln(i, " is ", j);
 }
