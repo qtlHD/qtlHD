@@ -24,6 +24,49 @@ unittest {
 }
 
 /**
+ * Parse a Set Founder section, and return the results in a Hash
+ */
+
+string[string] read_founder_settings_qtab(string fn) {
+  string[string] ret;
+  auto f = File(fn,"r");
+  scope(exit) f.close(); // always close the file on function exit
+  string buf;
+  while (f.readln(buf)) {
+    if (strip(buf) == "# --- Set Founder begin") {
+      while (f.readln(buf)) { 
+        if (strip(buf) == "# --- Set Founder end")
+           break;
+        if (buf[0] == '#') continue;
+        auto res = parse_key_value_qtab(buf);
+        ret[res[0]] = res[1];
+      }
+    }
+  }
+  return ret;
+}
+
+Tuple!(string, string) parse_key_value_qtab(string line) {
+  auto fields1 = split(line,"\t");
+  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
+  auto key = (fields.length > 0 ? strip(fields[0]) : null);
+  auto value = (fields.length > 1 ? strip(fields[1]) : null);
+  return tuple(key,value);
+}
+
+unittest {
+  // Founder reader
+  alias std.path.buildPath buildPath;
+  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+
+  auto founder_fn = to!string(buildPath(dir,"input","listeria_qtab","listeria_founder.qtab"));
+  writeln("reading ",founder_fn);
+  auto info = read_founder_settings_qtab(founder_fn);
+  writeln(info);
+  assert(info["Cross"] == "F2");
+}
+
+/**
  * Read a tabular qtlHD phenotype line
  */
 
@@ -62,6 +105,7 @@ auto read_marker_map_qtab(M)(string fn) {
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
   string buf;
+  uint id=0;
   while (f.readln(buf)) {
     if (strip(buf) == "# --- Data Location begin") {
       while (f.readln(buf)) { 
@@ -73,8 +117,9 @@ auto read_marker_map_qtab(M)(string fn) {
         auto cname = res[1];
         auto c = new Chromosome(cname);
         auto pos = res[2];
-        auto marker = new Marker(c,pos,name);
-        ret_ms ~= marker;
+        auto marker = new Marker(c,pos,name,id);
+	id++;
+	ret_ms ~= marker;
       }
     }
   }
@@ -235,6 +280,7 @@ unittest {
   // Symbol and genotype reader
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
   // First read symbol information (the GenotypeCombinators)
   writeln("reading ",symbol_fn);

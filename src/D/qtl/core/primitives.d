@@ -118,6 +118,11 @@ class Marker {
     id = ID_UNKNOWN;
     name = (_name ? _name : MARKER_NAME_UNKNOWN); // FIXME: auto init
   }
+  this(Chromosome _chromosome, double _position, string _name = null, uint _id=ID_UNKNOWN) {
+    chromosome = _chromosome, position = _position;
+    id = _id;
+    name = (_name ? _name : MARKER_NAME_UNKNOWN); // FIXME: auto init
+  }
 
   Position get_position() { return position; }
   bool opEquals(Object other) {
