@@ -180,7 +180,14 @@ position
         ...
         # --- Data Frequencies end
 
-*Note: support for the qtab founder section is not yet implemented in qtlHD*
+*Note: support for the qtab founder frequencies section is not yet implemented in qtlHD*
+
+In the founder file we can suggest the cross and other settings. For example
+
+        # --- Set Founder begin
+        Cross         IC     # BC|F2|RIL|IC
+        Phase      known     # known|unknown for intercross IC 
+        # --- Set Founder end
 
 # The genotype section
 

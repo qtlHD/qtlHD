@@ -17,9 +17,18 @@ unittest {
 }
 
 unittest {
-  // Symbol and genotype reader
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data", "input", "listeria_qtab"));
+  auto dir = to!string(dirName(__FILE__) ~ sep ~ 
+		       buildPath("..","..","..","..","test","data", "input", "listeria_qtab"));
+
+  // load founder info 
+  auto founder_fn = to!string(buildPath(dir, "listeria_founder.qtab"));
+  writeln("reading ", founder_fn);
+  auto info = read_founder_settings_qtab(founder_fn);
+  assert(info["Cross"] == "F2");
+  assert(info["Phase"] == "unknown");
+
+  // load symbols
   auto symbol_fn = to!string(buildPath(dir,"listeria_symbol.qtab"));
   // First read symbol information (the GenotypeCombinators)
   writeln("reading ",symbol_fn);
@@ -111,14 +120,60 @@ unittest {
   assert(markers[128].name == "D19M117");
   assert(markers[128].chromosome.name == "19");
   assert(markers[128].position == 16.364);
+
+  // marker id == numeric index
+  foreach(i, m; markers) assert(m.id == i);
+
+  // test splitting up of markers into chromosomes
+  //    note: chromosomes not necessarily ordered
+  auto markers_by_chr = get_markers_by_chromosome(markers);
+  writeln("markers_by_chr.length: ", markers_by_chr.length);
+  writeln("markers_by_chr[0].length: ", markers_by_chr[0].length);
+  writeln("markers_by_chr[0][0].name: ", markers_by_chr[0][0].name);
+  writeln("markers_by_chr[0][1][0].name: ", markers_by_chr[0][1][0].name);
+  foreach(chr; markers_by_chr) {
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+    // check that markers within chromosome are in order:
+    //    contiguous ids; non-decreasing position
+    assert(chr[1][0].chromosome.name == chr[0].name);
+    for(auto i=1; i<chr[1].length; i++) {
+      assert(chr[1][i].id == chr[1][i-1].id+1);
+      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].chromosome.name == chr[0].name);
+    }
+  }
+
+  writeln("sorted chromosomes: ");
+  auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
+  foreach(chr; markers_by_chr_sorted) {
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+    // check that markers within chromosome are in order:
+    //    contiguous ids; non-decreasing position
+    assert(chr[1][0].chromosome.name == chr[0].name);
+    for(auto i=1; i<chr[1].length; i++) {
+      assert(chr[1][i].id == chr[1][i-1].id+1);
+      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].chromosome.name == chr[0].name);
+    }
+  }
+
 }
 
+
 unittest {
-  // Symbol and genotype reader
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data", "input", "hyper_noX_qtab"));
-  auto symbol_fn = to!string(buildPath(dir,"hyper_noX_symbol.qtab"));
+  auto dir = to!string(dirName(__FILE__) ~ sep ~ 
+		       buildPath("..","..","..","..","test","data", "input", "hyper_noX_qtab"));
+
+  // Read founder info
+  auto founder_fn = to!string(buildPath(dir, "hyper_noX_founder.qtab"));
+  writeln("reading ", founder_fn);
+  auto info = read_founder_settings_qtab(founder_fn);
+  assert(info["Cross"] == "BC");
+
+
   // First read symbol information (the GenotypeCombinators)
+  auto symbol_fn = to!string(buildPath(dir,"hyper_noX_symbol.qtab"));
   writeln("reading ",symbol_fn);
   auto fs = File(symbol_fn,"r");
   auto symbols = read_genotype_symbol_qtab(fs);
@@ -201,6 +256,41 @@ unittest {
   assert(markers[169].name == "D19Mit137");
   assert(markers[169].chromosome.name == "19");
   assert(markers[169].position == 55.7);
+
+  // marker id == numeric index
+  foreach(i, m; markers) assert(m.id == i);
+
+  // test splitting up of markers into chromosomes
+  auto markers_by_chr = get_markers_by_chromosome(markers);
+  writeln("markers_by_chr.length: ", markers_by_chr.length);
+  writeln("markers_by_chr[0].length: ", markers_by_chr[0].length);
+  writeln("markers_by_chr[0][0].name: ", markers_by_chr[0][0].name);
+  writeln("markers_by_chr[0][1][0].name: ", markers_by_chr[0][1][0].name);
+  foreach(chr; markers_by_chr) {
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+    // check that markers within chromosome are in order:
+    //    contiguous ids; non-decreasing position
+    assert(chr[1][0].chromosome.name == chr[0].name);
+    for(auto i=1; i<chr[1].length; i++) {
+      assert(chr[1][i].id == chr[1][i-1].id+1);
+      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].chromosome.name == chr[0].name);
+    }
+  }
+
+  writeln("sorted chromosomes: ");
+  auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
+  foreach(chr; markers_by_chr_sorted) {
+    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+    // check that markers within chromosome are in order:
+    //    contiguous ids; non-decreasing position
+    assert(chr[1][0].chromosome.name == chr[0].name);
+    for(auto i=1; i<chr[1].length; i++) {
+      assert(chr[1][i].id == chr[1][i-1].id+1);
+      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].chromosome.name == chr[0].name);
+    }
+  }
 }
 
 
