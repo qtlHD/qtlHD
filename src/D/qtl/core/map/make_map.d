@@ -47,7 +47,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   // markers (at off_end) with step=0 is not supported here. That should also
   // be a separate function. Variable step size is, again, another function.
 
-  auto new_markerlist = markerlist.mdup;
+  auto new_markerlist = markerlist.dup();
 
   sort_markers_by_position(new_markerlist);
   auto minpos = new_markerlist[0].get_position();
