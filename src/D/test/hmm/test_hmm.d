@@ -280,19 +280,11 @@ unittest {
     }
   }
 
-  writeln("********************************************************************************");
+  // test add_minimal_markers_autosome
   auto x = markers_by_chr[0][1];
-  writeln(typeid(x));
+  auto x_with_pmarkers = add_minimal_markers_autosome(x, 1.0, 0.0);
 
-  auto z = new Markers!Marker();
-  auto y = new Markers!Marker(x);
-
-  auto y_with_pmarkers = add_minimal_markers_autosome(y, 1.0, 0.0);
-
-
-  writeln("********************************************************************************");
-
-
+  // test add_stepped_markers_autosome
   writeln("\nTest add_stepped_markers_autosome");
   writeln("creating markers[] list");
 
@@ -303,8 +295,8 @@ unittest {
   writeln("no. markers output: ", pmap.length);
   foreach (m; pmap) 
     writeln(m.name, "\t", m.position, "\t", m.id, "\t", isPseudoMarker(m));
-  writeln("********************************************************************************");
 
+  // sorted chromosomes
   writeln("sorted chromosomes: ");
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
   foreach(chr; markers_by_chr_sorted) {
@@ -318,8 +310,6 @@ unittest {
       assert(chr[1][i].chromosome.name == chr[0].name);
     }
   }
-
-
 }
 
 
