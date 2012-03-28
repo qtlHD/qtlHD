@@ -100,6 +100,7 @@ unittest {
   assert(is_sex(cx),typeof(cx).stringof ~ to!string(cx.id) ~ to!string(is_sex(cx)));
   assert(!is_sex(c1));
 
+  /*
   auto markers = new Markers!Marker();
   auto m1 = new Marker(c1,10.0);
   auto m2 = new Marker(c1,20.0);
@@ -126,6 +127,7 @@ unittest {
   }
   auto chromosome1 = c_mslist[0][0];
   assert(chromosome1.name == "X");
+  */
 }
 
 
