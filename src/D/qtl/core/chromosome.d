@@ -186,25 +186,3 @@ unittest {
 	writeln(i, " is ", j);
 }
 
-
-
-unittest {
-  writeln("test of sort markers by position");
-  Marker markers[];
-  int i;
-
-  auto chr = new Chromosome("1");
-  for(i=0; i<10; i++) {
-    auto marker = new Marker(chr, uniform(0, 10001)/100.0, "mar" ~ to!string(i+1), i);
-    markers ~= marker;
-  }
-
-  foreach (m; markers)
-    writeln("\t", m.name, "\t", m.id, "\t", m.position);
-
-  sort(markers);
-  writeln("now sorted");
-
-  foreach (m; markers)
-    writeln("\t", m.name, "\t", m.id, "\t", m.position);
-}
