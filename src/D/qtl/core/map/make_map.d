@@ -58,7 +58,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
 
   if (new_markerlist.length > 1) {
     for (auto npos = minpos+step ; npos < maxpos; npos += step) {
-      auto pm = new PseudoMarker(npos);
+      auto pm = new PseudoMarker(new_markerlist[0].chromosome, npos);
       if (countUntil(new_markerlist, pm) == -1)
         // marker does not exist: add pseudo marker 
         new_markerlist ~= pm;
@@ -69,9 +69,9 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
 
   if(off_end >= step) {  
     for(auto npos=minpos-step; npos >= minpos - off_end; npos -= step) 
-      new_markerlist ~= new PseudoMarker(npos);
+      new_markerlist ~= new PseudoMarker(new_markerlist[0].chromosome, npos);
     for(auto npos=maxpos+step; npos <= maxpos + off_end; npos += step) 
-      new_markerlist ~= new PseudoMarker(npos);
+      new_markerlist ~= new PseudoMarker(new_markerlist[0].chromosome, npos);
   }
 
   // sort the result
@@ -93,8 +93,8 @@ Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   auto maxpos = new_markerlist[$-1].get_position();
 
   if(off_end > 0) {  
-    new_markerlist ~= new PseudoMarker(minpos-off_end);
-    new_markerlist ~= new PseudoMarker(maxpos+off_end);
+    new_markerlist ~= new PseudoMarker(new_markerlist[0].chromosome, minpos-off_end);
+    new_markerlist ~= new PseudoMarker(new_markerlist[0].chromosome, maxpos+off_end);
 
     // update minpos and maxpos and sorted list
     minpos -= step;
@@ -116,7 +116,7 @@ Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
 	auto dist_to_step = dist/(n_pseudomarkers+1);
 
 	for(auto pmarpos=leftpos+dist_to_step; pmarpos < rightpos; pmarpos += dist_to_step) {
-	  new_markerlist ~= new PseudoMarker(pmarpos);
+	  new_markerlist ~= new PseudoMarker(new_markerlist[0].chromosome, pmarpos);
 	}
       }
     }
