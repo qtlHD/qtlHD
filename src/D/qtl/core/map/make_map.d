@@ -108,7 +108,10 @@ Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   }
 
   if (new_markerlist.length > 1) {
-    for(auto left=0; left < new_markerlist.length-1; left++) {
+
+    auto n_markers = new_markerlist.length;
+
+    for(auto left=0; left < n_markers-1; left++) {
       auto leftpos = new_markerlist[left].get_position();
       auto rightpos = new_markerlist[left+1].get_position();
       auto dist =  rightpos - leftpos;
@@ -253,7 +256,7 @@ unittest {
   writeln("call add_minimal_markers_autosome");
   auto res4 = add_minimal_markers_autosome(markers4.list, 2.0, 7.5);
   foreach (m; res4) 
-    writeln(m.name, "\t", m.position, "\t", isPseudoMarker(m));
+    writefln("%20s\t%8.4f\t%5s", m.name, m.position, isPseudoMarker(m));
   auto list4 = res4;
   assert(list4.length == 18, to!string(list4.length));
   auto uniq_list4 = uniq!"a.get_position() == b.get_position()"(list4);
