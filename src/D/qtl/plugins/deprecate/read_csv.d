@@ -9,7 +9,7 @@ import core.memory;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
-import qtl.core.util.matrix;
+import qtl.core.mqm.matrix;
 import qtl.core.phenotype;
 import qtl.core.deprecate.genotype_enum;
 import qtl.core.deprecate.mqm_types;
