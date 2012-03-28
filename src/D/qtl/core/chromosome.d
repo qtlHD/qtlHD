@@ -7,6 +7,7 @@ module qtl.core.chromosome;
 import std.container;
 import std.conv;
 import std.variant;
+import std.random;
 import qtl.core.primitives;
 import std.algorithm; // to use sort()
 
@@ -182,3 +183,41 @@ unittest {
       if(markers_by_chr[i] is markers_by_chr_sorted[j]) 
 	writeln(i, " is ", j);
 }
+
+
+
+// comparison function for sorting
+static bool compare_markers_by_position(Ms)(in Ms a, in Ms b)
+{
+  // if identical position, use id
+  if(a.position == b.position)
+    return a.id <= b.id;
+
+  return a.position <= b.position;
+}
+
+void sort_markers_by_position(Ms)(Ms[] markers)
+{
+  sort!(compare_markers_by_position)(markers);
+}
+
+unittest {
+  writeln("test sort_markers_by_position");
+  Marker markers[];
+  int i;
+
+  auto chr = new Chromosome("1");
+  for(i=0; i<10; i++) {
+    auto marker = new Marker(chr, uniform(0, 10001)/100.0, "mar" ~ to!string(i+1), i);
+    markers ~= marker;
+  }
+  
+  foreach (m; markers) 
+    writeln("\t", m.name, "\t", m.id, "\t", m.position);
+
+  sort_markers_by_position(markers);
+  writeln("now sorted");
+
+  foreach (m; markers) 
+    writeln("\t", m.name, "\t", m.id, "\t", m.position);
+}  
