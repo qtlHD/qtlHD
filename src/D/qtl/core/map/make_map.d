@@ -50,10 +50,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   // Note: it wasn't so much the "purpose" for the case of one marker; that was a hack 
   //       to deal with bugs that came up when there was just one marker/pseudomarker
   //       on a chromosome
-
-  Ms new_markerlist;
-  foreach(m; markerlist)
-    new_markerlist ~= cast(Marker) m;
+  auto new_markerlist = markerlist.dup();
 
   sort(new_markerlist);
   auto minpos = new_markerlist[0].get_position();
@@ -88,9 +85,7 @@ Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   enforce(step>0);
   enforce(off_end>=0);
 
-  Ms new_markerlist;
-  foreach(m; markerlist)
-    new_markerlist ~= cast(Marker) m;
+  auto new_markerlist = markerlist.dup();
 
   sort(new_markerlist);
 
