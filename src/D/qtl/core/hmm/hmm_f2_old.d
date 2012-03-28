@@ -1,8 +1,8 @@
 /**
- * hmm_f2
+ * hmm_f2_old (the original one, with the old genotype system)
  **/
 
-module qtl.core.hmm.hmm_f2;
+module qtl.core.hmm.hmm_f2_old;
 
 import std.math, std.stdio, std.path;
 import std.conv;

@@ -1,8 +1,8 @@
 /**
- * hmm_bc
+ * hmm_bc_old (the original one, with the old genotype system)
  **/
 
-module qtl.core.hmm.hmm_bc;
+module qtl.core.hmm.hmm_bc_old;
 
 import std.math, std.stdio, std.path;
 import std.exception;

@@ -9,8 +9,8 @@ import std.math;
 
 import qtl.core.map.genetic_map_functions;
 import qtl.core.primitives;
-import qtl.core.hmm.hmm_f2;
-import qtl.core.hmm.hmm_bc;
+import qtl.core.hmm.hmm_f2_old;
+import qtl.core.hmm.hmm_bc_old;
 
 // Calculate addlog(a,b) = log[exp(a) + exp(b)]
 double addlog(double a, double b)
