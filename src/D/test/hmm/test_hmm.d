@@ -10,6 +10,7 @@ import std.exception, std.conv;
 import qtl.core.primitives;
 import qtl.core.phenotype, qtl.core.chromosome, qtl.core.genotype;
 import qtl.plugins.qtab.read_qtab;
+import qtl.core.map.make_map;
 
 
 unittest {
@@ -278,6 +279,14 @@ unittest {
     }
   }
 
+  writeln("\nTest add_stepped_markers_autosome");
+  writeln("creating markers[] list");
+  
+  writeln("calling add_stepped_markers");
+  writeln("no. markers input: ", markers_by_chr[0][1].list.length);
+  //  auto pmap = add_minimal_markers_autosome(markers_by_chr[0][1], 1.0, 0.0);
+  //  writeln("no. markers output: ", pmap.list.length);
+
   writeln("sorted chromosomes: ");
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
   foreach(chr; markers_by_chr_sorted) {
@@ -291,6 +300,8 @@ unittest {
       assert(chr[1][i].chromosome.name == chr[0].name);
     }
   }
+
+
 }
 
 
