@@ -9,8 +9,8 @@ import std.conv;
 import std.stdio;
 import std.math;
 import qtl.core.primitives;
-import qtl.core.hmm.hmm_bc;
-import qtl.core.hmm.hmm_f2;
+import qtl.core.hmm.hmm_bc_old;
+import qtl.core.hmm.hmm_f2_old;
 import qtl.core.hmm.hmm_util;
 
 // re-estimate inter-marker recombination fractions
