@@ -1,3 +1,7 @@
+/** 
+ * Danny's matrix functions
+ */
+
 module qtl.core.mqm.matrix;
 
 //import core.memory;
