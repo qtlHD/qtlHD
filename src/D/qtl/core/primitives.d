@@ -420,7 +420,7 @@ class Markers(M) {
   foreach(m; ms) {
     new_ms ~= cast(M)m;
   }
-  return cast(M[])new_ms;
+  return new_ms;
 }
 
 
