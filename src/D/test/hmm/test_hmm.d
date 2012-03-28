@@ -302,7 +302,7 @@ unittest {
   auto pmap = add_stepped_markers_autosome(markers_by_chr[0][1], 1.0, 0.0);
   writeln("no. markers output: ", pmap.length);
   foreach (m; pmap) 
-    writeln(m.name, "\t", m.position, "\t", m.id, "\t", );
+    writeln(m.name, "\t", m.position, "\t", m.id, "\t", isPseudoMarker(m));
   writeln("********************************************************************************");
 
   writeln("sorted chromosomes: ");
