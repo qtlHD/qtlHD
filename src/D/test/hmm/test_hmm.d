@@ -118,10 +118,10 @@ unittest {
   assert(markers.length == 133);
   assert(markers[0].name == "D10M44");
   assert(markers[0].chromosome.name == "1");
-  assert(markers[3].position == 40.4136);
+  assert(markers[3].get_position == 40.4136);
   assert(markers[128].name == "D19M117");
   assert(markers[128].chromosome.name == "19");
-  assert(markers[128].position == 16.364);
+  assert(markers[128].get_position == 16.364);
 
   // marker id == numeric index
   foreach(i, m; markers) assert(m.id == i);
@@ -140,24 +140,48 @@ unittest {
     assert(chr[1][0].chromosome.name == chr[0].name);
     for(auto i=1; i<chr[1].length; i++) {
       assert(chr[1][i].id == chr[1][i-1].id+1);
-      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].get_position >= chr[1][i-1].get_position);
       assert(chr[1][i].chromosome.name == chr[0].name);
     }
   }
 
+  // sorted chromosomes
   writeln("sorted chromosomes: ");
+
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
+  Marker[] pmap_stepped, pmap_minimal;
   foreach(chr; markers_by_chr_sorted) {
-    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+    writef("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
     // check that markers within chromosome are in order:
     //    contiguous ids; non-decreasing position
     assert(chr[1][0].chromosome.name == chr[0].name);
     for(auto i=1; i<chr[1].length; i++) {
       assert(chr[1][i].id == chr[1][i-1].id+1);
-      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].get_position >= chr[1][i-1].get_position);
       assert(chr[1][i].chromosome.name == chr[0].name);
     }
+
+    pmap_stepped = add_stepped_markers_autosome(chr[1], 1.0, 0.0);
+    pmap_minimal = add_minimal_markers_autosome(chr[1], 1.0, 0.0);
+
+    writefln("\tmarkers: %3d\tpmar (stepped): %3d\tpmar (minimal): %3d", chr[1].length, 
+             pmap_stepped.length-chr[1].length, pmap_minimal.length-chr[1].length);
+    writeln("----------");
+//    foreach(m; pmap_stepped)
+//      writefln("%-2s %-20s %5.1f %5s", m.chromosome.name, m.name, m.get_position, isPseudoMarker(m));
+//    foreach(m; pmap_stepped)
+//      writefln("%-2s %-20s %5.1f %5s", m.chromosome.name, m.name, m.get_position, isPseudoMarker(m));
+    writeln("----------");
+    //    foreach(m; pmap_minimal) 
+    //      writefln("%-2s %-20s %5.1f %5s", m.chromosome.name, m.name, m.get_position, isPseudoMarker(m));
+    writeln("----------");
   }
+
+  auto temp = add_stepped_markers_autosome(markers_by_chr_sorted[0][1], 1.0, 0.0);
+  foreach(m; temp)
+    writefln("%-20s %5.1f %5s", m.name, m.get_position, isPseudoMarker(m));
+  
+
 
 }
 
@@ -248,16 +272,16 @@ unittest {
   assert(markers.length == 170);
   assert(markers[0].name == "D1Mit296");
   assert(markers[0].chromosome.name == "1");
-  assert(markers[0].position == 3.3);
+  assert(markers[0].get_position == 3.3);
   assert(markers[3].name == "D1Mit178");
   assert(markers[3].chromosome.name == "1");
-  assert(markers[3].position == 35);
+  assert(markers[3].get_position == 35);
   assert(markers[164].name == "D18Mit50");
   assert(markers[164].chromosome.name == "18");
-  assert(markers[164].position == 26.2);
+  assert(markers[164].get_position == 26.2);
   assert(markers[169].name == "D19Mit137");
   assert(markers[169].chromosome.name == "19");
-  assert(markers[169].position == 55.7);
+  assert(markers[169].get_position == 55.7);
 
   // marker id == numeric index
   foreach(i, m; markers) assert(m.id == i);
@@ -275,40 +299,29 @@ unittest {
     assert(chr[1][0].chromosome.name == chr[0].name);
     for(auto i=1; i<chr[1].length; i++) {
       assert(chr[1][i].id == chr[1][i-1].id+1);
-      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].get_position >= chr[1][i-1].get_position);
       assert(chr[1][i].chromosome.name == chr[0].name);
     }
   }
-
-  // test add_minimal_markers_autosome
-  auto x = markers_by_chr[0][1];
-  auto x_with_pmarkers = add_minimal_markers_autosome(x, 1.0, 0.0);
-
-  // test add_stepped_markers_autosome
-  writeln("\nTest add_stepped_markers_autosome");
-  writeln("creating markers[] list");
-
-  writeln("calling add_stepped_markers");
-  writeln("no. markers input: ", markers_by_chr[0][1].list.length);
-
-  auto pmap = add_stepped_markers_autosome(markers_by_chr[0][1], 1.0, 0.0);
-  writeln("no. markers output: ", pmap.length);
-  foreach (m; pmap) 
-    writefln("%-20s  %5.1f  %-15d  %5s", m.name, m.position, m.id, isPseudoMarker(m));
 
   // sorted chromosomes
   writeln("sorted chromosomes: ");
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
   foreach(chr; markers_by_chr_sorted) {
-    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
+    writef("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
     // check that markers within chromosome are in order:
     //    contiguous ids; non-decreasing position
     assert(chr[1][0].chromosome.name == chr[0].name);
     for(auto i=1; i<chr[1].length; i++) {
       assert(chr[1][i].id == chr[1][i-1].id+1);
-      assert(chr[1][i].position >= chr[1][i-1].position);
+      assert(chr[1][i].get_position >= chr[1][i-1].get_position);
       assert(chr[1][i].chromosome.name == chr[0].name);
     }
+
+    auto pmap_stepped = add_stepped_markers_autosome(chr[1], 1, 0);
+    auto pmap_minimal = add_minimal_markers_autosome(chr[1], 1, 0);
+    writefln("\tmarkers: %3d\tpmar (stepped): %3d\tpmar (minimal): %3d", chr[1].length, 
+             pmap_stepped.length-chr[1].length, pmap_minimal.length-chr[1].length);
   }
 }
 
