@@ -27,13 +27,13 @@ import qtl.core.deprecate.genotype_enum;
  * The make_fixed_map function creates a new map for a chromosome, and 
  * inserts Pseudo markers at fixed positions.
  *
- * markerlist:     List of (unsorted) markers (one chromosome)
+ * markerlist:     List of (unsorted) markers (one chromosome); i.e., Marker[]
  * step:           Step size (in cM)
  * off_end:        Max distance (in cM) past the terminal marker
  *
  * Returns:
  *
- *   Marker container Ms, including pseudomarkers. Note: this list
+ *   Marker[] container Ms, including pseudomarkers. Note: this list
  *   is unsorted.
  *
  * (status: under review)
@@ -47,7 +47,13 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   // markers (at off_end) with step=0 is not supported here. That should also
   // be a separate function. Variable step size is, again, another function.
 
-  auto new_markerlist = markerlist.dup;
+  // Note: it wasn't so much the "purpose" for the case of one marker; that was a hack 
+  //       to deal with bugs that came up when there was just one marker/pseudomarker
+  //       on a chromosome
+
+  Ms new_markerlist;
+  foreach(m; markerlist)
+    new_markerlist ~= cast(Marker) m;
 
   sort_markers_by_position(new_markerlist);
   auto minpos = new_markerlist[0].get_position();
