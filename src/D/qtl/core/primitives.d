@@ -412,7 +412,7 @@ class Markers(M) {
 
 @property M[] list(M)(Markers!M ms) { return ms.list; }
 @property M[] list(M)(M[] ms) { return ms; };
-@property Marker[] mdup(in Marker[] ms) 
+Marker[] dup(in Marker[] ms) 
 { 
   Marker[] new_ms;
   foreach(m; ms) {
