@@ -412,12 +412,11 @@ class Markers(M) {
 
 @property M[] list(M)(Markers!M ms) { return ms.list; }
 @property M[] list(M)(M[] ms) { return ms; };
-@property M[] xdup(M)(in M[] ms) 
-  if (typeid(M) == typeid(const(qtl.core.primitives.Marker)))
+@property Marker[] mdup(in Marker[] ms) 
 { 
-  M[] new_ms;
+  Marker[] new_ms;
   foreach(m; ms) {
-    new_ms ~= cast(M)m;
+    new_ms ~= cast(Marker)m;
   }
   return new_ms;
 }
