@@ -161,8 +161,12 @@ unittest {
       assert(chr[1][i].chromosome.name == chr[0].name);
     }
 
-    pmap_stepped = add_stepped_markers_autosome(chr[1], 20.0, 0.0);
-    pmap_minimal = add_minimal_markers_autosome(chr[1], 20.0, 0.0);
+    pmap_stepped = add_stepped_markers_autosome(chr[1], 5.0, 0.0);
+    pmap_minimal = add_minimal_markers_autosome(chr[1], 5.0, 0.0);
+    writefln("\tmarkers: %3d\tpmar (stepped): %3d\tpmar (minimal): %3d",
+             chr[1].length, 
+             pmap_stepped.length - chr[1].length,
+             pmap_minimal.length - chr[1].length);
   }
 }
 
