@@ -126,14 +126,4 @@ unittest {
   assert(list[2] == BC.H);
 }
 
-unittest {
-  // This should compile
-  auto map = new FullMap!F2();
-  /*
-  foreach ( c ; map.chromosome_map ) {
-    auto markers = c.markers;
-    foreach ( m ; markers.list ) {
-    }
-  }
-  */
-}
+

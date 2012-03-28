@@ -186,3 +186,34 @@ unittest {
 	writeln(i, " is ", j);
 }
 
+/**
+ * ChromosomeMap combines Chromosome and Marker list.
+ */
+
+/**
+ * Disabled fow now
+class ChromosomeMap(T) {
+  Chromosome chromosome;
+  // Markers!(MarkerRef!T) markers;
+}
+*/
+
+/**
+ * The FullMap has an ordered chromosome map.
+ 
+class FullMap(T) {
+  SList!(ChromosomeMap!T) chromosome_map;
+}
+unittest {
+  // e.g. for F2 auto map = new FullMap!F2();
+  // this should also compile:
+  auto map = new FullMap!uint();
+  foreach ( c ; map.chromosome_map ) {
+    auto markers = c.markers;
+    foreach ( m ; markers.list ) {
+    }
+  }
+}
+
+*/
+
