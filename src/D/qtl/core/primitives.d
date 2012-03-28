@@ -335,46 +335,6 @@ class Individuals {
  * building blocks tying primitive types together.
  */
 
-/**
- * Combine a Marker with a genotype matrix. Each MarkerRef points to a Marker,
- * a genotype matrix, and the column index in that matrix. 
- *
- * Different MarkerRefs can point to different genotype matrices(!) E.g. a
- * special genotype matrix for one or more pseudomarkers can exist.
- */
-
-class MarkerRef(T) 
-{
-  Marker marker;
-  Genotype!T[][] genotype_matrix;
-  uint column;
-
-  this(double _position, string _name = MARKER_NAME_UNKNOWN, uint _id=ID_UNKNOWN) { 
-    marker = new Marker(_position, _name, _id); }
-  this(in MarkerRef!T mr) {
-    this(mr.marker);
-  }
-  this(in Marker m) {
-    marker = new Marker(m.position, m.name, m.id);
-  }
-
-  Position get_position() { return marker.get_position; }
-  const string name() { return marker.name; }
-  const uint id() { return marker.id; }
-
-  /// Markers at the same position are considered equal
-  bool opEquals(Object other) {
-    return get_position() == (cast(MarkerRef!T)other).get_position();
-  }
-  int opCmp(Object other) {
-    auto cmp = get_position() - (cast(MarkerRef!T)other).get_position();
-    if (cmp > 0) return 1;
-    if (cmp < 0) return -1;
-    return 0;
-  }
-
-}
-
 @property M[] list(M)(M[] ms) { return ms; };
 
 /**
@@ -448,8 +408,5 @@ unittest {
   Marker m2 = new Marker(4.8,"m2",2);
   m2.chromosome = new Autosome("1",1);
   m2.attrib_list = new Attribute[1];
-  auto mref1 = new MarkerRef!uint(m1);
-  auto mref2 = new MarkerRef!uint(m2);
   PseudoMarker pm1 = new PseudoMarker(4.7,"pm1",3);
-  auto pmref1 = new MarkerRef!uint(pm1);
 }
