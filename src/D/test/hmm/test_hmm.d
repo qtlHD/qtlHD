@@ -161,28 +161,9 @@ unittest {
       assert(chr[1][i].chromosome.name == chr[0].name);
     }
 
-    pmap_stepped = add_stepped_markers_autosome(chr[1], 1.0, 0.0);
-    pmap_minimal = add_minimal_markers_autosome(chr[1], 1.0, 0.0);
-
-    writefln("\tmarkers: %3d\tpmar (stepped): %3d\tpmar (minimal): %3d", chr[1].length, 
-             pmap_stepped.length-chr[1].length, pmap_minimal.length-chr[1].length);
-    writeln("----------");
-//    foreach(m; pmap_stepped)
-//      writefln("%-2s %-20s %5.1f %5s", m.chromosome.name, m.name, m.get_position, isPseudoMarker(m));
-//    foreach(m; pmap_stepped)
-//      writefln("%-2s %-20s %5.1f %5s", m.chromosome.name, m.name, m.get_position, isPseudoMarker(m));
-    writeln("----------");
-    //    foreach(m; pmap_minimal) 
-    //      writefln("%-2s %-20s %5.1f %5s", m.chromosome.name, m.name, m.get_position, isPseudoMarker(m));
-    writeln("----------");
+    pmap_stepped = add_stepped_markers_autosome(chr[1], 20.0, 0.0);
+    pmap_minimal = add_minimal_markers_autosome(chr[1], 20.0, 0.0);
   }
-
-  auto temp = add_stepped_markers_autosome(markers_by_chr_sorted[0][1], 1.0, 0.0);
-  foreach(m; temp)
-    writefln("%-20s %5.1f %5s", m.name, m.get_position, isPseudoMarker(m));
-  
-
-
 }
 
 
