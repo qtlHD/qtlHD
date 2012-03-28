@@ -47,8 +47,17 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   // markers (at off_end) with step=0 is not supported here. That should also
   // be a separate function. Variable step size is, again, another function.
 
-  auto new_markerlist = markerlist.dup;
+  auto new_markerlist = markerlist.xdup;
+  writeln("**",typeid(new_markerlist));
+  // **const(qtl.core.primitives.Marker)[]
+  /*
+  Ms new_markerlist;
+  foreach(m; markerlist) {
+    new_markerlist ~= cast(Marker)m;
+  }
+  */
 
+/*
   sort_markers_by_position(new_markerlist);
   auto minpos = new_markerlist[0].get_position();
   auto maxpos = new_markerlist[$-1].get_position();
@@ -75,6 +84,8 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   sort_markers_by_position(new_markerlist);
 
   return new_markerlist;
+  */
+  return null;
 }
 
 // like add_stepped_markers_autosome, but add minimal number of pseudomarkers so that gaps < step
