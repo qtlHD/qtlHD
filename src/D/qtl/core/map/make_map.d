@@ -55,7 +55,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   foreach(m; markerlist)
     new_markerlist ~= cast(Marker) m;
 
-  sort_markers_by_position(new_markerlist);
+  sort(new_markerlist);
   auto minpos = new_markerlist[0].get_position();
   auto maxpos = new_markerlist[$-1].get_position();
 
@@ -78,38 +78,39 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   }
 
   // sort the result
-  sort_markers_by_position(new_markerlist);
+  sort(new_markerlist);
 
   return new_markerlist;
 }
 
 // like add_stepped_markers_autosome, but add minimal number of pseudomarkers so that gaps < step
-Ms add_minimal_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0) {
+Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Position off_end=0.0) {
   enforce(step>0);
   enforce(off_end>=0);
 
-  auto new_markers = new Ms(markers);
-  auto sorted_markers = new_markers.sorted();
+  Ms new_markerlist;
+  foreach(m; markerlist)
+    new_markerlist ~= cast(Marker) m;
 
-  auto list = sorted_markers.list;
-  auto minpos = list[0].get_position();
-  auto maxpos = list[$-1].get_position();
+  sort(new_markerlist);
+
+  auto minpos = new_markerlist[0].get_position();
+  auto maxpos = new_markerlist[$-1].get_position();
 
   if(off_end > 0) {  
-    new_markers.add(new PseudoMarker(minpos-off_end));
-    new_markers.add(new PseudoMarker(maxpos+off_end));
+    new_markerlist ~= new PseudoMarker(minpos-off_end);
+    new_markerlist ~= new PseudoMarker(maxpos+off_end);
 
     // update minpos and maxpos and sorted list
     minpos -= step;
     maxpos += step;
-    sorted_markers = new_markers.sorted();
-    list = sorted_markers.list;
+    sort(new_markerlist);
   }
 
-  if (list.length > 1) {
-    for(auto left=0; left < list.length-1; left++) {
-      auto leftpos = list[left].get_position();
-      auto rightpos = list[left+1].get_position();
+  if (new_markerlist.length > 1) {
+    for(auto left=0; left < new_markerlist.length-1; left++) {
+      auto leftpos = new_markerlist[left].get_position();
+      auto rightpos = new_markerlist[left+1].get_position();
       auto dist =  rightpos - leftpos;
 
       if(dist > step) {
@@ -117,14 +118,15 @@ Ms add_minimal_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
 	auto dist_to_step = dist/(n_pseudomarkers+1);
 
 	for(auto pmarpos=leftpos+dist_to_step; pmarpos < rightpos; pmarpos += dist_to_step) {
-	  new_markers.add(new PseudoMarker(pmarpos));
+	  new_markerlist ~= new PseudoMarker(pmarpos);
 	}
       }
     }
 
-    new_markers = new_markers.sorted();
+    sort(new_markerlist);
   }
-  return new_markers;
+
+  return new_markerlist;
 }
 
 
@@ -206,6 +208,8 @@ unittest {
 
   auto new_markers2 = add_stepped_if_single_marker(markers,1.0,5.0);
   assert(new_markers2.list.length == 11, "Length is " ~ to!string(new_markers2.list.length));
+
+  writeln("test autosome pseudomarker insertion:");
   // --- test autosome pseudomarker insertion
   auto markers2 = new Markers!(Marker)();
   // start with three markers
@@ -223,25 +227,34 @@ unittest {
   assert(ds[1] == 10);
   assert(ds.length == 23); // tis proof 
 
+  writeln("test with off_end > step:");
   // test with off_end > step
   auto markers3 = new Markers!(Marker)();
   markers3.list ~= new Marker(10.0);
   markers3.list ~= new Marker(20.0);
   markers3.list ~= new Marker(30.0);
+  foreach (m; markers3.list) 
+    writefln("%20s %8.4f %5s", m.name, m.position, isPseudoMarker(m));
   auto res3 = add_stepped_markers_autosome(markers3.list, 5.0, 7.5);
+  foreach (m; res3) 
+    writefln("%20s %8.4f %5s", m.name, m.position, isPseudoMarker(m));
   auto list3 = res3;
   assert(list3.length == 7, to!string(list3.length));
   auto uniq_list3 = uniq!"a.get_position() == b.get_position()"(list3);
   auto pos_list3 = map!"a.get_position()"(uniq_list3);
   assert(equal(pos_list3, [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0]), to!string(pos_list3));
 
+  writeln("test add_minimal_markers_autosome:");
   // test add_minimal_markers_autosome
   auto markers4 = new Markers!(Marker)();
   markers4.list ~= new Marker(10.0);
   markers4.list ~= new Marker(17.0);
   markers4.list ~= new Marker(27.0);
-  auto res4 = add_minimal_markers_autosome(markers4, 2.0, 7.5);
-  auto list4 = res4.list;
+  writeln("call add_minimal_markers_autosome");
+  auto res4 = add_minimal_markers_autosome(markers4.list, 2.0, 7.5);
+  foreach (m; res4) 
+    writeln(m.name, "\t", m.position, "\t", isPseudoMarker(m));
+  auto list4 = res4;
   assert(list4.length == 18, to!string(list4.length));
   auto uniq_list4 = uniq!"a.get_position() == b.get_position()"(list4);
   auto pos_list4 = map!"a.get_position()"(uniq_list4);
@@ -249,17 +262,21 @@ unittest {
 			   28.875, 30.75, 32.625, 34.5]), 
 	 to!string(pos_list4));
 
+  writeln("test add_minimal_markers_autosome with off_end=0:");
   // test add_minimal_markers_autosome with off_end=0
   auto markers5 = new Markers!(Marker)();
   markers5.list ~= new Marker(5.0);
   markers5.list ~= new Marker(8.3);
   markers5.list ~= new Marker(9.8);
-  auto res5 = add_minimal_markers_autosome(markers5, 1.0, 0);
-  auto list5 = res5.list;
+  writeln("call add_minimal_markers_autosome");
+  auto res5 = add_minimal_markers_autosome(markers5.list, 1.0, 0);
+  auto list5 = res5;
   assert(list5.length == 7, to!string(list5.length));
   auto uniq_list5 = uniq!"a.get_position() == b.get_position()"(list5);
   auto pos_list5 = map!"a.get_position()"(uniq_list5);
   assert(equal(to!string(pos_list5), to!string([5.0, 5.825, 6.65, 7.475, 8.3, 9.05, 9.8])), 
 	 to!string(pos_list5));
+
+  writeln("end of unit tests in make_map.d");
 }
 
