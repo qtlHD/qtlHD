@@ -415,7 +415,6 @@ class Markers(M) {
 @property M[] xdup(M)(in M[] ms) 
   if (typeid(M) == typeid(const(qtl.core.primitives.Marker)))
 { 
-  writeln("**",typeid(M));
   M[] new_ms;
   foreach(m; ms) {
     new_ms ~= cast(M)m;
