@@ -17,8 +17,10 @@ import std.stdio;
 import std.typecons;
 
 /**
- * The Marker list keeps track of Markers. Note there is no 
- * guarantee the list is ordered.
+ * The Markers container keeps track of Markers, throwing in some useful
+ * funtionality. Note there is no guarantee the list is ordered.
+ *
+ * Normally use the default Marker[] instead.
  */
 
 class Markers(M) {
@@ -58,6 +60,10 @@ class Markers(M) {
 
 @property M[] list(M)(Markers!M ms) { return ms.list; }
 
+/**
+ * Convenience function for duplication Marker[]
+ */
+
 Marker[] dup(in Marker[] ms) 
 { 
   Marker[] new_ms;
@@ -66,8 +72,6 @@ Marker[] dup(in Marker[] ms)
   }
   return new_ms;
 }
-
-
 
 unittest {
   writeln("Unit test " ~ __FILE__);
