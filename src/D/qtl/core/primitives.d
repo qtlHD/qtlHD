@@ -317,32 +317,7 @@ class Individual {
 }
 
 
-/******************************************************************************
- * The following objects are not really primitive - but are the
- * building blocks tying primitive types together.
- */
-
 @property M[] list(M)(M[] ms) { return ms; };
-
-/**
- * ChromosomeMap combines Chromosome and Marker list.
- */
-
-class ChromosomeMap(T) {
-  Chromosome chromosome;
-  // Markers!(MarkerRef!T) markers;
-}
-
-/**
- * The FullMap has an ordered chromosome map.
- */
-
-class FullMap(T) {
-  SList!(ChromosomeMap!T) chromosome_map;
-}
-
-class MappedQTLs {
-}
 
 /******************************************************************************
  * Unit tests for primitives 
@@ -374,19 +349,6 @@ unittest {
   // Phenotype
   Phenotype!double p1 = { value:-7.809 };
   assert(p1.value == -7.809);
-}
-
-unittest {
-  // e.g. for F2 auto map = new FullMap!F2();
-  // this should also compile:
-  auto map = new FullMap!uint();
-  foreach ( c ; map.chromosome_map ) {
-  /*
-    auto markers = c.markers;
-    foreach ( m ; markers.list ) {
-    }
-  */
-  }
 }
 
 unittest {
