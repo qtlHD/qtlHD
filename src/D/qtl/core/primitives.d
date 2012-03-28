@@ -412,12 +412,12 @@ class Markers(M) {
 
 @property M[] list(M)(Markers!M ms) { return ms.list; }
 @property M[] list(M)(M[] ms) { return ms; };
-@property M[] dup(M)(in M[] ms) { 
-  M[] newms;
+@property M[] xdup(M)(in M[] ms) { // if (is(typeof(ms.get_position())==int)) { 
+  M[] new_ms;
   foreach(m; ms) {
-    newms ~= cast(Marker) m;
+    new_ms ~= cast(Marker)m;
   }
-  return newms;
+  return cast(M[])new_ms;
 }
 
 
