@@ -186,23 +186,8 @@ unittest {
 
 
 
-// comparison function for sorting
-static bool compare_markers_by_position(Ms)(in Ms a, in Ms b)
-{
-  // if identical position, use id
-  if(a.position == b.position)
-    return a.id <= b.id;
-
-  return a.position <= b.position;
-}
-
-void sort_markers_by_position(Ms)(Ms[] markers)
-{
-  sort!(compare_markers_by_position)(markers);
-}
-
 unittest {
-  writeln("test sort_markers_by_position");
+  writeln("test of sort markers by position");
   Marker markers[];
   int i;
 
@@ -215,7 +200,7 @@ unittest {
   foreach (m; markers)
     writeln("\t", m.name, "\t", m.id, "\t", m.position);
 
-  sort_markers_by_position(markers);
+  sort(markers);
   writeln("now sorted");
 
   foreach (m; markers)
