@@ -1,4 +1,4 @@
-module qtl.core.util.matrix;
+module qtl.core.mqm.matrix;
 
 //import core.memory;
 import std.c.stdlib;
