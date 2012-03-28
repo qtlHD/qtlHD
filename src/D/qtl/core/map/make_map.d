@@ -181,8 +181,8 @@ Ms add_stepped_if_single_marker(Ms)(in Ms markers, Position step=1.0, Position o
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-  auto markers = new Markers!(MarkerRef!F2)();
-  markers.list ~= new MarkerRef!F2(10.0);
+  auto markers = new Markers!Marker();
+  markers.list ~= new Marker(10.0);
   assert(markers.list.length == 1);
   // call function. Note we don't have to give the type!
   auto new_markers = add_one_if_single_marker(markers,2.0);
@@ -190,8 +190,8 @@ unittest {
   assert(markers.list.length == 1, "Length is " ~ to!string(markers.list.length));
   // now test the new list
   assert(new_markers.list.length == 2, "Length is " ~ to!string(new_markers.list.length));
-  assert(new_markers.list[1].marker.get_position() == 12.0);
-  assert(new_markers.list[1].marker.name == "loc12", new_markers.list[1].marker.name);
+  assert(new_markers.list[1].get_position() == 12.0);
+  assert(new_markers.list[1].name == "loc12", new_markers.list[1].name);
   // It should work for any list of markers
   auto markers1 = new Markers!(Marker)();
   markers1.list ~= new Marker(10.0);
