@@ -289,7 +289,7 @@ unittest {
 
   auto y_with_pmarkers = add_minimal_markers_autosome(y, 1.0, 0.0);
 
-  writeln(typeid(markers), "\t", typeid(x), "\t", typeid(markers) == typeid(x));
+
   writeln("********************************************************************************");
 
 
@@ -298,8 +298,12 @@ unittest {
 
   writeln("calling add_stepped_markers");
   writeln("no. markers input: ", markers_by_chr[0][1].list.length);
-  //  auto pmap = add_minimal_markers_autosome(markers_by_chr[0][1], 1.0, 0.0);
-  //  writeln("no. markers output: ", pmap.list.length);
+
+  auto pmap = add_stepped_markers_autosome(markers_by_chr[0][1], 1.0, 0.0);
+  writeln("no. markers output: ", pmap.length);
+  foreach (m; pmap) 
+    writeln(m.name, "\t", m.position, "\t", m.id, "\t", );
+  writeln("********************************************************************************");
 
   writeln("sorted chromosomes: ");
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
@@ -359,23 +363,4 @@ unittest {
   writeln(to!string(f2pktg[1]));
   writeln(to!string(f2pktg[2]));
   writeln(to!string(f2pktg[3]));
-}
-
-
-unittest {
-  writeln("Test pseudomarker");
-
-  Marker markers[];
-
-  auto chr = new Chromosome("1");
-
-  for(auto i=0; i<10; i++) {
-    auto marker = new Marker(chr, uniform(0, 10001)/100.0, "mar" ~ to!string(i+1), i);
-    markers ~= marker;
-  }
-
-  auto pmar = new PseudoMarker(chr, 99.99);
-
-  foreach (m; markers)
-    writeln("\t", m.name, "\t", m.id, "\t", m.position);
 }
