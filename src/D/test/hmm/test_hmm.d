@@ -6,6 +6,7 @@ module test.hmm.test_hmm;
 
 import std.math, std.stdio, std.path;
 import std.exception, std.conv;
+import std.random;
 
 import qtl.core.primitives;
 import qtl.core.phenotype, qtl.core.chromosome, qtl.core.genotype;
@@ -20,7 +21,7 @@ unittest {
 unittest {
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ sep ~
-		       buildPath("..","..","..","..","test","data", "input", "listeria_qtab"));
+                       buildPath("..","..","..","..","test","data", "input", "listeria_qtab"));
 
   // load founder info
   auto founder_fn = to!string(buildPath(dir, "listeria_founder.qtab"));
@@ -164,7 +165,7 @@ unittest {
 unittest {
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ sep ~
-		       buildPath("..","..","..","..","test","data", "input", "hyper_noX_qtab"));
+                       buildPath("..","..","..","..","test","data", "input", "hyper_noX_qtab"));
 
   // Read founder info
   auto founder_fn = to!string(buildPath(dir, "hyper_noX_founder.qtab"));
@@ -281,8 +282,12 @@ unittest {
 
   writeln("********************************************************************************");
   auto x = markers_by_chr[0][1];
-  
-  auto y = add_minimal_markers_autosome(x, 1.0, 0.0);
+  writeln(typeid(x));
+
+  auto z = new Markers!Marker();
+  auto y = new Markers!Marker(x);
+
+  auto y_with_pmarkers = add_minimal_markers_autosome(y, 1.0, 0.0);
 
   writeln(typeid(markers), "\t", typeid(x), "\t", typeid(markers) == typeid(x));
   writeln("********************************************************************************");
@@ -361,16 +366,16 @@ unittest {
   writeln("Test pseudomarker");
 
   Marker markers[];
-  
+
   auto chr = new Chromosome("1");
-  
-  //  for(i=0; i<10; i++) {
-  //    auto marker = new Marker(chr, uniform(0, 10001)/100.0, "mar" ~ to!string(i+1), i);
-  //    markers ~= marker;
-  //  }
-  
+
+  for(auto i=0; i<10; i++) {
+    auto marker = new Marker(chr, uniform(0, 10001)/100.0, "mar" ~ to!string(i+1), i);
+    markers ~= marker;
+  }
+
   auto pmar = new PseudoMarker(chr, 99.99);
 
-  //  foreach (m; markers)
-  //    writeln("\t", m.name, "\t", m.id, "\t", m.position);
+  foreach (m; markers)
+    writeln("\t", m.name, "\t", m.id, "\t", m.position);
 }
