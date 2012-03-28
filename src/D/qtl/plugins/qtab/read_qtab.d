@@ -18,6 +18,7 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
+import qtl.core.individual;
 
 unittest {
   writeln("Unit test " ~ __FILE__);
