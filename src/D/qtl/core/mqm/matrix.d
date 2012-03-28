@@ -1,4 +1,8 @@
-module qtl.core.util.matrix;
+/** 
+ * Danny's matrix functions
+ */
+
+module qtl.core.mqm.matrix;
 
 //import core.memory;
 import std.c.stdlib;

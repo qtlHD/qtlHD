@@ -35,10 +35,10 @@ if ARGV.index("DEBUG=TRUE")
 end
 core_dfiles = Dir.glob("./qtl/core/*.d") 
 map_dfiles  = Dir.glob("./qtl/core/map/*.d")
-hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d") 
+hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d") + [ './qtl/core/mqm/matrix.d' ]
 util_dfiles = Dir.glob("./qtl/core/util/*.d")
 csv_dfiles = Dir.glob("./qtl/plugins/csv/*.d")
-csvr_dfiles = Dir.glob("./qtl/plugins/csvr/*.d")
+csvr_dfiles = Dir.glob("./qtl/plugins/csvr/*.d") + [ './qtl/core/mqm/matrix.d' ]
 qtab_read_dfiles = ["./qtl/plugins/qtab/read_qtab.d"]
 qtab_write_dfiles = ["./qtl/plugins/qtab/write_qtab.d"]
 qtab_dfiles = qtab_read_dfiles + qtab_write_dfiles
@@ -205,5 +205,6 @@ desc "Test CSVr"
 task :test_csvr => [ :read_csvr ]
 
 desc "Test all"
+
 task :test_all => [:clean, :test_csv, :test_csvr, :test_xgap, :test_qtab, :test_hmm ]
 
