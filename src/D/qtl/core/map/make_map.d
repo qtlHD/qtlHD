@@ -48,14 +48,6 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   // be a separate function. Variable step size is, again, another function.
 
   auto new_markerlist = cast(Ms)markerlist.xdup;
-  writeln("**",typeid(new_markerlist));
-  // **const(qtl.core.primitives.Marker)[]
-  /*
-  Ms new_markerlist;
-  foreach(m; markerlist) {
-    new_markerlist ~= cast(Marker)m;
-  }
-  */
 
   sort_markers_by_position(new_markerlist);
   auto minpos = new_markerlist[0].get_position();
