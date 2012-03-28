@@ -57,7 +57,6 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   }
   */
 
-/*
   sort_markers_by_position(new_markerlist);
   auto minpos = new_markerlist[0].get_position();
   auto maxpos = new_markerlist[$-1].get_position();
@@ -83,7 +82,6 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   // sort the result
   sort_markers_by_position(new_markerlist);
 
-  */
   return new_markerlist;
 }
 
