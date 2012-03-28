@@ -279,6 +279,15 @@ unittest {
     }
   }
 
+  writeln("********************************************************************************");
+  auto x = markers_by_chr[0][1];
+  
+  auto y = add_minimal_markers_autosome(x, 1.0, 0.0);
+
+  writeln(typeid(markers), "\t", typeid(x), "\t", typeid(markers) == typeid(x));
+  writeln("********************************************************************************");
+
+
   writeln("\nTest add_stepped_markers_autosome");
   writeln("creating markers[] list");
 
@@ -347,3 +356,21 @@ unittest {
   writeln(to!string(f2pktg[3]));
 }
 
+
+unittest {
+  writeln("Test pseudomarker");
+
+  Marker markers[];
+  
+  auto chr = new Chromosome("1");
+  
+  //  for(i=0; i<10; i++) {
+  //    auto marker = new Marker(chr, uniform(0, 10001)/100.0, "mar" ~ to!string(i+1), i);
+  //    markers ~= marker;
+  //  }
+  
+  auto pmar = new PseudoMarker(chr, 99.99);
+
+  //  foreach (m; markers)
+  //    writeln("\t", m.name, "\t", m.id, "\t", m.position);
+}
