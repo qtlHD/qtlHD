@@ -157,6 +157,11 @@ class PseudoMarker : Marker {
   { super(_chromosome, _position); }
 }
 
+bool isPseudoMarker(M)(in M a)
+{
+  return(typeid(a) == typeid(PseudoMarker));
+}
+
 immutable GENOTYPE_NA = -1; // don't use
 
 /**
