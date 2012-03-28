@@ -8,6 +8,7 @@ module qtl.plugins.deprecate.read_csv;
 import core.memory;
 
 import qtl.core.primitives;
+import qtl.core.individual;
 import qtl.core.chromosome;
 import qtl.core.mqm.matrix;
 import qtl.core.phenotype;
