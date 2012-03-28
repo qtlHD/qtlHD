@@ -15,6 +15,7 @@ import std.math;
 alias std.algorithm.find find;
 
 import qtl.core.primitives;
+import qtl.core.chromosome;
 import qtl.core.deprecate.genotype_enum;
 
 /**
@@ -26,7 +27,7 @@ import qtl.core.deprecate.genotype_enum;
  * The make_fixed_map function creates a new map for a chromosome, and 
  * inserts Pseudo markers at fixed positions.
  *
- * markers:        List of (unsorted) markers (one chromosome)
+ * markerlist:     List of (unsorted) markers (one chromosome)
  * step:           Step size (in cM)
  * off_end:        Max distance (in cM) past the terminal marker
  *
@@ -38,25 +39,28 @@ import qtl.core.deprecate.genotype_enum;
  * (status: under review)
  */
 
-Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0) {
+Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Position off_end=0.0) {
   enforce(step>0);
   enforce(off_end>=0);
   // With R/qtl, if step is zero, the purpose was to add a marker if there is
   // only one. Now, use the function add_marker_if_single instead. Adding
   // markers (at off_end) with step=0 is not supported here. That should also
   // be a separate function. Variable step size is, again, another function.
-  auto new_markers = new Ms(markers);
-  auto sorted_markers = new_markers.sorted();
-  auto list = sorted_markers.list;
-  auto minpos = list[0].get_position();
-  auto maxpos = list[$-1].get_position();
 
-  if (markers.list.length > 1) {
+  Ms new_markerlist;
+  foreach (m; markerlist)
+    new_markerlist ~= cast(Marker) m;
+
+  sort_markers_by_position(new_markerlist);
+  auto minpos = new_markerlist[0].get_position();
+  auto maxpos = new_markerlist[$-1].get_position();
+
+  if (new_markerlist.length > 1) {
     for (auto npos = minpos+step ; npos < maxpos; npos += step) {
       auto pm = new PseudoMarker(npos);
-      if (countUntil(sorted_markers.list, pm) == -1)
+      if (countUntil(new_markerlist, pm) == -1)
         // marker does not exist: add pseudo marker 
-        new_markers.add(pm);
+        new_markerlist ~= pm;
     }
     // FIXME remove Pseudo markers too close to other markers
     // (was this in R/qtl? No, so maybe I leave this)
@@ -64,15 +68,15 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markers, Position step=1.0, Position o
 
   if(off_end >= step) {  
     for(auto npos=minpos-step; npos >= minpos - off_end; npos -= step) 
-      new_markers.add(new PseudoMarker(npos));
+      new_markerlist ~= new PseudoMarker(npos);
     for(auto npos=maxpos+step; npos <= maxpos + off_end; npos += step) 
-      new_markers.add(new PseudoMarker(npos));
+      new_markerlist ~= new PseudoMarker(npos);
   }
 
   // sort the result
-  new_markers = new_markers.sorted();
+  sort_markers_by_position(new_markerlist);
 
-  return new_markers;
+  return new_markerlist;
 }
 
 // like add_stepped_markers_autosome, but add minimal number of pseudomarkers so that gaps < step
@@ -204,8 +208,8 @@ unittest {
   markers2.list ~= new Marker(10.0);
   markers2.list ~= new Marker(20.0);
   markers2.list ~= new Marker(30.0);
-  auto res2 = add_stepped_markers_autosome(markers2,1.0,1.0);
-  auto list = res2.list; // new marker list
+  auto res2 = add_stepped_markers_autosome(markers2.list,1.0,1.0);
+  auto list = res2; // new marker list
   // assert there are no duplicates
   assert(list.length == 23, to!string(list.length)); 
   auto uniq_list = uniq!"a.get_position() == b.get_position()"(list);
@@ -220,8 +224,8 @@ unittest {
   markers3.list ~= new Marker(10.0);
   markers3.list ~= new Marker(20.0);
   markers3.list ~= new Marker(30.0);
-  auto res3 = add_stepped_markers_autosome(markers3, 5.0, 7.5);
-  auto list3 = res3.list;
+  auto res3 = add_stepped_markers_autosome(markers3.list, 5.0, 7.5);
+  auto list3 = res3;
   assert(list3.length == 7, to!string(list3.length));
   auto uniq_list3 = uniq!"a.get_position() == b.get_position()"(list3);
   auto pos_list3 = map!"a.get_position()"(uniq_list3);
