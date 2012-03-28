@@ -821,5 +821,6 @@ GENOTYPE AA as 0,0
   assertNotThrown(new EncodedCross(split(encoded,"\n")));
 }
 
-
+// CrossType : allowable cross types we will handle
+enum CrossType { BC, F2, RILself, RILsib };
 
