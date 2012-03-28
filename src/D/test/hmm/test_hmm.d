@@ -1,7 +1,7 @@
 /**
  * test reading data and then apply HMM
  */
- 
+
 module test.hmm.test_hmm;
 
 import std.math, std.stdio, std.path;
@@ -19,10 +19,10 @@ unittest {
 
 unittest {
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ 
+  auto dir = to!string(dirName(__FILE__) ~ sep ~
 		       buildPath("..","..","..","..","test","data", "input", "listeria_qtab"));
 
-  // load founder info 
+  // load founder info
   auto founder_fn = to!string(buildPath(dir, "listeria_founder.qtab"));
   writeln("reading ", founder_fn);
   auto info = read_founder_settings_qtab(founder_fn);
@@ -55,7 +55,7 @@ unittest {
 
   // Show the first individual and genotypes
   assert(individuals.list.length == 120);
-  assert(individuals.list[15].name == "16"); 
+  assert(individuals.list[15].name == "16");
   assert(genotype_matrix[119].length == 133);
 
   // by symbol
@@ -163,7 +163,7 @@ unittest {
 
 unittest {
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ 
+  auto dir = to!string(dirName(__FILE__) ~ sep ~
 		       buildPath("..","..","..","..","test","data", "input", "hyper_noX_qtab"));
 
   // Read founder info
@@ -194,7 +194,7 @@ unittest {
 
   // Show the first individual and genotypes
   assert(individuals.list.length == 250);
-  assert(individuals.list[244].name == "245"); 
+  assert(individuals.list[244].name == "245");
   assert(genotype_matrix[244].length == 170);
 
   // by symbol
@@ -281,7 +281,7 @@ unittest {
 
   writeln("\nTest add_stepped_markers_autosome");
   writeln("creating markers[] list");
-  
+
   writeln("calling add_stepped_markers");
   writeln("no. markers input: ", markers_by_chr[0][1].list.length);
   //  auto pmap = add_minimal_markers_autosome(markers_by_chr[0][1], 1.0, 0.0);

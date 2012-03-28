@@ -13,7 +13,7 @@ import std.algorithm; // to use sort()
 
 import std.stdio;
 // import std.container;
-import std.typecons; 
+import std.typecons;
 
 
 /**
@@ -24,18 +24,18 @@ import std.typecons;
 
 Chromosome get_chromosome_with_id(string name) {
   uint id;
-  if (name == "X") id = 0;  
+  if (name == "X") id = 0;
   else             id = to!int(name);
   return get_chromosome(name,id,(name == "X"));
 }
 
 /**
- * Create new Chromosome object. Currently, if is_sex is true it 
+ * Create new Chromosome object. Currently, if is_sex is true it
  * returns a SexChromosome, otherwise an Autosome.
  */
 
 Chromosome get_chromosome(string name, uint id, bool is_sex=false) {
-  if (is_sex) 
+  if (is_sex)
     return new SexChromosome(name);
   else
     return new Autosome(name,id);
@@ -63,14 +63,14 @@ Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
     static if (is(Ms : Object)) {
       if ((m.chromosome.name) !in hash_cs)
         hash_cs[m.chromosome.name] = new Ms();
-      hash_cs[m.chromosome.name].list ~= cast(Marker)m; 
+      hash_cs[m.chromosome.name].list ~= cast(Marker)m;
     }
     else {
       hash_cs[m.chromosome.name] ~= cast(Marker)m;
     }
   }
   // convert to ret type
-  Tuple!(Chromosome, Ms)[] list; 
+  Tuple!(Chromosome, Ms)[] list;
   foreach( cname, ms ; hash_cs) {
     list ~= Tuple!(Chromosome, Ms)(ms[0].chromosome,ms);
   }
@@ -178,9 +178,9 @@ unittest {
   writeln();
 
   // it's the same stuff; just pointed to in a different order
-  for(i=0; i<5; i++) 
-    for(j=0; j<5; j++) 
-      if(markers_by_chr[i] is markers_by_chr_sorted[j]) 
+  for(i=0; i<5; i++)
+    for(j=0; j<5; j++)
+      if(markers_by_chr[i] is markers_by_chr_sorted[j])
 	writeln(i, " is ", j);
 }
 
@@ -211,13 +211,13 @@ unittest {
     auto marker = new Marker(chr, uniform(0, 10001)/100.0, "mar" ~ to!string(i+1), i);
     markers ~= marker;
   }
-  
-  foreach (m; markers) 
+
+  foreach (m; markers)
     writeln("\t", m.name, "\t", m.id, "\t", m.position);
 
   sort_markers_by_position(markers);
   writeln("now sorted");
 
-  foreach (m; markers) 
+  foreach (m; markers)
     writeln("\t", m.name, "\t", m.id, "\t", m.position);
-}  
+}
