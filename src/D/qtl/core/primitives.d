@@ -418,7 +418,7 @@ class Markers(M) {
   writeln("**",typeid(M));
   M[] new_ms;
   foreach(m; ms) {
-    new_ms ~= cast(Marker)m;
+    new_ms ~= cast(M)m;
   }
   return cast(M[])new_ms;
 }
