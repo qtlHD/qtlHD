@@ -93,11 +93,31 @@ unittest {
 // ln Pr(observed genotype | true genotype)
 double emit_BC(Gref obsgen, TrueGenotype truegen, double error_prob)
 {
-  return 0.0;
+  if(obsgen.list.length==0) // missing value
+    return(0.0); // log(1.0)
+
+  if(obsgen.match(truegen)) // compatible with truegen?
+    return(log(1.0-error_prob));
+  else
+    return(log(error_prob));
 }
 
 unittest {
   writeln("    unit test emit for BC");
   auto atg = allTrueGeno_BC();
-  ObservedGenotypes aog[3];
+
+  auto NA = new GenotypeCombinator("-");
+  auto A = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto H = new GenotypeCombinator("H");
+  H ~= new TrueGenotype(1,0);
+
+  double error_prob = 0.01;
+
+  assert(emit_BC(NA, atg[0], error_prob) == 0);
+  assert(emit_BC(NA, atg[1], error_prob) == 0);
+  assert(to!string(emit_BC(A, atg[0], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(emit_BC(A, atg[1], error_prob)) == to!string(log(error_prob)));
+  assert(to!string(emit_BC(H, atg[1], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(emit_BC(H, atg[0], error_prob)) == to!string(log(error_prob)));
 }
