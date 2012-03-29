@@ -341,3 +341,72 @@ unittest {
   assert(to!string(emit_F2PK(HorB, atgPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
   assert(to!string(emit_F2PK(HorB, atgPK[3], error_prob)) == to!string(log(1.0-error_prob/2.0)));
 }
+
+// proportion of recombination events
+double nrec_F2PK(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
+{
+  auto atg = allTrueGeno_F2PK();
+  if(truegen_left==atg[0]) {
+    if(truegen_right==atg[0]) // AA -> AA
+      return(0.0);
+    if(truegen_right==atg[1] || truegen_right==atg[2]) // AA -> AB; AA -> BA
+      return(0.5);
+    if(truegen_right==atg[3]) // AA -> BB
+      return(1.0);
+  }
+  else if(truegen_left == atg[1]) {
+    if(truegen_right==atg[0] || // AB -> AA
+       truegen_right==atg[3]) // AB -> BB
+      return(0.5);
+    if(truegen_right==atg[1]) // AB -> AB
+      return(0.0);
+    if(truegen_right==atg[2]) // AB -> BA
+      return(1.0);
+  }
+  else if(truegen_left == atg[2]) {
+    if(truegen_right==atg[0] || // BA -> AA
+       truegen_right==atg[3]) // BA -> BB
+      return(0.5);
+    if(truegen_right==atg[2]) // BA -> BA
+      return(0.0);
+    if(truegen_right==atg[1]) // BA -> AB
+      return(1.0);
+  }
+  else if(truegen_left == atg[3]) {
+    if(truegen_right==atg[0]) // BB -> AA
+      return(1.0);
+    if(truegen_right==atg[1] || // BB -> AB
+       truegen_right==atg[2])   // BB -> BA
+      return(0.5);
+    if(truegen_right==atg[3]) // BB -> BB
+      return(0.0);
+  }
+
+  throw new Exception("inputs not among the possible true genotypes");
+}
+
+
+unittest {
+  writeln("    unit test nrec for F2 (phase-known)");
+  auto gPK = allTrueGeno_F2PK();
+
+  assert( nrec_F2PK(gPK[0], gPK[0]) == 0.0 );
+  assert( nrec_F2PK(gPK[0], gPK[1]) == 0.5 );
+  assert( nrec_F2PK(gPK[0], gPK[2]) == 0.5 );
+  assert( nrec_F2PK(gPK[0], gPK[3]) == 1.0 );
+
+  assert( nrec_F2PK(gPK[1], gPK[0]) == 0.5 );
+  assert( nrec_F2PK(gPK[1], gPK[1]) == 0.0 );
+  assert( nrec_F2PK(gPK[1], gPK[2]) == 1.0 );
+  assert( nrec_F2PK(gPK[1], gPK[3]) == 0.5 );
+
+  assert( nrec_F2PK(gPK[2], gPK[0]) == 0.5 );
+  assert( nrec_F2PK(gPK[2], gPK[2]) == 0.0 );
+  assert( nrec_F2PK(gPK[2], gPK[1]) == 1.0 );
+  assert( nrec_F2PK(gPK[2], gPK[3]) == 0.5 );
+
+  assert( nrec_F2PK(gPK[3], gPK[3]) == 0.0 );
+  assert( nrec_F2PK(gPK[3], gPK[1]) == 0.5 );
+  assert( nrec_F2PK(gPK[3], gPK[2]) == 0.5 );
+  assert( nrec_F2PK(gPK[3], gPK[0]) == 1.0 );
+}
