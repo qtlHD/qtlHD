@@ -19,8 +19,8 @@ import std.c.stdlib;
 
 pragma(lib, "R");
 
-extern (C) void Rf_initEmbeddedR(int argc, char **argv);
-extern (C) void Rf_endEmbeddedR(int);
+extern (C) void Rf_initEmbeddedR(ulong argc, char **argv);
+extern (C) void Rf_endEmbeddedR(ulong);
 
 extern(C){
     double norm_rand();
@@ -42,10 +42,10 @@ void R_Init() {
   foreach (i, s ; args) {
     argv[i] = cast(char *)toStringz(args[i]);
   }
-  int argc = args.length;
+  auto argc = args.length;
 
   writeln("Initialize embedded R (library)");
-  setenv("R_HOME","/usr/lib/R",1);
+  setenv("R_HOME","/Library/Frameworks/R.framework/Resources/", 1);
   Rf_initEmbeddedR(argc, argv.ptr);
 }
 
