@@ -1,6 +1,7 @@
 /**
 
-The following example uses this function to calculate the matrix-vector product
+The following example uses this function to calculate the matrix-vector product using 
+a blas/lapack routine:
 
   / 3 1 3 \   / -1 \ 
   | 1 5 9 | * | -1 |. 
