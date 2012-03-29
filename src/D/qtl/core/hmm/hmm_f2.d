@@ -36,15 +36,18 @@ TrueGenotype[] allTrueGeno_F2PK()
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-  writeln("    unit test allTrueGeno for F2");
 
+  writeln("    unit test allTrueGeno for F2");
   auto g = allTrueGeno_F2();
-  auto gPK = allTrueGeno_F2PK();
 
   assert(g.length == 3);
   assert(g[0] == new TrueGenotype(0,0));
   assert(g[1] == new TrueGenotype(1,0));
   assert(g[2] == new TrueGenotype(1,1));
+
+
+  writeln("    unit test allTrueGeno for F2 (phase-known)");
+  auto gPK = allTrueGeno_F2PK();
 
   assert(gPK.length == 4);
   assert(gPK[0] == new TrueGenotype(0,0));
@@ -81,14 +84,14 @@ double init_F2PK(in TrueGenotype truegen)
 
 unittest {
   writeln("    unit test init for F2");
-
   auto g = allTrueGeno_F2();
-  auto gPK = allTrueGeno_F2PK();
   double val[] = [log(0.25), log(0.5), log(0.25)];
 
   foreach(i, gv; g)
     assert(to!string(init_F2(gv)) == to!string(val[i]));
 
+  writeln("    unit test init for F2 (phase-known)");
+  auto gPK = allTrueGeno_F2PK();
   foreach(gv; gPK)
     assert(to!string(init_F2PK(gv)) == to!string(val[0]));
 }
@@ -124,6 +127,50 @@ double step_F2(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in d
   throw new Exception("inputs not among the possible true genotypes");
 }
 
+// like step_F2, but with phase-known genotypes (for use with est_map)
+double step_F2PK(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
+{
+  auto atg = allTrueGeno_F2PK();
+  if(truegen_left==atg[0]) {
+    if(truegen_right==atg[0]) // AA -> AA
+      return(2.0*log(1.0-rec_frac));
+    if(truegen_right==atg[1] || truegen_right==atg[2]) // AA -> AB; AA -> BA
+      return(log(1.0-rec_frac) + log(rec_frac));
+    if(truegen_right==atg[3]) // AA -> BB
+      return(2.0*log(rec_frac));
+  }
+  else if(truegen_left == atg[1]) {
+    if(truegen_right==atg[0] || // AB -> AA
+       truegen_right==atg[3]) // AB -> BB
+      return(log(rec_frac) + log(1.0-rec_frac));
+    if(truegen_right==atg[1]) // AB -> AB
+      return(log((1.0-rec_frac)^^2));
+    if(truegen_right==atg[2]) // AB -> BA
+      return(log(rec_frac^^2));
+  }
+  else if(truegen_left == atg[2]) {
+    if(truegen_right==atg[0] || // BA -> AA
+       truegen_right==atg[3]) // BA -> BB
+      return(log(rec_frac) + log(1.0-rec_frac));
+    if(truegen_right==atg[2]) // BA -> BA
+      return(log((1.0-rec_frac)^^2));
+    if(truegen_right==atg[1]) // BA -> AB
+      return(log(rec_frac^^2));
+  }
+  else if(truegen_left == atg[3]) {
+    if(truegen_right==atg[0]) // BB -> AA
+      return(2.0*log(rec_frac));
+    if(truegen_right==atg[1] || // BB -> AB
+       truegen_right==atg[2])   // BB -> BA
+      return(log(1.0-rec_frac) + log(rec_frac));
+    if(truegen_right==atg[3]) // BB -> BB
+      return(2.0*log(1.0-rec_frac));
+  }
+
+  throw new Exception("inputs not among the possible true genotypes");
+}
+
+
 unittest {
   writeln("    unit test step for F2");
   auto g = allTrueGeno_F2();
@@ -149,4 +196,17 @@ unittest {
           to!string( log(2.0*rf*(1-rf)) ));
   assert( to!string( step_F2(g[2], g[2], rf) ) ==
           to!string( log((1-rf)^^2) ));
+
+
+  writeln("    unit test step for F2 (phase-known)");
+  auto gPK = allTrueGeno_F2PK();
+
+  assert( to!string( step_F2(gPK[0], gPK[0], rf) ) ==
+          to!string( log((1-rf)^^2) ));
+  assert( to!string( step_F2(gPK[0], gPK[1], rf) ) ==
+          to!string( log(rf*(1-rf)) ));
+  assert( to!string( step_F2(gPK[0], gPK[2], rf) ) ==
+          to!string( log(rf*(1-rf)) ));
+  assert( to!string( step_F2(gPK[0], gPK[3], rf) ) ==
+          to!string( log(rf^^2) ));
 }
