@@ -34,7 +34,7 @@ unittest {
 }
 
 // ln Pr(true genotype)
-double init_BC(TrueGenotype truegen)
+double init_BC(in TrueGenotype truegen)
 {
   if(truegen != new TrueGenotype(0,0) &&
      truegen != new TrueGenotype(1,0))
