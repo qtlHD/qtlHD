@@ -311,33 +311,33 @@ unittest {
   assert(to!string(emit_F2(HorB, atg[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
   assert(to!string(emit_F2(HorB, atg[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
 
-  assert(emit_F2(NA, atgPK[0], error_prob) == 0);
-  assert(emit_F2(NA, atgPK[1], error_prob) == 0);
-  assert(emit_F2(NA, atgPK[2], error_prob) == 0);
-  assert(emit_F2(NA, atgPK[3], error_prob) == 0);
+  assert(emit_F2PK(NA, atgPK[0], error_prob) == 0);
+  assert(emit_F2PK(NA, atgPK[1], error_prob) == 0);
+  assert(emit_F2PK(NA, atgPK[2], error_prob) == 0);
+  assert(emit_F2PK(NA, atgPK[3], error_prob) == 0);
 
-  assert(to!string(emit_F2(A, atgPK[0], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(emit_F2(A, atgPK[1], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(emit_F2(A, atgPK[2], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(emit_F2(A, atgPK[3], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(emit_F2PK(A, atgPK[0], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(emit_F2PK(A, atgPK[1], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(emit_F2PK(A, atgPK[2], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(emit_F2PK(A, atgPK[3], error_prob)) == to!string(log(error_prob/2.0)));
 
-  assert(to!string(emit_F2(H, atgPK[1], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(emit_F2(H, atgPK[2], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(emit_F2(H, atgPK[0], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(emit_F2(H, atgPK[3], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(emit_F2PK(H, atgPK[1], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(emit_F2PK(H, atgPK[2], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(emit_F2PK(H, atgPK[0], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(emit_F2PK(H, atgPK[3], error_prob)) == to!string(log(error_prob/2.0)));
 
-  assert(to!string(emit_F2(B, atgPK[3], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(emit_F2(B, atgPK[0], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(emit_F2(B, atgPK[1], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(emit_F2(B, atgPK[2], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(emit_F2PK(B, atgPK[3], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(emit_F2PK(B, atgPK[0], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(emit_F2PK(B, atgPK[1], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(emit_F2PK(B, atgPK[2], error_prob)) == to!string(log(error_prob/2.0)));
 
-  assert(to!string(emit_F2(AorH, atgPK[0], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(emit_F2(AorH, atgPK[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(emit_F2(AorH, atgPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(emit_F2(AorH, atgPK[3], error_prob)) == to!string(log(error_prob)));
+  assert(to!string(emit_F2PK(AorH, atgPK[0], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(emit_F2PK(AorH, atgPK[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(emit_F2PK(AorH, atgPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(emit_F2PK(AorH, atgPK[3], error_prob)) == to!string(log(error_prob)));
 
-  assert(to!string(emit_F2(HorB, atgPK[0], error_prob)) == to!string(log(error_prob)));
-  assert(to!string(emit_F2(HorB, atgPK[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(emit_F2(HorB, atgPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(emit_F2(HorB, atgPK[3], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(emit_F2PK(HorB, atgPK[0], error_prob)) == to!string(log(error_prob)));
+  assert(to!string(emit_F2PK(HorB, atgPK[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(emit_F2PK(HorB, atgPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(emit_F2PK(HorB, atgPK[3], error_prob)) == to!string(log(1.0-error_prob/2.0)));
 }
