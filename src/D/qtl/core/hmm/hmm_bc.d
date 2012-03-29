@@ -121,3 +121,36 @@ unittest {
   assert(to!string(emit_BC(H, atg[1], error_prob)) == to!string(log(1.0-error_prob)));
   assert(to!string(emit_BC(H, atg[0], error_prob)) == to!string(log(error_prob)));
 }
+
+// No. recombination events
+double nrec_BC(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
+{
+  auto atg = allTrueGeno_BC();
+
+  if(truegen_left == atg[0]) {
+    if(truegen_right == atg[0]) // A -> A
+      return(0.0);
+    if(truegen_right == atg[1]) // A -> H
+      return(1.0);
+  }
+
+  if(truegen_left == atg[1]) {
+    if(truegen_right == atg[1]) // H -> H
+      return(0.0);
+    if(truegen_right == atg[0]) // H -> A
+      return(1.0);
+  }
+
+  throw new Exception("inputs not among the possible true genotypes");
+}
+
+unittest {
+  writeln("    unit test nrec for BC");
+  auto g = allTrueGeno_BC();
+
+  assert(nrec_BC(g[0], g[0]) == 0.0);
+  assert(nrec_BC(g[0], g[1]) == 1.0);
+
+  assert(nrec_BC(g[1], g[0]) == 1.0);
+  assert(nrec_BC(g[1], g[1]) == 0.0);
+}
