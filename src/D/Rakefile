@@ -112,6 +112,7 @@ exe_list = {
   'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
   'test_scanone' => { :path => './test/scanone', :list => all_core_dfiles + scanone_dfiles + csv_dfiles + deprecated_dfiles + main_dfile },
   'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] },
+  'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
   'test_hmm' => { :path => './test/hmm', :list => all_core_dfiles + qtab_read_dfiles + main_dfile },
 }
@@ -200,11 +201,6 @@ task :test_qtab => [ 'read_qtab', 'write_qtab' ] do
   sh "./read_qtab" 
 end
 
-# desc "Test lapack binding"
-# task :lapack => [ 'test_lapack' ] do
-#   sh "./test_lapack" 
-# end
-
 desc "Test CSV"
 task :test_csv => [ :read_csv ]
 
@@ -213,5 +209,5 @@ task :test_csvr => [ :read_csvr ]
 
 desc "Test all"
 
-task :test_all => [:clean, :test_csv, :test_csvr, :test_xgap, :test_qtab, :test_hmm, :test_lapack ]
+task :test_all => [:clean, :test_csv, :test_csvr, :test_xgap, :test_qtab, :test_hmm, :test_lapack, :test_rlib ]
 
