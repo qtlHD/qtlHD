@@ -49,7 +49,7 @@ mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
 deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
   Dir.glob("./qtl/plugins/deprecate/*.d")
 
-all_core_dfiles = core_dfiles + map_dfiles + hmm_dfiles + util_dfiles
+all_core_dfiles = core_dfiles + map_dfiles + hmm_dfiles + util_dfiles + qtab_read_dfiles
 all_dfiles = all_core_dfiles + 
              csv_dfiles + csvr_dfiles + qtab_dfiles + xgap_dfiles +
              deprecated_dfiles
