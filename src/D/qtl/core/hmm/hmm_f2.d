@@ -201,12 +201,39 @@ unittest {
   writeln("    unit test step for F2 (phase-known)");
   auto gPK = allTrueGeno_F2PK();
 
-  assert( to!string( step_F2(gPK[0], gPK[0], rf) ) ==
+  assert( to!string( step_F2PK(gPK[0], gPK[0], rf) ) ==
           to!string( log((1-rf)^^2) ));
-  assert( to!string( step_F2(gPK[0], gPK[1], rf) ) ==
+  assert( to!string( step_F2PK(gPK[0], gPK[1], rf) ) ==
           to!string( log(rf*(1-rf)) ));
-  assert( to!string( step_F2(gPK[0], gPK[2], rf) ) ==
+  assert( to!string( step_F2PK(gPK[0], gPK[2], rf) ) ==
           to!string( log(rf*(1-rf)) ));
-  assert( to!string( step_F2(gPK[0], gPK[3], rf) ) ==
+  assert( to!string( step_F2PK(gPK[0], gPK[3], rf) ) ==
+          to!string( log(rf^^2) ));
+
+  assert( to!string( step_F2PK(gPK[1], gPK[0], rf) ) ==
+          to!string( log(rf*(1-rf)) ));
+  assert( to!string( step_F2PK(gPK[1], gPK[1], rf) ) ==
+          to!string( log((1-rf)^^2) ));
+  assert( to!string( step_F2PK(gPK[1], gPK[2], rf) ) ==
+          to!string( log(rf^^2) ));
+  assert( to!string( step_F2PK(gPK[1], gPK[3], rf) ) ==
+          to!string( log(rf*(1.0-rf)) ));
+
+  assert( to!string( step_F2PK(gPK[2], gPK[0], rf) ) ==
+          to!string( log(rf*(1-rf)) ));
+  assert( to!string( step_F2PK(gPK[2], gPK[2], rf) ) ==
+          to!string( log((1-rf)^^2) ));
+  assert( to!string( step_F2PK(gPK[2], gPK[1], rf) ) ==
+          to!string( log(rf^^2) ));
+  assert( to!string( step_F2PK(gPK[2], gPK[3], rf) ) ==
+          to!string( log(rf*(1.0-rf)) ));
+
+  assert( to!string( step_F2PK(gPK[3], gPK[3], rf) ) ==
+          to!string( log((1-rf)^^2) ));
+  assert( to!string( step_F2PK(gPK[3], gPK[1], rf) ) ==
+          to!string( log(rf*(1-rf)) ));
+  assert( to!string( step_F2PK(gPK[3], gPK[2], rf) ) ==
+          to!string( log(rf*(1-rf)) ));
+  assert( to!string( step_F2PK(gPK[3], gPK[0], rf) ) ==
           to!string( log(rf^^2) ));
 }
