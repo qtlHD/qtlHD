@@ -213,5 +213,5 @@ task :test_csvr => [ :read_csvr ]
 
 desc "Test all"
 
-task :test_all => [:clean, :test_csv, :test_csvr, :test_xgap, :test_qtab, :test_hmm,  ]
+task :test_all => [:clean, :test_csv, :test_csvr, :test_xgap, :test_qtab, :test_hmm, :test_lapack ]
 
