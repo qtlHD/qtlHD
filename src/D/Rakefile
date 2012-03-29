@@ -35,7 +35,7 @@ if ARGV.index("DEBUG=TRUE")
 end
 core_dfiles = Dir.glob("./qtl/core/*.d") 
 map_dfiles  = Dir.glob("./qtl/core/map/*.d")
-hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d") + [ './qtl/core/mqm/matrix.d' ]
+hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d")
 util_dfiles = Dir.glob("./qtl/core/util/*.d")
 csv_dfiles = Dir.glob("./qtl/plugins/csv/*.d")
 csvr_dfiles = Dir.glob("./qtl/plugins/csvr/*.d") + [ './qtl/core/mqm/matrix.d' ]
@@ -111,7 +111,7 @@ exe_list = {
   'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles },
   'test_scanone' => { :path => './test/scanone', :list => all_core_dfiles + scanone_dfiles + csv_dfiles + deprecated_dfiles},
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles},
-  'test_hmm' => { :path => './test/hmm', :list => all_core_dfiles + qtab_read_dfiles + deprecated_dfiles},
+  'test_hmm' => { :path => './test/hmm', :list => all_core_dfiles + qtab_read_dfiles},
 }
 
 lib_list.each do | fn, attr |

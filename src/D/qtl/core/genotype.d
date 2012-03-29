@@ -29,14 +29,14 @@ import qtl.core.primitives;
   to the founders. I.e.
 
   founders:       [1]   [2]   [3]   [4]
-  
+
   actual types:   [1,1] [1,2] [2,2] [2,3] [2,4] etc.  (TrueGenotype)
 
   combinations: (GenotypeCombinator[])
 
    -1        ->   []                              i.e. NA
     0        ->   [ 1      0     0     0    0 ]   i.e. [1,1]
-    1        ->   [ 0      1     1     0    0 ]   i.e. [1,2] or [2,2] 
+    1        ->   [ 0      1     1     0    0 ]   i.e. [1,2] or [2,2]
     2        ->   [ 0      0     1     0    0 ]   i.e. [2,2]
 
   (GenotypeCombinatorIndex - the left column)
@@ -44,7 +44,7 @@ import qtl.core.primitives;
   Types are defined in primitives.d.
 
   Every marker column has its own combinations defined. So combination #1 may
-  refer to different genotypes, between different marker columns. 
+  refer to different genotypes, between different marker columns.
 
   Above bit matrix may suggest a form of binary storage/packing/unpacking. In
   reality we store it as a list of references to TrueGenotype. This is because
@@ -54,7 +54,7 @@ import qtl.core.primitives;
    Index          GenotypeCombinator
    -1        ->   []       i.e. NA
     0        ->   [ 0 ]    i.e. [1,1]
-    1        ->   [ 1,2 ]  i.e. [1,2] or [2,2] 
+    1        ->   [ 1,2 ]  i.e. [1,2] or [2,2]
     2        ->   [ 2 ]    i.e. [2,2]
 
   Note that types are reused - i.e. there are no duplicates defined.
@@ -90,7 +90,7 @@ alias Tuple!(FounderIndex,FounderIndex) Alleles;
 
 /**
  * A true genotype consists of a Tuple of genotypes/alleles - one from each
- * (founder) parent. These genotypes can be directional 
+ * (founder) parent. These genotypes can be directional
  */
 
 class TrueGenotype {
@@ -102,7 +102,7 @@ class TrueGenotype {
   // read true genotypes as a comma separated string, e.g. "0,0" or "1,0".
   // make sure not to pass in "" or "NA" - these are simply illegal TrueGenotypes.
   this(in string str) {
-    auto fields = split(strip(str),",");  
+    auto fields = split(strip(str),",");
     if (fields.length != 2)
       throw new Exception("Can not parse field with value \"" ~ str ~ "\"");
     auto field1 = to!uint(fields[0]);
@@ -124,20 +124,20 @@ class TrueGenotype {
     auto founders2 = (cast(TrueGenotype)other).founders;
     return founders[0] == founders2[0] && founders[1] == founders2[1];
   }
-  const string toTrueGenotype() { 
+  const string toTrueGenotype() {
     uint f0 = founders[0]; uint f1 = founders[1];
     return to!string(f0) ~ ',' ~ to!string(f1);
   }
-  const string toString() { 
+  const string toString() {
     return '(' ~ toTrueGenotype ~ ')';
   }
 }
 
 /**
- * GenotypeCombinator points to TrueGenoTypes - we have a list 
+ * GenotypeCombinator points to TrueGenoTypes - we have a list
  * of these for each observed type - as it is defined in the
  * dataset. The list is filled with a combination of true
- * genotypes, while reading in the data(file). This means the 
+ * genotypes, while reading in the data(file). This means the
  * minimal amount of memory is used for the (exhaustive) set of
  * combinations of genotypes.
  *
@@ -157,20 +157,22 @@ class GenotypeCombinator {
   string name; // the display name
   Encoding encoding[]; // a list of encoding types
 
-  // initialize a combinator by name. name 
+  // initialize a combinator by name. name
   // is also used for input encoding
-  this(string name, Encoding code = null) { 
-    this.name = name; 
+  this(string name, Encoding code = null) {
+    this.name = name;
     add_encoding(name);
     if (code) add_encoding(code);
   }
   void add_encoding(Encoding code) { this.encoding ~= code; }
   // see if an input matches
   bool match(in Encoding code) { return canFind(encoding,code); }
+  // see if a true genotype is compatible
+  bool match(in TrueGenotype truegen) { return canFind(list,truegen); }
   // uniquely add a genotype. Return match.
-  TrueGenotype add(TrueGenotype g) { 
+  TrueGenotype add(TrueGenotype g) {
     foreach(m; list) { if (m.founders == g.founders) return m; }
-    list ~= g; 
+    list ~= g;
     return g;
   }
   GenotypeCombinator opOpAssign(string op)(TrueGenotype g) if (op == "~") {
@@ -216,12 +218,12 @@ class GenotypeCombinator {
   }
   const bool isNA() { return length == 0; }
   // compatibility function - deprecate
-  auto value() { return this; } 
+  auto value() { return this; }
 }
 
 alias GenotypeCombinator Gref;  // short name for referencing a combinator
 
-/** 
+/**
  * ObservedGenotypes tracks all the observed genotypes in a dataset, for the
  * full set, or at a marker position.  This symbol tracker is a convenience
  * class, mostly.
@@ -231,9 +233,9 @@ class ObservedGenotypes {
   GenotypeCombinator[] list;
   /// Pass in a combination of genotypes, add if not already in list and
   /// return the actual match.
-  GenotypeCombinator add(GenotypeCombinator c) { 
+  GenotypeCombinator add(GenotypeCombinator c) {
     foreach(m; list) { if (m == c) return m; }
-    list ~= c; 
+    list ~= c;
     return c;
   }
   /// Decode an input to an (observed) genotype, returns NULL on NA
@@ -243,11 +245,11 @@ class ObservedGenotypes {
     // try to decode by genotype - an empty should return NA
     if (s == "") return decode("NA");
     auto geno = new TrueGenotype(s);
-    foreach(m; list) { 
+    foreach(m; list) {
       // writeln(m,geno);
       if (!m.isNA) {
         foreach(g ; m.list) {
-          if (g == geno) return m; 
+          if (g == geno) return m;
         }
       }
     }
@@ -268,7 +270,7 @@ class ObservedGenotypes {
  * New style genotypes - support for observed genotypes
  */
 
-import std.typecons; 
+import std.typecons;
 
 /**
  * Unit tests for TrueGenotype and GenotypeCombinators
@@ -314,7 +316,7 @@ unittest {
   observed1a ~= g2a;
   observed1a ~= g1;
   assert(observed1 == observed1a);
-  // observed already acts as an index, so now we only need 
+  // observed already acts as an index, so now we only need
   // to store the observed genotypes with the marker. The marker/genotype
   // matrix stores references to observedX by reference. Say
   // we have a marker column, and 2 individuals (2 observed genotypes):
@@ -325,7 +327,7 @@ unittest {
   assert(to!string(observed[0]) == "[NA]", to!string(observed[0]));
   observed[1] ~= g1;
   observed[1] ~= g2; // add 2nd possible genotype
-  observed[1] ~= g2; // duplicate type 
+  observed[1] ~= g2; // duplicate type
   assert(to!string(observed[1]) == "[(1,3), (2,2)]");
   assert(observed[1].list == [g1,g2]);
   assert(observed[1] != observed[0]);
@@ -353,9 +355,9 @@ class RIL {
     A ~= new TrueGenotype(0,0);
     B  = new GenotypeCombinator("B");
     B ~= new TrueGenotype(1,1);
-    NA.add_encoding("-"); 
-    A.add_encoding("AA"); 
-    B.add_encoding("BB"); 
+    NA.add_encoding("-");
+    A.add_encoding("AA");
+    B.add_encoding("BB");
   }
 }
 
@@ -417,7 +419,7 @@ class BC {
     A ~= new TrueGenotype(0,0);
     H  = new GenotypeCombinator("H");
     H ~= new TrueGenotype(1,0);
-    NA.add_encoding("-"); 
+    NA.add_encoding("-");
   }
 }
 
@@ -456,7 +458,7 @@ unittest {
 
 /**
  * F2 set using Genotype combinator
- * F2  { NA, A, H, B, HorB, HorA }; 
+ * F2  { NA, A, H, B, HorB, HorA };
  */
 
 class F2 {
@@ -482,11 +484,11 @@ class F2 {
     HorA  = new GenotypeCombinator("HorA","D");
     HorA ~= ab;
     HorA ~= aa;
-    NA.add_encoding("-"); 
-    A.add_encoding("AA"); 
-    B.add_encoding("BB"); 
-    H.add_encoding("AB"); 
-    H.add_encoding("BA"); 
+    NA.add_encoding("-");
+    A.add_encoding("AA");
+    B.add_encoding("BB");
+    H.add_encoding("AB");
+    H.add_encoding("BA");
   }
 }
 
@@ -549,9 +551,9 @@ unittest {
 }
 
 
-/** 
+/**
  * Directional F2 with ambiguous scoring:
- * F2  { NA, A, B, AB, BA, HorB, HorA }; 
+ * F2  { NA, A, B, AB, BA, HorB, HorA };
  */
 
 unittest {
@@ -580,9 +582,23 @@ unittest {
   symbols ~= BA;
   symbols ~= HorA;
   symbols ~= HorB;
-  // writeln(HorA);
   assert(HorA.name == "HorA");
   assert(to!string(HorA) == "[(0,0), (0,1), (1,0)]");
+
+  auto gA = new TrueGenotype(0,0);
+  auto gB = new TrueGenotype(1,1);
+  auto gAB = new TrueGenotype(0,1);
+  auto gBA = new TrueGenotype(1,0);
+
+  assert(HorA.match(gA));
+  assert(HorA.match(gBA));
+  assert(HorA.match(gAB));
+  assert(!HorA.match(gB));
+
+  assert(!HorB.match(gA));
+  assert(HorB.match(gBA));
+  assert(HorB.match(gAB));
+  assert(HorB.match(gB));
 }
 
 /**
@@ -593,7 +609,7 @@ class Flex {
   GenotypeCombinator NA;
   this() {
     NA = new GenotypeCombinator("NA");
-    NA.add_encoding("-"); 
+    NA.add_encoding("-");
   }
 }
 
@@ -633,7 +649,7 @@ class ObservedFlex {
  * GENOTYPE CA,F as 2,0 0,2     # alias
  * GENOTYPE AorB as 0,0 1,1
  * GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0
- * GENOTYPE NA,- as None         
+ * GENOTYPE NA,- as None
  *
  * and should be in the header, close to the start, of the file. The
  * identifier (A,B, etc) can be any string.
@@ -649,7 +665,7 @@ class ObservedFlex {
  */
 
 /**
- * Fetch an observed genotype definition from a string. 
+ * Fetch an observed genotype definition from a string.
  * Returns name (aliases) and true genotypes. The input string
  * is of format
  *
@@ -662,7 +678,7 @@ class ObservedFlex {
  *
  */
 
-Tuple!(string[],TrueGenotype[]) parse_observed_genotype_string(string s) 
+Tuple!(string[],TrueGenotype[]) parse_observed_genotype_string(string s)
 out(result) {
   auto names = result[0];
   auto tgs = result[0];
@@ -682,7 +698,7 @@ body {
     }
     i++;
   }
-  if (i > tokens.length-2) 
+  if (i > tokens.length-2)
     throw new Exception("Expected 'as' for " ~ s);
   TrueGenotype[] tgs;
   foreach(tt ; tokens[i+2..$]) {
@@ -698,7 +714,7 @@ body {
   return tuple(names, tgs);
 }
 
-/** 
+/**
  * Convenience object for parsing observed genotype definition
  * strings. The result is stored in names and genotypes arrays.
  */
@@ -753,15 +769,15 @@ class EncodedCross {
   EncodedGenotype add(string line) {
     auto line_item = new EncodedGenotype(line);
     auto n = line_item.names[0];
-    if (n in gc) 
+    if (n in gc)
       throw new Exception("Duplicate " ~ line);
-      
+
     gc[n] = new GenotypeCombinator(n);
     foreach (tt ; line_item.genotypes) {
        gc[n] ~= tt;
     }
     foreach (n_alias ; line_item.names[1..$]) {
-       gc[n].add_encoding(n_alias); 
+       gc[n].add_encoding(n_alias);
     }
     // writeln("--->",gc[n].encoding,gc[n]);
     return line_item;
@@ -771,7 +787,7 @@ class EncodedCross {
 
 unittest {
   auto encoded = "
-GENOTYPE NA,- as None        
+GENOTYPE NA,- as None
 GENOTYPE A as 0,0
 GENOTYPE B,BB as 1,1
 GENOTYPE C,CC as 2,2         # alias
@@ -821,5 +837,5 @@ GENOTYPE AA as 0,0
   assertNotThrown(new EncodedCross(split(encoded,"\n")));
 }
 
-
-
+// CrossType : allowable cross types we will handle
+enum CrossType { BC, F2, RILself, RILsib };
