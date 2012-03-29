@@ -23,7 +23,7 @@ TrueGenotype[] allTrueGeno_F2()
   return [g1, g2, g3];
 }
 
-// phase-known version (for est.map)
+// phase-known version (for est_map)
 TrueGenotype[] allTrueGeno_F2PK()
 {
   auto g1 = new TrueGenotype(0,0);
@@ -66,11 +66,27 @@ double init_F2(in TrueGenotype truegen)
   throw new Exception("truegen not among possible true genotypes");
 }
 
+// ln Pr(true genotype) for est_map
+double init_F2PK(in TrueGenotype truegen)
+{
+  auto g = allTrueGeno_F2PK();
+
+  if(truegen==g[0] || truegen==g[1] || 
+     truegen==g[2] || truegen==g[3])
+    return(-2.0*LN2);
+
+  throw new Exception("truegen not among possible true genotypes");
+}
+
 unittest {
   auto g = allTrueGeno_F2();
+  auto gPK = allTrueGeno_F2PK();
   double val[] = [log(0.25), log(0.5), log(0.25)];
 
   foreach(i, gv; g)
     assert(to!string(init_F2(gv)) == to!string(val[i]));
+
+  foreach(gv; gPK)
+    assert(to!string(init_F2PK(gv)) == to!string(val[0]));
 }
 
