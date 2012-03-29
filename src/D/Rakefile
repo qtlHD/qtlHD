@@ -48,6 +48,7 @@ scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
 deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
   Dir.glob("./qtl/plugins/deprecate/*.d")
+main_dfile = ["test/main.d"]
 
 all_core_dfiles = core_dfiles + map_dfiles + hmm_dfiles + util_dfiles + qtab_read_dfiles
 all_dfiles = all_core_dfiles + 
@@ -103,15 +104,16 @@ lib_list = {
 }
 
 exe_list = { 
-  'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles },
-  'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + deprecated_dfiles },
-  'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_read_dfiles },
-  'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_write_dfiles + csv_dfiles },
-  'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles },
-  'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles },
-  'test_scanone' => { :path => './test/scanone', :list => all_core_dfiles + scanone_dfiles + csv_dfiles + deprecated_dfiles},
-  'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles},
-  'test_hmm' => { :path => './test/hmm', :list => all_core_dfiles + qtab_read_dfiles},
+  'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles + main_dfile },
+  'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
+  'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_read_dfiles + main_dfile },
+  'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_write_dfiles + csv_dfiles + main_dfile },
+  'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
+  'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
+  'test_scanone' => { :path => './test/scanone', :list => all_core_dfiles + scanone_dfiles + csv_dfiles + deprecated_dfiles + main_dfile },
+  'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] },
+  'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
+  'test_hmm' => { :path => './test/hmm', :list => all_core_dfiles + qtab_read_dfiles + main_dfile },
 }
 
 lib_list.each do | fn, attr |
@@ -136,9 +138,9 @@ exe_list.each do | fn, attr |
   end
   file fn => list do
     if windows?
-      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
+      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
     else
-      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')} test/main.d"
+      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
     end
     if debug
       print "RUNNING the debugger, to continue the test, type 'run'\n"
@@ -168,7 +170,7 @@ desc "Create tags (exurberant tags)"
 task :tags => [] do
   print "Creating tags!"
   list = all_dfiles 
-  sh "dmd -c -Xftags.json #{list.join(' ')} test/main.d"
+  sh "dmd -c -Xftags.json #{list.join(' ')}"
   sh "rdmd ../../scripts/d2tags . > tags"
 end
 
@@ -198,6 +200,11 @@ task :test_qtab => [ 'read_qtab', 'write_qtab' ] do
   sh "./read_qtab" 
 end
 
+# desc "Test lapack binding"
+# task :lapack => [ 'test_lapack' ] do
+#   sh "./test_lapack" 
+# end
+
 desc "Test CSV"
 task :test_csv => [ :read_csv ]
 
@@ -206,5 +213,5 @@ task :test_csvr => [ :read_csvr ]
 
 desc "Test all"
 
-task :test_all => [:clean, :test_csv, :test_csvr, :test_xgap, :test_qtab, :test_hmm ]
+task :test_all => [:clean, :test_csv, :test_csvr, :test_xgap, :test_qtab, :test_hmm,  ]
 
