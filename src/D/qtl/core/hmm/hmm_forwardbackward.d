@@ -11,11 +11,11 @@ import qtl.core.map.genetic_map_functions;
 import qtl.core.primitives, qtl.core.genotype;
 
 // forward Equations
-double[][] forwardEquations(in GenotypeCombinator[] genotypes, in TrueGenotype[] all_true_geno,
-                            in Marker[] marker_map, in double[] rec_frac, in double error_prob,
-                            double init(in TrueGenotype), 
-                            double emit(GenotypeCombinator, TrueGenotype, double),
-                            double step(TrueGenotype, TrueGenotype, double))
+double[][] forwardEquations(alias init, alias emit, alias step)(in GenotypeCombinator[] genotypes, 
+                                                                in TrueGenotype[] all_true_geno,
+                                                                in Marker[] marker_map, 
+                                                                in double[] rec_frac, 
+                                                                in double error_prob)
 {
   size_t n_positions = marker_map.length;
 
@@ -50,11 +50,11 @@ double[][] forwardEquations(in GenotypeCombinator[] genotypes, in TrueGenotype[]
 
 
 // backward Equations 
-double[][] backwardEquations(in GenotypeCombinator[] genotypes, in TrueGenotype[] all_true_geno,
-                             in Marker[] marker_map, in double[] rec_frac, in double error_prob,
-                             double init(in TrueGenotype), 
-                             double emit(GenotypeCombinator, TrueGenotype, double),
-                             double step(TrueGenotype, TrueGenotype, double))
+double[][] backwardEquations(alias init, alias emit, alias step)(in GenotypeCombinator[] genotypes, 
+                                                                 in TrueGenotype[] all_true_geno,
+                                                                 in Marker[] marker_map, 
+                                                                 in double[] rec_frac, 
+                                                                 in double error_prob)
 {
   size_t n_positions = marker_map.length;
 
