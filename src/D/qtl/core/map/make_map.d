@@ -14,8 +14,8 @@ import std.algorithm;
 import std.math;
 alias std.algorithm.find find;
 
-import qtl.core.primitives;
 import qtl.core.marker; 
+import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.deprecate.genotype_enum;
 
