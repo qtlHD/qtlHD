@@ -53,7 +53,7 @@ unittest {
 }
 
 // ln Pr(true genotype)
-double init_F2(TrueGenotype truegen)
+double init_F2(in TrueGenotype truegen)
 {
   auto g = allTrueGeno_F2();
 
@@ -73,3 +73,4 @@ unittest {
   foreach(i, gv; g)
     assert(to!string(init_F2(gv)) == to!string(val[i]));
 }
+
