@@ -237,3 +237,60 @@ unittest {
   assert( to!string( step_F2PK(gPK[3], gPK[0], rf) ) ==
           to!string( log(rf^^2) ));
 }
+
+
+// ln Pr(observed genotype | true genotype)
+double emit_F2(Gref obsgen, TrueGenotype truegen, double error_prob)
+{
+  auto n_obsgen = obsgen.list.length;
+
+  if(n_obsgen==0) // missing value
+    return(0.0); // log(1.0)
+
+  if(obsgen.match(truegen)) { // compatible with truegen
+    if(n_obsgen>1) // AorH and HorB cases
+      return(log(1.0-error_prob/2.0));
+    else // A, H, B cases
+      return(log(1.0-error_prob));
+  }
+  else {
+    if(n_obsgen>1) // AorH and HorB cases
+      return(log(error_prob));
+    else // A, H, B cases
+      return(log(error_prob/2.0));
+  }
+}
+
+alias emit_F2PK emit_F2;
+
+unittest {
+  writeln("    unit test emit for F2");
+  auto atg = allTrueGeno_F2();
+  auto atgPK = allTrueGeno_F2PK();
+
+  auto NA = new GenotypeCombinator("-");
+  auto A = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto H = new GenotypeCombinator("H");
+  H ~= new TrueGenotype(1,0);
+  H ~= new TrueGenotype(0,1);
+  auto B = new GenotypeCombinator("B");
+  B ~= new TrueGenotype(1,1);
+  auto AorH = new GenotypeCombinator("AorH");
+  AorH ~= new TrueGenotype(0,0);
+  AorH ~= new TrueGenotype(1,0);
+  AorH ~= new TrueGenotype(0,1);
+  auto HorB = new GenotypeCombinator("HorB");
+  HorB ~= new TrueGenotype(1,0);
+  HorB ~= new TrueGenotype(0,1);
+  HorB ~= new TrueGenotype(1,1);
+
+  double error_prob = 0.01;
+
+  assert(emit_F2(NA, atg[0], error_prob) == 0);
+  assert(emit_BC(NA, atg[1], error_prob) == 0);
+  assert(to!string(emit_BC(A, atg[0], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(emit_BC(A, atg[1], error_prob)) == to!string(log(error_prob)));
+  assert(to!string(emit_BC(H, atg[1], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(emit_BC(H, atg[0], error_prob)) == to!string(log(error_prob)));
+}
