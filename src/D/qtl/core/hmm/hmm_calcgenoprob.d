@@ -13,11 +13,11 @@ import qtl.core.hmm.hmm_util;
 import qtl.core.hmm.hmm_forwardbackward;
 
 // calculate QTL genotype probabilities
-double[][][] calc_geno_prob(alias init, alias emit, alias step)(in GenotypeCombinator[][] genotypes, 
-                                                                in TrueGenotype[] all_true_geno,
-                                                                in Marker[] marker_map, 
-                                                                in double[] rec_frac, 
-                                                                in double error_prob)
+double[][][] calc_geno_prob(alias init, alias emit, alias step)(GenotypeCombinator[][] genotypes,
+                                                                TrueGenotype[] all_true_geno,
+                                                                Marker[] marker_map,
+                                                                double[] rec_frac,
+                                                                double error_prob)
 {
   if(marker_map.length != rec_frac.length+1) {
     writeln(marker_map.length);
@@ -40,19 +40,19 @@ double[][][] calc_geno_prob(alias init, alias emit, alias step)(in GenotypeCombi
 
   foreach(ind; 0..n_individuals) {
     alpha = forwardEquations!(init, emit, step)(genotypes[ind], all_true_geno, marker_map, rec_frac, error_prob);
-      
+
     beta = backwardEquations!(init, emit, step)(genotypes[ind], all_true_geno, marker_map, rec_frac, error_prob);
 
     // calculate genotype probabilities
     double sum_at_pos;
-    foreach(pos; 0..n_markers) {
-      sum_at_pos = genoprobs[ind][pos][all_true_geno[0]] = alpha[all_true_geno[0]][pos] + beta[all_true_geno[0]][pos];
-      foreach(true_geno; all_true_geno[1..$]) {
-        genoprobs[ind][pos][true_geno] = alpha[true_geno][pos] + beta[true_geno][pos];
-        sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][true_geno]);
+    foreach(pos; 0..n_positions) {
+      sum_at_pos = genoprobs[ind][pos][0] = alpha[0][pos] + beta[0][pos];
+      foreach(tg_index, true_geno; all_true_geno[1..$]) {
+        genoprobs[ind][pos][tg_index] = alpha[tg_index][pos] + beta[tg_index][pos];
+        sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][tg_index]);
       }
-      foreach(true_geno; all_true_geno) {
-        genoprobs[ind][pos][true_geno] = exp(genoprobs[ind][pos][true_geno] - sum_at_pos);
+      foreach(tg_index, true_geno; all_true_geno) {
+        genoprobs[ind][pos][tg_index] = exp(genoprobs[ind][pos][tg_index] - sum_at_pos);
       }
     }
   }
