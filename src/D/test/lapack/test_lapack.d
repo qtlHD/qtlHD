@@ -66,10 +66,10 @@ extern(C) {
   alias int f_int;
 }
 
-// From scid:
+// The C interface from the SciD library:
 extern (C) void dgemv_(char *trans, f_int *m, f_int *n, f_double *alpha, f_double *A, f_int *lda, f_double *x, f_int *incx, f_double *beta, f_double *y, f_int *incy, f_int trans_len);
 
-// The D interface calls the C interface
+// The D interface is a D-ified call which calls the C interface dgemv_
 void gemv(char trans, f_int m, f_int n, f_double alpha, f_double *A, f_int lda,
 f_double *x, f_int incx, f_double beta, f_double *y, f_int incy) {
     dgemv_(&trans, &m, &n, &alpha, A, &lda, x, &incx, &beta, y, &incy, 1);
@@ -89,7 +89,7 @@ int main()
   for (i=0; i<3; ++i)  printf("%5.1f\n", y[i]);
 
   writeln("
-Above output iss supposed to look like
+Above output is supposed to look like
 
   3.0  1.0  3.0
   1.0  5.0  9.0
