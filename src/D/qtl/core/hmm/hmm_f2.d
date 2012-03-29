@@ -17,9 +17,9 @@ import qtl.plugins.qtab.read_qtab;
 
 TrueGenotype[] allTrueGenoF2()
 {
-  auto g1 = new TrueGenotype("0,0");
-  auto g2 = new TrueGenotype("1,0");
-  auto g3 = new TrueGenotype("1,1");
+  auto g1 = new TrueGenotype(0,0);
+  auto g2 = new TrueGenotype(1,0);
+  auto g3 = new TrueGenotype(1,1);
   return [g1, g2, g3];
 }
 
