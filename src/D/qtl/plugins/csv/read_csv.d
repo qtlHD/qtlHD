@@ -14,6 +14,7 @@ import qtl.core.chromosome;
 // import qtl.core.util.matrix;
 import qtl.core.phenotype;
 import qtl.core.genotype;
+import qtl.core.individual;
 
 import std.stdio;
 import std.conv;

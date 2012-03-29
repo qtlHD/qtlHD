@@ -18,6 +18,7 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
+import qtl.core.individual;
 
 unittest {
   writeln("Unit test " ~ __FILE__);
@@ -100,8 +101,8 @@ Tuple!(string, string[]) parse_genotype_qtab(string line) {
 }
 
 
-auto read_marker_map_qtab(M)(string fn) {
-  M ret_ms[];
+auto read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
+  Ms ret_ms[];
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
   string buf;
