@@ -240,7 +240,7 @@ unittest {
 
 
 // ln Pr(observed genotype | true genotype)
-double emit_F2(Gref obsgen, TrueGenotype truegen, double error_prob)
+double emit_F2(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
 {
   auto n_obsgen = obsgen.list.length;
 
