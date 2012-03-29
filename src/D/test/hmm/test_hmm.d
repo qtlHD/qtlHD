@@ -65,10 +65,21 @@ unittest {
 
   assert(genotype_matrix[15][0] == symbols.decode("H"));
   assert(genotype_matrix[15][130] == symbols.decode("HorB"));
+  writeln("genotype_matrix[15][130]: ", genotype_matrix[15][130]);
+  writeln("genotype_matrix[15][130].length: ", genotype_matrix[15][130].length);
+  writeln("genotype_matrix[15][130].list.length: ", genotype_matrix[15][130].list.length);
+  foreach(g; genotype_matrix[15][130].list)
+    writeln("genotype_matrix[15][130].list[i]: ", g, " ", typeid(g));
 
   assert(genotype_matrix[18][129] == symbols.decode("B"));
   assert(genotype_matrix[18][130] == symbols.decode("NA"));
   assert(genotype_matrix[18][131] == symbols.decode("A"));
+
+  writeln("genotype_matrix[18][130]: ", genotype_matrix[18][130]);
+  writeln("genotype_matrix[18][130].length: ", genotype_matrix[18][130].length);
+  writeln("genotype_matrix[18][130].list.length: ", genotype_matrix[18][130].list.length);
+  foreach(g; genotype_matrix[18][130].list)
+    writeln("genotype_matrix[18][130].list[i]: ", g, " ", typeid(g));
 
   // by founders
   assert(genotype_matrix[0][0].list[0].homozygous == true);
@@ -216,10 +227,28 @@ unittest {
   assert(genotype_matrix[244][2] == symbols.decode("H"));
   assert(genotype_matrix[244][169] == symbols.decode("NA"));
 
+  writeln("genotype_matrix[244][0]: ", genotype_matrix[244][0]);
+  writeln("genotype_matrix[244][0].length: ", genotype_matrix[244][0].length);
+  writeln("genotype_matrix[244][0].list.length: ", genotype_matrix[244][0].list.length);
+  foreach(g; genotype_matrix[244][0].list)
+    writeln("genotype_matrix[244][0].list[i]: ", g, " ", typeid(g));
+
   assert(genotype_matrix[19][0] == symbols.decode("H"));
   assert(genotype_matrix[19][2] == symbols.decode("A"));
   assert(genotype_matrix[19][3] == symbols.decode("NA"));
   assert(genotype_matrix[19][169] == symbols.decode("A"));
+
+  writeln("genotype_matrix[19][2]: ", genotype_matrix[19][2]);
+  writeln("genotype_matrix[19][2].length: ", genotype_matrix[19][2].length);
+  writeln("genotype_matrix[19][2].list.length: ", genotype_matrix[19][2].list.length);
+  foreach(g; genotype_matrix[19][2].list)
+    writeln("genotype_matrix[19][2].list[i]: ", g, " ", typeid(g));
+
+  writeln("genotype_matrix[19][0]: ", genotype_matrix[19][0]);
+  writeln("genotype_matrix[19][0].length: ", genotype_matrix[19][0].length);
+  writeln("genotype_matrix[19][0].list.length: ", genotype_matrix[19][0].list.length);
+  foreach(g; genotype_matrix[19][0].list)
+    writeln("genotype_matrix[19][0].list[i]: ", g, " ", typeid(g));
 
   // by founders
   assert(genotype_matrix[239][2].list[0].homozygous == true);
