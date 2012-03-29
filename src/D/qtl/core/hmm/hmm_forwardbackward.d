@@ -11,10 +11,10 @@ import qtl.core.map.genetic_map_functions;
 import qtl.core.primitives, qtl.core.genotype;
 
 // forward Equations
-double[][] forwardEquations(in Gref[] genotypes, in TrueGenotype[] all_true_geno,
+double[][] forwardEquations(in GenotypeCombinator[] genotypes, in TrueGenotype[] all_true_geno,
                             in Marker[] marker_map, in double[] rec_frac, in double error_prob,
                             double init(in TrueGenotype), 
-                            double emit(Gref, TrueGenotype, double),
+                            double emit(GenotypeCombinator, TrueGenotype, double),
                             double step(TrueGenotype, TrueGenotype, double))
 {
   size_t n_positions = marker_map.length;
@@ -50,10 +50,10 @@ double[][] forwardEquations(in Gref[] genotypes, in TrueGenotype[] all_true_geno
 
 
 // backward Equations 
-double[][] backwardEquations(in Gref[] genotypes, in TrueGenotype[] all_true_geno,
+double[][] backwardEquations(in GenotypeCombinator[] genotypes, in TrueGenotype[] all_true_geno,
                              in Marker[] marker_map, in double[] rec_frac, in double error_prob,
                              double init(in TrueGenotype), 
-                             double emit(Gref, TrueGenotype, double),
+                             double emit(GenotypeCombinator, TrueGenotype, double),
                              double step(TrueGenotype, TrueGenotype, double))
 {
   size_t n_positions = marker_map.length;
