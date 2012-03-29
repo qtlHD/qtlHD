@@ -10,6 +10,8 @@ import std.conv;
 
 import qtl.core.primitives;
 import qtl.core.genotype;
+import qtl.core.hmm.hmm_calcgenoprob;
+import qtl.core.hmm.hmm_estmap;
 import qtl.core.map.genetic_map_functions;
 
 // things for the unit tests
@@ -35,7 +37,7 @@ unittest {
 }
 
 // ln Pr(true genotype)
-double init_BC(in TrueGenotype truegen)
+double init_BC(TrueGenotype truegen)
 {
   if(truegen != new TrueGenotype(0,0) &&
      truegen != new TrueGenotype(1,0))
@@ -53,7 +55,7 @@ unittest {
 }
 
 // ln Pr(genotype at right marker | genotype at left marker)
-double step_BC(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
+double step_BC(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
 {
   auto atg = allTrueGeno_BC();
 
@@ -123,7 +125,7 @@ unittest {
 }
 
 // No. recombination events
-double nrec_BC(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
+double nrec_BC(TrueGenotype truegen_left, TrueGenotype truegen_right)
 {
   auto atg = allTrueGeno_BC();
 
@@ -153,4 +155,29 @@ unittest {
 
   assert(nrec_BC(g[1], g[0]) == 1.0);
   assert(nrec_BC(g[1], g[1]) == 0.0);
+}
+
+double[][][] calc_geno_prob_BC(GenotypeCombinator[][] genotypes,
+                               Marker[] marker_map,
+                               double[] rec_frac,
+                               double error_prob)
+{
+  auto all_true_geno = allTrueGeno_BC();
+
+  return( calc_geno_prob!(init_BC, emit_BC, step_BC)(genotypes, all_true_geno,
+                                                     marker_map, rec_frac,
+                                                     error_prob) );
+}
+
+
+double[] estmap_BC(GenotypeCombinator[][] genotypes, Marker[] marker_map,
+                   double[] rec_frac, double error_prob, int max_iterations,
+                   double tol, bool verbose)
+{
+  auto all_true_geno = allTrueGeno_BC();
+
+  return( estmap!(init_BC, emit_BC, step_BC, nrec_BC)(genotypes, all_true_geno,
+                                                      marker_map, rec_frac,
+                                                      error_prob, max_iterations,
+                                                      tol, verbose) );
 }
