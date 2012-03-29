@@ -89,3 +89,15 @@ unittest {
   assert( to!string( step_BC(g[1], g[1], rf) ) ==
           to!string( log((1-rf)) ));
 }
+
+// ln Pr(observed genotype | true genotype)
+double emit_BC(Gref obsgen, TrueGenotype truegen, double error_prob)
+{
+  return 0.0;
+}
+
+unittest {
+  writeln("    unit test emit for BC");
+  auto atg = allTrueGeno_BC();
+  ObservedGenotypes aog[3];
+}
