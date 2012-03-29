@@ -7,11 +7,15 @@ module test.hmm.test_hmm;
 import std.math, std.stdio, std.path;
 import std.exception, std.conv;
 import std.random;
+import std.algorithm;
 
 import qtl.core.primitives;
 import qtl.core.phenotype, qtl.core.chromosome, qtl.core.genotype;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.map.make_map;
+import qtl.core.map.genetic_map_functions;
+import qtl.core.hmm.hmm_bc;
+import qtl.core.hmm.hmm_f2;
 
 
 unittest {
@@ -175,10 +179,29 @@ unittest {
     pmap_stepped = add_stepped_markers_autosome(chr[1], 5.0, 0.0);
     pmap_minimal = add_minimal_markers_autosome(chr[1], 5.0, 0.0);
     writefln("\tmarkers: %3d\tpmar (stepped): %3d\tpmar (minimal): %3d",
-             chr[1].length, 
+             chr[1].length,
              pmap_stepped.length - chr[1].length,
              pmap_minimal.length - chr[1].length);
   }
+
+  // test calc_geno_prob with listeria data
+  writeln("Test calc_geno_prob with listeria data, chr 4");
+  auto chr2_map = markers_by_chr_sorted[2][1];
+  sort(chr2_map); // sort in place
+  auto pmap_stepped_chr2 = add_stepped_markers_autosome(chr2_map, 1.0, 0.0);
+
+  double[] dist_cM;
+  foreach(i; 1..pmap_stepped_chr2.length)
+    dist_cM ~= pmap_stepped_chr2[i].get_position() - pmap_stepped_chr2[i-1].get_position();
+  auto rec_frac = dist_to_recfrac(dist_cM, GeneticMapFunc.Carter_Falconer);
+  writeln("dist_cM.length: ", dist_cM.length);
+  writeln("rec_frac.length: ", rec_frac.length);
+  writeln("pmap_stepped_chr2.length: ", pmap_stepped_chr2.length);
+
+  auto chr2probs = calc_geno_prob_F2(genotype_matrix, pmap_stepped_chr2, rec_frac, 0.001);
+
+
+
 }
 
 
@@ -334,9 +357,26 @@ unittest {
 
     auto pmap_stepped = add_stepped_markers_autosome(chr[1], 1, 0);
     auto pmap_minimal = add_minimal_markers_autosome(chr[1], 1, 0);
-    writefln("\tmarkers: %3d\tpmar (stepped): %3d\tpmar (minimal): %3d", chr[1].length, 
+    writefln("\tmarkers: %3d\tpmar (stepped): %3d\tpmar (minimal): %3d", chr[1].length,
              pmap_stepped.length-chr[1].length, pmap_minimal.length-chr[1].length);
   }
+
+
+  // test calc_geno_prob with hyper data
+  writeln("Test calc_geno_prob with hyper data, chr 4");
+  auto chr4_map = markers_by_chr_sorted[4][1];
+  sort(chr4_map); // sort in place
+  auto pmap_stepped_chr4 = add_stepped_markers_autosome(chr4_map, 1.0, 0.0);
+
+  double[] dist_cM;
+  foreach(i; 1..pmap_stepped_chr4.length)
+    dist_cM ~= pmap_stepped_chr4[i].get_position() - pmap_stepped_chr4[i-1].get_position();
+  auto rec_frac = dist_to_recfrac(dist_cM, GeneticMapFunc.Carter_Falconer);
+  writeln("dist_cM.length: ", dist_cM.length);
+  writeln("rec_frac.length: ", rec_frac.length);
+  writeln("pmap_stepped_chr4.length: ", pmap_stepped_chr4.length);
+
+  auto chr4probs = calc_geno_prob_BC(genotype_matrix, pmap_stepped_chr4, rec_frac, 0.001);
 }
 
 
