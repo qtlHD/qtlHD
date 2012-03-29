@@ -33,7 +33,7 @@ unittest {
   assert(g[1] == new TrueGenotype(1,0));
 }
 
-// Pr(true genotype)
+// ln Pr(true genotype)
 double init_BC(TrueGenotype truegen)
 {
   if(truegen != new TrueGenotype(0,0) &&
