@@ -91,7 +91,7 @@ unittest {
 }
 
 // ln Pr(observed genotype | true genotype)
-double emit_BC(Gref obsgen, TrueGenotype truegen, double error_prob)
+double emit_BC(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
 {
   if(obsgen.list.length==0) // missing value
     return(0.0); // log(1.0)
