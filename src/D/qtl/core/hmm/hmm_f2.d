@@ -52,7 +52,7 @@ unittest {
   assert(gPK[3] == new TrueGenotype(1,1));
 }
 
-// Pr(true genotype)
+// ln Pr(true genotype)
 double init_F2(TrueGenotype truegen)
 {
   auto g = allTrueGeno_F2();
