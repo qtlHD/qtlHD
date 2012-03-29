@@ -7,12 +7,13 @@ module qtl.core.chromosome;
 import std.container;
 import std.conv;
 import std.variant;
+import std.random;
 import qtl.core.primitives;
 import std.algorithm; // to use sort()
 
 import std.stdio;
 // import std.container;
-import std.typecons; 
+import std.typecons;
 
 
 /**
@@ -23,18 +24,18 @@ import std.typecons;
 
 Chromosome get_chromosome_with_id(string name) {
   uint id;
-  if (name == "X") id = 0;  
+  if (name == "X") id = 0;
   else             id = to!int(name);
   return get_chromosome(name,id,(name == "X"));
 }
 
 /**
- * Create new Chromosome object. Currently, if is_sex is true it 
+ * Create new Chromosome object. Currently, if is_sex is true it
  * returns a SexChromosome, otherwise an Autosome.
  */
 
 Chromosome get_chromosome(string name, uint id, bool is_sex=false) {
-  if (is_sex) 
+  if (is_sex)
     return new SexChromosome(name);
   else
     return new Autosome(name,id);
@@ -62,14 +63,14 @@ Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
     static if (is(Ms : Object)) {
       if ((m.chromosome.name) !in hash_cs)
         hash_cs[m.chromosome.name] = new Ms();
-      hash_cs[m.chromosome.name].list ~= cast(Marker)m; 
+      hash_cs[m.chromosome.name].list ~= cast(Marker)m;
     }
     else {
       hash_cs[m.chromosome.name] ~= cast(Marker)m;
     }
   }
   // convert to ret type
-  Tuple!(Chromosome, Ms)[] list; 
+  Tuple!(Chromosome, Ms)[] list;
   foreach( cname, ms ; hash_cs) {
     list ~= Tuple!(Chromosome, Ms)(ms[0].chromosome,ms);
   }
@@ -99,6 +100,7 @@ unittest {
   assert(is_sex(cx),typeof(cx).stringof ~ to!string(cx.id) ~ to!string(is_sex(cx)));
   assert(!is_sex(c1));
 
+  /*
   auto markers = new Markers!Marker();
   auto m1 = new Marker(c1,10.0);
   auto m2 = new Marker(c1,20.0);
@@ -125,6 +127,7 @@ unittest {
   }
   auto chromosome1 = c_mslist[0][0];
   assert(chromosome1.name == "X");
+  */
 }
 
 
@@ -177,8 +180,40 @@ unittest {
   writeln();
 
   // it's the same stuff; just pointed to in a different order
-  for(i=0; i<5; i++) 
-    for(j=0; j<5; j++) 
-      if(markers_by_chr[i] is markers_by_chr_sorted[j]) 
+  for(i=0; i<5; i++)
+    for(j=0; j<5; j++)
+      if(markers_by_chr[i] is markers_by_chr_sorted[j])
 	writeln(i, " is ", j);
 }
+
+/**
+ * ChromosomeMap combines Chromosome and Marker list.
+ */
+
+/**
+ * Disabled fow now
+class ChromosomeMap(T) {
+  Chromosome chromosome;
+  // Markers!(MarkerRef!T) markers;
+}
+*/
+
+/**
+ * The FullMap has an ordered chromosome map.
+ 
+class FullMap(T) {
+  SList!(ChromosomeMap!T) chromosome_map;
+}
+unittest {
+  // e.g. for F2 auto map = new FullMap!F2();
+  // this should also compile:
+  auto map = new FullMap!uint();
+  foreach ( c ; map.chromosome_map ) {
+    auto markers = c.markers;
+    foreach ( m ; markers.list ) {
+    }
+  }
+}
+
+*/
+

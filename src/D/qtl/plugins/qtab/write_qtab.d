@@ -10,6 +10,7 @@ import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
+import qtl.core.individual;
 import qtl.plugins.csv.read_csv;  // for testing
 
 import std.stdio;
