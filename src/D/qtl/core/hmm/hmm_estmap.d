@@ -8,17 +8,22 @@ import std.string;
 import std.conv;
 import std.stdio;
 import std.math;
-import qtl.core.primitives;
-import qtl.core.hmm.hmm_bc;
-import qtl.core.hmm.hmm_f2;
+import qtl.core.primitives, qtl.core.genotype;
 import qtl.core.hmm.hmm_util;
+import qtl.core.hmm.hmm_forwardbackward;
 
 // re-estimate inter-marker recombination fractions
-double[] estmap(T)(in Genotype!T[][] genotypes, in double[] rec_frac, in double error_prob,
-		   in int max_iterations, in double tol, in bool verbose)
+double[] estmap(alias init, alias emit, alias step, alias nrec)(in GenotypeCombinator[][] genotypes,
+                                                                in TrueGenotype[] all_true_geno,
+                                                                in Marker[] marker_map,
+                                                                in double[] rec_frac, 
+                                                                in double error_prob,
+                                                                in int max_iterations, 
+                                                                in double tol, 
+                                                                in bool verbose)
 {
-    if(genotypes[0].length != rec_frac.length+1)
-      throw new Exception("no. markers in genotypes doesn't match rec_frac length");
+    if(marker_map.length != rec_frac.length+1)
+      throw new Exception("no. markers in marker map doesn't match rec_frac length");
     if(error_prob < 0.0 || error_prob > 1.0)
       throw new Exception("error_prob out of range");
     foreach(rf; rec_frac) {
@@ -31,14 +36,13 @@ double[] estmap(T)(in Genotype!T[][] genotypes, in double[] rec_frac, in double 
       throw new Exception("tol >= 0");
 
     size_t n_individuals = genotypes.length;
-    size_t n_markers = genotypes[0].length;
-    auto all_true_geno = allTrueGenoPK(genotypes[0][0].value);
+    size_t n_markers = marker_map.length;
 
     auto cur_rec_frac = rec_frac.dup; 
     auto prev_rec_frac = rec_frac.dup;
-    double[][] alpha = new double[][](all_true_geno.length,n_markers);
-    double[][] beta = new double[][](all_true_geno.length,n_markers);
-    double[][] gamma = new double[][](all_true_geno.length,n_markers);
+    double[][] alpha = new double[][](all_true_geno.length, n_markers);
+    double[][] beta = new double[][](all_true_geno.length, n_markers);
+    double[][] gamma = new double[][](all_true_geno.length, n_markers);
     double sum_gamma;
     foreach(it; 0..max_iterations) {
       foreach(ref rf; cur_rec_frac) {
@@ -48,18 +52,23 @@ double[] estmap(T)(in Genotype!T[][] genotypes, in double[] rec_frac, in double 
       foreach(ind; 0..n_individuals) {
 
 	// forward and backward equations
-	alpha = forwardEquations(genotypes[ind], all_true_geno, prev_rec_frac, error_prob);
-	beta = backwardEquations(genotypes[ind], all_true_geno, prev_rec_frac, error_prob);
-
+	alpha = forwardEquations!(init, emit, step)(genotypes[ind], all_true_geno, marker_map, 
+                                                    prev_rec_frac, error_prob);
+	beta = backwardEquations!(init, emit, step)(genotypes[ind], all_true_geno, marker_map, 
+                                                    prev_rec_frac, error_prob);
 
 	foreach(j; 0..prev_rec_frac.length) {
 	  // calculate gamma = log Pr(v1, v2, O)
 	  auto sum_gamma_undef = true;
 	  foreach(left_gen; all_true_geno) {
 	    foreach(right_gen; all_true_geno) {
-	      gamma[left_gen][right_gen] = alpha[left_gen][j] + beta[right_gen][j+1] + 
-		emit(genotypes[ind][j+1], right_gen, error_prob) +
-		step(left_gen, right_gen, prev_rec_frac[j]);
+              if(isPseudoMarker(marker_map[j+1]))
+                gamma[left_gen][right_gen] = alpha[left_gen][j] + beta[right_gen][j+1] + 
+                  step(left_gen, right_gen, prev_rec_frac[j]);
+              else
+                gamma[left_gen][right_gen] = alpha[left_gen][j] + beta[right_gen][j+1] + 
+                  emit(genotypes[ind][marker_map[j+1].id], right_gen, error_prob) +
+                  step(left_gen, right_gen, prev_rec_frac[j]);
 
 	      if(sum_gamma_undef) {
 		sum_gamma_undef = false;
@@ -119,7 +128,8 @@ double[] estmap(T)(in Genotype!T[][] genotypes, in double[] rec_frac, in double 
     double curloglik;
     foreach(ind; 0..n_individuals) {
 
-      alpha = forwardEquations(genotypes[ind], all_true_geno, prev_rec_frac, error_prob);
+      alpha = forwardEquations!(init, emit, step)(genotypes[ind], all_true_geno, marker_map, 
+                                                  prev_rec_frac, error_prob);
 
       auto curloglik_undef = true;
       foreach(gen; all_true_geno) {
