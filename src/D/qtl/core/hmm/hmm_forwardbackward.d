@@ -51,7 +51,7 @@ double[][] forwardEquations(alias init, alias emit, alias step)(in GenotypeCombi
 
 
 // backward Equations
-double[][] backwardEquations(alias init, alias emit, alias step)(GenotypeCombinator[] genotypes,
+double[][] backwardEquations(alias init, alias emit, alias step)(in GenotypeCombinator[] genotypes,
                                                                  TrueGenotype[] all_true_geno,
                                                                  Marker[] marker_map,
                                                                  double[] rec_frac,
