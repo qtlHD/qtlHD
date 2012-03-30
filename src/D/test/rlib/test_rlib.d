@@ -19,8 +19,8 @@ import std.c.stdlib;
 
 pragma(lib, "R");
 
-extern (C) void Rf_initEmbeddedR(ulong argc, char **argv);
-extern (C) void Rf_endEmbeddedR(ulong);
+extern (C) void Rf_initEmbeddedR(size_t argc, char **argv);
+extern (C) void Rf_endEmbeddedR(size_t);
 
 extern(C){
     double norm_rand();
@@ -35,7 +35,11 @@ extern(C){
  */
 
 void R_Init() {
-  string args[] = [ "BiolibEmbeddedR", "--gui=none", "--silent", "--no-environ", "--no-site-file", "--no-init-file"];
+  version(darwin) { // OSX
+    string args[] = [ "BiolibEmbeddedR", "--gui=none", "--silent", "--no-environ", "--no-site-file", "--no-init-file"];
+  } else {
+    string args[] = [ "BiolibEmbeddedR", "--gui=none", "--silent", "--no-environ"];
+  }
   char *argv[];
  
   argv.length = args.length;
@@ -45,7 +49,13 @@ void R_Init() {
   auto argc = args.length;
 
   writeln("Initialize embedded R (library)");
-  setenv("R_HOME","/Library/Frameworks/R.framework/Resources/", 1);
+  version(darwin) {
+    setenv("R_HOME","/Library/Frameworks/R.framework/Resources/", 1);
+  } else version(linux) {
+    setenv("R_HOME","/usr/lib/R",1);
+  } else {
+    throw new Exception("Can not find R libraries on this system");
+  }
   Rf_initEmbeddedR(argc, argv.ptr);
 }
 
