@@ -21,6 +21,7 @@ pragma(lib, "R");
 
 extern (C) void Rf_initEmbeddedR(size_t argc, char **argv);
 extern (C) void Rf_endEmbeddedR(size_t);
+extern (C) void R_SaveGlobalEnv();
 
 extern(C){
     double norm_rand();
@@ -62,6 +63,7 @@ void R_Init() {
 void R_Close() {
   writeln("Shutting down R");
   PutRNGstate();
+  R_SaveGlobalEnv();
   Rf_endEmbeddedR(0);
 }
 
