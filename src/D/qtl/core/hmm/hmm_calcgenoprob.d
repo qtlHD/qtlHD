@@ -40,18 +40,20 @@ double[][][] calc_geno_prob(alias init, alias emit, alias step)(GenotypeCombinat
 
   foreach(ind; 0..n_individuals) {
     alpha = forwardEquations!(init, emit, step)(genotypes[ind], all_true_geno, marker_map, rec_frac, error_prob);
-
     beta = backwardEquations!(init, emit, step)(genotypes[ind], all_true_geno, marker_map, rec_frac, error_prob);
 
     // calculate genotype probabilities
     double sum_at_pos;
     foreach(pos; 0..n_positions) {
+      writef("alpha and beta: %d %f %f    ", pos+1, alpha[0][pos], beta[0][pos]);
       sum_at_pos = genoprobs[ind][pos][0] = alpha[0][pos] + beta[0][pos];
       foreach(tg_index, true_geno; all_true_geno[1..$]) {
         genoprobs[ind][pos][tg_index] = alpha[tg_index][pos] + beta[tg_index][pos];
         sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][tg_index]);
       }
       foreach(tg_index, true_geno; all_true_geno) {
+        if(tg_index==0) writefln("genoprob: %d %f %f %f", pos+1, genoprobs[ind][pos][0], sum_at_pos,
+                                           exp(genoprobs[ind][pos][0] - sum_at_pos));
         genoprobs[ind][pos][tg_index] = exp(genoprobs[ind][pos][tg_index] - sum_at_pos);
       }
     }

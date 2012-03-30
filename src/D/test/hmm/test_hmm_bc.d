@@ -179,7 +179,7 @@ unittest {
 
   // test calc_geno_prob with hyper data
   writeln("Test calc_geno_prob with hyper data, chr 4");
-  auto chr4_map = markers_by_chr_sorted[4][1];
+  auto chr4_map = markers_by_chr_sorted[3][1];
   sort(chr4_map); // sort in place
   auto pmap_stepped_chr4 = add_stepped_markers_autosome(chr4_map, 1.0, 0.0);
 
@@ -190,6 +190,58 @@ unittest {
   writeln("dist_cM.length: ", dist_cM.length);
   writeln("rec_frac.length: ", rec_frac.length);
   writeln("pmap_stepped_chr4.length: ", pmap_stepped_chr4.length);
+  writeln("running calc_geno_prob");
+  //  auto chr4probs = calc_geno_prob_BC(genotype_matrix, pmap_stepped_chr4, rec_frac, 0.001);
 
-  auto chr4probs = calc_geno_prob_BC(genotype_matrix, pmap_stepped_chr4, rec_frac, 0.001);
+  // unit test I'd had previously (calc genotype; no pseudomarkers)
+  writeln("----------------------------------------------------------------------");
+  writeln("Test calc_geno_prob hyper hyper data, chr 5, no pseudomarkers");
+  writeln("----------------------------------------------------------------------");
+  auto chr5_map = markers_by_chr_sorted[4][1];
+  
+  double[] dist_cM_chr5;
+  foreach(i; 1..chr5_map.length)
+    dist_cM_chr5 ~= chr5_map[i].get_position() - chr5_map[i-1].get_position();
+  rec_frac = dist_to_recfrac(dist_cM_chr5, GeneticMapFunc.Carter_Falconer);
+
+  double[] rec_frac_from_rqtl = [0.05499838959578960, 0.05399853076176147, 0.03299987476879847,
+				 0.01099999948567994, 0.03299987476879847, 0.14181577930458458, 
+				 0.18529361912102324, 0.08698405702618413, 0.06599599307740488,
+				 0.06499628754224140, 0.01099999948567990, 0.03299987476879847, 
+				 0.04399947228314834]; 
+
+  foreach(i; 0..rec_frac.length)
+    assert(abs(rec_frac[i] - rec_frac_from_rqtl[i]) < 1e-11);
+
+  writeln("      - Run calcGenoprob for BC");
+  auto genoprobs = calc_geno_prob_BC(genotype_matrix[0..5], chr5_map, rec_frac, 0.002);
+
+  writeln("      - Compare results to R/qtl");
+  /* probs from R/qtl for individual 1 */
+  auto genoprobs_from_rqtl =  [[0.999769660491391820578, 0.0002303395086083074390],
+                               [0.996571637787474373660, 0.0034283622125256579989],
+                          [0.999992001840160571469, 0.0000079981598392023363],
+                          [0.999999229385373444856, 0.0000007706146264155516],
+                          [0.999999226845584399115, 0.0000007731544155547456],
+                          [0.999988106195807358034, 0.0000118938041927743214],
+                          [0.998546612868447480693, 0.0014533871315524147898],
+                          [0.000838837664664903023, 0.9991611623353346960386],
+                          [0.000014752882287688144, 0.9999852471177120838419],
+                          [0.000009884987083730629, 0.9999901150129172355818],
+                          [0.000006327226189669525, 0.9999936727738113484421],
+                          [0.000385258672705765363, 0.9996147413272942205964],
+                          [0.000004366470355155772, 0.9999956335296438236782],
+                          [0.000092406805046532986, 0.9999075931949532591858]];
+  
+  foreach(i; 0..genoprobs[0].length) {
+    foreach(j; 0..1) {
+      writefln("%d %d %s %.6f %.6f %.12f", i, j, genotype_matrix[0][chr5_map[i].id],
+               genoprobs[0][i][j], genoprobs_from_rqtl[i][j],
+               abs(genoprobs[0][i][j] - genoprobs_from_rqtl[i][j]));
+      //      assert(abs(genoprobs[0][i][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
+    }
+  }
+	
+
 }
+

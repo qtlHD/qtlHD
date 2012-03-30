@@ -198,5 +198,5 @@ unittest {
   writeln("rec_frac.length: ", rec_frac.length);
   writeln("pmap_stepped_chr2.length: ", pmap_stepped_chr2.length);
 
-  auto chr2probs = calc_geno_prob_F2(genotype_matrix, pmap_stepped_chr2, rec_frac, 0.001);
+  //  auto chr2probs = calc_geno_prob_F2(genotype_matrix, pmap_stepped_chr2, rec_frac, 0.001);
 }

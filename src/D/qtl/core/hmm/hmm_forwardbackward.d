@@ -22,15 +22,22 @@ double[][] forwardEquations(alias init, alias emit, alias step)(GenotypeCombinat
 
   auto alpha = new double[][](all_true_geno.length, n_positions);
 
+  writefln("total markers = %d    no. pos = %d", genotypes.length, marker_map.length);
+
   // initialize alphas
+  writef("%2d %10s  ", 0, genotypes[marker_map[0].id]);
   foreach(tg_index, true_geno; all_true_geno) {
     if(isPseudoMarker(marker_map[0]))
       alpha[tg_index][0] = init(true_geno);
     else
       alpha[tg_index][0] = init(true_geno) + emit(genotypes[marker_map[0].id], true_geno, error_prob);
+    writef("%9.5f ", alpha[tg_index][0]);
+    writef("[%9.5f %9.5f] ", init(true_geno), emit(genotypes[marker_map[0].id], true_geno, error_prob));
   }
+  writeln();
 
   foreach(pos; 1 .. n_positions) {
+    writef("%2d %10s ", pos, genotypes[marker_map[pos].id]);
     foreach(tgr_index, true_geno_right; all_true_geno) {
 
      alpha[tgr_index][pos] = alpha[0][pos-1] +
@@ -43,7 +50,10 @@ double[][] forwardEquations(alias init, alias emit, alias step)(GenotypeCombinat
      }
      if(!isPseudoMarker(marker_map[pos]))
        alpha[tgr_index][pos] += emit(genotypes[marker_map[pos].id], true_geno_right, error_prob);
+     writef("%9.5f ", alpha[tgr_index][pos]);
+    writef("[%9.5f] ", emit(genotypes[marker_map[pos].id], true_geno_right, error_prob));
     }
+    writeln();
   }
   return alpha;
 }
