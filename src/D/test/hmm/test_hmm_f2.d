@@ -185,12 +185,23 @@ unittest {
   }
 
   // test calc_geno_prob with listeria data
+  writeln("----------------------------------------------------------------------");
   writeln("Test calc_geno_prob with listeria data, chr 4");
-  auto chr2_map = markers_by_chr_sorted[2][1];
-  sort(chr2_map); // sort in place
-  auto pmap_stepped_chr2 = add_stepped_markers_autosome(chr2_map, 1.0, 0.0);
+  writeln("----------------------------------------------------------------------");
+  auto chr4_map = markers_by_chr_sorted[3][1];
+  auto rec_frac = recombination_fractions(chr4_map, GeneticMapFunc.Haldane);
 
-  auto rec_frac = recombination_fractions(pmap_stepped_chr2, GeneticMapFunc.Carter_Falconer);
+  auto genoprobs = calc_geno_prob_F2(genotype_matrix, chr4_map, rec_frac, 0.002);
 
-  auto chr2probs = calc_geno_prob_F2(genotype_matrix, pmap_stepped_chr2, rec_frac, 0.001);
+  double[][] genoprobs_from_rqtl;
+
+  /* probs from R/qtl for individual 1 */
+  genoprobs_from_rqtl = [[0.99365258749878116, 0.005366774350785078, 0.00098063815043388934],
+                         [0.01597337476839351, 0.984010456989931837, 0.00001616824167473149],
+                         [0.98819056080900758, 0.010834274013193156, 0.00097516517779884938],
+                         [0.00156449602454221, 0.998274388090304443, 0.00016111588515345984]];
+
+  foreach(i; 0..genoprobs[0].length)
+    foreach(j; 0..2)
+      assert(abs(genoprobs[0][i][j] - genoprobs_from_rqtl[i][j]) < 1e-7);
 }
