@@ -243,4 +243,27 @@ unittest {
   foreach(i; 0..genoprobs[106].length)
     foreach(j; 0..2)
       assert(abs(genoprobs[106][i][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
+
+  // test estmap with listeria data, chr 4
+  writeln("----------------------------------------------------------------------");
+  writeln("Test estmap with listeria data, chr 4");
+  writeln("----------------------------------------------------------------------");
+
+  chr4_map = markers_by_chr_sorted[3][1];
+  rec_frac = recombination_fractions(chr4_map, GeneticMapFunc.Kosambi);
+
+  auto rec_frac_rqtl = [0.18274786564786985044,
+                        0.15620001633845906341,
+                        0.28772927391795305452];
+
+  foreach(i; 0..rec_frac.length)
+    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-6);
+
+  auto rec_frac_rev_rqtl = [0.18726831033621754719,
+                            0.15929622543721855266,
+                            0.29234793156548449788];
+  auto rec_frac_rev = estmap_F2(genotype_matrix, chr4_map, rec_frac, 0.002, 100, 1e-6, true);
+
+  foreach(i; 0..rec_frac.length)
+    assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-6);
 }
