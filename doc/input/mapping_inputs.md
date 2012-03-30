@@ -194,8 +194,8 @@ as phenotypes in the Founder section
 
         # --- Data Phenotype begin
         #        Sex  
-        Founder1   M  
-        Founder2   F
+        Founder1   I  
+        Founder2   X
         ...
         # --- Data Phenotype end
 
@@ -244,6 +244,10 @@ For example
 
 An example of a genotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_genotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
 
+Note that the genotype table is also involved in handling sex. Sex is defined
+by the combination of a sex chromosome (which is defined in the Marker section)
+and the sex of the founders. For sex, at every genotype position, additional
+'alleles' are introduced. 
 
 # The marker map section
 
@@ -268,6 +272,8 @@ cM by default. To override, you can set it to base pairs (bp or Mbp).
 
 An example of a marker map reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_marker_map.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
 
+By default X is the sex chromosome - this may be overridden in the global
+settings section (NYI).
 
 # The phenotype section
 
