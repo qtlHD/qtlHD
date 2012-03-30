@@ -59,7 +59,7 @@ unittest {
 }
 
 // ln Pr(true genotype)
-double init_F2(TrueGenotype truegen)
+double init_F2(in TrueGenotype truegen)
 {
   auto g = allTrueGeno_F2();
 
@@ -73,7 +73,7 @@ double init_F2(TrueGenotype truegen)
 }
 
 // ln Pr(true genotype) for est_map
-double init_F2PK(TrueGenotype truegen)
+double init_F2PK(in TrueGenotype truegen)
 {
   auto g = allTrueGeno_F2PK();
 
@@ -99,7 +99,7 @@ unittest {
 }
 
 // ln Pr(genotype at right marker | genotype at left marker)
-double step_F2(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+double step_F2(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
 {
   auto atg = allTrueGeno_F2();
   if(truegen_left==atg[0]) {
@@ -130,7 +130,7 @@ double step_F2(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec
 }
 
 // like step_F2, but with phase-known genotypes (for use with est_map)
-double step_F2PK(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+double step_F2PK(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
 {
   auto atg = allTrueGeno_F2PK();
   if(truegen_left==atg[0]) {
@@ -242,7 +242,7 @@ unittest {
 
 
 // ln Pr(observed genotype | true genotype)
-double emit_F2(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+double emit_F2(in GenotypeCombinator obsgen, in TrueGenotype truegen, in double error_prob)
 {
   auto n_obsgen = obsgen.list.length;
 
@@ -345,7 +345,7 @@ unittest {
 }
 
 // proportion of recombination events
-double nrec_F2PK(TrueGenotype truegen_left, TrueGenotype truegen_right)
+double nrec_F2PK(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
 {
   auto atg = allTrueGeno_F2PK();
   if(truegen_left==atg[0]) {
@@ -413,10 +413,10 @@ unittest {
   assert( nrec_F2PK(gPK[3], gPK[0]) == 1.0 );
 }
 
-double[][][] calc_geno_prob_F2(GenotypeCombinator[][] genotypes,
-                               Marker[] marker_map,
-                               double[] rec_frac,
-                               double error_prob)
+double[][][] calc_geno_prob_F2(in GenotypeCombinator[][] genotypes,
+                               in Marker[] marker_map,
+                               in double[] rec_frac,
+                               in double error_prob)
 {
   auto all_true_geno = allTrueGeno_F2();
 
@@ -426,9 +426,13 @@ double[][][] calc_geno_prob_F2(GenotypeCombinator[][] genotypes,
 }
 
 
-double[] estmap_F2(GenotypeCombinator[][] genotypes, Marker[] marker_map,
-                   double[] rec_frac, double error_prob, int max_iterations,
-                   double tol, bool verbose)
+double[] estmap_F2(in GenotypeCombinator[][] genotypes, 
+                   in Marker[] marker_map,
+                   in double[] rec_frac, 
+                   in double error_prob, 
+                   in int max_iterations,
+                   in double tol, 
+                   in bool verbose)
 {
   auto all_true_geno = allTrueGeno_F2PK();
 
