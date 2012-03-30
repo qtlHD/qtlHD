@@ -242,7 +242,7 @@ unittest {
 
 
 // ln Pr(observed genotype | true genotype)
-double emit_F2(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+double emit_F2(in GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
 {
   auto n_obsgen = obsgen.list.length;
 
@@ -413,7 +413,7 @@ unittest {
   assert( nrec_F2PK(gPK[3], gPK[0]) == 1.0 );
 }
 
-double[][][] calc_geno_prob_F2(GenotypeCombinator[][] genotypes,
+double[][][] calc_geno_prob_F2(in GenotypeCombinator[][] genotypes,
                                Marker[] marker_map,
                                double[] rec_frac,
                                double error_prob)
@@ -426,7 +426,7 @@ double[][][] calc_geno_prob_F2(GenotypeCombinator[][] genotypes,
 }
 
 
-double[] estmap_F2(GenotypeCombinator[][] genotypes, Marker[] marker_map,
+double[] estmap_F2(in GenotypeCombinator[][] genotypes, Marker[] marker_map,
                    double[] rec_frac, double error_prob, int max_iterations,
                    double tol, bool verbose)
 {

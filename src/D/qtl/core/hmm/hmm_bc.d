@@ -93,7 +93,7 @@ unittest {
 }
 
 // ln Pr(observed genotype | true genotype)
-double emit_BC(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+double emit_BC(in GenotypeCombinator obsgen, in TrueGenotype truegen, double error_prob)
 {
   if(obsgen.list.length==0) // missing value
     return(0.0); // log(1.0)
@@ -157,10 +157,10 @@ unittest {
   assert(nrec_BC(g[1], g[1]) == 0.0);
 }
 
-double[][][] calc_geno_prob_BC(GenotypeCombinator[][] genotypes,
+Probability[][][] calc_geno_prob_BC(in GenotypeCombinator[][] genotypes,
                                Marker[] marker_map,
-                               double[] rec_frac,
-                               double error_prob)
+                               Probability[] rec_frac,
+                               Probability error_prob)
 {
   auto all_true_geno = allTrueGeno_BC();
 
@@ -170,7 +170,7 @@ double[][][] calc_geno_prob_BC(GenotypeCombinator[][] genotypes,
 }
 
 
-double[] estmap_BC(GenotypeCombinator[][] genotypes, Marker[] marker_map,
+double[] estmap_BC(in GenotypeCombinator[][] genotypes, Marker[] marker_map,
                    double[] rec_frac, double error_prob, int max_iterations,
                    double tol, bool verbose)
 {
