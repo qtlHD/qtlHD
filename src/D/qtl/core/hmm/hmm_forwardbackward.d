@@ -23,28 +23,29 @@ double[][] forwardEquations(alias init, alias emit, alias step)(GenotypeCombinat
   auto alpha = new double[][](all_true_geno.length, n_positions);
 
   // initialize alphas
-  foreach(tg_index, true_geno; all_true_geno) {
+  foreach(i, true_geno; all_true_geno) {
     if(isPseudoMarker(marker_map[0]))
-      alpha[tg_index][0] = init(true_geno);
+      alpha[i][0] = init(true_geno);
     else
-      alpha[tg_index][0] = init(true_geno) + emit(genotypes[marker_map[0].id], true_geno, error_prob);
+      alpha[i][0] = init(true_geno) + emit(genotypes[marker_map[0].id], true_geno, error_prob);
   }
 
   foreach(pos; 1 .. n_positions) {
-    foreach(tgr_index, true_geno_right; all_true_geno) {
+    foreach(ir, true_geno_right; all_true_geno) {
+      alpha[ir][pos] = alpha[0][pos-1] +
+        step(all_true_geno[0], true_geno_right, rec_frac[pos-1]);
 
-     alpha[tgr_index][pos] = alpha[0][pos-1] +
-       step(all_true_geno[0], true_geno_right, rec_frac[pos-1]);
-
-     foreach(tgl_index, true_geno_left; all_true_geno[1..$]) {
-       alpha[tgr_index][pos] = addlog(alpha[tgr_index][pos],
-                                        alpha[tgl_index][pos-1] +
-                                        step(true_geno_left, true_geno_right, rec_frac[pos-1]));
+      foreach(il; 1 .. all_true_geno.length) {
+        auto true_geno_left = all_true_geno[il];
+        alpha[ir][pos] = addlog(alpha[ir][pos],
+                               alpha[il][pos-1] +
+                               step(true_geno_left, true_geno_right, rec_frac[pos-1]));
      }
      if(!isPseudoMarker(marker_map[pos]))
-       alpha[tgr_index][pos] += emit(genotypes[marker_map[pos].id], true_geno_right, error_prob);
+       alpha[ir][pos] += emit(genotypes[marker_map[pos].id], true_geno_right, error_prob);
     }
   }
+
   return alpha;
 }
 
@@ -62,31 +63,32 @@ double[][] backwardEquations(alias init, alias emit, alias step)(GenotypeCombina
   auto beta = new double[][](all_true_geno.length,n_positions);
 
   // initialize beta
-  foreach(tg_index, true_geno; all_true_geno) {
-    beta[tg_index][n_positions-1] = 0.0;
+  foreach(i, true_geno; all_true_geno) {
+    beta[i][n_positions-1] = 0.0;
   }
 
   // backward equations
   for(int pos = cast(int)n_positions-2; pos >= 0; pos--) {
-    foreach(tgl_index, true_geno_left; all_true_geno) {
+    foreach(il, true_geno_left; all_true_geno) {
       if(isPseudoMarker(marker_map[pos+1]))
-        beta[tgl_index][pos] = beta[0][pos+1] +
+        beta[il][pos] = beta[0][pos+1] +
           step(true_geno_left, all_true_geno[0], rec_frac[pos]);
       else
-        beta[tgl_index][pos] = beta[0][pos+1] +
+        beta[il][pos] = beta[0][pos+1] +
           step(true_geno_left, all_true_geno[0], rec_frac[pos]) +
           emit(genotypes[marker_map[pos+1].id], all_true_geno[0], error_prob);
 
-      foreach(tgr_index, true_geno_right; all_true_geno[1..$]) {
+      foreach(ir; 1 .. all_true_geno.length) {
+        auto true_geno_right = all_true_geno[ir];
         if(isPseudoMarker(marker_map[pos+1]))
-          beta[tgl_index][pos] = addlog(beta[tgl_index][pos],
-                                        beta[tgr_index][pos+1] +
-                                        step(true_geno_left, true_geno_right, rec_frac[pos]));
-       else
-         beta[tgl_index][pos] = addlog(beta[tgl_index][pos],
-                                       beta[tgr_index][pos+1] +
-                                       step(true_geno_left, true_geno_right, rec_frac[pos])+
-                                       emit(genotypes[marker_map[pos+1].id], true_geno_right, error_prob));
+          beta[il][pos] = addlog(beta[il][pos],
+                                beta[ir][pos+1] +
+                                step(true_geno_left, true_geno_right, rec_frac[pos]));
+        else
+          beta[il][pos] = addlog(beta[il][pos],
+                                beta[ir][pos+1] +
+                                step(true_geno_left, true_geno_right, rec_frac[pos])+
+                                emit(genotypes[marker_map[pos+1].id], true_geno_right, error_prob));
      }
     }
   }
