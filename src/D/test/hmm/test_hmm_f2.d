@@ -185,9 +185,7 @@ unittest {
   }
 
   // test calc_geno_prob with listeria data
-  writeln("----------------------------------------------------------------------");
   writeln("Test calc_geno_prob with listeria data, chr 4");
-  writeln("----------------------------------------------------------------------");
   auto chr4_map = markers_by_chr_sorted[3][1];
   auto rec_frac = recombination_fractions(chr4_map, GeneticMapFunc.Haldane);
 
