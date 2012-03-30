@@ -1,6 +1,6 @@
 # Mapping inputs
 
-Version 0.10 (December 2011)
+Version 0.11 (March 2012)
 
 This document describes the new qtab standard. qtab is a human readable tab
 delimited file format for QTL data.
@@ -188,6 +188,20 @@ In the founder file we can suggest the cross and other settings. For example
         Cross         IC     # BC|F2|RIL|IC
         Phase      known     # known|unknown for intercross IC 
         # --- Set Founder end
+
+In addition properties can be defined for each founder. These properties act 
+as phenotypes in the Founder section
+
+        # --- Data Phenotype begin
+        #        Sex  
+        Founder1   M  
+        Founder2   F
+        ...
+        # --- Data Phenotype end
+
+Unlike the generic typing of phenotypes (see the Phenotype section below) the
+used types for the founders are known, as they are an integral part of qtlHD.
+In other words, for founders only known properties, such as sex, are allowed.
 
 # The genotype section
 
