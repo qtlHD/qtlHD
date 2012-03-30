@@ -99,8 +99,7 @@ double emit_BC(in GenotypeCombinator obsgen, in TrueGenotype truegen, double err
     return(0.0); // log(1.0)
 
   TrueGenotype t = cast(TrueGenotype)truegen;
-  auto res = obsgen.match(t); // compatible with truegen?
-  if(res) // compatible with truegen?
+  if(obsgen.match(t)) // compatible with truegen?
     return(log(1.0-error_prob));
   else
     return(log(error_prob));
