@@ -166,10 +166,10 @@ class GenotypeCombinator {
   }
   void add_encoding(Encoding code) { this.encoding ~= code; }
   // see if a true genotype is compatible
-  const bool match(in TrueGenotype xtruegen) { 
+  bool match(in TrueGenotype xtruegen) const { 
     TrueGenotype t = cast(TrueGenotype)xtruegen;
     TrueGenotype l[] = cast(TrueGenotype[])list;
-    return cast(const bool)canFind(l,xtruegen); 
+    return cast(bool)canFind(l,xtruegen); 
   }
   // see if an input matches
   bool match(in Encoding code) { return canFind(encoding,code); }
