@@ -20,8 +20,6 @@ double[][][] calc_geno_prob(alias init, alias emit, alias step)(GenotypeCombinat
                                                                 double error_prob)
 {
   if(marker_map.length != rec_frac.length+1) {
-    writeln(marker_map.length);
-    writeln(rec_frac.length+1);
     throw new Exception("no. positions in marker map doesn't match rec_frac length");
   }
   if(error_prob < 0.0 || error_prob > 1.0)
@@ -45,15 +43,12 @@ double[][][] calc_geno_prob(alias init, alias emit, alias step)(GenotypeCombinat
     // calculate genotype probabilities
     double sum_at_pos;
     foreach(pos; 0..n_positions) {
-      writef("alpha and beta: %d %f %f    ", pos+1, alpha[0][pos], beta[0][pos]);
       sum_at_pos = genoprobs[ind][pos][0] = alpha[0][pos] + beta[0][pos];
       foreach(tg_index, true_geno; all_true_geno[1..$]) {
-        genoprobs[ind][pos][tg_index] = alpha[tg_index][pos] + beta[tg_index][pos];
-        sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][tg_index]);
+        genoprobs[ind][pos][tg_index+1] = alpha[tg_index+1][pos] + beta[tg_index+1][pos];
+        sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][tg_index+1]);
       }
       foreach(tg_index, true_geno; all_true_geno) {
-        if(tg_index==0) writefln("genoprob: %d %f %f %f", pos+1, genoprobs[ind][pos][0], sum_at_pos,
-                                           exp(genoprobs[ind][pos][0] - sum_at_pos));
         genoprobs[ind][pos][tg_index] = exp(genoprobs[ind][pos][tg_index] - sum_at_pos);
       }
     }
