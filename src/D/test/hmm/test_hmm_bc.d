@@ -310,9 +310,7 @@ unittest {
       assert(abs(genoprobs[106][i][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
 
   // test estmap with hyper data
-  writeln("----------------------------------------------------------------------");
   writeln("Test estmap with hyper data, chr 15");
-  writeln("----------------------------------------------------------------------");
 
   auto chr15_map = markers_by_chr_sorted[14][1];
   rec_frac = recombination_fractions(chr15_map, GeneticMapFunc.Carter_Falconer);
