@@ -13,7 +13,7 @@ import std.algorithm;
 import qtl.core.primitives;
 import qtl.core.phenotype, qtl.core.chromosome, qtl.core.genotype;
 import qtl.plugins.qtab.read_qtab;
-import qtl.core.map.make_map;
+import qtl.core.map.make_map, qtl.core.map.map;
 import qtl.core.map.genetic_map_functions;
 import qtl.core.hmm.hmm_f2;
 
@@ -190,13 +190,7 @@ unittest {
   sort(chr2_map); // sort in place
   auto pmap_stepped_chr2 = add_stepped_markers_autosome(chr2_map, 1.0, 0.0);
 
-  double[] dist_cM;
-  foreach(i; 1..pmap_stepped_chr2.length)
-    dist_cM ~= pmap_stepped_chr2[i].get_position() - pmap_stepped_chr2[i-1].get_position();
-  auto rec_frac = dist_to_recfrac(dist_cM, GeneticMapFunc.Carter_Falconer);
-  writeln("dist_cM.length: ", dist_cM.length);
-  writeln("rec_frac.length: ", rec_frac.length);
-  writeln("pmap_stepped_chr2.length: ", pmap_stepped_chr2.length);
+  auto rec_frac = recombination_fractions(pmap_stepped_chr2, GeneticMapFunc.Carter_Falconer);
 
-  //  auto chr2probs = calc_geno_prob_F2(genotype_matrix, pmap_stepped_chr2, rec_frac, 0.001);
+  auto chr2probs = calc_geno_prob_F2(genotype_matrix, pmap_stepped_chr2, rec_frac, 0.001);
 }

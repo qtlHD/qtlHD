@@ -13,7 +13,7 @@ import std.algorithm;
 import qtl.core.primitives;
 import qtl.core.phenotype, qtl.core.chromosome, qtl.core.genotype;
 import qtl.plugins.qtab.read_qtab;
-import qtl.core.map.make_map;
+import qtl.core.map.make_map, qtl.core.map.map;
 import qtl.core.map.genetic_map_functions;
 import qtl.core.hmm.hmm_bc;
 
@@ -183,15 +183,11 @@ unittest {
   sort(chr4_map); // sort in place
   auto pmap_stepped_chr4 = add_stepped_markers_autosome(chr4_map, 1.0, 0.0);
 
-  double[] dist_cM;
-  foreach(i; 1..pmap_stepped_chr4.length)
-    dist_cM ~= pmap_stepped_chr4[i].get_position() - pmap_stepped_chr4[i-1].get_position();
-  auto rec_frac = dist_to_recfrac(dist_cM, GeneticMapFunc.Carter_Falconer);
-  writeln("dist_cM.length: ", dist_cM.length);
+  auto rec_frac = recombination_fractions(pmap_stepped_chr4, GeneticMapFunc.Carter_Falconer);
   writeln("rec_frac.length: ", rec_frac.length);
   writeln("pmap_stepped_chr4.length: ", pmap_stepped_chr4.length);
   writeln("running calc_geno_prob");
-  //  auto chr4probs = calc_geno_prob_BC(genotype_matrix, pmap_stepped_chr4, rec_frac, 0.001);
+  auto chr4probs = calc_geno_prob_BC(genotype_matrix, pmap_stepped_chr4, rec_frac, 0.001);
 
   // unit test I'd had previously (calc genotype; no pseudomarkers)
   writeln("----------------------------------------------------------------------");
@@ -199,10 +195,7 @@ unittest {
   writeln("----------------------------------------------------------------------");
   auto chr5_map = markers_by_chr_sorted[4][1];
   
-  double[] dist_cM_chr5;
-  foreach(i; 1..chr5_map.length)
-    dist_cM_chr5 ~= chr5_map[i].get_position() - chr5_map[i-1].get_position();
-  rec_frac = dist_to_recfrac(dist_cM_chr5, GeneticMapFunc.Carter_Falconer);
+  rec_frac = recombination_fractions(chr5_map, GeneticMapFunc.Carter_Falconer);
 
   double[] rec_frac_from_rqtl = [0.05499838959578960, 0.05399853076176147, 0.03299987476879847,
 				 0.01099999948567994, 0.03299987476879847, 0.14181577930458458, 
@@ -241,4 +234,3 @@ unittest {
 	
 
 }
-
