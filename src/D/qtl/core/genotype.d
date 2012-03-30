@@ -169,7 +169,7 @@ class GenotypeCombinator {
   bool match(in TrueGenotype xtruegen) const { 
     TrueGenotype t = cast(TrueGenotype)xtruegen;
     TrueGenotype l[] = cast(TrueGenotype[])list;
-    return cast(bool)canFind(l,xtruegen); 
+    return canFind(l,xtruegen); 
   }
   // see if an input matches
   bool match(in Encoding code) { return canFind(encoding,code); }
