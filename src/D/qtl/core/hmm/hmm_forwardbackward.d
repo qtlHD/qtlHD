@@ -12,7 +12,7 @@ import qtl.core.primitives, qtl.core.genotype;
 import qtl.core.hmm.hmm_util;
 
 // forward Equations
-double[][] forwardEquations(alias init, alias emit, alias step)(GenotypeCombinator[] genotypes,
+double[][] forwardEquations(alias init, alias emit, alias step)(in GenotypeCombinator[] genotypes,
                                                                 TrueGenotype[] all_true_geno,
                                                                 Marker[] marker_map,
                                                                 double[] rec_frac,
