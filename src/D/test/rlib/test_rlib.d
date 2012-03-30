@@ -35,7 +35,7 @@ extern(C){
  */
 
 void R_Init() {
-  string args[] = [ "BiolibEmbeddedR", "--gui=none", "--silent", "--no-environ" ];
+  string args[] = [ "BiolibEmbeddedR", "--gui=none", "--silent", "--no-environ", "--no-site-file", "--no-init-file"];
   char *argv[];
  
   argv.length = args.length;
