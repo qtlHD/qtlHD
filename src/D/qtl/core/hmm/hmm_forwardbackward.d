@@ -31,17 +31,18 @@ double[][] forwardEquations(alias init, alias emit, alias step)(GenotypeCombinat
   }
 
   foreach(pos; 1 .. n_positions) {
-    foreach(j, true_geno_right; all_true_geno) {
-      alpha[j][pos] = alpha[0][pos-1] +
+    foreach(ir, true_geno_right; all_true_geno) {
+      alpha[ir][pos] = alpha[0][pos-1] +
         step(all_true_geno[0], true_geno_right, rec_frac[pos-1]);
 
-     foreach(i, true_geno_left; all_true_geno[1..$]) {
-       alpha[j][pos] = addlog(alpha[j][pos],
-                              alpha[i+1][pos-1] +
-                              step(true_geno_left, true_geno_right, rec_frac[pos-1]));
+      foreach(il; 1 .. all_true_geno.length) {
+        auto true_geno_left = all_true_geno[il];
+        alpha[ir][pos] = addlog(alpha[ir][pos],
+                               alpha[il][pos-1] +
+                               step(true_geno_left, true_geno_right, rec_frac[pos-1]));
      }
      if(!isPseudoMarker(marker_map[pos]))
-       alpha[j][pos] += emit(genotypes[marker_map[pos].id], true_geno_right, error_prob);
+       alpha[ir][pos] += emit(genotypes[marker_map[pos].id], true_geno_right, error_prob);
     }
   }
 
@@ -68,23 +69,24 @@ double[][] backwardEquations(alias init, alias emit, alias step)(GenotypeCombina
 
   // backward equations
   for(int pos = cast(int)n_positions-2; pos >= 0; pos--) {
-    foreach(i, true_geno_left; all_true_geno) {
+    foreach(il, true_geno_left; all_true_geno) {
       if(isPseudoMarker(marker_map[pos+1]))
-        beta[i][pos] = beta[0][pos+1] +
+        beta[il][pos] = beta[0][pos+1] +
           step(true_geno_left, all_true_geno[0], rec_frac[pos]);
       else
-        beta[i][pos] = beta[0][pos+1] +
+        beta[il][pos] = beta[0][pos+1] +
           step(true_geno_left, all_true_geno[0], rec_frac[pos]) +
           emit(genotypes[marker_map[pos+1].id], all_true_geno[0], error_prob);
 
-      foreach(j, true_geno_right; all_true_geno[1..$]) {
+      foreach(ir; 1 .. all_true_geno.length) {
+        auto true_geno_right = all_true_geno[ir];
         if(isPseudoMarker(marker_map[pos+1]))
-          beta[i][pos] = addlog(beta[i][pos],
-                                beta[j+1][pos+1] +
+          beta[il][pos] = addlog(beta[il][pos],
+                                beta[ir][pos+1] +
                                 step(true_geno_left, true_geno_right, rec_frac[pos]));
         else
-          beta[i][pos] = addlog(beta[i][pos],
-                                beta[j+1][pos+1] +
+          beta[il][pos] = addlog(beta[il][pos],
+                                beta[ir][pos+1] +
                                 step(true_geno_left, true_geno_right, rec_frac[pos])+
                                 emit(genotypes[marker_map[pos+1].id], true_geno_right, error_prob));
      }
