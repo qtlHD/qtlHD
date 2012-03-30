@@ -601,6 +601,11 @@ unittest {
   assert(HorB.match(gBA));
   assert(HorB.match(gAB));
   assert(HorB.match(gB));
+
+  // Here a quick test to see if canFind needs sorted input
+  int as[] = [ 6,5,4,3,4,7 ];
+  assert(canFind(as,4));
+  assert(canFind(as,7));
 }
 
 /**
