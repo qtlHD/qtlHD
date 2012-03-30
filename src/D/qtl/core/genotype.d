@@ -165,10 +165,10 @@ class GenotypeCombinator {
     if (code) add_encoding(code);
   }
   void add_encoding(Encoding code) { this.encoding ~= code; }
-  // see if an input matches
-  bool match(in Encoding code) { return canFind(encoding,code); }
   // see if a true genotype is compatible
   bool match(in TrueGenotype truegen) { return canFind(list,truegen); }
+  // see if an input matches
+  bool match(in Encoding code) { return canFind(encoding,code); }
   // uniquely add a genotype. Return match.
   TrueGenotype add(TrueGenotype g) {
     foreach(m; list) { if (m.founders == g.founders) return m; }
