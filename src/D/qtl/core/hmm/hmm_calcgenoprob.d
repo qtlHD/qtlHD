@@ -44,12 +44,13 @@ double[][][] calc_geno_prob(alias init, alias emit, alias step)(GenotypeCombinat
     double sum_at_pos;
     foreach(pos; 0..n_positions) {
       sum_at_pos = genoprobs[ind][pos][0] = alpha[0][pos] + beta[0][pos];
-      foreach(tg_index, true_geno; all_true_geno[1..$]) {
-        genoprobs[ind][pos][tg_index+1] = alpha[tg_index+1][pos] + beta[tg_index+1][pos];
-        sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][tg_index+1]);
+      foreach(i; 1 .. all_true_geno.length) {
+        auto true_geno = all_true_geno[i];
+        genoprobs[ind][pos][i] = alpha[i][pos] + beta[i][pos];
+        sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][i]);
       }
-      foreach(tg_index, true_geno; all_true_geno) {
-        genoprobs[ind][pos][tg_index] = exp(genoprobs[ind][pos][tg_index] - sum_at_pos);
+      foreach(i, true_geno; all_true_geno) {
+        genoprobs[ind][pos][i] = exp(genoprobs[ind][pos][i] - sum_at_pos);
       }
     }
   }

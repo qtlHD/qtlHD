@@ -60,30 +60,30 @@ double[] estmap(alias init, alias emit, alias step, alias nrec)(GenotypeCombinat
 	foreach(j; 0..prev_rec_frac.length) {
 	  // calculate gamma = log Pr(v1, v2, O)
 	  auto sum_gamma_undef = true;
-	  foreach(lg_index, left_gen; all_true_geno) {
-	    foreach(rg_index, right_gen; all_true_geno) {
+	  foreach(il, left_gen; all_true_geno) {
+	    foreach(ir, right_gen; all_true_geno) {
               if(isPseudoMarker(marker_map[j+1]))
-                gamma[lg_index][rg_index] = alpha[lg_index][j] + beta[rg_index][j+1] +
+                gamma[il][ir] = alpha[il][j] + beta[ir][j+1] +
                   step(left_gen, right_gen, prev_rec_frac[j]);
               else
-                gamma[lg_index][rg_index] = alpha[lg_index][j] + beta[rg_index][j+1] +
+                gamma[il][ir] = alpha[il][j] + beta[ir][j+1] +
                   emit(genotypes[ind][marker_map[j+1].id], right_gen, error_prob) +
                   step(left_gen, right_gen, prev_rec_frac[j]);
 
 	      if(sum_gamma_undef) {
 		sum_gamma_undef = false;
-		sum_gamma = gamma[lg_index][rg_index];
+		sum_gamma = gamma[il][ir];
 	      }
 	      else {
-		sum_gamma = addlog(sum_gamma, gamma[lg_index][rg_index]);
+		sum_gamma = addlog(sum_gamma, gamma[il][ir]);
 	      }
 	    }
 	  }
 
 	  // update cur_rf
-	  foreach(lg_index, left_gen; all_true_geno) {
-	    foreach(rg_index, right_gen; all_true_geno) {
-	      cur_rec_frac[j] += nrec(left_gen, right_gen) * exp(gamma[lg_index][rg_index] - sum_gamma);
+	  foreach(il, left_gen; all_true_geno) {
+	    foreach(ir, right_gen; all_true_geno) {
+	      cur_rec_frac[j] += nrec(left_gen, right_gen) * exp(gamma[il][ir] - sum_gamma);
 	    }
 	  }
 	} /* loop over marker intervals */
