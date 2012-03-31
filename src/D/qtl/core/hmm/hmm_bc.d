@@ -157,7 +157,7 @@ unittest {
   assert(nrec_BC(g[1], g[1]) == 0.0);
 }
 
-double[][][] calc_geno_prob_BC(in GenotypeCombinator[][] genotypes,
+Probability[][][] calc_geno_prob_BC(in GenotypeCombinator[][] genotypes,
                                in Marker[] marker_map,
                                in double[] rec_frac,
                                in double error_prob)
