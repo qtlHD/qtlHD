@@ -13,7 +13,7 @@ import qtl.core.hmm.hmm_util;
 import qtl.core.hmm.hmm_forwardbackward;
 
 // calculate QTL genotype probabilities
-double[][][] calc_geno_prob(alias init, alias emit, alias step)(GenotypeCombinator[][] genotypes,
+double[][][] calc_geno_prob(alias init, alias emit, alias step)(in GenotypeCombinator[][] genotypes,
                                                                 TrueGenotype[] all_true_geno,
                                                                 Marker[] marker_map,
                                                                 double[] rec_frac,
