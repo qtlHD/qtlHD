@@ -13,7 +13,7 @@ import qtl.core.hmm.hmm_util;
 import qtl.core.hmm.hmm_forwardbackward;
 
 // re-estimate inter-marker recombination fractions
-double[] estmap(alias init, alias emit, alias step, alias nrec)(GenotypeCombinator[][] genotypes,
+double[] estmap(alias init, alias emit, alias step, alias nrec)(in GenotypeCombinator[][] genotypes,
                                                                 TrueGenotype[] all_true_geno,
                                                                 Marker[] marker_map,
                                                                 double[] rec_frac,
