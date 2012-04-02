@@ -8,7 +8,7 @@ import std.stdio;
 import std.math;
 
 // Calculate addlog(a,b) = log[exp(a) + exp(b)]
-double addlog(double a, double b)
+double addlog(in double a, in double b)
 {
   enum TOL = 200.0;
 
