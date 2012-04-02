@@ -7,6 +7,7 @@ module test.scanone.test_scanone;
 import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
+import qtl.core.marker;
 import qtl.core.deprecate.genotype_enum;
 import qtl.core.map.map;
 import qtl.core.map.make_map;
@@ -116,6 +117,7 @@ unittest {
   writeln("    ", recombination_fractions(msx));
   assert(to!string(recombination_fractions(msx)[0])=="0.285633");
   // expand map for each chromosome
+  /*
   double totalexpsize = 0.0;
   foreach(c_ms ; c_mslist) {
     auto msin = new Markers!Marker(c_ms[1]);
@@ -175,6 +177,7 @@ unittest {
   // GenoProbs gprobs;
   // Getting ready for scanone
   // auto result = scanone_hk(data.individuals,data.phenotypes,markers_on_chr_4,genoprobs); 
+  */
   /*
 We are going to scan for QTL's. The first R equivalent here is:
 
