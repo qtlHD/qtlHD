@@ -37,7 +37,7 @@ unittest {
 }
 
 // ln Pr(true genotype)
-double init_BC(TrueGenotype truegen)
+double init_BC(in TrueGenotype truegen)
 {
   if(truegen != new TrueGenotype(0,0) &&
      truegen != new TrueGenotype(1,0))
@@ -55,7 +55,7 @@ unittest {
 }
 
 // ln Pr(genotype at right marker | genotype at left marker)
-double step_BC(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+double step_BC(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
 {
   auto atg = allTrueGeno_BC();
 
@@ -93,7 +93,7 @@ unittest {
 }
 
 // ln Pr(observed genotype | true genotype)
-double emit_BC(in GenotypeCombinator obsgen, in TrueGenotype truegen, double error_prob)
+double emit_BC(in GenotypeCombinator obsgen, in TrueGenotype truegen, in double error_prob)
 {
   if(obsgen.list.length==0) // missing value
     return(0.0); // log(1.0)
@@ -125,7 +125,7 @@ unittest {
 }
 
 // No. recombination events
-double nrec_BC(TrueGenotype truegen_left, TrueGenotype truegen_right)
+double nrec_BC(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
 {
   auto atg = allTrueGeno_BC();
 
@@ -158,9 +158,9 @@ unittest {
 }
 
 Probability[][][] calc_geno_prob_BC(in GenotypeCombinator[][] genotypes,
-                               Marker[] marker_map,
-                               Probability[] rec_frac,
-                               Probability error_prob)
+                               in Marker[] marker_map,
+                               in double[] rec_frac,
+                               in double error_prob)
 {
   auto all_true_geno = allTrueGeno_BC();
 
@@ -170,9 +170,13 @@ Probability[][][] calc_geno_prob_BC(in GenotypeCombinator[][] genotypes,
 }
 
 
-double[] estmap_BC(in GenotypeCombinator[][] genotypes, Marker[] marker_map,
-                   double[] rec_frac, double error_prob, int max_iterations,
-                   double tol, bool verbose)
+double[] estmap_BC(in GenotypeCombinator[][] genotypes, 
+                   in Marker[] marker_map,
+                   in double[] rec_frac, 
+                   in double error_prob, 
+                   in int max_iterations,
+                   in double tol, 
+                   in bool verbose)
 {
   auto all_true_geno = allTrueGeno_BC();
 
