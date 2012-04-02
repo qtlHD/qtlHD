@@ -7,6 +7,8 @@ write_xgapbin
 read_xgapbin
 test_scanone
 test_scanone_listeria
+test_lapack
+test_rlib
 test_hmm
 tags.json
 tags
@@ -19,3 +21,4 @@ tags
 *.so
 *.dll
 *.lib
+.RData
