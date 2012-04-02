@@ -14,13 +14,13 @@ import qtl.core.hmm.hmm_forwardbackward;
 
 // re-estimate inter-marker recombination fractions
 double[] estmap(alias init, alias emit, alias step, alias nrec)(in GenotypeCombinator[][] genotypes,
-                                                                TrueGenotype[] all_true_geno,
-                                                                Marker[] marker_map,
-                                                                double[] rec_frac,
-                                                                double error_prob,
-                                                                int max_iterations,
-                                                                double tol,
-                                                                bool verbose)
+                                                                in TrueGenotype[] all_true_geno,
+                                                                in Marker[] marker_map,
+                                                                in double[] rec_frac,
+                                                                in double error_prob,
+                                                                in int max_iterations,
+                                                                in double tol,
+                                                                in bool verbose)
 {
     if(marker_map.length != rec_frac.length+1)
       throw new Exception("no. markers in marker map doesn't match rec_frac length");

@@ -13,10 +13,10 @@ import qtl.core.hmm.hmm_util;
 
 // forward Equations
 double[][] forwardEquations(alias init, alias emit, alias step)(in GenotypeCombinator[] genotypes,
-                                                                TrueGenotype[] all_true_geno,
-                                                                Marker[] marker_map,
-                                                                double[] rec_frac,
-                                                                double error_prob)
+                                                                in TrueGenotype[] all_true_geno,
+                                                                in Marker[] marker_map,
+                                                                in Probability[] rec_frac,
+                                                                in Probability error_prob)
 {
   size_t n_positions = marker_map.length;
 
@@ -53,10 +53,10 @@ double[][] forwardEquations(alias init, alias emit, alias step)(in GenotypeCombi
 
 // backward Equations
 double[][] backwardEquations(alias init, alias emit, alias step)(in GenotypeCombinator[] genotypes,
-                                                                 TrueGenotype[] all_true_geno,
-                                                                 Marker[] marker_map,
-                                                                 double[] rec_frac,
-                                                                 double error_prob)
+                                                                 in TrueGenotype[] all_true_geno,
+                                                                 in Marker[] marker_map,
+                                                                 in Probability[] rec_frac,
+                                                                 in Probability error_prob)
 {
   size_t n_positions = marker_map.length;
 
