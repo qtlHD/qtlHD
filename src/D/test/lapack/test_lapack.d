@@ -37,9 +37,6 @@ import std.c.stdio;
 import std.stdio;
 import std.string;
 
-pragma(lib, "blas");
-pragma(lib, "lapack");
-
 double m[9] = [
   3, 1, 3,
   1, 5, 9,
@@ -67,9 +64,24 @@ extern(C) {
   alias int f_int;
 }
 
-// The C interface from the SciD library:
-extern (C) void dgemv_(char *trans, f_int *m, f_int *n, f_double *alpha, f_double *A, f_int *lda, f_double *x, f_int *incx, f_double *beta, f_double *y, f_int *incy, f_int trans_len);
-
+version(Windows){
+  private import std.loader;
+  private import qtl.core.util.windows;
+  private import qtl.plugins.renv.libload;
+  extern (C) void function(char *trans, f_int *m, f_int *n, f_double *alpha, f_double *A, f_int *lda, f_double *x, f_int *incx, f_double *beta, f_double *y, f_int *incy, f_int trans_len) dgemv_;
+  
+  static this(){
+    HXModule lib = load_library("Rblas");
+    load_function(dgemv_)(lib,"dgemv_");
+    writeln("Loaded BLAS functionality");
+  }
+  
+}else{
+  pragma(lib, "blas");
+  pragma(lib, "lapack");
+  // The C interface from the SciD library:
+  extern (C) void dgemv_(char *trans, f_int *m, f_int *n, f_double *alpha, f_double *A, f_int *lda, f_double *x, f_int *incx, f_double *beta, f_double *y, f_int *incy, f_int trans_len);
+}
 // The D interface is a D-ified call which calls the C interface dgemv_
 void gemv(char trans, f_int m, f_int n, f_double alpha, f_double *A, f_int lda,
 f_double *x, f_int incx, f_double beta, f_double *y, f_int incy) {
