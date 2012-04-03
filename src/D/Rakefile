@@ -111,7 +111,7 @@ exe_list = {
   'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
   'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
   'test_scanone' => { :path => './test/scanone', :list => all_core_dfiles + scanone_dfiles + csv_dfiles + deprecated_dfiles + main_dfile },
-  'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] },
+  'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] + renv_dfiles + util_dfiles },
   'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + util_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
   'test_hmm' => { :path => './test/hmm', :list => ['./test/hmm/test_hmm_f2.d'] + ['./test/hmm/test_hmm_bc.d'] + all_core_dfiles + qtab_read_dfiles + main_dfile },
