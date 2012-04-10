@@ -7,6 +7,10 @@
 // ...looks like I should use dgelsd rather than dgelss
 // dgelsd uses SVD; dgelsy uses QR
 // dgels uses QR, but X matrix must be full rank
+//
+// Lapack benchmarks at http://www.netlib.org/lapack/lug/node71.html
+// dgelsy indistinguishable from dgels
+// dgelsd 3-5x slower; dgelss 7-34x slower
 
 
 module qtl.core.scanone.regression;
