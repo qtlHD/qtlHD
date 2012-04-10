@@ -9,6 +9,9 @@ import std.range;
 import std.c.stdio;
 import std.stdio;
 import std.string;
+import std.conv;
+
+import std.c.stdlib;
 
 extern(C) {
   alias float f_float;
@@ -47,19 +50,44 @@ void qrls(f_double *x,     // [n x p] covariate matrix
           f_int p,         // number of covariates
           f_double *y,     // [n x ny] outcome matrix
           f_int ny,        // number of outcomes
-          f_double tol,    //
-          f_double *b,     // [p x ny] matrix
-          f_double *rsd,   // [n x ny] matrix
-          f_double *qty,   // [n x ny] matrix
-          f_int k,         //
+          f_double tol,    // tolerance for determining columns to omit
+          f_double *b,     // [p x ny] output matrix with coefficients
+          f_double *rsd,   // [n x ny] output matrix with residuals
+          f_double *qty,   // [n x ny] output matrix
+          f_int k,         // on output, the rank of x
           f_int *jpvt,     // [p] vector of pivots
-          f_double *qraux, // [p] vector
-          f_double *work)  // [p] vector
+          f_double *qraux, // [p] output vector
+          f_double *work)  // [2*p] vector
 {
   // see R-2.15.0/src/appl/dqrls.f
-  dqrls(x, &n, &p, y, &ny, &tol, b, rsd, qty, &k, jpvt, qraux, work);
+  dqrls_(x, &n, &p, y, &ny, &tol, b, rsd, qty, &k, jpvt, qraux, work);
 }
 
+
+// fit linear regression model and return residual sum of squares
+double[] lm_rss(double x[], int n, int p, double y[], int ny, double tol=1e-7)
+{
+  auto b = new double[p*ny];
+  auto rsd = new double[n*ny];
+  auto qty = new double[n*ny];
+  auto jpvt = new int[p];
+  auto qraux = new double[p];
+  auto work = new double[2*p];
+  int k;
+  auto rss = new double[ny];
+
+  foreach(i; 0..n) jpvt[i] = i;  // keeps track of pivoted columns
+
+  qrls(x.ptr, n, p, y.ptr, ny, tol, b.ptr, rsd.ptr, qty.ptr, k, jpvt.ptr, qraux.ptr, work.ptr);
+
+  foreach(i; 0..ny) {
+    rss[i] = 0.0;
+    foreach(j; 0..n)
+      rss[i] += rsd[j+i*n]^^2;
+  }
+
+  return rss;
+}
 
 
 // x matrix
@@ -69,7 +97,7 @@ void qrls(f_double *x,     // [n x p] covariate matrix
 //         3    2    1
 //         3    9    4
 //
-// y =     42   12   32   10   33  
+// y =     42   12   32   10   33
 //
 // resid =  0.42328 73370 96660 221114
 //         -0.33645 20175 62198 779643
