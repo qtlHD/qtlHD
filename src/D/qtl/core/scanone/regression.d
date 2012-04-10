@@ -2,6 +2,13 @@
  * regression: linear regression utility functions
  **/
 
+// was using dqrls, as that is what lm() uses, but that's Linpack
+// The Lapack function is dgelss; see R-2.15.0/src/modules/lapack/dlapack1.f
+// ...looks like I should use dgelsd rather than dgelss
+// dgelsd uses SVD; dgelsy uses QR
+// dgels uses QR, but X matrix must be full rank
+
+
 module qtl.core.scanone.regression;
 
 import std.algorithm;
