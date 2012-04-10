@@ -1,5 +1,5 @@
 /*
- * regression: linear regression utility functions
+ * linreg: linear regression utility functions
  **/
 
 // was using dqrls, as that is what lm() uses, but that's Linpack
@@ -13,7 +13,7 @@
 // dgelsd 3-5x slower; dgelss 7-34x slower
 
 
-module qtl.core.scanone.regression;
+module qtl.core.scanone.linreg;
 
 import std.algorithm;
 import std.range;
