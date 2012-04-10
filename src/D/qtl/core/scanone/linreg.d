@@ -81,36 +81,46 @@ void gelsy(f_int m,         // number of rows in A
 
 
 // fit linear regression model and return residual sum of squares
-double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly, double tol=1e-7)
+double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly, double tol=1e-8)
 {
   int nrhs=ncoly, lda=nrow, ldb=nrow, info, rank;
   auto lwork = max(nrow*ncolx + 3*ncolx + 1, 2*nrow*ncolx+nrhs);
   auto work = new double[lwork];
   auto jpvt = new int[ncolx];
 
-  foreach(i; 0..ncolx) jpvt[i] = i+1;  // keeps track of pivoted columns
+  foreach(i; 0..ncolx) jpvt[i] = 0;  // keeps track of pivoted columns
 
-  double rcond = tol;
-
-  rank = info = -999;
-  gelsy(nrow, ncolx, nrhs, x.ptr, lda, y.ptr, ldb, jpvt.ptr, rcond, &rank, work.ptr, lwork, &info);
+  gelsy(nrow, ncolx, nrhs, x.ptr, lda, y.ptr, ldb, jpvt.ptr, tol, &rank, work.ptr, lwork, &info);
 
   auto rss = new double[ncoly];
   foreach(i; 0..ncoly) rss[i]=0.0; // fill with 0's
+  auto row_index = 0;
 
   if(rank == ncolx) { // X is of full rank
-    auto row_index = 0;
-
     // in each column of y:
     //  first rank values = estimated coefficients
     //  sum of squares of the rest gives RSS (residual sum of squares)
     foreach(i; 0..ncoly) {  
-      foreach(j; rank..nrow)
+      foreach(j; ncolx..nrow)
         rss[i] += y[row_index+j]^^2;
       row_index += nrow;
     }
   }
-  else {
+  else { // X is not of full rank
+    writeln("not of full rank");
+    writeln("rank =  ", rank);
+    writeln("ncolx = ", ncolx);
+    writeln("nrow =  ", nrow);
+
+    foreach(i; 0..ncoly) {  
+      foreach(j; ncolx..nrow) {
+        writeln(rss[i]);
+        rss[i] += y[row_index+j]^^2;
+      }
+      row_index += nrow;
+      writeln(rss[i]);
+    }
+
   }
 
   return rss;
@@ -127,7 +137,6 @@ unittest {
 
   double[] y = [42, 12, 32, 10, 33];
 
-
   double rss_R = 0.42328733709665872231;
 
   int nrow = cast(int)y.length;
@@ -139,21 +148,20 @@ unittest {
   assert(abs(rss[0] - rss_R) < 1e-12);
 }
 
-/* this part isn't ready
 unittest {
-  writeln("Unit test " ~ __FILE__);
-  writeln("  --X matrix with full rank");
+  writeln("  --X matrix with less than full rank");
 
-  double[] x = [ 8, 5, 4, 3, 3,
-                 9, 2, 2, 2, 9,
-                 11,9, 0, 5, 2,
-                 5, 1, 8, 1, 4
-                 6, 5, 3, 2, 1];
+  // 3rd col is 2*(1st col) - (4th col)
+  // 5th col is noise
+  double[] x = [ 8, 5, 4, 3, 3, 1, 5,
+                 9, 2, 2, 2, 9, 1, 2,
+                 11,9, 0, 5, 2, 1, 7,
+                 5, 1, 8, 1, 4, 1, 3,
+                 6, 5, 3, 2, 1, 1, 0];
 
-  double[] y = [42, 12, 32, 10, 33];
+  double[] y = [42, 12, 32, 10, 33, 8, 9];
 
-
-  double rss_R = 0.42328733709665872231;
+  double rss_R = 4.4447690235964136818;
 
   int nrow = cast(int)y.length;
   int ncolx = cast(int)x.length / nrow;
@@ -161,6 +169,30 @@ unittest {
 
   auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly);
 
+  //  assert(abs(rss[0] - rss_R) < 1e-12);
+  writefln("%.5f %.5f", rss[0], rss_R);
+}
+
+unittest {
+  writeln(" --Example from nag.com");
+  // http://www.nag.com/lapack-ex/node48.html
+  
+  double[] x = [
+                -0.09, -1.56, -1.48, -1.09,  0.08, -1.59,
+                 0.14,  0.20, -0.43,  0.84,  0.55, -0.72,
+                -0.46,  0.29,  0.89,  0.77, -1.13,  1.06,
+                 0.68,  1.09, -0.71,  2.11,  0.14,  1.24,
+                 1.29,  0.51, -0.96, -1.27,  1.74,  0.34];
+
+  double[] y = [7.4, 4.2, -8.3, 1.8, 8.6, 2.1];
+
+  double[] coef = [0.6344, 0.9699, -1.4402, 3.3678, 3.3992];
+
+  int nrow = cast(int)y.length;
+  int ncolx = cast(int)x.length / nrow;
+  int ncoly = 1;
+  
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly);
+  double rss_R = 0.000012077113770668116438;
   assert(abs(rss[0] - rss_R) < 1e-12);
 }
-*/
