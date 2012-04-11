@@ -76,7 +76,7 @@ void gels(f_char trans,    // whether to consider A transpose (='N' for standard
           f_double *B,     // [m x nrhs] outcome matrix
           f_int ldb,       // leading dimension of B [== m]
           f_double *work,  // [lwork] vector of workspace
-          f_int lwork,     // dimension of work (should be >= max(mn+3n+1, 2*mn+nrhs
+          f_int lwork,     // dimension of work [should be >= mn + max(mn, nrhs) where mn=min(m,n)]
           f_int *info)     // on output, =0 indicates success; =-i indicates ith argument had illegal value; =+i if not full rank
 {
   // see R-2.15.0/src/module/lapack/dlapack1.f
@@ -99,7 +99,7 @@ void gelsy(f_int m,         // number of rows in A
            f_double rcond,  // used to determine the effective rank of A (condition number < 1/rcond)
            f_int *rank,     // on output, the rank of A
            f_double *work,  // [lwork] vector of workspace
-           f_int lwork,     // dimension of work [should be >= m*n + max(m*n, nrhs) ]
+           f_int lwork,     // dimension of work [should be >= max(mn+3*n+1, 2*mn+nrhs), where mn=min(m,n)]
            f_int *info)     // on output, =0 indicates success; =-i indicates ith argument had illegal value
 {
   // see R-2.15.0/src/module/lapack/dlapack1.f
@@ -110,21 +110,53 @@ void gelsy(f_int m,         // number of rows in A
 }
 
 
+enum LapackLinregFunc { DGELS, DGELSY };
+
 // fit linear regression model and return residual sum of squares
-double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly, double tol=1e-8)
+double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
+                         LapackLinregFunc which_lapackfunc = LapackLinregFunc.DGELSY,
+                         double tol=1e-8)
 {
-  int nrhs=ncoly, lda=nrow, ldb=nrow, info, rank;
-  auto lwork = max(nrow*ncolx + 3*ncolx + 1, 2*nrow*ncolx+nrhs);
+  int lda=nrow, ldb=nrow, info, rank;
+
+  int lwork = max(min(nrow,ncolx) + max(min(nrow,ncolx), ncoly),
+                  max(min(nrow,ncolx) + 3*ncolx + 1, 2*min(nrow,ncolx)*ncoly));
   auto work = new double[lwork];
-  auto jpvt = new int[ncolx];
 
-  foreach(i; 0..ncolx) jpvt[i] = 0;  // keeps track of pivoted columns
-
-  gelsy(nrow, ncolx, nrhs, x.ptr, lda, y.ptr, ldb, jpvt.ptr, tol, &rank, work.ptr, lwork, &info);
+  // save x and y in case x is not of full rank
+  auto xcopy = x.dup;
+  auto ycopy = y.dup;
 
   auto rss = new double[ncoly];
   foreach(i; 0..ncoly) rss[i]=0.0; // fill with 0's
   auto row_index = 0;
+
+  info = 0;
+  if(which_lapackfunc == LapackLinregFunc.DGELS) {
+    writeln("running gels");
+    gels('N', nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
+  
+    if(info) { // dgels didn't work; restore x and y
+      writeln("didn't work");
+      x = xcopy.dup;
+      y = ycopy.dup;
+    }
+    else {
+      writeln("it worked");
+      foreach(i; 0..ncoly) {  
+        foreach(j; ncolx..nrow)
+          rss[i] += y[row_index+j]^^2;
+        row_index += nrow;
+      }
+      return rss;
+    }
+  }
+
+  auto jpvt = new int[ncolx];
+  foreach(i; 0..ncolx) jpvt[i] = 0;  // keeps track of pivoted columns
+
+  writeln("running gelsy");
+  gelsy(nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, jpvt.ptr, tol, &rank, work.ptr, lwork, &info);
 
   if(rank == ncolx) { // X is of full rank
     // in each column of y:
@@ -144,13 +176,10 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
 
     foreach(i; 0..ncoly) {  
       foreach(j; ncolx..nrow) {
-        writeln(rss[i]);
         rss[i] += y[row_index+j]^^2;
       }
       row_index += nrow;
-      writeln(rss[i]);
     }
-
   }
 
   return rss;
@@ -173,8 +202,18 @@ unittest {
   int ncolx = cast(int)x.length / nrow;
   int ncoly = 1;
 
-  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly);
+  // save copies of x and y
+  auto xcopy = x.dup;
+  auto ycopy = y.dup;
 
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
+  assert(abs(rss[0] - rss_R) < 1e-12);
+
+  // restore x and y
+  x = xcopy.dup;
+  y = ycopy.dup;
+
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
   assert(abs(rss[0] - rss_R) < 1e-12);
 }
 
@@ -197,32 +236,52 @@ unittest {
   int ncolx = cast(int)x.length / nrow;
   int ncoly = 1;
 
-  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly);
+  // save copies of x and y
+  auto xcopy = x.dup;
+  auto ycopy = y.dup;
 
-  //  assert(abs(rss[0] - rss_R) < 1e-12);
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
   writefln("%.5f %.5f", rss[0], rss_R);
+  //  assert(abs(rss[0] - rss_R) < 1e-12);
+
+  // restore x and y
+  x = xcopy.dup;
+  y = ycopy.dup;
+
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
+  writefln("%.5f %.5f", rss[0], rss_R);
+  //  assert(abs(rss[0] - rss_R) < 1e-12);
 }
 
 unittest {
   writeln(" --Example from nag.com");
   // http://www.nag.com/lapack-ex/node48.html
   
-  double[] x = [
-                -0.09, -1.56, -1.48, -1.09,  0.08, -1.59,
+  double[] x = [-0.09, -1.56, -1.48, -1.09,  0.08, -1.59,
                  0.14,  0.20, -0.43,  0.84,  0.55, -0.72,
                 -0.46,  0.29,  0.89,  0.77, -1.13,  1.06,
                  0.68,  1.09, -0.71,  2.11,  0.14,  1.24,
                  1.29,  0.51, -0.96, -1.27,  1.74,  0.34];
-
   double[] y = [7.4, 4.2, -8.3, 1.8, 8.6, 2.1];
-
   double[] coef = [0.6344, 0.9699, -1.4402, 3.3678, 3.3992];
+  double rss_R = 0.000012077113770668116438;
 
   int nrow = cast(int)y.length;
   int ncolx = cast(int)x.length / nrow;
   int ncoly = 1;
   
-  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly);
-  double rss_R = 0.000012077113770668116438;
+  // save copies of x and y
+  auto xcopy = x.dup;
+  auto ycopy = y.dup;
+
+  // run with DGELS method that assumes X is full rank
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
+  assert(abs(rss[0] - rss_R) < 1e-12);
+
+  // restore x and y
+  x = xcopy.dup;
+  y = ycopy.dup;
+
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
   assert(abs(rss[0] - rss_R) < 1e-12);
 }
