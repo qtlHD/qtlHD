@@ -199,6 +199,7 @@ unittest {
   auto xcopy = x.dup;
   auto ycopy = y.dup;
 
+  writeln("   --dgels");
   auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
   assert(abs(rss[0] - rss_R) < 1e-12);
 
@@ -206,6 +207,7 @@ unittest {
   x = xcopy.dup;
   y = ycopy.dup;
 
+  writeln("   --dgelsy");
   rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
   assert(abs(rss[0] - rss_R) < 1e-12);
 }
@@ -232,10 +234,12 @@ unittest {
   auto xcopy = x.dup;
   auto ycopy = y.dup;
 
+  writeln("   --dgelsy");
   auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
   assert(abs(rss[0] - rss_R) < 1e-12);
 
   // note that dgels doesn't work here; it doesn't detect that X has < full rank
+  writeln("   --dgels [doesn't work]");
   x = xcopy.dup;
   y = ycopy.dup;
   rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
@@ -264,6 +268,7 @@ unittest {
   auto ycopy = y.dup;
 
   // run with DGELS method that assumes X is full rank
+  writeln("   --dgels");
   auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
   assert(abs(rss[0] - rss_R) < 1e-12);
 
@@ -271,6 +276,107 @@ unittest {
   x = xcopy.dup;
   y = ycopy.dup;
 
+  writeln("   --dgelsy");
   rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
   assert(abs(rss[0] - rss_R) < 1e-12);
+}
+
+
+unittest {
+  writeln(" --Multiple y columns");
+
+  auto x = [ 0.784, -0.122, 0.363,  0.270, 1.012,
+             1.003,  0.346, 0.638,  1.012, 1.714,
+             0.956, -0.209, 1.731, -0.570, 0.386];
+
+  auto y = [-2.791, -0.822, -1.570, -2.723, -1.436,
+            -2.711, -0.302, -1.978,  1.371, -2.170,
+            -2.028, -1.168, -3.345, -1.160, -2.514,
+            -1.401, -1.525,  1.773,  1.011,  0.575,
+            -0.702, -3.354,  1.655, -0.876, -2.114,
+             1.203, -0.547,  1.876, -2.383, -1.522,
+            -1.338, -0.701,  0.889, -1.110,  0.792,
+             2.843, -1.296,  2.321, -1.622,  2.444,
+             3.019,  0.445,  1.930,  1.622,  2.396,
+             1.271,  1.035,  0.245, -1.516,  1.538];
+
+  auto rss_R = [3.967646251383592836959, 2.097225399196657846801, 0.024392141058290763705,
+                7.741672518864973540076, 8.155596184097051448703, 0.673137917824839115966,
+                4.062648885524948738635, 0.318074708703368180807, 1.163078957925449685717,
+                4.523679446072986998217];
+
+  int ncoly = 10;
+  int nrow = cast(int)y.length/ncoly;
+  int ncolx = cast(int)x.length / nrow;
+
+  auto xcopy = x.dup;
+  auto ycopy = y.dup;
+
+  // run with DGELS method that assumes X is full rank
+  writeln("   --dgels");
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
+  assert(rss.length == ncoly);
+  foreach(i; 0..ncoly)
+    assert(abs(rss[i] - rss_R[i]) < 1e-12);
+
+  // restore x and y
+  x = xcopy.dup;
+  y = ycopy.dup;
+
+  writeln("   --dgelsy");
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
+  assert(rss.length == ncoly);
+  foreach(i; 0..ncoly)
+    assert(abs(rss[i] - rss_R[i]) < 1e-12);
+}
+
+
+unittest {
+  writeln(" --Multiple y columns; X less than full rank");
+
+  auto x = [ 0.784, -0.122,  0.363,  0.270, 1.012,
+             1.003,  0.346,  0.638,  1.012, 1.714,
+             0.956, -0.209,  1.731, -0.570, 0.386,
+            -1.865,  0.973, -4.555,  2.722, 0.556,
+             2.743,  0.015,  2.732,  0.712, 3.112];
+
+  auto y = [-2.791, -0.822, -1.570, -2.723, -1.436,
+            -2.711, -0.302, -1.978,  1.371, -2.170,
+            -2.028, -1.168, -3.345, -1.160, -2.514,
+            -1.401, -1.525,  1.773,  1.011,  0.575,
+            -0.702, -3.354,  1.655, -0.876, -2.114,
+             1.203, -0.547,  1.876, -2.383, -1.522,
+            -1.338, -0.701,  0.889, -1.110,  0.792,
+             2.843, -1.296,  2.321, -1.622,  2.444,
+             3.019,  0.445,  1.930,  1.622,  2.396,
+             1.271,  1.035,  0.245, -1.516,  1.538];
+
+  auto rss_R = [3.967646251383592836959, 2.097225399196657846801, 0.024392141058290763705,
+                7.741672518864973540076, 8.155596184097051448703, 0.673137917824839115966,
+                4.062648885524948738635, 0.318074708703368180807, 1.163078957925449685717,
+                4.523679446072986998217];
+
+  int ncoly = 10;
+  int nrow = cast(int)y.length/ncoly;
+  int ncolx = cast(int)x.length / nrow;
+
+  auto xcopy = x.dup;
+  auto ycopy = y.dup;
+
+  // run with DGELS method that assumes X is full rank
+  writeln("   --dgels [doesn't work]");
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
+  assert(rss.length == ncoly);
+  foreach(i; 0..ncoly)
+    assert(abs(rss[i] - rss_R[i]) > 0.01);
+
+  // restore x and y
+  x = xcopy.dup;
+  y = ycopy.dup;
+
+  writeln("   --dgelsy");
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
+  assert(rss.length == ncoly);
+  foreach(i; 0..ncoly)
+    assert(abs(rss[i] - rss_R[i]) < 1e-12);
 }
