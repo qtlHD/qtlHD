@@ -134,15 +134,15 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
   info = 0;
   if(which_lapackfunc == LapackLinregFunc.DGELS) {
     gels('N', nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
-  
-    if(info) { 
+
+    if(info) {
       // dgels didn't work; restore x and y
       x = xcopy.dup;
       y = ycopy.dup;
     }
-    else { 
+    else {
       // worked; calculate RSS and return
-      foreach(i; 0..ncoly) {  
+      foreach(i; 0..ncoly) {
         foreach(j; ncolx..nrow)
           rss[i] += y[row_index+j]^^2;
         row_index += nrow;
@@ -163,13 +163,13 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
         x[i+j*nrow] = xcopy[i+(jpvt[j]-1)*nrow];
     // restore y
     y = ycopy.dup;
-    
+
     // now run gels (which assumes x has full rank)
     gels('N', nrow, rank, ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
   }
-    
+
   // calculate RSS
-  foreach(i; 0..ncoly) {  
+  foreach(i; 0..ncoly) {
     foreach(j; rank..nrow)
       rss[i] += y[row_index+j]^^2;
     row_index += nrow;
@@ -229,14 +229,23 @@ unittest {
   int ncolx = cast(int)x.length / nrow;
   int ncoly = 1;
 
+  auto xcopy = x.dup;
+  auto ycopy = y.dup;
+
   auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
   assert(abs(rss[0] - rss_R) < 1e-12);
+
+  // note that dgels doesn't work here; it doesn't detect that X has < full rank
+  x = xcopy.dup;
+  y = ycopy.dup;
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
+  assert(abs(rss[0] - rss_R) > 0.1);
 }
 
 unittest {
   writeln(" --Example from nag.com");
   // http://www.nag.com/lapack-ex/node48.html
-  
+
   double[] x = [-0.09, -1.56, -1.48, -1.09,  0.08, -1.59,
                  0.14,  0.20, -0.43,  0.84,  0.55, -0.72,
                 -0.46,  0.29,  0.89,  0.77, -1.13,  1.06,
@@ -249,7 +258,7 @@ unittest {
   int nrow = cast(int)y.length;
   int ncolx = cast(int)x.length / nrow;
   int ncoly = 1;
-  
+
   // save copies of x and y
   auto xcopy = x.dup;
   auto ycopy = y.dup;
