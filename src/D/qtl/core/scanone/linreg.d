@@ -133,6 +133,15 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
   if(which_lapackfunc == LapackLinregFunc.DGELS) {
     gels('N', nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
 
+    if(!info) { /* check whether x seems singular */
+      foreach(i; 0..ncolx) {
+        if(abs(x[i+i*nrow]) < tol) {
+          info = 1;
+          break;
+        }
+      }
+    }
+
     if(info) {
       // dgels didn't work; restore x and y and switch to dgelsy
       x = xcopy.dup;
@@ -242,12 +251,11 @@ unittest {
   auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
   assert(abs(rss[0] - rss_R) < 1e-12);
 
-  // note that dgels doesn't work here; it doesn't detect that X has < full rank
-  writeln("   --dgels [doesn't work]");
+  writeln("   --dgels");
   x = xcopy.dup;
   y = ycopy.dup;
   rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
-  assert(abs(rss[0] - rss_R) > 0.1);
+  assert(abs(rss[0] - rss_R) <1e-12);
 }
 
 unittest {
@@ -368,11 +376,11 @@ unittest {
   auto ycopy = y.dup;
 
   // run with DGELS method that assumes X is full rank
-  writeln("   --dgels [doesn't work]");
+  writeln("   --dgels");
   auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
   assert(rss.length == ncoly);
   foreach(i; 0..ncoly)
-    assert(abs(rss[i] - rss_R[i]) > 0.01);
+    assert(abs(rss[i] - rss_R[i]) < 1e-12);
 
   // restore x and y
   x = xcopy.dup;
