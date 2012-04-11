@@ -133,16 +133,15 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
 
   info = 0;
   if(which_lapackfunc == LapackLinregFunc.DGELS) {
-    writeln("running gels");
     gels('N', nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
   
-    if(info) { // dgels didn't work; restore x and y
-      writeln("didn't work");
+    if(info) { 
+      // dgels didn't work; restore x and y
       x = xcopy.dup;
       y = ycopy.dup;
     }
-    else {
-      writeln("it worked");
+    else { 
+      // worked; calculate RSS and return
       foreach(i; 0..ncoly) {  
         foreach(j; ncolx..nrow)
           rss[i] += y[row_index+j]^^2;
@@ -155,31 +154,25 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
   auto jpvt = new int[ncolx];
   foreach(i; 0..ncolx) jpvt[i] = 0;  // keeps track of pivoted columns
 
-  writeln("running gelsy");
   gelsy(nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, jpvt.ptr, tol, &rank, work.ptr, lwork, &info);
 
-  if(rank == ncolx) { // X is of full rank
-    // in each column of y:
-    //  first rank values = estimated coefficients
-    //  sum of squares of the rest gives RSS (residual sum of squares)
-    foreach(i; 0..ncoly) {  
-      foreach(j; ncolx..nrow)
-        rss[i] += y[row_index+j]^^2;
-      row_index += nrow;
-    }
+  if(rank < ncolx) { // x has < full rank
+    // restore x, saving just the first rank columns after pivoting
+    foreach(j; 0..rank)
+      foreach(i; 0..nrow)
+        x[i+j*nrow] = xcopy[i+(jpvt[j]-1)*nrow];
+    // restore y
+    y = ycopy.dup;
+    
+    // now run gels (which assumes x has full rank)
+    gels('N', nrow, rank, ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
   }
-  else { // X is not of full rank
-    writeln("not of full rank");
-    writeln("rank =  ", rank);
-    writeln("ncolx = ", ncolx);
-    writeln("nrow =  ", nrow);
-
-    foreach(i; 0..ncoly) {  
-      foreach(j; ncolx..nrow) {
-        rss[i] += y[row_index+j]^^2;
-      }
-      row_index += nrow;
-    }
+    
+  // calculate RSS
+  foreach(i; 0..ncoly) {  
+    foreach(j; rank..nrow)
+      rss[i] += y[row_index+j]^^2;
+    row_index += nrow;
   }
 
   return rss;
@@ -188,7 +181,7 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-  writeln("  --X matrix with full rank");
+  writeln(" --X matrix with full rank");
 
   double[] x = [ 8, 5, 4, 3, 3,
                  9, 2, 2, 2, 9,
@@ -218,7 +211,7 @@ unittest {
 }
 
 unittest {
-  writeln("  --X matrix with less than full rank");
+  writeln(" --X matrix with less than full rank");
 
   // 3rd col is 2*(1st col) - (4th col)
   // 5th col is noise
@@ -236,21 +229,8 @@ unittest {
   int ncolx = cast(int)x.length / nrow;
   int ncoly = 1;
 
-  // save copies of x and y
-  auto xcopy = x.dup;
-  auto ycopy = y.dup;
-
-  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
-  writefln("%.5f %.5f", rss[0], rss_R);
-  //  assert(abs(rss[0] - rss_R) < 1e-12);
-
-  // restore x and y
-  x = xcopy.dup;
-  y = ycopy.dup;
-
-  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
-  writefln("%.5f %.5f", rss[0], rss_R);
-  //  assert(abs(rss[0] - rss_R) < 1e-12);
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
+  assert(abs(rss[0] - rss_R) < 1e-12);
 }
 
 unittest {
