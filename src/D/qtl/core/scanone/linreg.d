@@ -29,12 +29,16 @@ extern(C) {
   alias float f_float;
   alias double f_double;
   alias int f_int;
+  alias char f_char;
 }
 
 version(Windows){
   private import std.loader;
   private import qtl.core.util.windows;
   private import qtl.plugins.renv.libload;
+
+  extern (C) void function(f_char *trans, f_int *m, f_int *n, f_int *nrhs, f_double *A, f_int *lda,
+                           f_double *B, f_int *ldb, f_double *work, f_int *lwork, f_int *info) dgels_;
 
   extern (C) void function(f_int *m, f_int *n, f_int *nrhs, f_double *A, f_int *lda,
                            f_double *B, f_int *ldb, f_int *jpvt, f_double *rcond,
@@ -43,6 +47,7 @@ version(Windows){
   static this(){
     HXModule lib = load_library("Rblas");
     load_function(dqrls_)(lib,"dgelsy_");
+    load_function(dqrls_)(lib,"dgels_");
     writeln("Loaded BLAS functionality");
   }
 
@@ -50,14 +55,39 @@ version(Windows){
   pragma(lib, "blas");
   pragma(lib, "lapack");
 
-  // The C interface from the SciD library:
+  // Two Lapack routines for linear regression
+  // dgels requires covariate matrix to be of full rank
+  extern (C) void dgels_(f_char *trans, f_int *m, f_int *n, f_int *nrhs, f_double *A, f_int *lda,
+                         f_double *B, f_int *ldb, f_double *work, f_int *lwork, f_int *info);
+
+  // dgelsy allows covariate matrix to be of less than full rank
   extern (C) void dgelsy_(f_int *m, f_int *n, f_int *nrhs, f_double *A, f_int *lda,
                           f_double *B, f_int *ldb, f_int *jpvt, f_double *rcond,
                           f_int *rank, f_double *work, f_int *lwork, f_int *info);
 }
 
 // The D interface is a D-ified call which calls the C interface dgelsy_
-// see 
+void gels(f_char trans,    // whether to consider A transpose (='N' for standard)
+          f_int m,         // number of rows in A
+          f_int n,         // number of columns in A
+          f_int nrhs,      // number of right-hand sides (no. columns in B)
+          f_double *A,     // [m x n] covariate matrix
+          f_int lda,       // leading dimension of A [== m]
+          f_double *B,     // [m x nrhs] outcome matrix
+          f_int ldb,       // leading dimension of B [== m]
+          f_double *work,  // [lwork] vector of workspace
+          f_int lwork,     // dimension of work (should be >= max(mn+3n+1, 2*mn+nrhs
+          f_int *info)     // on output, =0 indicates success; =-i indicates ith argument had illegal value; =+i if not full rank
+{
+  // see R-2.15.0/src/module/lapack/dlapack1.f
+
+  dgels_(&trans, &m, &n, &nrhs, A, &lda, B, &ldb, work, &lwork, info);
+
+  if(*info<0) throw new Exception("dgels_: illegal value in argument " ~ to!string(*info));
+  if(*info>0) throw new Exception("dgels_: covariate matrix not of full rank" ~ to!string(*info));
+}
+
+// The D interface is a D-ified call which calls the C interface dgelsy_
 void gelsy(f_int m,         // number of rows in A
            f_int n,         // number of columns in A
            f_int nrhs,      // number of right-hand sides (no. columns in B)
@@ -67,12 +97,12 @@ void gelsy(f_int m,         // number of rows in A
            f_int ldb,       // leading dimension of B [== m]
            f_int *jpvt,     // n-vector to keep track of reordering of columns of A
            f_double rcond,  // used to determine the effective rank of A (condition number < 1/rcond)
-           f_int *rank,      // on output, the rank of A
+           f_int *rank,     // on output, the rank of A
            f_double *work,  // [lwork] vector of workspace
-           f_int lwork,    // dimension of work (should be >= max(mn+3n+1, 2*mn+nrhs
+           f_int lwork,     // dimension of work [should be >= m*n + max(m*n, nrhs) ]
            f_int *info)     // on output, =0 indicates success; =-i indicates ith argument had illegal value
 {
-  // see R-2.15.0/src/appl/dgelsy.f
+  // see R-2.15.0/src/module/lapack/dlapack1.f
 
   dgelsy_(&m, &n, &nrhs, A, &lda, B, &ldb, jpvt, &rcond, rank, work, &lwork, info);
 
