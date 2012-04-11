@@ -158,8 +158,7 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
   if(rank < ncolx) { // x has < full rank
     // restore x, saving just the first rank columns after pivoting
     foreach(j; 0..rank)
-      foreach(i; 0..nrow)
-        x[i+j*nrow] = xcopy[i+(jpvt[j]-1)*nrow];
+      x[(j*nrow)..((j+1)*nrow)] = xcopy[((jpvt[j]-1)*nrow)..(jpvt[j]*nrow)];
 
     // restore y
     y = ycopy.dup;
