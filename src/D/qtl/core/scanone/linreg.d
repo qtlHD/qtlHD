@@ -1,17 +1,15 @@
 /*
  * linreg: linear regression utility functions
- **/
-
-// was using dqrls, as that is what lm() uses, but that's Linpack
-// The Lapack function is dgelss; see R-2.15.0/src/modules/lapack/dlapack1.f
-// ...looks like I should use dgelsd rather than dgelss
-// dgelsd uses SVD; dgelsy uses QR
-// dgels uses QR, but X matrix must be full rank
-//
-// Lapack benchmarks at http://www.netlib.org/lapack/lug/node71.html
-// dgelsy indistinguishable from dgels
-// dgelsd 3-5x slower; dgelss 7-34x slower
-
+ *
+ * dgels uses QR, but X matrix must be full rank
+ * dgelsy allows X matrix < full rank, but I can't figure out how to get the RSS in that case
+ *
+ * Lapack benchmarks at http://www.netlib.org/lapack/lug/node71.html
+ *     dgelsy indistinguishable from dgels
+ *     dgelsd (SVD) 3-5x slower; dgelss (used in R/qtl for imputation) 7-34x slower
+ *
+ * The R function lm() using dqrls, which is Linpack rather than Lapack
+ */
 
 module qtl.core.scanone.linreg;
 
@@ -66,7 +64,7 @@ version(Windows){
                           f_int *rank, f_double *work, f_int *lwork, f_int *info);
 }
 
-// The D interface is a D-ified call which calls the C interface dgelsy_
+// The D interface is a D-ified call which calls the C interface dgels_
 void gels(f_char trans,    // whether to consider A transpose (='N' for standard)
           f_int m,         // number of rows in A
           f_int n,         // number of columns in A
@@ -127,21 +125,22 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
   auto xcopy = x.dup;
   auto ycopy = y.dup;
 
+  // to fill with RSS for output
   auto rss = new double[ncoly];
   foreach(i; 0..ncoly) rss[i]=0.0; // fill with 0's
-  auto row_index = 0;
 
   info = 0;
   if(which_lapackfunc == LapackLinregFunc.DGELS) {
     gels('N', nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
 
     if(info) {
-      // dgels didn't work; restore x and y
+      // dgels didn't work; restore x and y and switch to dgelsy
       x = xcopy.dup;
       y = ycopy.dup;
     }
     else {
       // worked; calculate RSS and return
+      auto row_index = 0;
       foreach(i; 0..ncoly) {
         foreach(j; ncolx..nrow)
           rss[i] += y[row_index+j]^^2;
@@ -161,6 +160,7 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
     foreach(j; 0..rank)
       foreach(i; 0..nrow)
         x[i+j*nrow] = xcopy[i+(jpvt[j]-1)*nrow];
+
     // restore y
     y = ycopy.dup;
 
@@ -169,6 +169,7 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
   }
 
   // calculate RSS
+  auto row_index = 0;
   foreach(i; 0..ncoly) {
     foreach(j; rank..nrow)
       rss[i] += y[row_index+j]^^2;
@@ -178,6 +179,10 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
   return rss;
 }
 
+
+/**********************************************************************
+ * unit tests
+ **********************************************************************/
 
 unittest {
   writeln("Unit test " ~ __FILE__);
