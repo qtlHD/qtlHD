@@ -165,15 +165,16 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
   gelsy(nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, jpvt.ptr, tol, &rank, work.ptr, lwork, &info);
 
   if(rank < ncolx) { // x has < full rank
-    // restore x, saving just the first rank columns after pivoting
-    foreach(j; 0..rank)
-      x[(j*nrow)..((j+1)*nrow)] = xcopy[((jpvt[j]-1)*nrow)..(jpvt[j]*nrow)];
-
-    // restore y
-    y = ycopy.dup;
-
-    // now run gels (which assumes x has full rank)
-    gels('N', nrow, rank, ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
+    // calculate fitted values and then residuals
+    foreach(j; 0..ncoly) {
+      foreach(i; 0..nrow) {
+        auto fitted = 0.0;
+        foreach(k; 0..ncolx)
+          fitted += (xcopy[i+k*nrow] * y[k+j*nrow]);
+        rss[j] += (ycopy[i+j*nrow] - fitted)*(ycopy[i+j*nrow] - fitted);
+      }
+    }
+    return rss;
   }
 
   // calculate RSS
