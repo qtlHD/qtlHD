@@ -170,6 +170,8 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
 
   if(rank < ncolx) { // x has < full rank
     // calculate fitted values and then residuals
+    // **FIXME** I should replace this matrix multiplication with a call to dgemm
+    // See http://www.netlib.org/blas/dgemm.f
     foreach(j; 0..ncoly) {
       foreach(i; 0..nrow) {
         auto fitted = 0.0;
