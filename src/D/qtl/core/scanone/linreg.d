@@ -111,8 +111,11 @@ void gelsy(f_int m,         // number of rows in A
 enum LapackLinregFunc { DGELS, DGELSY };
 
 // fit linear regression model and return residual sum of squares
+// **ADD** I should follow this with another function that will pull out the estimates
+//         and then a third function that will calculate their variance matrix
+//         (both making use of the new state of 
 double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
-                         LapackLinregFunc which_lapackfunc = LapackLinregFunc.DGELSY,
+                         ref LapackLinregFunc which_lapackfunc = LapackLinregFunc.DGELSY,
                          double tol=1e-8)
 {
   int lda=nrow, ldb=nrow, info, rank;
@@ -146,6 +149,7 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
       // dgels didn't work; restore x and y and switch to dgelsy
       x = xcopy.dup;
       y = ycopy.dup;
+      which_lapackfunc = LapackLinregFunc.DGELSY; // update with the function we'll actually use
     }
     else {
       // worked; calculate RSS and return
@@ -214,16 +218,20 @@ unittest {
   auto ycopy = y.dup;
 
   writeln("   --dgels");
-  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
+  auto lapack_func = LapackLinregFunc.DGELS;
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, lapack_func);
   assert(abs(rss[0] - rss_R) < 1e-12);
+  assert(lapack_func == LapackLinregFunc.DGELS);
 
   // restore x and y
   x = xcopy.dup;
   y = ycopy.dup;
 
   writeln("   --dgelsy");
-  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
+  lapack_func = LapackLinregFunc.DGELSY;
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, lapack_func);
   assert(abs(rss[0] - rss_R) < 1e-12);
+  assert(lapack_func == LapackLinregFunc.DGELSY);
 }
 
 unittest {
@@ -249,14 +257,18 @@ unittest {
   auto ycopy = y.dup;
 
   writeln("   --dgelsy");
-  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
+  auto lapack_func = LapackLinregFunc.DGELSY;
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, lapack_func);
   assert(abs(rss[0] - rss_R) < 1e-12);
+  assert(lapack_func == LapackLinregFunc.DGELSY);
 
   writeln("   --dgels");
   x = xcopy.dup;
   y = ycopy.dup;
-  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
+  lapack_func = LapackLinregFunc.DGELS;
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, lapack_func);
   assert(abs(rss[0] - rss_R) <1e-12);
+  assert(lapack_func == LapackLinregFunc.DGELSY);
 }
 
 unittest {
@@ -282,16 +294,20 @@ unittest {
 
   // run with DGELS method that assumes X is full rank
   writeln("   --dgels");
-  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
+  auto lapack_func = LapackLinregFunc.DGELS;
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, lapack_func);
   assert(abs(rss[0] - rss_R) < 1e-12);
+  assert(lapack_func == LapackLinregFunc.DGELS);
 
   // restore x and y
   x = xcopy.dup;
   y = ycopy.dup;
 
   writeln("   --dgelsy");
-  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
+  lapack_func = LapackLinregFunc.DGELSY;
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, lapack_func);
   assert(abs(rss[0] - rss_R) < 1e-12);
+  assert(lapack_func == LapackLinregFunc.DGELSY);
 }
 
 
@@ -327,20 +343,24 @@ unittest {
 
   // run with DGELS method that assumes X is full rank
   writeln("   --dgels");
-  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
+  auto lapack_func = LapackLinregFunc.DGELS;
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, lapack_func);
   assert(rss.length == ncoly);
   foreach(i; 0..ncoly)
     assert(abs(rss[i] - rss_R[i]) < 1e-12);
+  assert(lapack_func == LapackLinregFunc.DGELS);
 
   // restore x and y
   x = xcopy.dup;
   y = ycopy.dup;
 
   writeln("   --dgelsy");
-  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
+  lapack_func = LapackLinregFunc.DGELSY;
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, lapack_func);
   assert(rss.length == ncoly);
   foreach(i; 0..ncoly)
     assert(abs(rss[i] - rss_R[i]) < 1e-12);
+  assert(lapack_func == LapackLinregFunc.DGELSY);
 }
 
 
@@ -378,18 +398,22 @@ unittest {
 
   // run with DGELS method that assumes X is full rank
   writeln("   --dgels");
-  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELS);
+  auto lapack_func = LapackLinregFunc.DGELS;
+  auto rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, lapack_func);
   assert(rss.length == ncoly);
   foreach(i; 0..ncoly)
     assert(abs(rss[i] - rss_R[i]) < 1e-12);
+  assert(lapack_func == LapackLinregFunc.DGELSY);
 
   // restore x and y
   x = xcopy.dup;
   y = ycopy.dup;
 
   writeln("   --dgelsy");
-  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, LapackLinregFunc.DGELSY);
+  lapack_func = LapackLinregFunc.DGELSY;
+  rss = calc_linreg_rss(x, nrow, ncolx, y, ncoly, lapack_func);
   assert(rss.length == ncoly);
   foreach(i; 0..ncoly)
     assert(abs(rss[i] - rss_R[i]) < 1e-12);
+  assert(lapack_func == LapackLinregFunc.DGELSY);
 }
