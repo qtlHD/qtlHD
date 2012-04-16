@@ -96,7 +96,7 @@ unittest {
 
   // run scanone and calculate LOD scores
   auto rss = scanone_hk(chr4probs, pheno_rev, addcovar, intcovar, weights);
-  auto rss0 = scanone_hk_null(pheno_rev, addcovar, intcovar, weights);
+  auto rss0 = scanone_hk_null(pheno_rev, addcovar, weights);
   auto lod = rss_to_lod(rss, rss0, pheno_rev.length);
 
   /*******************************
