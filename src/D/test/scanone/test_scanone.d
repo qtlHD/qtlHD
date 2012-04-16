@@ -9,6 +9,7 @@ import std.conv;
 import std.string;
 import std.path;
 import std.algorithm;
+import std.math;
 alias std.algorithm.find find;
 
 import qtl.core.primitives;
@@ -72,27 +73,66 @@ unittest {
   // sorted chromosomes
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
 
-  // chr 4 with pseudomarkers
+  // chr 4, no pseudomarkers
   auto chr4_map = markers_by_chr_sorted[3][1];
   sort(chr4_map); // sort in place
-  auto pmap_stepped_chr4 = add_stepped_markers_autosome(chr4_map, 1.0, 0.0);
 
   // calc_geno_prob
-  auto rec_frac = recombination_fractions(pmap_stepped_chr4, GeneticMapFunc.Carter_Falconer);
-  auto chr4probs = calc_geno_prob_BC(genotype_matrix, pmap_stepped_chr4, rec_frac, 0.001);
+  auto rec_frac = recombination_fractions(chr4_map, GeneticMapFunc.Carter_Falconer);
+  auto chr4probs = calc_geno_prob_BC(genotype_matrix, chr4_map, rec_frac, 0.001);
 
   // empty covariate matrices
   auto addcovar = new double[][](genotype_matrix.length, 0);
   auto intcovar = new double[][](genotype_matrix.length, 0);
   auto weights = new double[](0);
 
-  // run scanone
-  auto rss = scanone_hk(chr4probs, pheno, addcovar, intcovar, weights);
-
-  foreach(i, pos; pmap_stepped_chr4) {
-    writef("%-2s %5.1f  ", pos.chromosome.name, pos.position);
-    foreach(j; 0..rss[i].length)
-      writef("%8.4f ", rss[i][j]);
-    writeln;
+  // pull out the first phenotype; also do it as sqrt
+  auto pheno_rev = pheno.dup;
+  foreach(i; 0..pheno_rev.length) {
+    pheno_rev[i][0].value = pheno[i][0].value;
+    pheno_rev[i][1].value = sqrt(pheno[i][0].value);
   }
+
+  // run scanone and calculate LOD scores
+  auto rss = scanone_hk(chr4probs, pheno_rev, addcovar, intcovar, weights);
+  auto rss0 = scanone_hk_null(pheno_rev, addcovar, intcovar, weights);
+  auto lod = rss_to_lod(rss, rss0, pheno_rev.length);
+
+  /*******************************
+   * in R:
+
+   data(hyper)
+   hyper <- hyper["-X",]
+   hyper$pheno[,2] <- sqrt(hyper$pheno[,1])
+   hyper <- calc.genoprob(hyper, err=0.001, map="c-f")
+   out <- scanone(hyper, phe=1:2, method="hk", chr=4)
+
+   *
+   ******************************/
+
+  auto Rlod = [[2.6254865829665732235, 2.7020254097664917481],
+               [5.4468751777026227501, 5.5347680212903469510],
+               [5.4855367913328336726, 5.5335861088395006391],
+               [6.5521802135129973976, 6.5926615345241259547],
+               [6.5145853225407108766, 6.5538831293538066802],
+               [6.8321199282964926169, 6.8838582280987736794],
+               [5.8424139084056605498, 5.8504519713298464012],
+               [5.8424139084054331761, 5.8504519713297042927],
+               [6.2766093214407874257, 6.2887786121572162301],
+               [6.3019283482516357253, 6.3261703036766050445],
+               [8.0936828368751321250, 8.0813636210099275559],
+               [6.3856324540660125422, 6.3630175147217187259],
+               [5.1433416237845221985, 5.1180677048473910418],
+               [5.1433416237839537644, 5.1180677048468510293],
+               [4.8915420586123445901, 4.8718203736263774317],
+               [4.7662276124896152396, 4.7568692716767770889],
+               [3.7425634657936370786, 3.7194855889463269705],
+               [2.7920054024624505473, 2.7570138296044888193],
+               [2.4484441531932361613, 2.4159175588472407981],
+               [2.9348031147566189247, 2.9540248545710312555]];
+
+  foreach(i; 0..lod.length)
+    foreach(j; 0..lod[0].length)
+      assert(abs(lod[i][j] - Rlod[i][j]) < 1e-8);
+
 }
