@@ -1,8 +1,8 @@
 /**
- * hmm_bc
+ * HMM backcross functions
  **/
 
-module qtl.core.hmm.hmm_bc;
+module qtl.core.hmm.bc;
 
 import std.math, std.stdio, std.path;
 import std.exception;
@@ -10,8 +10,8 @@ import std.conv;
 
 import qtl.core.primitives;
 import qtl.core.genotype;
-import qtl.core.hmm.hmm_calcgenoprob;
-import qtl.core.hmm.hmm_estmap;
+import qtl.core.hmm.calcgenoprob;
+import qtl.core.hmm.estmap;
 import qtl.core.map.genetic_map_functions;
 
 // things for the unit tests

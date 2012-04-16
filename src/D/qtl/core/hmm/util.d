@@ -1,8 +1,8 @@
 /**
- * hmm_util
+ * HMM utilility funcitons
  */
 
-module qtl.core.hmm.hmm_util;
+module qtl.core.hmm.util;
 
 import std.stdio;
 import std.math;

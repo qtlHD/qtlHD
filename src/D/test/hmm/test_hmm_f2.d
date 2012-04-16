@@ -15,7 +15,7 @@ import qtl.core.phenotype, qtl.core.chromosome, qtl.core.genotype;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.map.make_map, qtl.core.map.map;
 import qtl.core.map.genetic_map_functions;
-import qtl.core.hmm.hmm_f2;
+import qtl.core.hmm.f2;
 
 
 unittest {
