@@ -34,7 +34,7 @@ double[][][] calc_geno_prob(alias init, alias emit, alias step)(in GenotypeCombi
 
   auto alpha = new double[][](all_true_geno.length,n_positions);
   auto beta = new double[][](all_true_geno.length,n_positions);
-  auto genoprobs = new double[][][](n_individuals,n_positions,all_true_geno.length);
+  auto genoprobs = new double[][][](n_positions,n_individuals,all_true_geno.length);
 
   foreach(ind; 0..n_individuals) {
     alpha = forwardEquations!(init, emit, step)(genotypes[ind], all_true_geno, marker_map, rec_frac, error_prob);
@@ -43,14 +43,14 @@ double[][][] calc_geno_prob(alias init, alias emit, alias step)(in GenotypeCombi
     // calculate genotype probabilities
     double sum_at_pos;
     foreach(pos; 0..n_positions) {
-      sum_at_pos = genoprobs[ind][pos][0] = alpha[0][pos] + beta[0][pos];
+      sum_at_pos = genoprobs[pos][ind][0] = alpha[0][pos] + beta[0][pos];
       foreach(i; 1 .. all_true_geno.length) {
         auto true_geno = all_true_geno[i];
-        genoprobs[ind][pos][i] = alpha[i][pos] + beta[i][pos];
-        sum_at_pos = addlog(sum_at_pos, genoprobs[ind][pos][i]);
+        genoprobs[pos][ind][i] = alpha[i][pos] + beta[i][pos];
+        sum_at_pos = addlog(sum_at_pos, genoprobs[pos][ind][i]);
       }
       foreach(i, true_geno; all_true_geno) {
-        genoprobs[ind][pos][i] = exp(genoprobs[ind][pos][i] - sum_at_pos);
+        genoprobs[pos][ind][i] = exp(genoprobs[pos][ind][i] - sum_at_pos);
       }
     }
   }
