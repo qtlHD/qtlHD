@@ -58,7 +58,7 @@ double[] create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addc
 
 // scanone, one position
 //    returns vector of residual sums of squares
-double[] scanone_hk_onelocus(in Probability[][] genoprobs, in double[][] pheno,
+double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype!(double)[][] pheno,
                              in double[][] addcovar, in double[][] intcovar,
                              double[] weights, double tol=1e-8)
 {
@@ -80,7 +80,7 @@ double[] scanone_hk_onelocus(in Probability[][] genoprobs, in double[][] pheno,
   auto Ymatrix = new double[](n_ind * n_phe);
   foreach(i; 0..n_ind)
     foreach(j; 0..n_phe)
-      Ymatrix[i+j*n_ind] = pheno[i][j];
+      Ymatrix[i+j*n_ind] = pheno[i][j].value;
   
   // create simple double[] array with X matrix
   auto ncolx = n_gen + n_addcovar + (n_gen-1)*n_intcovar;
@@ -93,7 +93,7 @@ double[] scanone_hk_onelocus(in Probability[][] genoprobs, in double[][] pheno,
 
 // scanone, many positions
 //    returns matrix of residual sums of squares [position][phenotype]
-double[][] scanone_hk(in Probability[][][] genoprobs, in double[][] pheno,
+double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] pheno,
                       in double[][] addcovar, in double[][] intcovar,
                       double[] weights, double tol=1e-8)
 {
