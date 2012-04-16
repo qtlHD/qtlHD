@@ -1,15 +1,15 @@
 /**
- * hmm_forwardbackward
+ * forward/backward equations
  */
 
-module qtl.core.hmm.hmm_forwardbackward;
+module qtl.core.hmm.forwardbackward;
 
 import std.stdio;
 import std.math;
 
 import qtl.core.map.genetic_map_functions;
 import qtl.core.primitives, qtl.core.genotype;
-import qtl.core.hmm.hmm_util;
+import qtl.core.hmm.util;
 
 // forward Equations
 double[][] forwardEquations(alias init, alias emit, alias step)(in GenotypeCombinator[] genotypes,

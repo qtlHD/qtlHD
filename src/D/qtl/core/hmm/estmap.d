@@ -1,16 +1,16 @@
 /**
- * hmm_estmap
+ * estmap
  */
 
-module qtl.core.hmm.hmm_estmap;
+module qtl.core.hmm.estmap;
 
 import std.string;
 import std.conv;
 import std.stdio;
 import std.math;
 import qtl.core.primitives, qtl.core.genotype;
-import qtl.core.hmm.hmm_util;
-import qtl.core.hmm.hmm_forwardbackward;
+import qtl.core.hmm.util;
+import qtl.core.hmm.forwardbackward;
 
 // re-estimate inter-marker recombination fractions
 double[] estmap(alias init, alias emit, alias step, alias nrec)(in GenotypeCombinator[][] genotypes,

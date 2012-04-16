@@ -1,8 +1,8 @@
 /**
- * hmm_f2
+ * HMM intercross functions
  **/
 
-module qtl.core.hmm.hmm_f2;
+module qtl.core.hmm.f2;
 
 import std.math, std.stdio, std.path;
 import std.exception;
@@ -10,8 +10,8 @@ import std.conv;
 
 import qtl.core.primitives;
 import qtl.core.genotype;
-import qtl.core.hmm.hmm_calcgenoprob;
-import qtl.core.hmm.hmm_estmap;
+import qtl.core.hmm.calcgenoprob;
+import qtl.core.hmm.estmap;
 import qtl.core.map.genetic_map_functions;
 
 // things for the unit tests

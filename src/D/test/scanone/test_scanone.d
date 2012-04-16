@@ -22,7 +22,7 @@ alias std.algorithm.find find;
 
 
 import qtl.core.map.genetic_map_functions;
-import qtl.core.hmm.hmm_f2;
+import qtl.core.hmm.f2;
 
 // The comments are based on the Ruby/Biolib-R/qtl integration
 
