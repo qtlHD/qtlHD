@@ -77,6 +77,7 @@ unittest {
   auto chr4_map = markers_by_chr_sorted[3][1];
   sort(chr4_map); // sort in place
 
+  writeln(" --Scanone for hyper chr 4, no pseudomarkers");
   // calc_geno_prob
   auto rec_frac = recombination_fractions(chr4_map, GeneticMapFunc.Carter_Falconer);
   auto chr4probs = calc_geno_prob_BC(genotype_matrix, chr4_map, rec_frac, 0.001);
@@ -135,4 +136,6 @@ unittest {
     foreach(j; 0..lod[0].length)
       assert(abs(lod[i][j] - Rlod[i][j]) < 1e-8);
 
+  writeln(" --Scanone for hyper chr 4, with pseudomarkers");
+  auto pmap_stepped_chr4 = add_stepped_markers_autosome(chr4_map, 2.4, 0.0);
 }
