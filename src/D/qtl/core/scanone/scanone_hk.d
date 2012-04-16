@@ -18,11 +18,11 @@ import qtl.core.primitives;
 import qtl.core.scanone.linreg;
 
 // fill up X matrix for scanone, one position
-void create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addcovar,
-                            in double [][] intcovar, in double[] weights,
-                            out double[] Xmatrix)
+double[] create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addcovar,
+                                in double [][] intcovar, in double[] weights)
 {
   // genoprobs is [individuals][genotypes]
+  // addcovar, intcovar are [individuals][covariates]
   
   auto n_ind = genoprobs.length;
   auto n_gen = genoprobs[0].length;
@@ -32,7 +32,9 @@ void create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addcovar
   if(addcovar.length > 0) n_addcovar = addcovar[0].length;
   if(intcovar.length>0) n_intcovar = intcovar[0].length;
 
-  // output matrix should be n_ind x (n_gen + n_addcovar + (n_gen-1)*n_intcovar)
+  // X matrix
+  auto ncolx = n_gen + n_addcovar + (n_gen-1)*n_intcovar;
+  auto Xmatrix = new double[](n_ind * ncolx);
 
   size_t i, j, k1, k2, s;
 
@@ -50,21 +52,47 @@ void create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addcovar
       for(k2=0; k2<n_intcovar; k2++,s++) 
         Xmatrix[i+(n_gen+n_addcovar+s)*n_ind] = genoprobs[i][k1]*intcovar[i][k2]*weights[i];
   }
+
+  return Xmatrix;
 }
 
 // scanone, one position
+//    returns vector of residual sums of squares
 double[] scanone_hk_onelocus(in Probability[][] genoprobs, in double[][] pheno,
                              in double[][] addcovar, in double[][] intcovar,
-                             double[] weights)
+                             double[] weights, double tol=1e-8)
 {
-  auto n_phe = pheno[0].length;
-  auto rss = new double[](n_phe);
+  // genoprobs is [individuals][genotypes]
+  // addcovar, intcovar are [individuals][covariates]
+  // phenotypes is [individuals][phenotypes]
+  
+  auto n_ind = genoprobs.length;
+  auto n_gen = genoprobs[0].length;
 
-  return(rss);
+  auto n_phe = pheno[0].length;
+
+  size_t n_addcovar=0, n_intcovar=0;
+
+  if(addcovar.length > 0) n_addcovar = addcovar[0].length;
+  if(intcovar.length>0) n_intcovar = intcovar[0].length;
+
+  // create simple double[] array for phenotypes
+  auto Ymatrix = new double[](n_ind * n_phe);
+  foreach(i; 0..n_ind)
+    foreach(j; 0..n_phe)
+      Ymatrix[i+j*n_ind] = pheno[i][j];
+  
+  // create simple double[] array with X matrix
+  auto ncolx = n_gen + n_addcovar + (n_gen-1)*n_intcovar;
+  auto Xmatrix = create_scanone_Xmatrix(genoprobs, addcovar, intcovar, weights);
+
+  auto rss = calc_linreg_rss(Xmatrix, n_ind, ncolx, Ymatrix, n_phe, tol);
+
+  return rss;
 }
 
 unittest {
-  // See also ./test/scanone/test_scanone.d
+  // See ./test/scanone/test_scanone.d
   writeln("Unit test " ~ __FILE__);
 }
 
