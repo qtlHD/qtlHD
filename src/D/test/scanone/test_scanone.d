@@ -60,7 +60,6 @@ unittest {
   writeln("reading ",pheno_fn);
   auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
   Phenotype!double[][] pheno = p_res[0];
-  
 
   // Marker map reader
   auto marker_map_fn = to!string(buildPath(dir,"hyper_noX_marker_map.qtab"));
@@ -87,15 +86,13 @@ unittest {
   auto intcovar = new double[][](genotype_matrix.length, 0);
   auto weights = new double[](0);
 
-  /*
-  auto pheno_dbl = new double[][](pheno.length, pheno[0].length);
-  foreach(i; 0..pheno.length)
-    foreach(j; 0..pheno[0].length)
-      pheno_dbl[i][j] = cast(double)pheno[i][j];
-
   // run scanone
-  auto rss = scanone_hk(chr4probs, pheno_dbl, addcovar, intcovar, weights);
-  writeln("rss.length: ", rss.length);
-  writeln("rss[0].length: ", rss[0].length);
-  */
+  auto rss = scanone_hk(chr4probs, pheno, addcovar, intcovar, weights);
+
+  foreach(i, pos; pmap_stepped_chr4) {
+    writef("%-2s %5.1f  ", pos.chromosome.name, pos.position);
+    foreach(j; 0..rss[i].length)
+      writef("%8.4f ", rss[i][j]);
+    writeln;
+  }
 }
