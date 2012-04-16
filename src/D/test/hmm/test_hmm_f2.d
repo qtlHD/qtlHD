@@ -199,9 +199,9 @@ unittest {
                          [0.98819056080900758, 0.010834274013193156, 0.00097516517779884938],
                          [0.00156449602454221, 0.998274388090304443, 0.00016111588515345984]];
 
-  foreach(i; 0..genoprobs[0].length)
+  foreach(i; 0..genoprobs.length)
     foreach(j; 0..2)
-      assert(abs(genoprobs[0][i][j] - genoprobs_from_rqtl[i][j]) < 1e-7);
+      assert(abs(genoprobs[i][0][j] - genoprobs_from_rqtl[i][j]) < 1e-7);
 
   /* probs from R/qtl for individual 88 */
   genoprobs_from_rqtl = [[0.0001172399151822272,  0.000682931055218006, 0.999199829029599917],
@@ -209,9 +209,9 @@ unittest {
                          [0.0001167398194463191,  0.001182526695390220, 0.998700733485163750],
                          [0.0001586426302537041,  0.998263173522426106, 0.001578183847321077]];
 
-  foreach(i; 0..genoprobs[87].length)
+  foreach(i; 0..genoprobs.length)
     foreach(j; 0..2)
-      assert(abs(genoprobs[87][i][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
+      assert(abs(genoprobs[i][87][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
 
 
   /* probs from R/qtl for individual 103 */
@@ -220,9 +220,9 @@ unittest {
                          [0.5756148456641348, 0.365802567955339664, 0.0585825863805257627],
                          [0.9970029970029969, 0.001998001998001998, 0.0009990009990009992]];
 
-  foreach(i; 0..genoprobs[102].length)
+  foreach(i; 0..genoprobs.length)
     foreach(j; 0..2)
-      assert(abs(genoprobs[102][i][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
+      assert(abs(genoprobs[i][102][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
 
   /* probs from R/qtl for individual 106 */
   genoprobs_from_rqtl = [[0.1387811959132879691, 0.467329331452057628, 0.3938894726346546],
@@ -230,9 +230,9 @@ unittest {
                          [0.0585825863805258112, 0.365802567955339497, 0.5756148456641349],
                          [0.0009990009990009992, 0.001998001998001998, 0.9970029970029971]];
 
-  foreach(i; 0..genoprobs[105].length)
+  foreach(i; 0..genoprobs.length)
     foreach(j; 0..2)
-      assert(abs(genoprobs[105][i][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
+      assert(abs(genoprobs[i][105][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
 
   /* probs from R/qtl for individual 107 */
   genoprobs_from_rqtl = [[0.2336319623541089074, 0.5327360752917820, 0.2336319623541089074],
@@ -240,9 +240,9 @@ unittest {
                          [0.1827669522138612168, 0.6344660955722773, 0.1827669522138613833],
                          [0.0005005005005005007, 0.9989989989989990, 0.0005005005005005007]];
 
-  foreach(i; 0..genoprobs[106].length)
+  foreach(i; 0..genoprobs.length)
     foreach(j; 0..2)
-      assert(abs(genoprobs[106][i][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
+      assert(abs(genoprobs[i][106][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
 
   // test estmap with listeria data, chr 4
   writeln("----------------------------------------------------------------------");
