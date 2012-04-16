@@ -145,13 +145,13 @@ void gemm(f_char transa,    // N: don't transpose A; T/C: tranpose A
 // **ADD** I should follow this with another function that will pull out the estimates
 //         and then a third function that will calculate their variance matrix
 //         (both making use of the new state of 
-double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
+double[] calc_linreg_rss(double x[], size_t nrow, size_t ncolx, double y[], size_t ncoly,
                          double tol=1e-8)
 {
-  int lda=nrow, ldb=nrow, info, rank;
+  int lda=cast(int)nrow, ldb=cast(int)nrow, info, rank;
 
-  int lwork = max(min(nrow,ncolx) + max(min(nrow,ncolx), ncoly),
-                  max(min(nrow,ncolx) + 3*ncolx + 1, 2*min(nrow,ncolx)*ncoly));
+  int lwork = cast(int)max(min(nrow,ncolx) + max(min(nrow,ncolx), ncoly),
+                           max(min(nrow,ncolx) + 3*ncolx + 1, 2*min(nrow,ncolx)*ncoly));
   auto work = new double[lwork];
 
   // to fill with RSS for output
@@ -165,11 +165,11 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
   auto xcopy = x.dup;
   auto ycopy = y.dup;
 
-  gelsy(nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, jpvt.ptr, tol, &rank, work.ptr, lwork, &info);
+  gelsy(cast(int)nrow, cast(int)ncolx, cast(int)ncoly, x.ptr, lda, y.ptr, ldb, jpvt.ptr, tol, &rank, work.ptr, lwork, &info);
 
   if(rank < ncolx) { // x has < full rank
     // calculate residuals
-    gemm('N', 'N', nrow, ncoly, ncolx, 1.0, xcopy.ptr, nrow, y.ptr, nrow, -1.0, ycopy.ptr, nrow);
+    gemm('N', 'N', cast(int)nrow, cast(int)ncoly, cast(int)ncolx, 1.0, xcopy.ptr, cast(int)nrow, y.ptr, cast(int)nrow, -1.0, ycopy.ptr, cast(int)nrow);
 
     // calculate RSS
     auto row_index = 0;
@@ -194,13 +194,13 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
 }
 
 
-double[] calc_linreg_rss_fullrank(double x[], int nrow, int ncolx, double y[], int ncoly,
+double[] calc_linreg_rss_fullrank(double x[], size_t nrow, size_t ncolx, double y[], size_t ncoly,
                                   double tol=1e-8)
 {
-  int lda=nrow, ldb=nrow, info, rank;
+  int lda=cast(int)nrow, ldb=cast(int)nrow, info, rank;
 
-  int lwork = max(min(nrow,ncolx) + max(min(nrow,ncolx), ncoly),
-                  max(min(nrow,ncolx) + 3*ncolx + 1, 2*min(nrow,ncolx)*ncoly));
+  int lwork = cast(int)max(min(nrow,ncolx) + max(min(nrow,ncolx), ncoly),
+                           max(min(nrow,ncolx) + 3*ncolx + 1, 2*min(nrow,ncolx)*ncoly));
   auto work = new double[lwork];
 
   // save x and y in case x is not of full rank
@@ -212,7 +212,7 @@ double[] calc_linreg_rss_fullrank(double x[], int nrow, int ncolx, double y[], i
   foreach(i; 0..ncoly) rss[i]=0.0; // fill with 0's
 
   info = 0;
-  gels('N', nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
+  gels('N', cast(int)nrow, cast(int)ncolx, cast(int)ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
 
   if(!info) { /* check whether x seems singular */
     foreach(i; 0..ncolx) {
