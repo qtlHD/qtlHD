@@ -117,6 +117,39 @@ double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] 
 }
 
 
+// scanone for null model
+double[] scanone_hk_null(in Phenotype!(double)[][] pheno,
+                         in double[][] addcovar, in double[][] intcovar,
+                         double[] weights, double tol=1e-8)
+{
+  auto vector_of_ones = new Probability[][](pheno.length,1);
+  foreach(i; 0..pheno.length)
+    vector_of_ones[i][0] = 1.0;
+
+  // if weights has length 0, fill with 1's
+  if(weights.length==0) {
+    weights = new double[](pheno.length);
+    foreach(i; 0..pheno.length)
+      weights[i] = 1.0;
+  }
+ 
+  return scanone_hk_onelocus(vector_of_ones, pheno, 
+                             addcovar, intcovar, weights, tol);
+}
+
+
+// calculate lod scores
+double[][] rss_to_lod(in double[][] rss_alt, in double[] rss_null, in size_t n_ind)
+{
+  auto lod = new double[][](rss_alt.length, rss_alt[0].length);
+  
+  foreach(i; 0..rss_alt.length)
+    foreach(j; 0..rss_alt[i].length)
+      lod[i][j] = cast(double)n_ind/2.0 * log10(rss_null[j] / rss_alt[i][j]);
+
+  return lod;
+}
+
 
 unittest {
   // See ./test/scanone/test_scanone.d
