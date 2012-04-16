@@ -6,7 +6,7 @@
  *
  * Lapack benchmarks at http://www.netlib.org/lapack/lug/node71.html
  *     dgelsy indistinguishable from dgels
- *     dgelsd (SVD) 3-5x slower; dgelss (used in R/qtl for imputation) 7-34x slower
+ *     dgelsd (SVD) 3-5x slower; dgelss (used in R/qtl if X < full rank) 7-34x slower
  *
  * The R function lm() using dqrls, which is Linpack rather than Lapack
  */
@@ -44,8 +44,8 @@ version(Windows){
 
   static this(){
     HXModule lib = load_library("Rblas");
-    load_function(dqrls_)(lib,"dgelsy_");
-    load_function(dqrls_)(lib,"dgels_");
+    load_function(dgels_)(lib,"dgelsy_");
+    load_function(dgelsy_)(lib,"dgels_");
     writeln("Loaded BLAS functionality");
   }
 
