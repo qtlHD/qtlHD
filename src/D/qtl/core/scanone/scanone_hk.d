@@ -91,6 +91,33 @@ double[] scanone_hk_onelocus(in Probability[][] genoprobs, in double[][] pheno,
   return rss;
 }
 
+// scanone, many positions
+//    returns matrix of residual sums of squares [position][phenotype]
+double[][] scanone_hk(in Probability[][][] genoprobs, in double[][] pheno,
+                      in double[][] addcovar, in double[][] intcovar,
+                      double[] weights, double tol=1e-8)
+{
+  // genoprobs is [positions][individuals][genotypes]
+  
+  auto rss = new double[][](genoprobs.length, pheno[0].length);
+
+  // if weights has length 0, fill with 1's
+  if(weights.length==0) {
+    weights = new double[](pheno.length);
+    foreach(i; 0..pheno.length)
+      weights[i] = 1.0;
+  }
+ 
+  // scan one position at a time
+  foreach(i; 0..genoprobs.length)
+    rss[i] = scanone_hk_onelocus(genoprobs[i], pheno, addcovar, intcovar,
+                                 weights, tol);
+
+  return rss;
+}
+
+
+
 unittest {
   // See ./test/scanone/test_scanone.d
   writeln("Unit test " ~ __FILE__);
