@@ -42,10 +42,15 @@ version(Windows){
                            f_double *B, f_int *ldb, f_int *jpvt, f_double *rcond,
                            f_int *rank, f_double *work, f_int *lwork, f_int *info) dgelsy_;
 
+  extern (C) void function(f_char *transa, f_char *transb, f_int *m, f_int *n, f_int *k, 
+                           f_double *alpha, f_double *a, f_int *lda, f_double *b, f_int *ldb, 
+                           f_double *beta, f_double *c, f_int *ldc) dgemm_;
+
   static this(){
     HXModule lib = load_library("Rblas");
     load_function(dgels_)(lib,"dgelsy_");
     load_function(dgelsy_)(lib,"dgels_");
+    load_function(dgemm_)(lib,"dgemm_");
     writeln("Loaded BLAS functionality");
   }
 
@@ -62,6 +67,11 @@ version(Windows){
   extern (C) void dgelsy_(f_int *m, f_int *n, f_int *nrhs, f_double *A, f_int *lda,
                           f_double *B, f_int *ldb, f_int *jpvt, f_double *rcond,
                           f_int *rank, f_double *work, f_int *lwork, f_int *info);
+
+  // dgemm is BLAS function for matrix multiplication
+  extern (C) void dgemm_(f_char *transa, f_char *transb, f_int *m, f_int *n, f_int *k, 
+                         f_double *alpha, f_double *A, f_int *lda, f_double *B, f_int *ldb, 
+                         f_double *beta, f_double *C, f_int *ldc);
 }
 
 // The D interface is a D-ified call which calls the C interface dgels_
@@ -108,6 +118,29 @@ void gelsy(f_int m,         // number of rows in A
 }
 
 
+// The D interface is a D-ified call which calls the C interface dgemm_
+//
+// calculates alpha * (A . B) + beta * C
+void gemm(f_char transa,    // N: don't transpose A; T/C: tranpose A
+          f_char transb,    // N: don't transpose A; T/C: tranpose A
+          f_int m,          // number of rows of A and C
+          f_int n,          // number of columns of B and C
+          f_int k,          // number of columns of A and rows of B
+          f_double alpha,   // scalar
+          f_double *A,      // matrix A
+          f_int lda,        // leading dimension of A (==m)
+          f_double *B,      // matrix B
+          f_int ldb,        // leading dimension of B (==k)
+          f_double beta,    // scalar
+          f_double *C,      // matrix C; on output, contains the result
+          f_int ldc)        // leading dimension of C
+{
+  // see http://www.netlib.org/blas/dgemm.f
+
+  dgemm_(&transa, &transb, &m, &n, &k, &alpha, A, &lda, B, &ldb, &beta, C, &ldc);
+}
+
+
 // fit linear regression model and return residual sum of squares
 // **ADD** I should follow this with another function that will pull out the estimates
 //         and then a third function that will calculate their variance matrix
@@ -135,17 +168,17 @@ double[] calc_linreg_rss(double x[], int nrow, int ncolx, double y[], int ncoly,
   gelsy(nrow, ncolx, ncoly, x.ptr, lda, y.ptr, ldb, jpvt.ptr, tol, &rank, work.ptr, lwork, &info);
 
   if(rank < ncolx) { // x has < full rank
-    // calculate fitted values and then residuals
-    // **FIXME** I should replace this matrix multiplication with a call to dgemm
-    // See http://www.netlib.org/blas/dgemm.f
-    foreach(j; 0..ncoly) {
-      foreach(i; 0..nrow) {
-        auto fitted = 0.0;
-        foreach(k; 0..ncolx)
-          fitted += (xcopy[i+k*nrow] * y[k+j*nrow]);
-        rss[j] += (ycopy[i+j*nrow] - fitted)*(ycopy[i+j*nrow] - fitted);
-      }
+    // calculate residuals
+    gemm('N', 'N', nrow, ncoly, ncolx, 1.0, xcopy.ptr, nrow, y.ptr, nrow, -1.0, ycopy.ptr, nrow);
+
+    // calculate RSS
+    auto row_index = 0;
+    foreach(i; 0..ncoly) {
+      foreach(j; 0..nrow)
+        rss[i] += ycopy[row_index+j]^^2;
+      row_index += nrow;
     }
+
     return rss;
   }
 
