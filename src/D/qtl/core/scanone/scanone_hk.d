@@ -30,7 +30,7 @@ double[] create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addc
   size_t n_addcovar=0, n_intcovar=0;
 
   if(addcovar.length > 0) n_addcovar = addcovar[0].length;
-  if(intcovar.length>0) n_intcovar = intcovar[0].length;
+  if(intcovar.length > 0) n_intcovar = intcovar[0].length;
 
   // X matrix
   auto ncolx = n_gen + n_addcovar + (n_gen-1)*n_intcovar;
