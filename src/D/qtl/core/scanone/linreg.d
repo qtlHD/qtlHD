@@ -198,7 +198,7 @@ double[] calc_linreg_rss_fullrank(double x[], int nrow, int ncolx, double y[], i
     return calc_linreg_rss(x, nrow, ncolx, y, ncoly, tol);
   }
 
-  // worked; calculate RSS and return
+  // else: worked; calculate RSS and return
   auto row_index = 0;
   foreach(i; 0..ncoly) {
     foreach(j; ncolx..nrow)
