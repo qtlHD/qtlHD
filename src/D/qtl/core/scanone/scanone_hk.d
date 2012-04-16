@@ -118,8 +118,7 @@ double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] 
 
 
 // scanone for null model
-double[] scanone_hk_null(in Phenotype!(double)[][] pheno,
-                         in double[][] addcovar, in double[][] intcovar,
+double[] scanone_hk_null(in Phenotype!(double)[][] pheno, in double[][] addcovar,
                          double[] weights, double tol=1e-8)
 {
   auto vector_of_ones = new Probability[][](pheno.length,1);
@@ -133,6 +132,8 @@ double[] scanone_hk_null(in Phenotype!(double)[][] pheno,
       weights[i] = 1.0;
   }
  
+  auto intcovar = new double[][](0,0);
+
   return scanone_hk_onelocus(vector_of_ones, pheno, 
                              addcovar, intcovar, weights, tol);
 }
