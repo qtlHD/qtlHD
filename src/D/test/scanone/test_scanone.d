@@ -83,8 +83,8 @@ unittest {
   auto chr4probs = calc_geno_prob_BC(genotype_matrix, chr4_map, rec_frac, 0.001);
 
   // empty covariate matrices
-  auto addcovar = new double[][](genotype_matrix.length, 0);
-  auto intcovar = new double[][](genotype_matrix.length, 0);
+  auto addcovar = new double[][](0, 0);
+  auto intcovar = new double[][](0, 0);
   auto weights = new double[](0);
 
   // pull out the first phenotype; also do it as sqrt
