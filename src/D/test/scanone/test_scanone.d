@@ -264,4 +264,48 @@ unittest {
       assert(abs(lod[i][j] - Rlod[i][j]) < 1e-8);
   }
 
+  writeln(" --Scanone for hyper chr 15, with covariates");
+  /*******************************
+   * Now, with an additive covariate
+
+   data(hyper)
+   hyper <- hyper["-X",]
+   for(i in seq_along(hyper$geno))
+     hyper$geno[[i]]$map <- round(hyper$geno[[i]]$map, 1)
+   hyper$pheno[,2] <- sqrt(hyper$pheno[,1])
+   acovar <- rep(c(0,1), c(125, 125))
+   hyper <- calc.genoprob(hyper, err=0.002, map="kosambi", step=1)
+   outa <- scanone(hyper, phe=1:2, method="hk", chr=4, addcovar=acovar)
+   outi <- scanone(hyper, phe=1:2, method="hk", chr=4, addcovar=acovar, intcovar=acovar)
+
+   *
+   ******************************/
+
+  // chr 15 map with pseudomarkers
+  auto chr15_map = markers_by_chr_sorted[14][1];
+  sort(chr15_map); // sort in place
+  auto pmap_stepped_chr15 = add_stepped_markers_autosome(chr15_map, 2.5, 0.0);
+
+  // calc_geno_prob
+  rec_frac = recombination_fractions(pmap_stepped_chr15, GeneticMapFunc.Haldane);
+  auto chr15probs = calc_geno_prob_BC(genotype_matrix, pmap_stepped_chr15, rec_frac, 0.002);
+
+  // covariates
+  addcovar = new double[][](genotype_matrix.length, 1);
+  foreach(i; 0..addcovar.length) {
+    if(i < addcovar.length/2) addcovar[i][0] = 0.0;
+    else addcovar[i][0] = 1.0;
+  }
+
+  // run scanone and calculate LOD scores
+  auto rss_acovar = scanone_hk(chr15probs, pheno_rev, addcovar, intcovar, weights);
+  auto rss_null_acovar = scanone_hk_null(pheno_rev, addcovar, weights);
+  auto lod_acovar = rss_to_lod(rss_acovar, rss_null_acovar, pheno_rev.length);
+
+  // covariates
+  intcovar = addcovar.dup;
+
+  // run scanone and calculate LOD scores
+  auto rss_icovar = scanone_hk(chr15probs, pheno_rev, addcovar, intcovar, weights);
+  auto lod_icovar = rss_to_lod(rss_icovar, rss_null_acovar, pheno_rev.length);
 }
