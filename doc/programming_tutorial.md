@@ -114,8 +114,8 @@ also defined in genotype.d):
         A AA as 0,0
         B BB as 1,1
         H AB BA as 0,1
-        HorB C as 0,1 1,1
-        HorA D as 0,0 0,1
+        HorB C as 0,1 1,0 1,1
+        HorA D as 0,0 0,1 1,0
         # --- Symbol Genotype end
 
 This needs to be parsed by read_qtab into the in-memory types we use.
@@ -147,7 +147,7 @@ The unittest in read_qtab reads
           assert(symbols.decode("A") == symbols.decode("AA"));
           assert(to!string(symbols.decode("A")) == "[(0,0)]");
           assert(to!string(symbols.decode("H")) == "[(0,1)]");
-          assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1)]");
+          assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1), (1,0)]");
           // It is also possible to encode directly with
           assert(to!string(symbols.decode("0,0")) == "[(0,0)]");
           assert(to!string(symbols.decode("0,1")) == "[(0,1)]");
@@ -256,8 +256,8 @@ is the information we gave qtlHD with the symbol table:
         A AA as 0,0
         B BB as 1,1
         H AB BA as 0,1
-        HorB C as 0,1 1,1
-        HorA D as 0,0 0,1
+        HorB C as 0,1 1,0 1,1
+        HorA D as 0,0 0,1 1,0
         # --- Symbol Genotype end
 
 At this stage you should know how to use the phenotype and genotype matrices.
