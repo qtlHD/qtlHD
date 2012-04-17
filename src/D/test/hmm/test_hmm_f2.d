@@ -245,9 +245,7 @@ unittest {
       assert(abs(genoprobs[i][106][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
 
   // test estmap with listeria data, chr 4
-  writeln("----------------------------------------------------------------------");
   writeln("Test estmap with listeria data, chr 4");
-  writeln("----------------------------------------------------------------------");
 
   chr4_map = markers_by_chr_sorted[3][1];
   rec_frac = recombination_fractions(chr4_map, GeneticMapFunc.Kosambi);
