@@ -174,7 +174,7 @@ etc. The symbols that can be used are defined in the symbol table, which
 relates them to the actual genotype. So A would be 0,0 (the genotype of father
 and mother is 0), B is 1,1, H is 1,0 (or 0,1), HorA is an observed genotype,
 which can be either H or B at the marker location. Obviously you can define
-your own symbols. Often C is chosen for HorA, and D for HorB. Any symbol (a
+your own symbols. Often C is chosen for HorB, and D for HorA. Any symbol (a
 string of text) can be mapped against a list of allowed genotypes. In the
 future we may even support polyploidity.
 
