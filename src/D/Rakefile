@@ -33,6 +33,7 @@ if ARGV.index("DEBUG=TRUE")
   d_debug = D_DEBUG
   print "Adding debug information!\n"
 end
+arch_dfiles = Dir.glob("./arch/*.d")
 core_dfiles = Dir.glob("./qtl/core/*.d") 
 map_dfiles  = Dir.glob("./qtl/core/map/*.d")
 hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d")
@@ -112,8 +113,8 @@ exe_list = {
   'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
   'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
   'test_scanone' => { :path => './test/scanone', :list => ['./test/scanone/test_scanone_f2.d'] + ['./test/scanone/test_scanone_bc.d'] + all_core_dfiles + scanone_dfiles + main_dfile + lapack_dfiles + util_dfiles},
-  'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] + renv_dfiles + util_dfiles },
-  'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + util_dfiles },
+  'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] + renv_dfiles + arch_dfiles },
+  'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + arch_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
   'test_hmm' => { :path => './test/hmm', :list => ['./test/hmm/test_hmm_f2.d'] + ['./test/hmm/test_hmm_bc.d'] + all_core_dfiles + qtab_read_dfiles + main_dfile },
 }
