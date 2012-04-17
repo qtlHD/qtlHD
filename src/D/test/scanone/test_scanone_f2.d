@@ -81,4 +81,47 @@ unittest {
   // sorted chromosomes
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
 
+  // chr 5
+  auto chr5_map = markers_by_chr_sorted[4][1];
+  sort(chr5_map); // sort in place
+
+  // add pseudomarkers
+  auto chr5_map_wpmark = add_minimal_markers_autosome(chr5_map, 2);
+
+  // calc_genoprob
+  auto rec_frac = recombination_fractions(chr5_map_wpmark, GeneticMapFunc.Kosambi);
+  auto chr5probs = calc_geno_prob_F2(genotype_matrix, chr5_map_wpmark, rec_frac, 0.01);
+
+  // empty covariate matrices
+  auto addcovar = new double[][](0, 0);
+  auto intcovar = new double[][](0, 0);
+  auto weights = new double[](0);
+
+  // run scanone and calculate LOD scores
+  auto rss = scanone_hk(chr5probs, pheno, addcovar, intcovar, weights);
+  auto rss0 = scanone_hk_null(pheno, addcovar, weights);
+  auto lod = rss_to_lod(rss, rss0, pheno.length);
+
+  /*******************************
+   * in R:
+
+   data(listeria)
+   listeria <- listeria["-X",]
+   listeria <- calc.genoprob(listeria, step=2, stepwidth="max", err=0.01, map="kosambi")
+   out <- scanone(listeria, method="hk", chr=5)
+
+   *
+   ******************************/
+
+    auto Rlod = [1.75082264702388, 1.90066849718966, 2.01704712283993, 2.08712140364622, 2.10492717358017, 2.70630273019253,
+                 3.37761230506607, 4.05942123556486, 4.67519573823500, 5.16235351860865, 5.49575699915243, 5.68655510311692,
+                 6.03045154338031, 6.13583408757336, 5.99580084184214, 5.64987645100132, 6.37031242544765, 6.67654669747520,
+                 6.55134165341997, 6.06133769955562, 6.06133826161380, 6.03243273069080, 5.84745187330492, 5.78282966210315,
+                 5.41716088137809, 4.81528999604944, 4.52366494344466, 4.00127126667383, 3.35266038068522, 3.40387254237714,
+                 3.38560912296015, 3.29543897580413, 3.14207936272970, 3.07376784424855, 2.99184546370128, 2.90164906063137,
+                 2.80647516232494, 2.70834876275660, 2.60898335637313];
+
+  assert(lod.length == Rlod.length);
+  foreach(i; 0..lod.length)
+    assert(abs(lod[i][0] - Rlod[i]) < 1e-5);
 }
