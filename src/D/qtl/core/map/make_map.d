@@ -115,9 +115,9 @@ Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
 	auto n_pseudomarkers = ceil(dist/step)-1;
 	auto dist_to_step = dist/(n_pseudomarkers+1);
 
-	for(auto pmarpos=leftpos+dist_to_step; pmarpos < rightpos; pmarpos += dist_to_step) {
+	for(auto pmarpos=leftpos+dist_to_step; pmarpos < rightpos-dist_to_step/2; pmarpos += dist_to_step)
 	  new_markerlist ~= new PseudoMarker(new_markerlist[0].chromosome, pmarpos);
-	}
+
       }
     }
 
