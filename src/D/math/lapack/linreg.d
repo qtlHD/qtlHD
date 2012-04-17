@@ -11,7 +11,7 @@
  * The R function lm() using dqrls, which is Linpack rather than Lapack
  */
 
-module qtl.core.scanone.linreg;
+module math.lapack.linreg;
 
 import std.algorithm;
 import std.math;

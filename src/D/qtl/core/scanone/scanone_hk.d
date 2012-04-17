@@ -15,7 +15,7 @@ import std.conv;
 import std.exception;
 
 import qtl.core.primitives;
-import qtl.core.scanone.linreg;
+import math.lapack.linreg;
 
 // fill up X matrix for scanone, one position
 double[] create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addcovar,
