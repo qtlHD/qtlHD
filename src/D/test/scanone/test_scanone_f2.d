@@ -67,6 +67,9 @@ unittest {
   auto n_to_omit = count(ind_to_omit, true);
   writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
 
+  genotype_matrix = omit_ind_from_genotypes(genotype_matrix, ind_to_omit);
+  pheno = omit_ind_from_phenotypes(pheno, ind_to_omit);
+
   // Marker map reader
   auto marker_map_fn = to!string(buildPath(dir,"listeria_marker_map.qtab"));
   writeln("reading ",marker_map_fn);
