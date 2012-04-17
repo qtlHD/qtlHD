@@ -20,7 +20,7 @@ import std.c.stdlib;
 version(Windows){
   // Windows library binding
   private import std.loader;
-  private import qtl.core.util.windows;
+  private import arch.windows;
   private import qtl.plugins.renv.libload;
   
   extern (C){

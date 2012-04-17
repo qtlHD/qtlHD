@@ -66,7 +66,7 @@ extern(C) {
 
 version(Windows){
   private import std.loader;
-  private import qtl.core.util.windows;
+  private import arch.windows;
   private import qtl.plugins.renv.libload;
   extern (C) void function(char *trans, f_int *m, f_int *n, f_double *alpha, f_double *A, f_int *lda, f_double *x, f_int *incx, f_double *beta, f_double *y, f_int *incy, f_int trans_len) dgemv_;
   
