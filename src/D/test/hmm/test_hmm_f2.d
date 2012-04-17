@@ -47,8 +47,8 @@ unittest {
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
   assert(to!string(symbols.decode("H")) == "[(0,1), (1,0)]");
   assert(to!string(symbols.decode("B")) == "[(1,1)]");
-  assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1)]");
-  assert(to!string(symbols.decode("HorB")) == "[(0,1), (1,1)]");
+  assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1), (1,0)]");
+  assert(to!string(symbols.decode("HorB")) == "[(0,1), (1,0), (1,1)]");
 
   // Read genotype matrix
   auto genotype_fn = to!string(buildPath(dir,"listeria_genotype.qtab"));
