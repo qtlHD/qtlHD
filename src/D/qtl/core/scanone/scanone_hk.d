@@ -21,9 +21,15 @@ import math.lapack.linreg;
 double[] create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addcovar,
                                 in double [][] intcovar, in double[] weights)
 {
+  if(genoprobs.length != weights.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and weights");
+  if(addcovar.length > 0 && addcovar[0].length > 0 && genoprobs.length != addcovar.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and addcovar");
+  if(intcovar.length > 0 && intcovar[0].length > 0 && genoprobs.length != intcovar.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and intcovar");
   // genoprobs is [individuals][genotypes]
   // addcovar, intcovar are [individuals][covariates]
-  
+
   auto n_ind = genoprobs.length;
   auto n_gen = genoprobs[0].length;
 
@@ -49,7 +55,7 @@ double[] create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addc
 
     // intcovar columns
     for(k1=0,s=0; k1<n_gen-1; k1++)
-      for(k2=0; k2<n_intcovar; k2++,s++) 
+      for(k2=0; k2<n_intcovar; k2++,s++)
         Xmatrix[i+(n_gen+n_addcovar+s)*n_ind] = genoprobs[i][k1]*intcovar[i][k2]*weights[i];
   }
 
@@ -62,10 +68,19 @@ double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype!(double)
                              in double[][] addcovar, in double[][] intcovar,
                              double[] weights, double tol=1e-8)
 {
+  if(genoprobs.length != pheno.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and pheno");
+  if(genoprobs.length != weights.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and weights");
+  if(addcovar.length > 0 && addcovar[0].length > 0 && genoprobs.length != addcovar.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and addcovar");
+  if(intcovar.length > 0 && intcovar[0].length > 0 && genoprobs.length != intcovar.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and intcovar");
+
   // genoprobs is [individuals][genotypes]
   // addcovar, intcovar are [individuals][covariates]
   // phenotypes is [individuals][phenotypes]
-  
+
   auto n_ind = genoprobs.length;
   auto n_gen = genoprobs[0].length;
 
@@ -81,7 +96,7 @@ double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype!(double)
   foreach(i; 0..n_ind)
     foreach(j; 0..n_phe)
       Ymatrix[i+j*n_ind] = pheno[i][j].value;
-  
+
   // create simple double[] array with X matrix
   auto ncolx = n_gen + n_addcovar + (n_gen-1)*n_intcovar;
   auto Xmatrix = create_scanone_Xmatrix(genoprobs, addcovar, intcovar, weights);
@@ -97,8 +112,18 @@ double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] 
                       in double[][] addcovar, in double[][] intcovar,
                       double[] weights, double tol=1e-8)
 {
+  if(genoprobs.length == 0)
+    throw new Exception("genoprobs is empty");
+  if(genoprobs[0].length != pheno.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and pheno");
+  if(weights.length > 0 && genoprobs[0].length != weights.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and weights");
+  if(addcovar.length > 0 && addcovar[0].length > 0 && genoprobs[0].length != addcovar.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and addcovar");
+  if(intcovar.length > 0 && intcovar[0].length > 0 && genoprobs[0].length != intcovar.length)
+    throw new Exception("Mismatch in no. individuals in genoprobs and intcovar");
   // genoprobs is [positions][individuals][genotypes]
-  
+
   auto rss = new double[][](genoprobs.length, pheno[0].length);
 
   // if weights has length 0, fill with 1's
@@ -107,7 +132,7 @@ double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] 
     foreach(i; 0..pheno.length)
       weights[i] = 1.0;
   }
- 
+
   // scan one position at a time
   foreach(i; 0..genoprobs.length)
     rss[i] = scanone_hk_onelocus(genoprobs[i], pheno, addcovar, intcovar,
@@ -121,6 +146,11 @@ double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] 
 double[] scanone_hk_null(in Phenotype!(double)[][] pheno, in double[][] addcovar,
                          double[] weights, double tol=1e-8)
 {
+  if(weights.length > 0 && pheno.length != weights.length)
+    throw new Exception("Mismatch in no. individuals in pheno and weights");
+  if(addcovar.length > 0 && addcovar.length > 0 && pheno.length != addcovar.length)
+    throw new Exception("Mismatch in no. individuals in pheno and addcovar");
+
   auto vector_of_ones = new Probability[][](pheno.length,1);
   foreach(i; 0..pheno.length)
     vector_of_ones[i][0] = 1.0;
@@ -131,10 +161,10 @@ double[] scanone_hk_null(in Phenotype!(double)[][] pheno, in double[][] addcovar
     foreach(i; 0..pheno.length)
       weights[i] = 1.0;
   }
- 
+
   auto intcovar = new double[][](0,0);
 
-  return scanone_hk_onelocus(vector_of_ones, pheno, 
+  return scanone_hk_onelocus(vector_of_ones, pheno,
                              addcovar, intcovar, weights, tol);
 }
 
@@ -142,8 +172,11 @@ double[] scanone_hk_null(in Phenotype!(double)[][] pheno, in double[][] addcovar
 // calculate lod scores
 double[][] rss_to_lod(in double[][] rss_alt, in double[] rss_null, in size_t n_ind)
 {
+  if(rss_alt[0].length != rss_null.length)
+    throw new Exception("Mismatch in lengths between rss_alt and rss_null");
+
   auto lod = new double[][](rss_alt.length, rss_alt[0].length);
-  
+
   foreach(i; 0..rss_alt.length)
     foreach(j; 0..rss_alt[i].length)
       lod[i][j] = cast(double)n_ind/2.0 * log10(rss_null[j] / rss_alt[i][j]);
