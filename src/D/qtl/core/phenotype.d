@@ -25,3 +25,7 @@ Phenotype!T set_phenotype(T)(in string s) {
 }
 
 
+bool isNA(T)(Phenotype!T phe)
+{ 
+  return(phe.value == PHENOTYPE_NA);
+}
