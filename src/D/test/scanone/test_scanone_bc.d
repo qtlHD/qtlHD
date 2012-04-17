@@ -21,7 +21,6 @@ import qtl.core.phenotype;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.map.map;
 import qtl.core.map.make_map;
-import qtl.core.scanone.scanone_hk;
 
 import qtl.core.map.genetic_map_functions;
 import qtl.core.hmm.bc;
