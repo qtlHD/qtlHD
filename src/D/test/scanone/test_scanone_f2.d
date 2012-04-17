@@ -10,7 +10,7 @@ import std.string;
 import std.path;
 import std.algorithm;
 import std.math;
-alias std.algorithm.find find;
+import std.algorithm;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
@@ -21,11 +21,12 @@ import qtl.core.phenotype;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.map.map;
 import qtl.core.map.make_map;
-import qtl.core.scanone.scanone_hk;
 
 import qtl.core.map.genetic_map_functions;
 import qtl.core.hmm.f2;
 import qtl.core.scanone.scanone_hk;
+import qtl.core.util.data_manip;
+
 
 unittest {
   writeln("Unit test " ~ __FILE__);
@@ -61,6 +62,10 @@ unittest {
   writeln("reading ",pheno_fn);
   auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
   Phenotype!double[][] pheno = p_res[0];
+
+  auto ind_to_omit = is_any_phenotype_missing(pheno);
+  auto n_to_omit = count(ind_to_omit, true);
+  writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
 
   // Marker map reader
   auto marker_map_fn = to!string(buildPath(dir,"listeria_marker_map.qtab"));
