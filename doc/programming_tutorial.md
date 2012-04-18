@@ -8,7 +8,7 @@ problems there.
 
 First, we will run through some concepts by reading and writing qtab files. See
 also the 
-[qtab documentation](https://github.com/pjotrp/qtlHD/blob/master/doc/input/mapping_inputs.md) for a
+[qtab documentation](https://github.com/pjotrp/qtlHD/blob/master/doc/input/qtab.md) for a
 description of the tabulated qtab file format, and the implemented qtab [reader and writer](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab).
 
 ## Reading qtab phenotypes
