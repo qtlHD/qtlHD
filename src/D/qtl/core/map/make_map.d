@@ -231,11 +231,7 @@ unittest {
   markers3.list ~= new Marker(10.0);
   markers3.list ~= new Marker(20.0);
   markers3.list ~= new Marker(30.0);
-  foreach (m; markers3.list) 
-    writefln("%20s %8.4f %5s", m.name, m.get_position(), isPseudoMarker(m));
   auto res3 = add_stepped_markers_autosome(markers3.list, 5.0, 7.5);
-  foreach (m; res3) 
-    writefln("%20s %8.4f %5s", m.name, m.get_position(), isPseudoMarker(m));
   auto list3 = res3;
   assert(list3.length == 7, to!string(list3.length));
   auto uniq_list3 = uniq!"a.get_position() == b.get_position()"(list3);
@@ -250,8 +246,6 @@ unittest {
   markers4.list ~= new Marker(27.0);
   writeln("call add_minimal_markers_autosome");
   auto res4 = add_minimal_markers_autosome(markers4.list, 2.0, 7.5);
-  foreach (m; res4) 
-    writefln("%20s\t%8.4f\t%5s", m.name, m.get_position(), isPseudoMarker(m));
   auto list4 = res4;
   assert(list4.length == 18, to!string(list4.length));
   auto uniq_list4 = uniq!"a.get_position() == b.get_position()"(list4);
