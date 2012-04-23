@@ -109,7 +109,7 @@ unittest {
    listeria <- listeria["-X",]
    listeria <- calc.genoprob(listeria, step=2, stepwidth="max", err=0.01, map="kosambi")
    out <- scanone(listeria, method="hk", chr=5)
-   paste0("Rlod = [", paste(sprintf("%.20f", out$lod), collapse=", "), "];")
+   paste0("auto Rlod = [", paste(sprintf("%.20f", out$lod), collapse=", "), "];")
 
    *
    ******************************/
