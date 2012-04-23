@@ -165,25 +165,9 @@ unittest {
 
   writeln("  Markers split by chromosome:");
   auto markers_by_chr = get_markers_by_chromosome(markers);
-  foreach(chr; markers_by_chr)
-    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
 
   writeln("\n  Chromosomes sorted:");
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
-  foreach(chr; markers_by_chr_sorted)
-    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
-  writeln();
-
-  writeln("Has the original marker_by_chr changed?");
-  foreach(chr; markers_by_chr)
-    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
-  writeln();
-
-  // it's the same stuff; just pointed to in a different order
-  for(i=0; i<5; i++)
-    for(j=0; j<5; j++)
-      if(markers_by_chr[i] is markers_by_chr_sorted[j])
-	writeln(i, " is ", j);
 }
 
 /**
