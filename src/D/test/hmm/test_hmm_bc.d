@@ -66,28 +66,10 @@ unittest {
   assert(genotype_matrix[244][2] == symbols.decode("H"));
   assert(genotype_matrix[244][169] == symbols.decode("NA"));
 
-  writeln("genotype_matrix[244][0]: ", genotype_matrix[244][0]);
-  writeln("genotype_matrix[244][0].length: ", genotype_matrix[244][0].length);
-  writeln("genotype_matrix[244][0].list.length: ", genotype_matrix[244][0].list.length);
-  foreach(g; genotype_matrix[244][0].list)
-    writeln("genotype_matrix[244][0].list[i]: ", g, " ", typeid(g));
-
   assert(genotype_matrix[19][0] == symbols.decode("H"));
   assert(genotype_matrix[19][2] == symbols.decode("A"));
   assert(genotype_matrix[19][3] == symbols.decode("NA"));
   assert(genotype_matrix[19][169] == symbols.decode("A"));
-
-  writeln("genotype_matrix[19][2]: ", genotype_matrix[19][2]);
-  writeln("genotype_matrix[19][2].length: ", genotype_matrix[19][2].length);
-  writeln("genotype_matrix[19][2].list.length: ", genotype_matrix[19][2].list.length);
-  foreach(g; genotype_matrix[19][2].list)
-    writeln("genotype_matrix[19][2].list[i]: ", g, " ", typeid(g));
-
-  writeln("genotype_matrix[19][0]: ", genotype_matrix[19][0]);
-  writeln("genotype_matrix[19][0].length: ", genotype_matrix[19][0].length);
-  writeln("genotype_matrix[19][0].list.length: ", genotype_matrix[19][0].list.length);
-  foreach(g; genotype_matrix[19][0].list)
-    writeln("genotype_matrix[19][0].list[i]: ", g, " ", typeid(g));
 
   // by founders
   assert(genotype_matrix[239][2].list[0].homozygous == true);
@@ -141,12 +123,7 @@ unittest {
 
   // test splitting up of markers into chromosomes
   auto markers_by_chr = get_markers_by_chromosome(markers);
-  writeln("markers_by_chr.length: ", markers_by_chr.length);
-  writeln("markers_by_chr[0].length: ", markers_by_chr[0].length);
-  writeln("markers_by_chr[0][0].name: ", markers_by_chr[0][0].name);
-  writeln("markers_by_chr[0][1][0].name: ", markers_by_chr[0][1][0].name);
   foreach(chr; markers_by_chr) {
-    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
     // check that markers within chromosome are in order:
     //    contiguous ids; non-decreasing position
     assert(chr[1][0].chromosome.name == chr[0].name);
@@ -161,7 +138,6 @@ unittest {
   writeln("sorted chromosomes: ");
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
   foreach(chr; markers_by_chr_sorted) {
-    writef("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
     // check that markers within chromosome are in order:
     //    contiguous ids; non-decreasing position
     assert(chr[1][0].chromosome.name == chr[0].name);
@@ -173,8 +149,6 @@ unittest {
 
     auto pmap_stepped = add_stepped_markers_autosome(chr[1], 1, 0);
     auto pmap_minimal = add_minimal_markers_autosome(chr[1], 1, 0);
-    writefln("\tmarkers: %3d\tpmar (stepped): %3d\tpmar (minimal): %3d", chr[1].length,
-             pmap_stepped.length-chr[1].length, pmap_minimal.length-chr[1].length);
   }
 
   // test calc_geno_prob with hyper data
@@ -266,7 +240,6 @@ unittest {
   double[] rec_frac_from_rqtl = [0.05499838959478973999, 0.05399853076076160940, 0.03299987476779848994, 0.01099999948467993843, 0.03299987476779851076, 0.14181577930359098860, 0.18529361912004219115, 0.08698405702518499649, 0.06599599307640513501, 0.06499628754124166241, 0.01099999948467988119, 0.03299987476779848994, 0.04399947228214851763];
 
   foreach(i; 0..rec_frac.length) {
-    writefln("%.8f", log(abs(rec_frac[i] - rec_frac_from_rqtl[i])));
     assert(abs(rec_frac[i] - rec_frac_from_rqtl[i]) < 1e-12);
   }
 
