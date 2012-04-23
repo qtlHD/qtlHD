@@ -231,9 +231,11 @@ unittest {
    * in R:
 
    data(listeria)
-   listeria <- listeria["13",] # pull out chr 13
-   listeria$geno[["13"]]$map <- as.numeric(substr(listeria$geno[["13"]]$map, 1, 7))
-   names(listeria$geno[["13"]]$map) <- colnames(listeria$geno[["13"]]$data)
+   for(i in seq(along=listeria$geno)) {
+     m <- listeria$geno[[i]]$map
+     listeria$geno[[i]]$map <- round(m, ifelse(m < 10, 5, 4))
+   }
+   listeria <- listeria["13",]
    rf <- mf.k(diff(unlist(pull.map(listeria))))
    map <- est.map(listeria, err=0.002, map.function="haldane", tol=1e-7)
    rfrev <- mf.h(diff(unlist(map)))
@@ -243,20 +245,18 @@ unittest {
    *
    ******************************/
 
-  auto rec_frac_rqtl = [0.00286746856284019434, 0.09944712696578776601, 0.02681424948073934250, 0.00000999999999867889, 0.05831343140397290958, 0.02102459540041785868, 0.03855133275858499409, 0.01283917692671171160, 0.02231716200601452718, 0.00000999999999864336, 0.07535458078316857600];
-  auto rec_frac_rev_rqtl = [0.01183048207281678366, 0.10662947366989428133, 0.03230106006565025556, 0.00000000010000000827, 0.05675828936511045919, 0.02110557519841721463, 0.03833376626430756717, 0.01427505015825597523, 0.02370366835248577386, 0.00000000009999995276, 0.08059502076315699926];
+  auto rec_frac_rqtl = [0.00286746856284019434, 0.09944808740648146406, 0.02681325235664829693, 0.00000999999999867889, 0.05831343140397290958, 0.02102559363219945812, 0.03855033870325273726, 0.01283917692671171160, 0.02231716200601452718, 0.00000999999999864336, 0.07535555806962258851];
+  auto rec_frac_rev_rqtl = [0.01183048207281117703, 0.10662947366989505849, 0.03230106006563365773, 0.00000000010000000827, 0.05675828936512006262, 0.02110557519841715912, 0.03833376626430756717, 0.01427505015825597523, 0.02370366835248577386, 0.00000000010000000827, 0.08059502076315694374];
 
   assert(rec_frac_rqtl.length == rec_frac.length);
   foreach(i; 0..rec_frac.length) {
-    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-6);
+    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-12);
   }
 
   assert(rec_frac_rev_rqtl.length == rec_frac_rev.length);
   foreach(i; 0..rec_frac_rev.length) {
     assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-7);
   }
-
-
 
   // test estmap with listeria data, chr 7
   writeln("Test estmap with listeria data, chr 7");
@@ -269,9 +269,11 @@ unittest {
    * in R:
 
    data(listeria)
+   for(i in seq(along=listeria$geno)) {
+     m <- listeria$geno[[i]]$map
+     listeria$geno[[i]]$map <- round(m, ifelse(m < 10, 5, 4))
+   }
    listeria <- listeria["7",] # pull out chr 7
-   listeria$geno[["7"]]$map <- as.numeric(substr(listeria$geno[["7"]]$map, 1, 7))
-   names(listeria$geno[["7"]]$map) <- colnames(listeria$geno[["7"]]$data)
    rf <- mf.h(diff(unlist(pull.map(listeria))))
    map <- est.map(listeria, err=0.01, map.function="kosambi", tol=1e-7)
    rfrev <- mf.k(diff(unlist(map)))
@@ -281,12 +283,12 @@ unittest {
    *
    ******************************/
 
-  rec_frac_rqtl = [0.15661986512953757211, 0.13781102774534148558, 0.05760104042887342901, 0.15864052585018517672, 0.10645158449454483751];
-  rec_frac_rev_rqtl = [0.17951889350312594251, 0.15585635633447825210, 0.06089437508606505844, 0.18207986332242809269, 0.11747108991514787490];
+  rec_frac_rqtl = [0.15661986512953757211, 0.13781102774534148558, 0.05760192522590779074, 0.15864052585018517672, 0.10645079739692664411];
+  rec_frac_rev_rqtl = [0.17951889354759650863, 0.15585635626654303909, 0.06089437521095571182, 0.18207986319588378987, 0.11747108802069636257];
 
   assert(rec_frac_rqtl.length == rec_frac.length);
   foreach(i; 0..rec_frac.length) {
-    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-6);
+    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-12);
   }
 
   assert(rec_frac_rev_rqtl.length == rec_frac_rev.length);
