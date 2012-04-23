@@ -347,4 +347,45 @@ unittest {
              to!string(genoprobs[i][ind][j]) ~ "  " ~
              to!string(genoprobs_from_rqtl[i][j]) ~ "  " ~
              to!string(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j])));
+
+
+  writeln(" Unittest of estmap for hyper data, chr 2 and 17.");
+
+  auto map2 = markers_by_chr_sorted[1][1];
+  auto rf2 = recombination_fractions(map2, GeneticMapFunc.Carter_Falconer);
+  auto estrf2 = estmap_BC(genotype_matrix, map2, rf2, 0.01, 1000, 1e-5, false);
+
+  auto map17 = markers_by_chr_sorted[16][1];
+  auto rf17 = recombination_fractions(map17, GeneticMapFunc.Haldane);
+  auto estrf17 = estmap_BC(genotype_matrix, map17, rf17, 0.002, 1000, 1e-5, false);
+
+  /******************************
+   * in R:
+
+   data(hyper)
+   hyper <- hyper[c(2,17),]
+   for(i in seq(along=hyper$geno))
+     hyper$geno[[i]]$map <- round(hyper$geno[[i]]$map, 1)
+   map2 <- est.map(hyper["2",], err=0.01, map.function="haldane", tol=1e-6)
+   rf2 <- mf.h(diff(unlist(map2)))
+   paste0("auto R_rf2 = [", paste(sprintf("%.20f", rf2), collapse=", "), "];")
+
+   map17 <- est.map(hyper["17",], err=0.002, map.function="haldane", tol=1e-6)
+   rf17 <- mf.h(diff(unlist(map17)))
+   paste0("auto R_rf17 = [", paste(sprintf("%.20f", rf17), collapse=", "), "];")
+
+   *
+   ******************************/
+  auto R_rf2 = [0.12835799848812778912, 0.09047010858185178250, 0.18802818523855602262, 0.13729044610521629055, 0.14867305208807674033, 0.19387563721555761687, 0.07714422718057262207];
+  assert(R_rf2.length == estrf2.length);
+  foreach(i; 0..R_rf2.length) {
+    assert(abs(R_rf2[i] - estrf2[i]) < 1e-5);
+  }
+
+  auto R_rf17 = [0.06350309528180952956, 0.05433047519411754456, 0.00000000100000002723, 0.01082433753354217210, 0.03265743146265170926, 0.03261050011330690612, 0.00000000100000002723, 0.07614499460975726608, 0.05410758844723517758, 0.14159936225877217675, 0.12895716797206324689];
+  assert(R_rf17.length == estrf17.length);
+  foreach(i; 0..R_rf17.length) {
+    assert(abs(R_rf17[i] - estrf17[i]) < 1e-5);
+  }
+
 }
