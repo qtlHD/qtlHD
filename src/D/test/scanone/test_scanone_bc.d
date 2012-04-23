@@ -122,7 +122,7 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
       assert(abs(lod[i][j] - Rlod[i][j]) < 1e-12,
              to!string(i) ~ "  " ~ to!string(j) ~ "  " ~
              to!string(lod[i][j]) ~ "  " ~ to!string(Rlod[i][j]) ~
-             "  " ~ to!string(abs(lod[i][j] - Rlod[i][j])));
+             "  " ~ to!string(log10(abs(lod[i][j] - Rlod[i][j]))));
   }
 
   writeln(" --Scanone for hyper chr 4, with pseudomarkers");
@@ -161,7 +161,7 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
       assert(abs(lod[i][j] - Rlod[i][j]) < 1e-12,
              to!string(i) ~ "  " ~ to!string(j) ~ "  " ~
              to!string(lod[i][j]) ~ "  " ~ to!string(Rlod[i][j]) ~
-             "  " ~ to!string(abs(lod[i][j] - Rlod[i][j])));
+             "  " ~ to!string(log10(abs(lod[i][j] - Rlod[i][j]))));
   }
 
   writeln(" --Scanone for hyper chr 15, with covariates");
@@ -225,11 +225,11 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
       assert(abs(lod_acovar[i][j] - Rlod[i][j]) < 1e-10,
              to!string(i) ~ "  " ~ to!string(j) ~ "  " ~
              to!string(lod_acovar[i][j]) ~ "  " ~ to!string(Rlod[i][j]) ~
-             "  " ~ to!string(abs(lod_acovar[i][j] - Rlod[i][j])));
+             "  " ~ to!string(log10(abs(lod_acovar[i][j] - Rlod[i][j]))));
       assert(abs(lod_icovar[i][j] - Rlod[i][j+2]) < 1e-10,
              to!string(i) ~ "  " ~ to!string(j+2) ~ "  " ~
              to!string(lod_icovar[i][j]) ~ "  " ~ to!string(Rlod[i][j+2]) ~
-             "  " ~ to!string(abs(lod_icovar[i][j] - Rlod[i][j+2])));
+             "  " ~ to!string(log10(abs(lod_icovar[i][j] - Rlod[i][j+2]))));
     }
   }
 }
