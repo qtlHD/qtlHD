@@ -124,7 +124,7 @@ unittest {
   foreach(i; 0..lod.length) {
     assert(abs(lod[i][0] - Rlod[i]) < 1e-12,
            to!string(i) ~ "  " ~ to!string(lod[i][0]) ~ "  " ~ to!string(Rlod[i]) ~
-           "  " ~ to!string(abs(lod[i][0] - Rlod[i])));
+           "  " ~ to!string(log10(abs(lod[i][0] - Rlod[i]))));
   }
 
   // chr 12
@@ -164,7 +164,7 @@ unittest {
   foreach(i; 0..lod.length)
     assert(abs(lod[i][0] - Rlod[i]) < 1e-12,
            to!string(i) ~ "  " ~ to!string(lod[i][0]) ~ "  " ~ to!string(Rlod[i]) ~
-           "  " ~ to!string(abs(lod[i][0] - Rlod[i])));
+           "  " ~ to!string(log10(abs(lod[i][0] - Rlod[i]))));
 
   // chr 13
   auto chr13_map = markers_by_chr_sorted[12][1];
@@ -203,6 +203,6 @@ unittest {
   foreach(i; 0..lod.length)
     assert(abs(lod[i][0] - Rlod[i]) < 1e-12,
            to!string(i) ~ "  " ~ to!string(lod[i][0]) ~ "  " ~ to!string(Rlod[i]) ~
-           "  " ~ to!string(abs(lod[i][0] - Rlod[i])));
+           "  " ~ to!string(log10(abs(lod[i][0] - Rlod[i]))));
 
 }
