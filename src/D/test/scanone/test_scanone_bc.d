@@ -102,21 +102,27 @@ unittest {
    * in R:
 
    data(hyper)
+   for(i in seq(along=hyper$geno))
+     hyper$geno[[i]]$map <- round(hyper$geno[[i]]$map, 1)
    hyper <- hyper["-X",]
    hyper$pheno[,2] <- sqrt(hyper$pheno[,1])
    hyper <- calc.genoprob(hyper, err=0.001, map="c-f")
    out <- scanone(hyper, phe=1:2, method="hk", chr=4)
    paste0("auto Rlod = [", paste0(paste0("[", sprintf("%.20f", out[,3]), ", ", sprintf("%.20f", out[,4]), "]", collapse=",")), "];")
+
    *
    ******************************/
 
-  auto Rlod = [[2.62548658296657322353, 2.70202540976649174809],[5.44687517770262275008, 5.53476802129034695099],[5.48553679133283367264, 5.53358610883950063908],[6.55218021351299739763, 6.59266153452412595470],[6.51458532254071087664, 6.55388312935380668023],[6.83211992829649261694, 6.88385822809877367945],[5.84241390840566054976, 5.85045197132984640120],[5.84241390840543317609, 5.85045197132970429266],[6.27660932144078742567, 6.28877861215721623012],[6.30192834825163572532, 6.32617030367660504453],[8.09368283687513212499, 8.08136362100992755586],[6.38563245406601254217, 6.36301751472171872592],[5.14334162378452219855, 5.11806770484739104177],[5.14334162378395376436, 5.11806770484685102929],[4.89154205861234459007, 4.87182037362637743172],[4.76622761248961523961, 4.75686927167677708894],[3.74256346579363707860, 3.71948558894632697047],[2.79200540246245054732, 2.75701382960448881931],[2.44844415319323616131, 2.41591755884724079806],[2.93480311475627786422, 2.95402485457040597794]];
+auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.44687517770546492102, 5.53476802129296174826],[5.48553679133328841999, 5.53358610883989854301],[6.55218021351367951866, 6.59266153452489334086],[6.51458532254321198707, 6.55388312935639305579],[6.83211992829330938548, 6.88385822809547676115],[5.84241390840577423660, 5.85045197132996008804],[5.84241390840554686292, 5.85045197132970429266],[6.27660932143817262840, 6.28877861215488564994],[6.30192834825606951199, 6.32617030368095356607],[8.09368283687513212499, 8.08136362100989913415],[6.38563245406589885533, 6.36301751472171872592],[5.14334162378406745120, 5.11806770484699313783],[5.14334162378395376436, 5.11806770484696471613],[4.89154205861245827691, 4.87182037362637743172],[4.76622761248972892645, 4.75686927167708972775],[3.74256346579477394698, 3.71948558894777647765],[2.79200540246358741570, 2.75701382960559726598],[2.44844415319346353499, 2.41591755884758185857],[2.93480311475536836952, 2.95402485456941121811]];
 
   assert(lod.length == Rlod.length);
   foreach(i; 0..lod.length) {
     assert(lod[i].length == Rlod[i].length);
     foreach(j; 0..lod[i].length)
-      assert(abs(lod[i][j] - Rlod[i][j]) < 1e-8);
+      assert(abs(lod[i][j] - Rlod[i][j]) < 1e-12,
+             to!string(i) ~ "  " ~ to!string(j) ~ "  " ~
+             to!string(lod[i][j]) ~ "  " ~ to!string(Rlod[i][j]) ~
+             "  " ~ to!string(abs(lod[i][j] - Rlod[i][j])));
   }
 
   writeln(" --Scanone for hyper chr 4, with pseudomarkers");
@@ -152,7 +158,10 @@ unittest {
   foreach(i; 0..lod.length) {
     assert(lod[i].length == Rlod[i].length);
     foreach(j; 0..lod[i].length)
-      assert(abs(lod[i][j] - Rlod[i][j]) < 1e-8);
+      assert(abs(lod[i][j] - Rlod[i][j]) < 1e-12,
+             to!string(i) ~ "  " ~ to!string(j) ~ "  " ~
+             to!string(lod[i][j]) ~ "  " ~ to!string(Rlod[i][j]) ~
+             "  " ~ to!string(abs(lod[i][j] - Rlod[i][j])));
   }
 
   writeln(" --Scanone for hyper chr 15, with covariates");
@@ -197,8 +206,8 @@ unittest {
    hyper <- calc.genoprob(hyper, err=0.002, map="haldane", step=2.5)
    outa <- scanone(hyper, phe=1:2, method="hk", chr=15, addcovar=acovar)
    outi <- scanone(hyper, phe=1:2, method="hk", chr=15, addcovar=acovar, intcovar=acovar)
-   paste0("Rlod = [", paste0(paste0("[", sprintf("%.20f", outa[,3]), ", ", sprintf("%.20f", outa[,4]), 
-          ", ", sprintf("%.20f", outi[,3]), ", ", sprintf("%.20f", outi[,4]), 
+   paste0("Rlod = [", paste0(paste0("[", sprintf("%.20f", outa[,3]), ", ", sprintf("%.20f", outa[,4]),
+          ", ", sprintf("%.20f", outi[,3]), ", ", sprintf("%.20f", outi[,4]),
           "]", collapse=",")), "];")
 
    *
@@ -213,8 +222,14 @@ unittest {
     assert(lod_acovar[i].length == Rlod[i].length/2);
     assert(lod_icovar[i].length == Rlod[i].length/2);
     foreach(j; 0..lod_acovar[i].length) {
-      assert(abs(lod_acovar[i][j] - Rlod[i][j]) < 1e-8);
-      assert(abs(lod_icovar[i][j] - Rlod[i][j+2]) < 1e-8);
+      assert(abs(lod_acovar[i][j] - Rlod[i][j]) < 1e-10,
+             to!string(i) ~ "  " ~ to!string(j) ~ "  " ~
+             to!string(lod_acovar[i][j]) ~ "  " ~ to!string(Rlod[i][j]) ~
+             "  " ~ to!string(abs(lod_acovar[i][j] - Rlod[i][j])));
+      assert(abs(lod_icovar[i][j] - Rlod[i][j+2]) < 1e-10,
+             to!string(i) ~ "  " ~ to!string(j+2) ~ "  " ~
+             to!string(lod_icovar[i][j]) ~ "  " ~ to!string(Rlod[i][j+2]) ~
+             "  " ~ to!string(abs(lod_icovar[i][j] - Rlod[i][j+2])));
     }
   }
 }
