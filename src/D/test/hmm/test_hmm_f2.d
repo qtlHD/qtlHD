@@ -69,21 +69,10 @@ unittest {
 
   assert(genotype_matrix[15][0] == symbols.decode("H"));
   assert(genotype_matrix[15][130] == symbols.decode("HorB"));
-  writeln("genotype_matrix[15][130]: ", genotype_matrix[15][130]);
-  writeln("genotype_matrix[15][130].length: ", genotype_matrix[15][130].length);
-  writeln("genotype_matrix[15][130].list.length: ", genotype_matrix[15][130].list.length);
-  foreach(g; genotype_matrix[15][130].list)
-    writeln("genotype_matrix[15][130].list[i]: ", g, " ", typeid(g));
 
   assert(genotype_matrix[18][129] == symbols.decode("B"));
   assert(genotype_matrix[18][130] == symbols.decode("NA"));
   assert(genotype_matrix[18][131] == symbols.decode("A"));
-
-  writeln("genotype_matrix[18][130]: ", genotype_matrix[18][130]);
-  writeln("genotype_matrix[18][130].length: ", genotype_matrix[18][130].length);
-  writeln("genotype_matrix[18][130].list.length: ", genotype_matrix[18][130].list.length);
-  foreach(g; genotype_matrix[18][130].list)
-    writeln("genotype_matrix[18][130].list[i]: ", g, " ", typeid(g));
 
   // by founders
   assert(genotype_matrix[0][0].list[0].homozygous == true);
@@ -144,12 +133,7 @@ unittest {
   // test splitting up of markers into chromosomes
   //    note: chromosomes not necessarily ordered
   auto markers_by_chr = get_markers_by_chromosome(markers);
-  writeln("markers_by_chr.length: ", markers_by_chr.length);
-  writeln("markers_by_chr[0].length: ", markers_by_chr[0].length);
-  writeln("markers_by_chr[0][0].name: ", markers_by_chr[0][0].name);
-  writeln("markers_by_chr[0][1][0].name: ", markers_by_chr[0][1][0].name);
   foreach(chr; markers_by_chr) {
-    writefln("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
     // check that markers within chromosome are in order:
     //    contiguous ids; non-decreasing position
     assert(chr[1][0].chromosome.name == chr[0].name);
@@ -160,13 +144,9 @@ unittest {
     }
   }
 
-  // sorted chromosomes
-  writeln("sorted chromosomes: ");
-
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
   Marker[] pmap_stepped, pmap_minimal;
   foreach(chr; markers_by_chr_sorted) {
-    writef("%2s (%2d): %-9s (%3d)", chr[0].name, chr[1].length, chr[1][0].name, chr[1][0].id);
     // check that markers within chromosome are in order:
     //    contiguous ids; non-decreasing position
     assert(chr[1][0].chromosome.name == chr[0].name);
@@ -178,10 +158,6 @@ unittest {
 
     pmap_stepped = add_stepped_markers_autosome(chr[1], 5.0, 0.0);
     pmap_minimal = add_minimal_markers_autosome(chr[1], 5.0, 0.0);
-    writefln("\tmarkers: %3d\tpmar (stepped): %3d\tpmar (minimal): %3d",
-             chr[1].length,
-             pmap_stepped.length - chr[1].length,
-             pmap_minimal.length - chr[1].length);
   }
 
   // test calc_geno_prob with listeria data
@@ -244,24 +220,77 @@ unittest {
     foreach(j; 0..2)
       assert(abs(genoprobs[i][106][j] - genoprobs_from_rqtl[i][j]) < 1e-6);
 
-  // test estmap with listeria data, chr 4
-  writeln("Test estmap with listeria data, chr 4");
+  // test estmap with listeria data, chr 13
+  writeln("Test estmap with listeria data, chr 13");
 
-  chr4_map = markers_by_chr_sorted[3][1];
-  rec_frac = recombination_fractions(chr4_map, GeneticMapFunc.Kosambi);
+  auto chr13_map = markers_by_chr_sorted[12][1];
+  rec_frac = recombination_fractions(chr13_map, GeneticMapFunc.Kosambi);
+  auto rec_frac_rev = estmap_F2(genotype_matrix, chr13_map, rec_frac, 0.002, 100, 1e-6, false);
 
-  auto rec_frac_rqtl = [0.18274786564786985044,
-                        0.15620001633845906341,
-                        0.28772927391795305452];
+  /******************************
+   * in R:
 
-  foreach(i; 0..rec_frac.length)
+   data(listeria)
+   listeria <- listeria["13",] # pull out chr 13
+   listeria$geno[["13"]]$map <- as.numeric(substr(listeria$geno[["13"]]$map, 1, 7))
+   names(listeria$geno[["13"]]$map) <- colnames(listeria$geno[["13"]]$data)
+   rf <- mf.k(diff(unlist(pull.map(listeria))))
+   map <- est.map(listeria, err=0.002, map.function="haldane", tol=1e-7)
+   rfrev <- mf.h(diff(unlist(map)))
+   paste0("auto rec_frac_rqtl = [", paste(sprintf("%.20f", rf), collapse=", "), "];")
+   paste0("auto rec_frac_rev_rqtl = [", paste(sprintf("%.20f", rfrev), collapse=", "), "];")
+
+   *
+   ******************************/
+
+  auto rec_frac_rqtl = [0.00286746856284019434, 0.09944712696578776601, 0.02681424948073934250, 0.00000999999999867889, 0.05831343140397290958, 0.02102459540041785868, 0.03855133275858499409, 0.01283917692671171160, 0.02231716200601452718, 0.00000999999999864336, 0.07535458078316857600];
+  auto rec_frac_rev_rqtl = [0.01183048207281678366, 0.10662947366989428133, 0.03230106006565025556, 0.00000000010000000827, 0.05675828936511045919, 0.02110557519841721463, 0.03833376626430756717, 0.01427505015825597523, 0.02370366835248577386, 0.00000000009999995276, 0.08059502076315699926];
+
+  assert(rec_frac_rqtl.length == rec_frac.length);
+  foreach(i; 0..rec_frac.length) {
     assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-6);
+  }
 
-  auto rec_frac_rev_rqtl = [0.18726831033621754719,
-                            0.15929622543721855266,
-                            0.29234793156548449788];
-  auto rec_frac_rev = estmap_F2(genotype_matrix, chr4_map, rec_frac, 0.002, 100, 1e-6, true);
+  assert(rec_frac_rev_rqtl.length == rec_frac_rev.length);
+  foreach(i; 0..rec_frac_rev.length) {
+    assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-7);
+  }
 
-  foreach(i; 0..rec_frac.length)
-    assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-6);
+
+
+  // test estmap with listeria data, chr 7
+  writeln("Test estmap with listeria data, chr 7");
+
+  auto chr7_map = markers_by_chr_sorted[6][1];
+  rec_frac = recombination_fractions(chr7_map, GeneticMapFunc.Haldane);
+  rec_frac_rev = estmap_F2(genotype_matrix, chr7_map, rec_frac, 0.01, 100, 1e-6, false);
+
+  /******************************
+   * in R:
+
+   data(listeria)
+   listeria <- listeria["7",] # pull out chr 7
+   listeria$geno[["7"]]$map <- as.numeric(substr(listeria$geno[["7"]]$map, 1, 7))
+   names(listeria$geno[["7"]]$map) <- colnames(listeria$geno[["7"]]$data)
+   rf <- mf.h(diff(unlist(pull.map(listeria))))
+   map <- est.map(listeria, err=0.01, map.function="kosambi", tol=1e-7)
+   rfrev <- mf.k(diff(unlist(map)))
+   paste0("rec_frac_rqtl = [", paste(sprintf("%.20f", rf), collapse=", "), "];")
+   paste0("rec_frac_rev_rqtl = [", paste(sprintf("%.20f", rfrev), collapse=", "), "];")
+
+   *
+   ******************************/
+
+  rec_frac_rqtl = [0.15661986512953757211, 0.13781102774534148558, 0.05760104042887342901, 0.15864052585018517672, 0.10645158449454483751];
+  rec_frac_rev_rqtl = [0.17951889350312594251, 0.15585635633447825210, 0.06089437508606505844, 0.18207986332242809269, 0.11747108991514787490];
+
+  assert(rec_frac_rqtl.length == rec_frac.length);
+  foreach(i; 0..rec_frac.length) {
+    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-6);
+  }
+
+  assert(rec_frac_rev_rqtl.length == rec_frac_rev.length);
+  foreach(i; 0..rec_frac_rev.length) {
+    assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-7);
+  }
 }
