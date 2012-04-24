@@ -14,7 +14,7 @@ import std.algorithm;
 import std.math;
 alias std.algorithm.find find;
 
-import qtl.core.marker; 
+import qtl.core.marker;
 import qtl.core.primitives;
 import qtl.core.chromosome;
 
@@ -24,7 +24,7 @@ import qtl.core.chromosome;
  */
 
  /**
- * The make_fixed_map function creates a new map for a chromosome, and 
+ * The make_fixed_map function creates a new map for a chromosome, and
  * inserts Pseudo markers at fixed positions.
  *
  * markerlist:     List of (unsorted) markers (one chromosome); i.e., Marker[]
@@ -47,7 +47,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   // markers (at off_end) with step=0 is not supported here. That should also
   // be a separate function. Variable step size is, again, another function.
 
-  // Note: it wasn't so much the "purpose" for the case of one marker; that was a hack 
+  // Note: it wasn't so much the "purpose" for the case of one marker; that was a hack
   //       to deal with bugs that came up when there was just one marker/pseudomarker
   //       on a chromosome
   auto new_markerlist = markerlist.dup();
@@ -60,17 +60,17 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
     for (auto npos = minpos+step ; npos < maxpos; npos += step) {
       auto pm = new PseudoMarker(new_markerlist[0].chromosome, npos);
       if (countUntil(new_markerlist, pm) == -1)
-        // marker does not exist: add pseudo marker 
+        // marker does not exist: add pseudo marker
         new_markerlist ~= pm;
     }
     // FIXME remove Pseudo markers too close to other markers
     // (was this in R/qtl? No, so maybe I leave this)
   }
 
-  if(off_end >= step) {  
-    for(auto npos=minpos-step; npos >= minpos - off_end; npos -= step) 
+  if(off_end >= step) {
+    for(auto npos=minpos-step; npos >= minpos - off_end; npos -= step)
       new_markerlist ~= new PseudoMarker(new_markerlist[0].chromosome, npos);
-    for(auto npos=maxpos+step; npos <= maxpos + off_end; npos += step) 
+    for(auto npos=maxpos+step; npos <= maxpos + off_end; npos += step)
       new_markerlist ~= new PseudoMarker(new_markerlist[0].chromosome, npos);
   }
 
@@ -92,7 +92,7 @@ Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
   auto minpos = new_markerlist[0].get_position();
   auto maxpos = new_markerlist[$-1].get_position();
 
-  if(off_end > 0) {  
+  if(off_end > 0) {
     new_markerlist ~= new PseudoMarker(new_markerlist[0].chromosome, minpos-off_end);
     new_markerlist ~= new PseudoMarker(new_markerlist[0].chromosome, maxpos+off_end);
 
@@ -138,7 +138,7 @@ Ms add_stepped_markers_sex(Ms)(in Ms markers, Position step=1.0, Position off_en
 }
 
 /**
- * Add a marker if there is only one. Ms is a list of markers, and 
+ * Add a marker if there is only one. Ms is a list of markers, and
  * this function works as long as there markers.list and a
  * markers.add function are defined in the Ms type(!)
  */
@@ -160,7 +160,7 @@ Ms add_one_if_single_marker(Ms)(in Ms markers, Position step_right=1.0) {
  * Add a range of markers if there is only one in the list
  *
  * off_end:   The map is filled with stepped markers from
- *            marker.get_position()-off_end to marker.get_position()+off_end. 
+ *            marker.get_position()-off_end to marker.get_position()+off_end.
  */
 
 Ms add_stepped_if_single_marker(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0) {
@@ -217,13 +217,13 @@ unittest {
   auto res2 = add_stepped_markers_autosome(markers2.list,1.0,1.0);
   auto list = res2; // new marker list
   // assert there are no duplicates
-  assert(list.length == 23, to!string(list.length)); 
+  assert(list.length == 23, to!string(list.length));
   auto uniq_list = uniq!"a.get_position() == b.get_position()"(list);
   auto pos_list = map!"a.get_position()"(uniq_list);
   assert(equal(pos_list,[9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]), to!string(pos_list));
   auto ds = std.array.array(map!"to!double(a)"(pos_list));
   assert(ds[1] == 10);
-  assert(ds.length == 23); // tis proof 
+  assert(ds.length == 23); // tis proof
 
   writeln("test with off_end > step:");
   // test with off_end > step
@@ -244,14 +244,13 @@ unittest {
   markers4.list ~= new Marker(10.0);
   markers4.list ~= new Marker(17.0);
   markers4.list ~= new Marker(27.0);
-  writeln("call add_minimal_markers_autosome");
   auto res4 = add_minimal_markers_autosome(markers4.list, 2.0, 7.5);
   auto list4 = res4;
   assert(list4.length == 18, to!string(list4.length));
   auto uniq_list4 = uniq!"a.get_position() == b.get_position()"(list4);
   auto pos_list4 = map!"a.get_position()"(uniq_list4);
   assert(equal(pos_list4, [2.5, 4.375, 6.25, 8.125, 10.0, 11.75, 13.5, 15.25, 17.0, 19.0, 21.0, 23.0, 25.0, 27.0,
-			   28.875, 30.75, 32.625, 34.5]), 
+			   28.875, 30.75, 32.625, 34.5]),
 	 to!string(pos_list4));
 
   writeln("test add_minimal_markers_autosome with off_end=0:");
@@ -260,13 +259,12 @@ unittest {
   markers5.list ~= new Marker(5.0);
   markers5.list ~= new Marker(8.3);
   markers5.list ~= new Marker(9.8);
-  writeln("call add_minimal_markers_autosome");
   auto res5 = add_minimal_markers_autosome(markers5.list, 1.0, 0);
   auto list5 = res5;
   assert(list5.length == 7, to!string(list5.length));
   auto uniq_list5 = uniq!"a.get_position() == b.get_position()"(list5);
   auto pos_list5 = map!"a.get_position()"(uniq_list5);
-  assert(equal(to!string(pos_list5), to!string([5.0, 5.825, 6.65, 7.475, 8.3, 9.05, 9.8])), 
+  assert(equal(to!string(pos_list5), to!string([5.0, 5.825, 6.65, 7.475, 8.3, 9.05, 9.8])),
 	 to!string(pos_list5));
 
   writeln("end of unit tests in make_map.d");

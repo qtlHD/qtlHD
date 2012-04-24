@@ -163,10 +163,8 @@ unittest {
     }
   }
 
-  writeln("  Markers split by chromosome:");
+  // markers split by chromosome and then sorted
   auto markers_by_chr = get_markers_by_chromosome(markers);
-
-  writeln("\n  Chromosomes sorted:");
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
 }
 
@@ -184,7 +182,7 @@ class ChromosomeMap(T) {
 
 /**
  * The FullMap has an ordered chromosome map.
- 
+
 class FullMap(T) {
   SList!(ChromosomeMap!T) chromosome_map;
 }
