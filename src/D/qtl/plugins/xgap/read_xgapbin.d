@@ -221,8 +221,8 @@ unittest{
   writeln("Unit test " ~ __FILE__);
   writeln("  - writing XBIN ");
   alias std.path.buildPath buildPath;
-  auto infn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr"));
-  auto outfn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin"));
+  auto infn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr"));
+  auto outfn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin"));
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
   auto indata = new CSVrReader!RIL(infn);
   auto result = new BinaryWriter!(CSVrReader!RIL,RIL)(indata,outfn);
