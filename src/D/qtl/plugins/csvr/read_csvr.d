@@ -6,10 +6,16 @@
 
 module qtl.plugins.csvr.read_csvr;
 
+import core.memory;
+
+import core.memory;
+
 import qtl.core.primitives;
 import qtl.core.chromosome;
+// import qtl.core.util.matrix;
 import qtl.core.phenotype;
-import qtl.core.deprecate.genotype_enum;
+import qtl.core.genotype;
+import qtl.core.individual;
 
 import std.stdio;
 import std.conv;
@@ -22,77 +28,71 @@ import std.path;
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
-class CSVrReader(XType) {
+class CSVrReader(XType,ObservedXType) {
   private File f;
-  size_t nindividuals = 0;
-  int nphenotypes = 0;
-  int nmarkers = 0;
-  
+  XType crosstype;
+  ObservedXType symbols;
   string[] phenotypenames;
   Marker[] markers;
+  Individuals individuals;
   Chromosome[string] chromosomes;
   Phenotype!double[][] phenotypes;
-  Genotype!XType[][] genotypes;
+  GenotypeCombinator[][] genotypes;
+  size_t n_phenotypes;
   
-  bool check_individuals(string[] items){
-    if(nindividuals==0){
-      nindividuals = (items.length-3);
-      return true;
+  bool is_phenotype(string[] location){ return(location == ["",""]); }
+  
+  this(in string fn, ObservedXType observed = null){
+    f = File(fn,"r");
+    scope(exit) f.close();
+    
+    if (observed is null){
+      symbols = new ObservedXType;
     }else{
-      return(nindividuals==(items.length-3));
+      symbols = observed;
     }
-  }
-  
-  bool is_phenotype(string[] items){
-   return(items[1] == "" && items[2] == "");
-  }
-  
-  void read_CSVr(in string filename){
-    f = File(filename,"r");
+    writeln("SYMBOLS:",symbols);
+    
     string line;
     int linecount;
     while((line = f.readln()) != ""){
       line = strip(line);
-      auto items = split(line,",");
-      if(!check_individuals(items))throw new Exception("Not enough items on line " ~ to!(string)(linecount));
-      if(is_phenotype(items)){
+      debug writeln("LINE:",line);
+      auto fields = split(line,",");
+
+      if(is_phenotype(fields[1..3])){
         //Phenotype
-        debug writeln("Phenotype: " ~ items[0]);
+        debug writeln("Phenotype: " ~ fields[0]);
         Phenotype!double[] ps;
-        phenotypenames ~= items[0];
-        for(uint i=0;i<nindividuals;i++){
-          ps ~= set_phenotype!double(items[i+3]);
+        phenotypenames ~= fields[0];
+        foreach (field; fields[3..$]) {
+          ps ~= set_phenotype!double(strip(field));
         }
         phenotypes ~= ps;
-        nphenotypes++;
       }else{
-        debug writeln("Marker: " ~ items[0]);
+        debug writeln("Marker: " ~ fields[0]);
         //CHR
-        if (!(items[1] in chromosomes)){
-          chromosomes[items[1]] = get_chromosome_with_id(items[1]);
+        if (!(fields[1] in chromosomes)){
+          chromosomes[fields[1]] = get_chromosome_with_id(fields[1]);
         }
 
         //Marker
-        Marker m = new Marker(to!double(items[2]),items[0]); //
-        m.chromosome = chromosomes[items[1]];
+        Marker m = new Marker(to!double(fields[2]),fields[0]); //
+        m.chromosome = chromosomes[fields[1]];
         markers ~= m;
 
         //Genotype
-        Genotype!XType[] gs;
-        for(int i=0;i<nindividuals;i++) {
-          gs ~= set_genotype!(XType)(items[i+3]);
+        GenotypeCombinator[] gs;
+        // we use the predefined crosstype symbols
+        foreach (field; fields[3..$]) {
+          gs ~= symbols.decode(strip(field));
         }
         genotypes ~= gs;
-        nmarkers++;
       }
       linecount++;
     }
-    writefln("Read %s with %d phenotypes and %d markers measured at %d individuals",filename,nphenotypes,nmarkers,nindividuals);
+    writefln("Read %s with %d phenotypes and %d markers measured at %d individuals",fn, phenotypes.length, genotypes.length, genotypes[0].length);
     f.close();
-  }
-
-  this(in string infilename){
-    read_CSVr(infilename);
   }
 }
 
@@ -101,6 +101,10 @@ unittest{
   alias std.path.buildPath buildPath;
   auto infn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr"));
   writeln("  - reading CSVR " ~ infn);
-  auto data = new CSVrReader!RIL(infn);
+  auto data = new CSVrReader!(RIL,ObservedRIL)(infn);
+  assert(data.phenotypes.length == 24, to!string(data.phenotypes.length));
+  assert(data.markers.length == 117, to!string(data.markers.length));
+  assert(data.phenotypes[0].length == 162, to!string(data.phenotypes[0].length));
+  assert(data.genotypes[0].length == 162, to!string(data.genotypes[0].length));
 }
 
