@@ -63,7 +63,7 @@ unittest {
 
   // Phenotype reader
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
   auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
   writeln("reading ",pheno_fn);
   auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
