@@ -363,6 +363,27 @@ class RIL {
   }
 }
 
+class ObservedRIL {
+  RIL crosstype;
+  ObservedGenotypes symbols;
+  this() {
+    auto ril = new RIL;
+    symbols = new ObservedGenotypes();
+    symbols ~= ril.NA;
+    symbols ~= ril.A;
+    symbols ~= ril.B;
+    crosstype = ril;
+  }
+  /// Decode an input to an (observed) genotype
+  auto decode(in string s) {
+    return symbols.decode(s);
+  }
+  auto length() { return symbols.length; }
+  string toString() {
+    return to!string(symbols);
+  }
+}
+
 unittest {
   auto ril = new RIL;
   auto symbols = new ObservedGenotypes();
@@ -405,8 +426,6 @@ unittest {
   assert(to!string(ril[3]) == "[(1,1)]");
 }
 
-class ObservedRIL {
-}
 
 /**
  * BC implementation
