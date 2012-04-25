@@ -58,7 +58,7 @@ Tuple!(string, string) parse_key_value_qtab(string line) {
 unittest {
   // Founder reader
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
 
   auto founder_fn = to!string(buildPath(dir,"input","listeria_qtab","listeria_founder.qtab"));
   writeln("reading ",founder_fn);
@@ -168,7 +168,7 @@ Tuple!(P[][]) read_phenotype_qtab(P)(string fn) {
 unittest {
   // Phenotype reader
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
   auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
   writeln("reading ",pheno_fn);
   auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
@@ -182,7 +182,7 @@ unittest {
 unittest {
   // Marker map reader
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
   auto marker_map_fn = to!string(buildPath(dir,"regression","test_marker_map.qtab"));
   writeln("reading ",marker_map_fn);
   auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
@@ -280,7 +280,7 @@ Tuple!(Individuals, Gref[][]) read_genotype_qtab(File f, ObservedGenotypes symbo
 unittest {
   // Symbol and genotype reader
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
 
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
   // First read symbol information (the GenotypeCombinators)
