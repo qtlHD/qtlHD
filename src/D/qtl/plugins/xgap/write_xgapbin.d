@@ -7,7 +7,7 @@ module qtl.plugins.xgap.write_xgapbin;
 import qtl.core.primitives;
 import qtl.core.chromosome;
 import qtl.core.phenotype;
-import qtl.core.deprecate.genotype_enum;
+import qtl.core.genotype;
 import qtl.core.xgap.xgap;
 
 import std.stdio;
@@ -17,7 +17,7 @@ import std.path;
 import std.file;
 
 import qtl.plugins.csvr.read_csvr;
-import qtl.plugins.deprecate.read_csv;
+import qtl.plugins.csv.read_csv;
 
 /** 
  * Convert a simple CSVR file containing marker names, chromosome nrs, position, 
@@ -111,7 +111,7 @@ class BinaryWriter(Reader, XType) {
     XgapFileHeader h = XgapFileHeader(xgap_magicnumber,xgap_version,3);
     myWrite([h],f);
     write_matrix!(Phenotype!double)(data.phenotypes, f, MatrixType.DOUBLEMATRIX,MatrixClass.PHENOTYPE);
-    write_matrix!(Genotype!XType)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX,MatrixClass.GENOTYPE);
+    write_matrix!(GenotypeCombinator)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX,MatrixClass.GENOTYPE);
     write_matrix!(string)(getMarkerInfoMatrix(data.markers),f, MatrixType.VARCHARMATRIX,MatrixClass.MAP);
     myWrite(xgap_magicnumber,f);
     f.close();
@@ -129,15 +129,15 @@ unittest {
   auto infn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr"));
   auto outfn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin"));
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
-  auto data = new CSVrReader!RIL(infn);
-  auto result = new BinaryWriter!(CSVrReader!RIL,RIL)(data,outfn);
+  auto data = new CSVrReader!(RIL,ObservedRIL)(infn);
+  auto result = new BinaryWriter!(CSVrReader!(RIL,ObservedRIL),RIL)(data,outfn);
   writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn), toKb(outfn));
   
   auto infn1 = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv"));
   auto outfn1 = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","listeria.xbin"));
   writeln("  - reading CSVR " ~ infn1 ~" to " ~ outfn1);
-  auto data1 = new ReadSimpleCSV!F2(infn1);
-  auto result1 = new BinaryWriter!(ReadSimpleCSV!F2,F2)(data1,outfn1);
+  auto data1 = new ReadSimpleCSV!(F2,ObservedF2)(infn1);
+  auto result1 = new BinaryWriter!(ReadSimpleCSV!(F2,ObservedF2),F2)(data1,outfn1);
   writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn1), toKb(outfn1));
 }
 
