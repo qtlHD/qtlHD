@@ -66,7 +66,7 @@ version (Windows) {
 unittest{
   writeln("Unit test " ~ __FILE__);
   alias std.path.buildPath buildPath;
-  auto fn = dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","test","data","input","hyper_noX.csv");
+  auto fn = dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","test","data","input","hyper_noX.csv");
   if(VERBOSE) writeln("  - reading CSV " ~ fn);
   auto indata = new ReadSimpleCSV!F2(fn);
   char** markers = indata.getGenotypesForMQM();
