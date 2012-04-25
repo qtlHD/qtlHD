@@ -126,15 +126,15 @@ class BinaryWriter(Reader, XType) {
 unittest {
   writeln("Unit test " ~ __FILE__);
   alias std.path.buildPath buildPath;
-  auto infn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr"));
-  auto outfn = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin"));
+  auto infn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr"));
+  auto outfn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin"));
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
   auto data = new CSVrReader!RIL(infn);
   auto result = new BinaryWriter!(CSVrReader!RIL,RIL)(data,outfn);
   writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn), toKb(outfn));
   
-  auto infn1 = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv"));
-  auto outfn1 = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data","input","listeria.xbin"));
+  auto infn1 = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv"));
+  auto outfn1 = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","listeria.xbin"));
   writeln("  - reading CSVR " ~ infn1 ~" to " ~ outfn1);
   auto data1 = new ReadSimpleCSV!F2(infn1);
   auto result1 = new BinaryWriter!(ReadSimpleCSV!F2,F2)(data1,outfn1);
