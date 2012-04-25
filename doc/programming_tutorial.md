@@ -138,7 +138,7 @@ The unittest in read_qtab reads
         unittest {
           // Symbol and genotype reader
           alias std.path.buildPath buildPath;
-          auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..",
+          auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..",
         "..","test","data"));
           auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
           writeln("reading ",symbol_fn);
