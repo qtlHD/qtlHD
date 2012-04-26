@@ -122,7 +122,7 @@ unittest {
 
   assert(lod.length == Rlod.length);
   foreach(i; 0..lod.length) {
-    assert(abs(lod[i][0] - Rlod[i]) < 1e-12,
+    assert(abs(lod[i][0] - Rlod[i]) < 1e-10,
            to!string(i) ~ "  " ~ to!string(lod[i][0]) ~ "  " ~ to!string(Rlod[i]) ~
            "  " ~ to!string(log10(abs(lod[i][0] - Rlod[i]))));
   }
@@ -162,7 +162,7 @@ unittest {
 
   assert(lod.length == Rlod.length);
   foreach(i; 0..lod.length)
-    assert(abs(lod[i][0] - Rlod[i]) < 1e-12,
+    assert(abs(lod[i][0] - Rlod[i]) < 1e-10,
            to!string(i) ~ "  " ~ to!string(lod[i][0]) ~ "  " ~ to!string(Rlod[i]) ~
            "  " ~ to!string(log10(abs(lod[i][0] - Rlod[i]))));
 
@@ -201,7 +201,7 @@ unittest {
 
   assert(lod.length == Rlod.length);
   foreach(i; 0..lod.length)
-    assert(abs(lod[i][0] - Rlod[i]) < 1e-12,
+    assert(abs(lod[i][0] - Rlod[i]) < 1e-10,
            to!string(i) ~ "  " ~ to!string(lod[i][0]) ~ "  " ~ to!string(Rlod[i]) ~
            "  " ~ to!string(log10(abs(lod[i][0] - Rlod[i]))));
 

@@ -194,7 +194,7 @@ unittest {
   foreach(i; 0..genoprobs.length) {
     assert(genoprobs[i][ind].length == genoprobs_from_rqtl[i].length);
     foreach(j; 0..1) {
-      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-12,
+      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-10,
              to!string(i) ~ "  " ~
              to!string(genoprobs[i][ind][j]) ~ "  " ~
              to!string(genoprobs_from_rqtl[i][j]) ~ "  " ~
@@ -209,7 +209,7 @@ unittest {
   foreach(i; 0..genoprobs.length) {
     assert(genoprobs[i][ind].length == genoprobs_from_rqtl[i].length);
     foreach(j; 0..1) {
-      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-12,
+      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-10,
              to!string(i) ~ "  " ~
              to!string(genoprobs[i][ind][j]) ~ "  " ~
              to!string(genoprobs_from_rqtl[i][j]) ~ "  " ~
@@ -224,7 +224,7 @@ unittest {
   foreach(i; 0..genoprobs.length) {
     assert(genoprobs[i][ind].length == genoprobs_from_rqtl[i].length);
     foreach(j; 0..1) {
-      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-12,
+      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-10,
              to!string(i) ~ "  " ~
              to!string(genoprobs[i][ind][j]) ~ "  " ~
              to!string(genoprobs_from_rqtl[i][j]) ~ "  " ~
@@ -266,7 +266,7 @@ unittest {
   foreach(i; 0..genoprobs.length) {
     assert(genoprobs[i][ind].length == genoprobs_from_rqtl[i].length);
     foreach(j; 0..1) {
-      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-12,
+      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-10,
              to!string(i) ~ "  " ~
              to!string(genoprobs[i][ind][j]) ~ "  " ~
              to!string(genoprobs_from_rqtl[i][j]) ~ "  " ~
@@ -281,7 +281,7 @@ unittest {
   foreach(i; 0..genoprobs.length) {
     assert(genoprobs[i][ind].length == genoprobs_from_rqtl[i].length);
     foreach(j; 0..1) {
-      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-12,
+      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-10,
              to!string(i) ~ "  " ~
              to!string(genoprobs[i][ind][j]) ~ "  " ~
              to!string(genoprobs_from_rqtl[i][j]) ~ "  " ~
@@ -296,7 +296,7 @@ unittest {
   foreach(i; 0..genoprobs.length) {
     assert(genoprobs[i][ind].length == genoprobs_from_rqtl[i].length);
     foreach(j; 0..1) {
-      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-12,
+      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-10,
              to!string(i) ~ "  " ~
              to!string(genoprobs[i][ind][j]) ~ "  " ~
              to!string(genoprobs_from_rqtl[i][j]) ~ "  " ~
@@ -338,7 +338,7 @@ unittest {
   foreach(i; 0..genoprobs.length) {
     assert(genoprobs[i][ind].length == genoprobs_from_rqtl[i].length);
     foreach(j; 0..1) {
-      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-12,
+      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-10,
              to!string(i) ~ "  " ~
              to!string(genoprobs[i][ind][j]) ~ "  " ~
              to!string(genoprobs_from_rqtl[i][j]) ~ "  " ~
@@ -353,7 +353,7 @@ unittest {
   foreach(i; 0..genoprobs.length) {
     assert(genoprobs[i][ind].length == genoprobs_from_rqtl[i].length);
     foreach(j; 0..1) {
-      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-12,
+      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-10,
              to!string(i) ~ "  " ~
              to!string(genoprobs[i][ind][j]) ~ "  " ~
              to!string(genoprobs_from_rqtl[i][j]) ~ "  " ~
@@ -368,7 +368,7 @@ unittest {
   foreach(i; 0..genoprobs.length) {
     assert(genoprobs[i][ind].length == genoprobs_from_rqtl[i].length);
     foreach(j; 0..1) {
-      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-12,
+      assert(abs(genoprobs[i][ind][j] - genoprobs_from_rqtl[i][j]) < 1e-10,
              to!string(i) ~ "  " ~
              to!string(genoprobs[i][ind][j]) ~ "  " ~
              to!string(genoprobs_from_rqtl[i][j]) ~ "  " ~
@@ -406,7 +406,7 @@ unittest {
 
   assert(rec_frac_rqtl.length == rec_frac.length);
   foreach(i; 0..rec_frac.length) {
-    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-12);
+    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-10);
   }
 
   assert(rec_frac_rev_rqtl.length == rec_frac_rev.length);
@@ -444,7 +444,7 @@ unittest {
 
   assert(rec_frac_rqtl.length == rec_frac.length);
   foreach(i; 0..rec_frac.length) {
-    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-12);
+    assert(abs(rec_frac[i] - rec_frac_rqtl[i]) < 1e-10);
   }
 
   assert(rec_frac_rev_rqtl.length == rec_frac_rev.length);
