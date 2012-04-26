@@ -1,7 +1,7 @@
 /**
  * Write tabular qtlHD files (.qtab)
  *
- * See ./doc/input/mapping_inputs.md for a definition of the qtab standard
+ * See ./doc/input/qtab.md for a definition of the qtab standard
  */
 
 module qtl.plugins.qtab.write_qtab;
