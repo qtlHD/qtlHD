@@ -29,14 +29,20 @@ class BinaryWriter(Reader, XType) {
   private File f;
   Reader data;
  
-  void myWrite(T)(T[] x,File f, MatrixType t = MatrixType.EMPTY, bool bin = true){
+  void myWrite(T)(T[] x,File f, MatrixType t = MatrixType.EMPTY, MatrixClass mclass = MatrixClass.EMPTY, bool bin = true){
     if(bin){
       if(t == MatrixType.FIXEDCHARMATRIX || t == MatrixType.VARCHARMATRIX){
         foreach(T c;x){
           f.write(c);
         }
       }else{
-        f.rawWrite(x);
+        if(mclass == MatrixClass.GENOTYPE){
+          foreach(T c;x){
+            f.rawWrite("1");
+          }
+        }else{
+          f.rawWrite(x);
+        }
       }
     }else{
       f.writeln(x);
