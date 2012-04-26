@@ -23,7 +23,7 @@ unittest {
 
 unittest {
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~
                        buildPath("..","..","..","..","test","data", "input", "hyper_noX_qtab"));
 
   // Read founder info

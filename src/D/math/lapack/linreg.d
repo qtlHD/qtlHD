@@ -32,7 +32,7 @@ extern(C) {
 
 version(Windows){
   private import std.loader;
-  private import qtl.core.util.windows;
+  private import arch.windows;
   private import qtl.plugins.renv.libload;
 
   extern (C) void function(f_char *trans, f_int *m, f_int *n, f_int *nrhs, f_double *A, f_int *lda,

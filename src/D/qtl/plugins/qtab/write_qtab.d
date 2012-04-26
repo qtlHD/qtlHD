@@ -114,7 +114,7 @@ unittest {
   // read these same files, for testing
   writeln("Unit test " ~ __FILE__);
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ sep ~ buildPath("..","..","..","..","..","test","data"));
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
   auto fn = to!string(buildPath(dir,"input","listeria.csv"));
   auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
   // write the phenotype file
