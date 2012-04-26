@@ -119,7 +119,7 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
   foreach(i; 0..lod.length) {
     assert(lod[i].length == Rlod[i].length);
     foreach(j; 0..lod[i].length)
-      assert(abs(lod[i][j] - Rlod[i][j]) < 1e-12,
+      assert(abs(lod[i][j] - Rlod[i][j]) < 1e-10,
              to!string(i) ~ "  " ~ to!string(j) ~ "  " ~
              to!string(lod[i][j]) ~ "  " ~ to!string(Rlod[i][j]) ~
              "  " ~ to!string(log10(abs(lod[i][j] - Rlod[i][j]))));
@@ -158,7 +158,7 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
   foreach(i; 0..lod.length) {
     assert(lod[i].length == Rlod[i].length);
     foreach(j; 0..lod[i].length)
-      assert(abs(lod[i][j] - Rlod[i][j]) < 1e-12,
+      assert(abs(lod[i][j] - Rlod[i][j]) < 1e-10,
              to!string(i) ~ "  " ~ to!string(j) ~ "  " ~
              to!string(lod[i][j]) ~ "  " ~ to!string(Rlod[i][j]) ~
              "  " ~ to!string(log10(abs(lod[i][j] - Rlod[i][j]))));
