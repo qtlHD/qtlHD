@@ -3,7 +3,7 @@
  * Many thanks to: https://github.com/kyllingstad/ltk/
  */
 
-module qtl.core.util.windows;
+module arch.windows;
 
 version(Windows){
   import core.sys.windows.windows;
