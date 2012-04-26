@@ -17,6 +17,10 @@
 
 require 'rake/clean'
 
+def windows?
+  return RUBY_PLATFORM =~ /(:?mswin|mingw)/
+end
+
 BUILD_SHLIBS = false  # static/shared library targets
 PROG = 'read_qtab'    # this will change to a utility
 BINARIES = [PROG]
@@ -39,12 +43,15 @@ map_dfiles  = Dir.glob("./qtl/core/map/*.d")
 hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d")
 util_dfiles = Dir.glob("./qtl/core/util/*.d")
 lapack_dfiles = Dir.glob("./math/lapack/*.d")
+if windows? then
+lapack_dfiles += Dir.glob("./arch/*.d") + Dir.glob("./qtl/plugins/renv/*.d")
+end
 csv_dfiles = Dir.glob("./qtl/plugins/csv/*.d")
 csvr_dfiles = Dir.glob("./qtl/plugins/csvr/*.d") + [ './qtl/core/mqm/matrix.d' ]
 qtab_read_dfiles = ["./qtl/plugins/qtab/read_qtab.d"]
 qtab_write_dfiles = ["./qtl/plugins/qtab/write_qtab.d"]
 qtab_dfiles = qtab_read_dfiles + qtab_write_dfiles
-xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d")
+xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d") + csv_dfiles
 renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d")
 scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
@@ -71,10 +78,6 @@ def shlib_prefix
   else
     return "lib"
   end
-end
-
-def windows?
-  return RUBY_PLATFORM =~ /(:?mswin|mingw)/
 end
 
 LIB_EXT =       # set build target library file name
@@ -107,11 +110,11 @@ lib_list = {
 
 exe_list = { 
   'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles + main_dfile },
-  'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
+  'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + main_dfile },
   'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_read_dfiles + main_dfile },
   'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_write_dfiles + csv_dfiles + main_dfile },
-  'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
-  'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + deprecated_dfiles + main_dfile },
+  'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + main_dfile },
+  'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + main_dfile },
   'test_scanone' => { :path => './test/scanone', :list => ['./test/scanone/test_scanone_f2.d'] + ['./test/scanone/test_scanone_bc.d'] + all_core_dfiles + scanone_dfiles + main_dfile + lapack_dfiles + util_dfiles},
   'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] + renv_dfiles + arch_dfiles },
   'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + arch_dfiles },
@@ -211,5 +214,5 @@ task :test_csvr => [ :read_csvr ]
 
 desc "Test all"
 
-task :test_all => [:clean, :test_csv, :test_csvr, :test_xgap, :test_qtab, :test_hmm, :test_lapack, :test_rlib, :test_scanone]
+task :test_all => [:clean, :test_csv, :test_csvr, :test_qtab, :test_hmm, :test_lapack, :test_rlib, :test_scanone]
 
