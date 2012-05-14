@@ -19,7 +19,7 @@ int main(string[] args) {
   }
   uint verbosity = 1;
   getopt(args, "v|verbosity", 
-    delegate void(string o, string v) { verbosity = to!int(v); return; } );
+    delegate void(string o, string v) { verbosity = to!int(v); } );
 
   writeln("Verbosity ",verbosity);
   return 0;
