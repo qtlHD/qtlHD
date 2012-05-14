@@ -41,21 +41,13 @@ double map_size(Ms)(in Ms markers) {
  * Calculate recombination fractions between markers
  */
 
-double[] recombination_fractions(OrderedMs)(OrderedMs markers, in GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane) {
-  // ps = positions(name)
-  // ds = []
-  // ps.each_cons(2) { | a | ds.push a[1]-a[0] }
-  double[] distances;
-  distances.reserve(markers.length);
-  Marker leftmarker = null;
-  foreach(m; markers) {
-    if (leftmarker) {
-      distances ~= m.get_position - leftmarker.get_position;
-    }
-    leftmarker = m;
+double[] recombination_fractions(OrderedMs)(in OrderedMs markers, in GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane) {
+  auto distances = new double[markers.length-1];
+  foreach(i; 0..(markers.length-1)) {
+    distances[i] = markers[i+1].get_position - markers[i].get_position;
   }
 
-  return array(dist_to_recfrac(distances, which_genmapfunc)); // Haldane
+  return dist_to_recfrac(distances, which_genmapfunc);
 }
 
 // unittests in test_scanone.d

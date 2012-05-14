@@ -124,7 +124,7 @@ class Marker {
     name = (_name ? _name : MARKER_NAME_UNKNOWN); // FIXME: auto init
   }
 
-  Position get_position() { return position; }
+  const Position get_position() { return position; }
   bool opEquals(Object other) {
     //  test for chromosome?
     /// Markers at the same position are considered equal
