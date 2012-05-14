@@ -13,7 +13,7 @@ enum GeneticMapFunc { Haldane, Kosambi, Morgan, Carter_Falconer };
 
 // convert cM distance to recombination fraction
 // Note: one chromosome at a time
-double[] dist_to_recfrac(double[] dist_cM, GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane)
+double[] dist_to_recfrac(in double[] dist_cM, in GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane)
 in {
   foreach(dist; dist_cM) {
     assert(dist >= 0, "dist_cM must be >= 0, was " ~ to!string(dist));
@@ -46,12 +46,12 @@ body {
       }
       break;
     case GeneticMapFunc.Carter_Falconer:
-      if(dist >= 300) { dist = 300; }
       if(dist == 0) {
         rec_frac[i] = 0; 
       }
       else {
         mfcfsub_dist = dist;
+        if(dist >= 300) mfcfsub_dist = 300;
         rec_frac[i] = findRoot(&mfcfsub, 0.0, 0.5-TOL);
       }
       break;
@@ -110,7 +110,7 @@ unittest {
 
 // convert recombination fraction to cM distance
 // Note: one chromosome at a time
-double[] recfrac_to_dist(double[] rec_frac, GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane)
+double[] recfrac_to_dist(in double[] rec_frac, in GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane)
 in {
   foreach(rf; rec_frac) {
     assert(rf >= 0.0 && rf <= 0.5, "rec_frac must be >= 0 and <= 0.5");
@@ -121,19 +121,20 @@ body {
   enum TOL = 1e-14;
 
   foreach(i, rf; rec_frac) {
-    if(rf >= 0.5-TOL) { rf = 0.5 - TOL; }
+    double local_rf = rf;
+    if(local_rf >= 0.5-TOL) { local_rf = 0.5 - TOL; }
     switch(which_genmapfunc) {
     case GeneticMapFunc.Haldane:
-      dist_cM[i] = -50*log(1-2*rf);
+      dist_cM[i] = -50*log(1-2*local_rf);
       break;
     case GeneticMapFunc.Kosambi:
-      dist_cM[i] = 50*atanh(2*rf);
+      dist_cM[i] = 50*atanh(2*local_rf);
       break;
     case GeneticMapFunc.Morgan:
-      dist_cM[i] = rf*100;
+      dist_cM[i] = local_rf*100;
       break;
     case GeneticMapFunc.Carter_Falconer:
-      dist_cM[i] = 12.5*(log(1+2*rf)-log(1-2*rf))+25*atan(2*rf);
+      dist_cM[i] = 12.5*(log(1+2*local_rf)-log(1-2*local_rf))+25*atan(2*local_rf);
     default: break;
     }
   }
