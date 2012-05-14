@@ -32,3 +32,4 @@ tmp
 cdc.d
 read_csv
 *.qtab
+build/

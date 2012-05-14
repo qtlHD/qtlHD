@@ -37,6 +37,12 @@ if ARGV.index("DEBUG=TRUE")
   d_debug = D_DEBUG
   print "Adding debug information!\n"
 end
+if ARGV.index("RELEASE=TRUE")
+  release = true
+  debug = false
+  d_test = ""
+end
+
 arch_dfiles = Dir.glob("./arch/*.d")
 core_dfiles = Dir.glob("./qtl/core/*.d") 
 map_dfiles  = Dir.glob("./qtl/core/map/*.d")
@@ -120,7 +126,10 @@ exe_list = {
   'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + arch_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
   'test_hmm' => { :path => './test/hmm', :list => ['./test/hmm/test_hmm_f2.d'] + ['./test/hmm/test_hmm_bc.d'] + all_core_dfiles + qtab_read_dfiles + main_dfile },
-  'scanone' => { :path => './qtl/main', :list => ['./qtl/main/scanone.d'] },
+}
+
+build_list = { 
+  'scanone' => { path: './qtl/main', list: ['./qtl/main/scanone.d'] }
 }
 
 lib_list.each do | fn, attr |
@@ -153,6 +162,27 @@ exe_list.each do | fn, attr |
     end
   end
 end
+
+# Build independent binaries in ../../build
+build_list.each do | fn, attr |
+  path = attr[:path]
+  list = attr[:list]
+
+  desc "Binary "+fn
+  file fn => list do
+    fn = '../../build/'+fn 
+    if release
+      sh "dmd -release -O -of#{fn} #{list.join(' ')}"
+    else
+      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
+    end
+    if debug
+      print "RUNNING the debugger, to continue the test, type 'run'\n"
+      sh 'gdb '+fn
+    end
+  end
+end
+
 
 file "csv2xgap" => core_dfiles do
   sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/xgap/write_xgapbin.d"
