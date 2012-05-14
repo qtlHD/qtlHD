@@ -23,7 +23,7 @@ end
 
 BUILD_SHLIBS = false  # static/shared library targets
 PROG = 'read_qtab'    # this will change to a utility
-BINARIES = [PROG]
+BINARIES = [PROG, 'scanone' ]
 TESTS = [ :test_qtab ]
 
 D_TEST  = "-unittest"
@@ -120,6 +120,7 @@ exe_list = {
   'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + arch_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
   'test_hmm' => { :path => './test/hmm', :list => ['./test/hmm/test_hmm_f2.d'] + ['./test/hmm/test_hmm_bc.d'] + all_core_dfiles + qtab_read_dfiles + main_dfile },
+  'scanone' => { :path => './qtl/main', :list => ['./qtl/main/scanone.d'] },
 }
 
 lib_list.each do | fn, attr |
@@ -143,11 +144,7 @@ exe_list.each do | fn, attr |
     desc "Test "+fn
   end
   file fn => list do
-    if windows?
-      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
-    else
-      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
-    end
+    sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
     if debug
       print "RUNNING the debugger, to continue the test, type 'run'\n"
       sh 'gdb '+fn
@@ -161,6 +158,12 @@ file "csv2xgap" => core_dfiles do
   sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/xgap/write_xgapbin.d"
 end
 
+# ---- Main binaries
+
+desc "Build scanone binary"
+task :scanone => [] do
+end
+
 # ---- Standard tasks
 
 desc "Default builds and tests #{PROG}"
@@ -170,7 +173,7 @@ desc "Build default libraries"
 task :build_libs => [ LIB_QTAB ]
 
 desc "Build default binaries"
-task :build => TESTS
+task :build => BINARIES 
 
 desc "Create tags (exurberant tags)"
 task :tags => [] do
