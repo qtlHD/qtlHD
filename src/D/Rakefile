@@ -171,16 +171,16 @@ build_list.each do | fn, attr |
   desc "Binary "+fn
   file fn => list do
     if release
-      sh "dmd -release -O -of#{fn} #{list.join(' ')}"
+      sh "dmd -J../.. -release -O -of#{fn} #{list.join(' ')}"
     else
-      sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
+      sh "dmd -J../.. #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
       sh './'+fn
     end
     if debug
       print "RUNNING the debugger, to continue the test, type 'run'\n"
       sh 'gdb '+fn
     else
-      FileUtils::cp fn,'../../build'
+      FileUtils::cp fn,'../../build', preserve: true
     end
   end
 end
