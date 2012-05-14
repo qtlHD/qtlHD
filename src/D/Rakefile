@@ -146,13 +146,14 @@ exe_list.each do | fn, attr |
   list = attr[:list]
   source = path + '/' + fn + '.d'
   list << source 
+  list.uniq!
 
   if fn =~ /test/i
     desc fn
   else
     desc "Test "+fn
   end
-  file fn => list.uniq do
+  file fn => list do
     sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
     if debug
       print "RUNNING the debugger, to continue the test, type 'run'\n"
