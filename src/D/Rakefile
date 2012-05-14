@@ -23,7 +23,7 @@ end
 
 BUILD_SHLIBS = false  # static/shared library targets
 PROG = 'read_qtab'    # this will change to a utility
-BINARIES = [PROG, 'scanone' ]
+BINARIES = ['scanone' ]
 TESTS = [ :test_qtab ]
 
 D_TEST  = "-unittest"
@@ -107,6 +107,7 @@ CLEAN.include("*.#{LIB_EXT}")
 # Created test executabels
 clean_exe_list = Dir.glob("*").find_all { |fn| File.executable?(fn) and !File.directory?(fn) }
 CLEAN.include(clean_exe_list)
+CLEAN.include(Dir.glob("../../build/*"))
 
 # The compile targets
 
@@ -129,7 +130,7 @@ exe_list = {
 }
 
 build_list = { 
-  'scanone' => { path: './qtl/main', list: ['./qtl/main/scanone.d'] }
+  'scanone' => { path: './qtl/main', list: ['./qtl/main/scanone.d'] + all_core_dfiles }
 }
 
 lib_list.each do | fn, attr |
@@ -145,14 +146,13 @@ exe_list.each do | fn, attr |
   list = attr[:list]
   source = path + '/' + fn + '.d'
   list << source 
-  list.uniq!
 
   if fn =~ /test/i
     desc fn
   else
     desc "Test "+fn
   end
-  file fn => list do
+  file fn => list.uniq do
     sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
     if debug
       print "RUNNING the debugger, to continue the test, type 'run'\n"
@@ -163,22 +163,24 @@ exe_list.each do | fn, attr |
   end
 end
 
-# Build independent binaries in ../../build
+# Build independent binaries and copy result to ../../build
 build_list.each do | fn, attr |
   path = attr[:path]
   list = attr[:list]
 
   desc "Binary "+fn
   file fn => list do
-    fn = '../../build/'+fn 
     if release
       sh "dmd -release -O -of#{fn} #{list.join(' ')}"
     else
       sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
+      sh './'+fn
     end
     if debug
       print "RUNNING the debugger, to continue the test, type 'run'\n"
       sh 'gdb '+fn
+    else
+      FileUtils::cp fn,'../../build'
     end
   end
 end
@@ -186,12 +188,6 @@ end
 
 file "csv2xgap" => core_dfiles do
   sh "dmd -ofcsv2xgap #{core_dfiles} #{core_iofiles} #{core_xgapfiles} qtl/util/csv2xgap.d qtl/plugins/xgap/write_xgapbin.d"
-end
-
-# ---- Main binaries
-
-desc "Build scanone binary"
-task :scanone => [] do
 end
 
 # ---- Standard tasks
