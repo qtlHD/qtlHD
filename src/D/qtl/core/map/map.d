@@ -16,7 +16,7 @@ import std.stdio;
  * Find first (most-left) marker - do not assume markers is sorted
  */
 
-Marker map_first(Ms)(Ms markers) {
+Marker map_first(Ms)(in Ms markers) {
   return reduce!("(a.get_position()<b.get_position()?a:b)")(markers);
 }
 
@@ -24,7 +24,7 @@ Marker map_first(Ms)(Ms markers) {
  * Find last (most-right) marker - do not assume markers is sorted
  */
 
-Marker map_last(Ms)(Ms markers) {
+Marker map_last(Ms)(in Ms markers) {
   return reduce!("(a.get_position()>b.get_position()?a:b)")(markers);
 }
 
@@ -33,7 +33,7 @@ Marker map_last(Ms)(Ms markers) {
  * the markers are ordered.
  */
 
-double map_size(Ms)(Ms markers) {
+double map_size(Ms)(in Ms markers) {
   return map_last(markers).get_position - map_first(markers).get_position;
 }
 
@@ -41,7 +41,7 @@ double map_size(Ms)(Ms markers) {
  * Calculate recombination fractions between markers
  */
 
-double[] recombination_fractions(OrderedMs)(OrderedMs markers, GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane) {
+double[] recombination_fractions(OrderedMs)(OrderedMs markers, in GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane) {
   // ps = positions(name)
   // ds = []
   // ps.each_cons(2) { | a | ds.push a[1]-a[0] }
