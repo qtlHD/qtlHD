@@ -39,7 +39,7 @@ import qtl.core.chromosome;
  * (status: under review)
  */
 
-Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Position off_end=0.0) {
+Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, in Position step=1.0, in Position off_end=0.0) {
   enforce(step>0);
   enforce(off_end>=0);
   // With R/qtl, if step is zero, the purpose was to add a marker if there is
@@ -81,7 +81,7 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
 }
 
 // like add_stepped_markers_autosome, but add minimal number of pseudomarkers so that gaps < step
-Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Position off_end=0.0) {
+Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, in Position step=1.0, in Position off_end=0.0) {
   enforce(step>0);
   enforce(off_end>=0);
 
@@ -132,7 +132,7 @@ Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, Position step=1.0, Positio
  * NYI FIXME - implementation of sex chromosome will be done later
  */
 
-Ms add_stepped_markers_sex(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0)
+Ms add_stepped_markers_sex(Ms)(in Ms markers, in Position step=1.0, in Position off_end=0.0)
 {
   throw new Exception("Function not implemented");
 }
@@ -143,7 +143,7 @@ Ms add_stepped_markers_sex(Ms)(in Ms markers, Position step=1.0, Position off_en
  * markers.add function are defined in the Ms type(!)
  */
 
-Ms add_one_if_single_marker(Ms)(in Ms markers, Position step_right=1.0) {
+Ms add_one_if_single_marker(Ms)(in Ms markers, in Position step_right=1.0) {
   enforce(step_right>0);
   auto new_markers = new Ms(markers);
   if (markers.list.length == 1) {
@@ -163,7 +163,7 @@ Ms add_one_if_single_marker(Ms)(in Ms markers, Position step_right=1.0) {
  *            marker.get_position()-off_end to marker.get_position()+off_end.
  */
 
-Ms add_stepped_if_single_marker(Ms)(in Ms markers, Position step=1.0, Position off_end=0.0) {
+Ms add_stepped_if_single_marker(Ms)(in Ms markers, in Position step=1.0, in Position off_end=0.0) {
   enforce(step>0);
   enforce(off_end>=0);
   auto new_markers = new Ms(markers);
