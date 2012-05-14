@@ -66,7 +66,7 @@ double[] create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addc
 //    returns vector of residual sums of squares
 double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype!(double)[][] pheno,
                              in double[][] addcovar, in double[][] intcovar,
-                             double[] weights, double tol=1e-8)
+                             in double[] weights, in double tol=1e-8)
 {
   if(genoprobs.length != pheno.length)
     throw new Exception("Mismatch in no. individuals in genoprobs and pheno");
@@ -110,7 +110,7 @@ double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype!(double)
 //    returns matrix of residual sums of squares [position][phenotype]
 double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] pheno,
                       in double[][] addcovar, in double[][] intcovar,
-                      double[] weights, double tol=1e-8)
+                      in double[] weights, in double tol=1e-8)
 {
   if(genoprobs.length == 0)
     throw new Exception("genoprobs is empty");
@@ -127,16 +127,19 @@ double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] 
   auto rss = new double[][](genoprobs.length, pheno[0].length);
 
   // if weights has length 0, fill with 1's
+  auto local_weights = new double[](pheno.length);
   if(weights.length==0) {
-    weights = new double[](pheno.length);
     foreach(i; 0..pheno.length)
-      weights[i] = 1.0;
+      local_weights[i] = 1.0;
+  }
+  else {
+    local_weights = weights.dup;
   }
 
   // scan one position at a time
   foreach(i; 0..genoprobs.length)
     rss[i] = scanone_hk_onelocus(genoprobs[i], pheno, addcovar, intcovar,
-                                 weights, tol);
+                                 local_weights, tol);
 
   return rss;
 }
@@ -144,7 +147,7 @@ double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] 
 
 // scanone for null model
 double[] scanone_hk_null(in Phenotype!(double)[][] pheno, in double[][] addcovar,
-                         double[] weights, double tol=1e-8)
+                         in double[] weights, in double tol=1e-8)
 {
   if(weights.length > 0 && pheno.length != weights.length)
     throw new Exception("Mismatch in no. individuals in pheno and weights");
@@ -156,16 +159,19 @@ double[] scanone_hk_null(in Phenotype!(double)[][] pheno, in double[][] addcovar
     vector_of_ones[i][0] = 1.0;
 
   // if weights has length 0, fill with 1's
+  auto local_weights = new double[](pheno.length);
   if(weights.length==0) {
-    weights = new double[](pheno.length);
     foreach(i; 0..pheno.length)
-      weights[i] = 1.0;
+      local_weights[i] = 1.0;
+  }
+  else {
+    local_weights = weights.dup;
   }
 
   auto intcovar = new double[][](0,0);
 
   return scanone_hk_onelocus(vector_of_ones, pheno,
-                             addcovar, intcovar, weights, tol);
+                             addcovar, intcovar, local_weights, tol);
 }
 
 
