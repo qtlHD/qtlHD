@@ -105,7 +105,7 @@ A block should start/end with
 The symbol table has the following configuration options
 
       # --- Set Symbol begin
-      Phase      known     # known (default)|unknown 
+      Phase      known     # known|unknown (default)
       # --- Set Symbpl end
 
 A possible founder symbol table
@@ -141,7 +141,7 @@ a possible genotype symbol table:
       C CC as 2,2         # aliases
       AB as 1,0           # see phase known/unknown, depending on setting of Phase
       BA as 0,1
-      AC CA as 0,2 2,0    # phase (always) unknown
+      AC CA as 0,2 2,0    # here phase is always unknown
       D as 3              # expands to 3,3
       E as A/J            # Founder symbol expands to 0,0
       ...
@@ -163,12 +163,12 @@ above, `as`).
 
 ## Phase known/unknown
 
-Setting the symbol confuration Phase to 'unknown' will expand genotypes. In above 
-example if AB is defined as 1,0, AB and BA will both expand to [(0,1), (1,0)].
-The default, however, is known phase, so AB will be [(1,0)] only, and BA will
-be [(0,1)].
+Setting the symbol confuration Phase to 'known' will stop expanding genotypes.
+With phase unknown, in above example, if AB is defined as 1,0, AB and BA will
+both expand to [(0,1), (1,0)].  With known phase, however, AB
+will be [(1,0)] only, and BA will be [(0,1)].
 
-Meanwhile AC and CA will be in all cases [(0,2), (2,0)].
+Meanwhile, in the same example, AC and CA will be in all cases [(0,2), (2,0)].
 
 ## Example of a symbol reader
 
@@ -249,14 +249,14 @@ Do not combine symbols in that way. `A|B`, for example, is illegal. For that
 case define a new symbol, e.g. `AorB`.
 
 In the header properties can be defined. Current property is phase, which
-assumes the genotype phase is unambiguous e.g. `0,1` actually differs from
-`1,0`. Phase can also be set in the symbol table (see above). Obviously these
-values have to agree, if set twice.
+assumes the genotype phase is ambiguous e.g. `0,1` actually equals `1,0`. Phase
+can also be set in the symbol table (see above). Obviously these values
+have to agree, if set twice.
 
 For example
 
         # --- Set Genotype begin
-        Phase    known           # known (default) or unknown  
+        Phase    known           # known or unknown (unknown)
         # --- Set Genotype end
 
 ## Example of genotype reader
