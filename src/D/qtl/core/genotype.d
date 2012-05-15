@@ -170,6 +170,7 @@ class GenotypeCombinator {
     add_encoding(name);
     if (code) add_encoding(code);
   }
+  // add another encoding string (aliases)
   void add_encoding(Encoding code) { this.encoding ~= code; }
   // see if a true genotype is compatible
   bool match(in TrueGenotype truegen) const { 
@@ -177,21 +178,25 @@ class GenotypeCombinator {
   }
   // see if an input matches
   bool match(in Encoding code) { return canFind(encoding,code); }
-  // uniquely add a genotype. Return match.
+  // uniquely add a genotype to the observed list. Return match.
   TrueGenotype add(TrueGenotype g) {
     foreach(m; list) { if (m.founders == g.founders) return m; }
     list ~= g;
     return g;
   }
+  // The ~ operator can add a true genotype to the list
   GenotypeCombinator opOpAssign(string op)(TrueGenotype g) if (op == "~") {
     add(g);
     return this;
   }
+  // The ~ operator can add another combinator to the list
   GenotypeCombinator opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
     foreach(g ; c.list ) { add(g); };
     return this;
   }
+  // Return the number of true genotypes available
   const auto length() { return list.length; }
+  // Test for equality of two combinators
   bool opEquals(Object other) {
     auto rhs = cast(GenotypeCombinator)other;
     return (list.sort == rhs.list.sort); // probably not the fastest way ;)
