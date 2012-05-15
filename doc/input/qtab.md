@@ -1,6 +1,6 @@
 # Mapping inputs
 
-Version 0.11 (March 2012)
+Version 0.12.pre1 (May 2012)
 
 This document describes the new qtab standard. qtab is a human readable tab
 delimited file format for QTL data.
@@ -69,8 +69,8 @@ or file section should start with a commented line (using spaces)
 where `x.x` is the file format version and `Sectionname` represents the section name. The 
 description is a free string. Valid section headers are, for example,
 
-      # --- qtlHD-in-0.9 Genotype Mouse CC JAX
-      # --- qtlHD-in-0.9 Phenotype Mouse CC JAX - Our experiment/date
+      # --- qtlHD-in-x.x Genotype Mouse CC JAX
+      # --- qtlHD-in-x.x Phenotype Mouse CC JAX - Our experiment/date
 
 This line is used to recognise and start parsing sections. After the section
 header line, a header is recognized by 
@@ -101,6 +101,12 @@ should be
 A block should start/end with
 
       # --- Data Type begin/end
+
+The symbol table has the following configuration options
+
+      # --- Set Symbol begin
+      Phase      known     # known (default)|unknown 
+      # --- Set Symbpl end
 
 A possible founder symbol table
 
@@ -133,9 +139,9 @@ a possible genotype symbol table:
       A as 0,0
       B BB as 1,1
       C CC as 2,2         # aliases
-      AB as 1,0           # phase known/directional
+      AB as 1,0           # see phase known/unknown, depending on setting of Phase
       BA as 0,1
-      AC CA as 0,2 2,0    # phase unknown/non-directional
+      AC CA as 0,2 2,0    # phase (always) unknown
       D as 3              # expands to 3,3
       E as A/J            # Founder symbol expands to 0,0
       ...
@@ -154,6 +160,17 @@ represent a missing value.
 
 Other reserved symbols are `True` and `False` (and, as mentioned
 above, `as`).
+
+## Phase known/unknown
+
+Setting the symbol confuration Phase to 'unknown' will expand genotypes. In above 
+example if AB is defined as 1,0, AB and BA will both expand to [(0,1), (1,0)].
+The default, however, is known phase, so AB will be [(1,0)] only, and BA will
+be [(0,1)].
+
+Meanwhile AC and CA will be in all cases [(0,2), (2,0)].
+
+## Example of a symbol reader
 
 An example of a symbol reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_symbol.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
 
@@ -186,7 +203,6 @@ In the founder file we can suggest the cross and other settings. For example
 
         # --- Set Founder begin
         Cross         IC     # BC|F2|RIL|IC
-        Phase      known     # known|unknown for intercross IC 
         # --- Set Founder end
 
 In addition properties can be defined for each founder. These properties act 
@@ -232,15 +248,18 @@ The pipe letter `|` in `0,1|1,1` acts as an 'or' combinator for numeric values.
 Do not combine symbols in that way. `A|B`, for example, is illegal. For that
 case define a new symbol, e.g. `AorB`.
 
-In the header properties can be defined. Current properties are PhaseKnown
-(default `True`), which assumes the genotype phase is unambiguous
-e.g. `0,1` actually differs from `1,0`.
+In the header properties can be defined. Current property is phase, which
+assumes the genotype phase is unambiguous e.g. `0,1` actually differs from
+`1,0`. Phase can also be set in the symbol table (see above). Obviously these
+values have to agree, if set twice.
 
 For example
 
         # --- Set Genotype begin
-        PhaseKnown True                    # default
+        Phase    known           # known (default) or unknown  
         # --- Set Genotype end
+
+## Example of genotype reader
 
 An example of a genotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_genotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
 
