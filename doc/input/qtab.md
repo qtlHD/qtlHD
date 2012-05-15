@@ -133,9 +133,9 @@ a possible genotype symbol table:
       A as 0,0
       B BB as 1,1
       C CC as 2,2         # aliases
-      AB as 1,0           # directional
+      AB as 1,0           # phase known/directional
       BA as 0,1
-      AC CA as 0,2 2,0    # not directional
+      AC CA as 0,2 2,0    # phase unknown/non-directional
       D as 3              # expands to 3,3
       E as A/J            # Founder symbol expands to 0,0
       ...
@@ -232,14 +232,14 @@ The pipe letter `|` in `0,1|1,1` acts as an 'or' combinator for numeric values.
 Do not combine symbols in that way. `A|B`, for example, is illegal. For that
 case define a new symbol, e.g. `AorB`.
 
-In the header properties can be defined. Current properties are Directional 
-(default `True`), which assumes the genotype is directional, e.g. `0,1` differs
-from `1,0`.
+In the header properties can be defined. Current properties are PhaseKnown
+(default `True`), which assumes the genotype phase is unambiguous
+e.g. `0,1` actually differs from `1,0`.
 
 For example
 
         # --- Set Genotype begin
-        Directional True                  # default
+        PhaseKnown True                    # default
         # --- Set Genotype end
 
 An example of a genotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_genotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). 
