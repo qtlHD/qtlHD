@@ -251,7 +251,12 @@ class ObservedGenotypes {
     list ~= c;
     return c;
   }
-  /// Decode an input to an (observed) genotype, returns NULL on NA
+  /**
+   * Decode an input to an (observed) genotype. This function walks the
+   * list of true genotypes and returns the first match.
+   *
+   * returns NULL on NA.
+   */
   GenotypeCombinator decode(in string s) {
     // try to decode by symbol name
     foreach(m; list) { if (m.match(s)) return m; }
@@ -642,6 +647,7 @@ unittest {
  * Flex implementation
  */
 
+/*
 class Flex {
   GenotypeCombinator NA;
   this() {
@@ -669,7 +675,7 @@ class ObservedFlex {
   }
 
 }
-
+*/
 
 /**
  * Structure for reading encoded CSV files. In above examples the Genotype is
@@ -681,7 +687,7 @@ class ObservedFlex {
  * GENOTYPE BB as 1,1
  * GENOTYPE C,CC as 2,2         # C and CC both represent 2,2
  * GENOTYPE AB as 1,0           # 1,0 phase known/directional
- * GENOTYPE BA as 0,1           # 0,1 phase known
+ * GENOTYPE BA as 0,1           # 0,1 phase known/directional
  * GENOTYPE AC,CA as 0,2 2,0    # 2,0 phase unknown/not directional
  * GENOTYPE CA,F as 2,0 0,2     # F is an alias for AC,CA
  * GENOTYPE AorB as 0,0 1,1
@@ -763,18 +769,25 @@ class EncodedGenotype {
     names = tuple[0];
     genotypes = tuple[1];
   }
-
+  GenotypeCombinator combinator() {
+    return null;
+  }
 }
 
 unittest {
+  auto symbols = new ObservedGenotypes();
   auto tuple = parse_observed_genotype_string("GENOTYPE A as 0,0");
   assert(tuple[0] == ["A"]);
   assert(to!string(tuple[1]) == "[(0,0)]");
   assertThrown(parse_observed_genotype_string("GENOTYPE A as (0,0)"));
 
   auto eg = new EncodedGenotype("GENOTYPE A as 0,0");
+  symbols.add(eg.combinator);
   assert(eg.names == ["A"]);
   assert(to!string(eg.genotypes) == "[(0,0)]");
+  eg = new EncodedGenotype("GENOTYPE AB as 1,0           # 1,0 phase known/directional");
+  assert(eg.names == ["AB"]);
+  assert(to!string(eg.genotypes) == "[(1,0)]", to!string(eg.genotypes));
   eg = new EncodedGenotype("GENOTYPE AC,CA as 0,2 2,0    # phase unknown / not directional");
   assert(eg.names == ["AC","CA"]);
   assert(to!string(eg.genotypes) == "[(0,2), (2,0)]", to!string(eg.genotypes));
@@ -783,6 +796,9 @@ unittest {
   assert(to!string(eg.genotypes) == "[]", to!string(eg.genotypes));
   eg = new EncodedGenotype("GENOTYPE A AA as 0,0");
   assert(eg.names == ["A","AA"]);
+  eg = new EncodedGenotype("GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0");
+  assert(eg.names == ["AorABorAC"]);
+  assert(to!string(eg.genotypes) == "[(0,0), (1,0), (0,1), (0,2), (2,0)]", to!string(eg.genotypes));
   // faulty ones are more interesting
   assertThrown(new EncodedGenotype("GENOTYPE A as (0,0)"));
   assertThrown(new EncodedGenotype("ENOTYPE A as 0,0"));
@@ -790,10 +806,41 @@ unittest {
   assertThrown(new EncodedGenotype("GENOTYPE A 0,0"));
   assertThrown(new EncodedGenotype("GENOTYPE A 0"));
   assertThrown(new EncodedGenotype("GENOTYPE A 0,A"));
+
+  // now start decoding
+ * GENOTYPE A as 0,0
+ * GENOTYPE BB as 1,1
+ * GENOTYPE C,CC as 2,2         # C and CC both represent 2,2
+ * GENOTYPE AB as 1,0           # 1,0 phase known/directional
+ * GENOTYPE BA as 0,1           # 0,1 phase known/directional
+ * GENOTYPE AC,CA as 0,2 2,0    # 2,0 phase unknown/not directional
+ * GENOTYPE CA,F as 2,0 0,2     # F is an alias for AC,CA
+ * GENOTYPE AorB as 0,0 1,1
+ * GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0
+ * GENOTYPE NA,- as None
+  assert(to!string(symbols.decode("NA")) == "(NA)");
+  assert(symbols.decode("-") == symbols.decode("NA"));
+  assert(to!string(symbols.decode("A")) == "[(0,0)]");
+  assert(to!string(symbols.decode("C")) == "[(2,2)]");
+  assert(symbols.decode("CC") == symbols.decode("C"));
+  assert(symbols.decode("BB") == symbols.decode("B"); 
+  assert(symbols.decode("BA") == cross.combinator["BA"]);
+  assert(to!string(symbols.decode("AB")) == "[(1,0)]"); // phase known!
+  assert(to!string(symbols.decode("BA")) == "[(0,1)]"); // phase known!
+  assert(to!string(symbols.decode("AorABorAC")) == "[(0,0),(1,0),(0,1),(0,2),(2,0)]");
 }
 
+/**
+ * Takes a list of genotype encoding string lines, e.g.
+ *
+ * ["GENOTYPE NA,- as None","GENOTYPE A as 0,0","GENOTYPE B,BB as 1,1"]
+ *
+ * and turns it into an ObservedGenotypes object
+ */
+
+/*
 class EncodedCross {
-  GenotypeCombinator[string] gc;
+  Tuple!(string,GenotypeCombinator) combinator[];
   this(string list[]) {
     // parse list
     foreach(line ; list) {
@@ -806,17 +853,17 @@ class EncodedCross {
   EncodedGenotype add(string line) {
     auto line_item = new EncodedGenotype(line);
     auto n = line_item.names[0];
-    if (n in gc)
+    if (n in combinator)
       throw new Exception("Duplicate " ~ line);
 
-    gc[n] = new GenotypeCombinator(n);
+    combinator[n] = new GenotypeCombinator(n);
     foreach (tt ; line_item.genotypes) {
-       gc[n] ~= tt;
+       combinator[n] ~= tt;
     }
     foreach (n_alias ; line_item.names[1..$]) {
-       gc[n].add_encoding(n_alias);
+       combinator[n].add_encoding(n_alias);
     }
-    // writeln("--->",gc[n].encoding,gc[n]);
+    // writeln("--->",combinator[n].encoding,combinator[n]);
     return line_item;
   }
 
@@ -838,25 +885,26 @@ GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
   auto cross = new EncodedCross(split(encoded,"\n"));
   auto symbols = new ObservedGenotypes();
   // add genotypes to symbols
-  foreach (legaltype; cross.gc) {
+  foreach (legaltype; cross.combinator) {
+    writeln(legaltype);
     symbols ~= legaltype;
   }
-  assert(symbols.decode("NA") == cross.gc["NA"]);
-  assert(symbols.decode("-") == cross.gc["NA"]);
-  assert(symbols.decode("A") == cross.gc["A"]);
-  assert(symbols.decode("B") == cross.gc["B"]);
-  assert(symbols.decode("CC") == cross.gc["C"]);
-  // assert(symbols.decode("BB") == cross.gc["BB"]); <- error
-  assert(symbols.decode("BB") == cross.gc["B"]); //  <- OK
-  assert(symbols.decode("AB") == cross.gc["AB"]);
-  assert(symbols.decode("BA") == cross.gc["BA"]);
-  assert(symbols.decode("AorB") == cross.gc["AorB"]);
-  assert(symbols.decode("0,0") == cross.gc["A"]);
-  assert(symbols.decode("1,1") == cross.gc["B"]);
-  assert(symbols.decode("1,0") == cross.gc["AB"]);
+  assert(symbols.decode("NA") == cross.combinator["NA"]);
+  assert(symbols.decode("-") == cross.combinator["NA"]);
+  assert(symbols.decode("A") == cross.combinator["A"]);
+  assert(symbols.decode("B") == cross.combinator["B"]);
+  assert(symbols.decode("CC") == cross.combinator["C"]);
+  // assert(symbols.decode("BB") == cross.combinator["BB"]); <- error
+  assert(symbols.decode("BB") == cross.combinator["B"]); //  <- OK
+  assert(symbols.decode("AB") == cross.combinator["AB"]);
+  assert(symbols.decode("BA") == cross.combinator["BA"]);
+  assert(symbols.decode("AorB") == cross.combinator["AorB"]);
+  assert(symbols.decode("0,0") == cross.combinator["A"]);
+  assert(symbols.decode("1,1") == cross.combinator["B"]);
+  assert(symbols.decode("1,0") == cross.combinator["AB"]);
   writeln("Cross symbols: ",symbols);
-  assert(symbols.decode("0,1") == cross.gc["BA"], to!string(symbols.decode("0,1")) ~ " expected " ~ to!string(cross.gc["BA"]));
-  // assert(symbols.decode("0,0|1,1") == cross.gc["AorB"]);
+  assert(symbols.decode("0,1") == cross.combinator["BA"], to!string(symbols.decode("0,1")) ~ " expected " ~ to!string(cross.combinator["BA"]));
+  // assert(symbols.decode("0,0|1,1") == cross.combinator["AorB"]);
   // writeln(cross["AorB"].encoding);
   // writeln(symbols);
   // Test for duplicates
@@ -872,6 +920,7 @@ GENOTYPE AA as 0,0
 ";
   assertNotThrown(new EncodedCross(split(encoded,"\n")));
 }
+*/
 
 // CrossType : allowable cross types we will handle
 enum CrossType { BC, F2, RILself, RILsib };
