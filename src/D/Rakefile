@@ -61,6 +61,7 @@ xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d") + csv_dfiles
 renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d")
 scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
+example_dfiles = Dir.glob("./example/*.d")
 deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
   Dir.glob("./qtl/plugins/deprecate/*.d")
 main_dfile = ["test/main.d"]
@@ -116,10 +117,10 @@ lib_list = {
 }
 
 exe_list = { 
-  'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles + main_dfile },
-  'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + main_dfile },
+  'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles + example_dfiles + main_dfile },
+  'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + example_dfiles + main_dfile },
   'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_read_dfiles + main_dfile },
-  'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_write_dfiles + csv_dfiles + main_dfile },
+  'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_write_dfiles + csv_dfiles + example_dfiles + main_dfile },
   'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + main_dfile },
   'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + main_dfile },
   'test_scanone' => { :path => './test/scanone', :list => ['./test/scanone/test_scanone_f2.d'] + ['./test/scanone/test_scanone_bc.d'] + all_core_dfiles + scanone_dfiles + main_dfile + lapack_dfiles + util_dfiles},

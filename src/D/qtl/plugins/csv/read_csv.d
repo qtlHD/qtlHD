@@ -15,6 +15,7 @@ import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.individual;
+import example.genotype_examples;
 
 import std.stdio;
 import std.conv;
@@ -245,7 +246,7 @@ GENOTYPE D as 1,1 0,1";
   auto types = new EncodedCross(split(encoded,"\n"));
   auto observed = new ObservedFlex();
   // add genotypes to symbols
-  foreach (legaltype; types.gc) {
+  foreach (legaltype; types.combinator) {
     observed.symbols ~= legaltype;
   }
   alias std.path.buildPath buildPath;

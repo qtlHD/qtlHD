@@ -12,6 +12,7 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.individual;
 import qtl.plugins.csv.read_csv;  // for testing
+import example.genotype_examples; // for testing
 
 import std.stdio;
 import std.conv;
@@ -30,7 +31,7 @@ void write_symbol_qtab(File f, string descr, ObservedGenotypes observed) {
   f.writeln("# --- ",ID," Symbol ",descr);
   f.writeln("# --- Symbol Genotype begin");
   foreach(symbol ; observed.list) {
-    f.write(symbol.toEncodings," as ");
+    f.write(symbol.toEncodingString," as ");
     f.write(symbol.toTrueGenotypes);
     f.writeln();
   }
