@@ -102,9 +102,11 @@ class TrueGenotype {
   // read true genotypes as a comma separated string, e.g. "0,0" or "1,0".
   // make sure not to pass in "" or "NA" - these are simply illegal TrueGenotypes.
   this(in string str) {
+    if (str == "NA" || str == "" || str == "-")
+      throw new Exception("Can not initialize genotype field with value \"" ~ str ~ "\"");
     auto fields = split(strip(str),",");
     if (fields.length != 2)
-      throw new Exception("Can not parse field with value \"" ~ str ~ "\"");
+      throw new Exception("Can not parse true genotype field with value \"" ~ str ~ "\"");
     auto field1 = to!uint(fields[0]);
     auto field2 = to!uint(fields[1]);
     founders = Alleles(field1,field2);
@@ -161,7 +163,7 @@ class GenotypeCombinator {
 
   TrueGenotype[] list;
   string name; // the display name
-  Encoding encoding[]; // a list of encoding types
+  Encoding encoding[]; // a list of encoding types (strings)
 
   // initialize a combinator by name. name
   // is also used for input encoding
@@ -169,6 +171,16 @@ class GenotypeCombinator {
     this.name = name;
     add_encoding(name);
     if (code) add_encoding(code);
+  }
+  // initialize a combinator with lists
+  this(string names[], TrueGenotype gs[]) {
+    this.name = names[0];
+    foreach(n ; names[1..$]) { 
+      add_encoding(n);
+    }
+    foreach(g ; gs) {
+      add(g);
+    }
   }
   // add another encoding string (aliases)
   void add_encoding(Encoding code) { this.encoding ~= code; }
@@ -252,8 +264,9 @@ class ObservedGenotypes {
     return c;
   }
   /**
-   * Decode an input to an (observed) genotype. This function walks the
-   * list of true genotypes and returns the first match.
+   * Decode an input to an (observed) genotype. This function first walks the
+   * list of true genotype *names*, and next the actual genotypes. 
+   * Returns the first matching combinator.
    *
    * returns NULL on NA.
    */
@@ -262,16 +275,21 @@ class ObservedGenotypes {
     foreach(m; list) { if (m.match(s)) return m; }
     // try to decode by genotype - an empty should return NA
     if (s == "") return decode("NA");
-    auto geno = new TrueGenotype(s);
-    foreach(m; list) {
-      // writeln(m,geno);
-      if (!m.isNA) {
-        foreach(g ; m.list) {
-          if (g == geno) return m;
+    try {
+      auto geno = new TrueGenotype(s);
+      foreach(m; list) {
+        // writeln(m,geno);
+        if (!m.isNA) {
+          foreach(g ; m.list) {
+            if (g == geno) return m;
+          }
         }
       }
     }
-    throw new Exception("Fail to decode genotype \"" ~ s ~ "\"");
+    catch (Exception e) {
+      throw new Exception("Failed to decode genotype \"" ~ s ~ "\"");
+    }
+    throw new Exception("Failed to decode genotype \"" ~ s ~ "\"");
   }
   /// Define =~ to combine combinators
   ObservedGenotypes opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
@@ -453,7 +471,9 @@ class EncodedGenotype {
     genotypes = tuple[1];
   }
   GenotypeCombinator combinator() {
-    return null;
+    writeln(names);
+    writeln(genotypes);
+    return new GenotypeCombinator(names,genotypes);
   }
 }
 
@@ -474,9 +494,9 @@ unittest {
   eg = new EncodedGenotype("GENOTYPE AC,CA as 0,2 2,0    # phase unknown / not directional");
   assert(eg.names == ["AC","CA"]);
   assert(to!string(eg.genotypes) == "[(0,2), (2,0)]", to!string(eg.genotypes));
-  eg = new EncodedGenotype("GENOTYPE NA,- as None  ");
-  assert(eg.names == ["NA","-"]);
-  assert(to!string(eg.genotypes) == "[]", to!string(eg.genotypes));
+  // eg = new EncodedGenotype("GENOTYPE NA,- as None  ");
+  // assert(eg.names == ["NA","-"]);
+  // assert(to!string(eg.genotypes) == "[]", to!string(eg.genotypes));
   eg = new EncodedGenotype("GENOTYPE A AA as 0,0");
   assert(eg.names == ["A","AA"]);
   eg = new EncodedGenotype("GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0");
@@ -491,8 +511,8 @@ unittest {
   assertThrown(new EncodedGenotype("GENOTYPE A 0,A"));
 
   // now start decoding
-  assert(to!string(symbols.decode("NA")) == "(NA)");
-  assert(symbols.decode("-") == symbols.decode("NA"));
+  // assert(to!string(symbols.decode("NA")) == "(NA)");
+  // assert(symbols.decode("-") == symbols.decode("NA"));
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
   assert(to!string(symbols.decode("C")) == "[(2,2)]");
   assert(symbols.decode("CC") == symbols.decode("C"));
