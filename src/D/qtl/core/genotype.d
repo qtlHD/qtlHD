@@ -513,6 +513,7 @@ unittest {
   // now start decoding
   // assert(to!string(symbols.decode("NA")) == "(NA)");
   // assert(symbols.decode("-") == symbols.decode("NA"));
+  writeln(symbols);
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
   assert(to!string(symbols.decode("C")) == "[(2,2)]");
   assert(symbols.decode("CC") == symbols.decode("C"));
