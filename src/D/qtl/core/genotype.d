@@ -111,6 +111,9 @@ class TrueGenotype {
   }
   bool homozygous()   { return founders[0] == founders[1]; };
   bool heterozygous() { return !homozygous(); };
+  // Comparison for consistent sorting of true genotypes, based on founder 
+  // genotype numbering scheme
+  // e.g. 2,2 > 2,1 > 2,0 > 1,2 > 1,1 > 1,0 > 0,1 > 0,0
   int opCmp(Object other) {
     TrueGenotype _other = cast(TrueGenotype)other;
     auto founders2 = _other.founders;
@@ -120,14 +123,17 @@ class TrueGenotype {
     if (founders[1] < founders2[1]) return -1;
     return 0;
   }
+  // If both founders are equal, the genotype is the same
   const bool opEquals(Object other) {
     auto founders2 = (cast(TrueGenotype)other).founders;
     return founders[0] == founders2[0] && founders[1] == founders2[1];
   }
+  // convert to short string, i.e. 1,0 => "1,0"
   const string toTrueGenotype() {
     uint f0 = founders[0]; uint f1 = founders[1];
     return to!string(f0) ~ ',' ~ to!string(f1);
   }
+  // string representation of true genotype, i.e. 1,0 -> "(1,0)"
   const string toString() {
     return '(' ~ toTrueGenotype ~ ')';
   }
@@ -843,12 +849,11 @@ GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
   assert(symbols.decode("0,0") == cross.gc["A"]);
   assert(symbols.decode("1,1") == cross.gc["B"]);
   assert(symbols.decode("1,0") == cross.gc["AB"]);
-  writeln(symbols);
-  // FIXME phase known/directionality does not yet decode
-  assert(symbols.decode("0,1") == cross.gc["BA"], to!string(symbols.decode("0,1")));
-  assert(symbols.decode("0,0|1,1") == cross.gc["AorB"]); FIXME: later
-  writeln(cross["AorB"].encoding);
-  writeln(symbols);
+  writeln("Cross symbols: ",symbols);
+  assert(symbols.decode("0,1") == cross.gc["BA"], to!string(symbols.decode("0,1")) ~ " expected " ~ to!string(cross.gc["BA"]));
+  // assert(symbols.decode("0,0|1,1") == cross.gc["AorB"]);
+  // writeln(cross["AorB"].encoding);
+  // writeln(symbols);
   // Test for duplicates
   encoded = "
 GENOTYPE A as 0,0
