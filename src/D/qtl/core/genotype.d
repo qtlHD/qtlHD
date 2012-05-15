@@ -175,6 +175,7 @@ class GenotypeCombinator {
   // initialize a combinator with lists
   this(string names[], TrueGenotype gs[]) {
     this.name = names[0];
+    add_encoding(name);
     foreach(n ; names[1..$]) { 
       add_encoding(n);
     }
@@ -223,7 +224,7 @@ class GenotypeCombinator {
   /**
    * Return a string format using the encoder types, e.g, "A B H"
    */
-  const string toEncodings() {
+  const string toEncodingString() {
     auto a = map!"to!string(a)"(encoding);
     return join(a," ");
   }
@@ -489,17 +490,25 @@ unittest {
   assert(eg.names == ["A"]);
   assert(to!string(eg.genotypes) == "[(0,0)]");
   eg = new EncodedGenotype("GENOTYPE AB as 1,0           # 1,0 phase known/directional");
+  symbols.add(eg.combinator);
   assert(eg.names == ["AB"]);
   assert(to!string(eg.genotypes) == "[(1,0)]", to!string(eg.genotypes));
+  eg = new EncodedGenotype("GENOTYPE BA as 0,1           # 1,0 phase known/directional");
+  symbols.add(eg.combinator);
   eg = new EncodedGenotype("GENOTYPE AC,CA as 0,2 2,0    # phase unknown / not directional");
+  symbols.add(eg.combinator);
   assert(eg.names == ["AC","CA"]);
   assert(to!string(eg.genotypes) == "[(0,2), (2,0)]", to!string(eg.genotypes));
+  eg = new EncodedGenotype("GENOTYPE C,CC as 2,2");
+  symbols.add(eg.combinator);
   // eg = new EncodedGenotype("GENOTYPE NA,- as None  ");
   // assert(eg.names == ["NA","-"]);
   // assert(to!string(eg.genotypes) == "[]", to!string(eg.genotypes));
   eg = new EncodedGenotype("GENOTYPE A AA as 0,0");
+  symbols.add(eg.combinator);
   assert(eg.names == ["A","AA"]);
   eg = new EncodedGenotype("GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0");
+  symbols.add(eg.combinator);
   assert(eg.names == ["AorABorAC"]);
   assert(to!string(eg.genotypes) == "[(0,0), (1,0), (0,1), (0,2), (2,0)]", to!string(eg.genotypes));
   // faulty ones are more interesting
@@ -513,13 +522,14 @@ unittest {
   // now start decoding
   // assert(to!string(symbols.decode("NA")) == "(NA)");
   // assert(symbols.decode("-") == symbols.decode("NA"));
-  writeln(symbols);
+  foreach (symbol ; symbols.list) {
+    writeln(symbol.toEncodingString," --> ",symbol);
+  }
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
   assert(to!string(symbols.decode("C")) == "[(2,2)]");
   assert(symbols.decode("CC") == symbols.decode("C"));
-  assert(symbols.decode("BB") == symbols.decode("B")); 
   assert(to!string(symbols.decode("AB")) == "[(1,0)]"); // phase known!
   assert(to!string(symbols.decode("BA")) == "[(0,1)]"); // phase known!
-  assert(to!string(symbols.decode("AorABorAC")) == "[(0,0),(1,0),(0,1),(0,2),(2,0)]");
+  assert(to!string(symbols.decode("AorABorAC")) == "[(0,0), (0,1), (0,2), (1,0), (2,0)]");
 }
 
