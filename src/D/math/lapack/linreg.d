@@ -47,11 +47,15 @@ version(Windows){
                            f_double *beta, f_double *c, f_int *ldc) dgemm_;
 
   static this(){
-    HXModule lib = load_library("Rblas");
-    load_function(dgels_)(lib,"dgelsy_");
-    load_function(dgelsy_)(lib,"dgels_");
-    load_function(dgemm_)(lib,"dgemm_");
-    writeln("Loaded BLAS functionality");
+    HXModule lib_lapack = load_library("Rlapack");
+    load_function(dgels_)(lib_lapack,"dgels_");
+    load_function(dgelsy_)(lib_lapack,"dgelsy_");
+    writeln("Loaded Rlapack functionality");
+    
+    
+    HXModule lib_blas = load_library("Rblas");
+    load_function(dgemm_)(lib_blas,"dgemm_");
+    writeln("Loaded Rblas functionality");
   }
 
 }else{
