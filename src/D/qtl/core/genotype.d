@@ -90,7 +90,7 @@ alias Tuple!(FounderIndex,FounderIndex) Alleles;
 
 /**
  * A true genotype consists of a Tuple of genotypes/alleles - one from each
- * (founder) parent. These genotypes can be directional
+ * (founder) parent. These genotypes can be phase known/directional 
  */
 
 class TrueGenotype {
@@ -573,7 +573,7 @@ unittest {
 
 
 /**
- * Directional F2 with ambiguous scoring:
+ * Phase known/directional F2 with ambiguous scoring:
  * F2  { NA, A, B, AB, BA, HorB, HorA };
  */
 
@@ -668,11 +668,11 @@ class ObservedFlex {
  *
  * GENOTYPE A as 0,0
  * GENOTYPE BB as 1,1
- * GENOTYPE C,CC as 2,2         # alias
- * GENOTYPE AB as 1,0           # directional
- * GENOTYPE BA as 0,1
- * GENOTYPE AC,CA as 0,2 2,0    # not directional
- * GENOTYPE CA,F as 2,0 0,2     # alias
+ * GENOTYPE C,CC as 2,2         # C and CC both represent 2,2
+ * GENOTYPE AB as 1,0           # 1,0 phase known/directional
+ * GENOTYPE BA as 0,1           # 0,1 phase known
+ * GENOTYPE AC,CA as 0,2 2,0    # 2,0 phase unknown/not directional
+ * GENOTYPE CA,F as 2,0 0,2     # F is an alias for AC,CA
  * GENOTYPE AorB as 0,0 1,1
  * GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0
  * GENOTYPE NA,- as None
@@ -764,7 +764,7 @@ unittest {
   auto eg = new EncodedGenotype("GENOTYPE A as 0,0");
   assert(eg.names == ["A"]);
   assert(to!string(eg.genotypes) == "[(0,0)]");
-  eg = new EncodedGenotype("GENOTYPE AC,CA as 0,2 2,0    # not directional");
+  eg = new EncodedGenotype("GENOTYPE AC,CA as 0,2 2,0    # phase unknown / not directional");
   assert(eg.names == ["AC","CA"]);
   assert(to!string(eg.genotypes) == "[(0,2), (2,0)]", to!string(eg.genotypes));
   eg = new EncodedGenotype("GENOTYPE NA,- as None  ");
@@ -817,9 +817,9 @@ GENOTYPE NA,- as None
 GENOTYPE A as 0,0
 GENOTYPE B,BB as 1,1
 GENOTYPE C,CC as 2,2         # alias
-GENOTYPE AB as 1,0           # directional
-GENOTYPE BA as 0,1           # directional
-GENOTYPE AC,CA as 0,2 2,0    # not directional
+GENOTYPE AB as 1,0           # phase known/directional
+GENOTYPE BA as 0,1           # phase known/directional
+GENOTYPE AC,CA as 0,2 2,0    # phase unknown/not directional
 GENOTYPE CA,F as 2,0 0,2     # alias
 GENOTYPE AorB as 0,0 1,1
 GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
@@ -844,11 +844,11 @@ GENOTYPE AorABorAC as 0,0 1,0 0,1 0,2 2,0";
   assert(symbols.decode("1,1") == cross.gc["B"]);
   assert(symbols.decode("1,0") == cross.gc["AB"]);
   writeln(symbols);
-  // FIXME: directionality does not yet decode
-  // assert(symbols.decode("0,1") == cross.gc["BA"], to!string(symbols.decode("0,1")));
-  // assert(symbols.decode("0,0|1,1") == cross.gc["AorB"]); FIXME: later
-  // writeln(cross["AorB"].encoding);
-  // writeln(symbols);
+  // FIXME phase known/directionality does not yet decode
+  assert(symbols.decode("0,1") == cross.gc["BA"], to!string(symbols.decode("0,1")));
+  assert(symbols.decode("0,0|1,1") == cross.gc["AorB"]); FIXME: later
+  writeln(cross["AorB"].encoding);
+  writeln(symbols);
   // Test for duplicates
   encoded = "
 GENOTYPE A as 0,0
