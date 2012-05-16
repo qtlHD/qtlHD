@@ -82,32 +82,26 @@ void each_line_in_section(File f, string tag, void delegate (string) call_line) 
  * Turn a QTAB file section into key-value pairs
  */
 
-string[string] get_section_key_values(File f, string tag, void delegate (string) call_line) {
+string[string] get_section_key_values(File f, string tag) {
+  string[string] ret;
   each_line_in_section(f,tag, (line) {
     writeln(line);
-  }
+    auto res = parse_key_value_qtab(line);
+    ret[res[0]] = res[1];
+  });
+  return ret;
 }
+
 /**
  * Parse a Set Founder section, and return the results in a Hash
  */
 
 string[string] read_founder_settings_qtab(string fn) {
+  
   string[string] ret;
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
-  string buf;
-  while (f.readln(buf)) {
-    if (strip(buf) == "# --- Set Founder begin") {
-      while (f.readln(buf)) { 
-        if (strip(buf) == "# --- Set Founder end")
-           break;
-        if (buf[0] == '#') continue;
-        auto res = parse_key_value_qtab(buf);
-        ret[res[0]] = res[1];
-      }
-    }
-  }
-  return ret;
+  return get_section_key_values(f,"Set Founder");
 }
 
 Tuple!(string, string) parse_key_value_qtab(string line) {
