@@ -252,33 +252,41 @@ Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
  * Returns an ObservedGenotypes container
  */
 
-ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
-  auto observed = new ObservedGenotypes();
+void each_line_in_section(File f, string tag, void delegate (string) call_line) {
   string buf;
+  f.rewind();
   while (f.readln(buf)) {
-    if (strip(buf) == "# --- Genotype Symbol begin") {
+    if (strip(buf) == "# --- "~tag~" begin") {
       while (f.readln(buf)) { 
-        if (strip(buf) == "# --- Genotype Symbol end")
+        if (strip(buf) == "# --- "~tag~" end")
            break;
         if (buf[0] == '#') continue;
         writeln("Line: ",buf); 
-        auto res = parse_symbol_genotype_qtab(buf);
-        auto symbol_names = res[0];
-        auto genotype_strs = res[1];
-        writeln("Symbol: ",symbol_names,"\t",genotype_strs);
-        auto combinator = new GenotypeCombinator(symbol_names[0], null, phase_known);
-        foreach (s ; symbol_names[1..$]) {
-          combinator.add_encoding(s);
-        }
-        foreach (g ; genotype_strs) { 
-          if (g == "None") continue;
-          combinator ~= new TrueGenotype(g);
-        }
-        // writeln(combinator.toEncodings);
-        observed ~= combinator;
+        call_line(buf);
       }
     }
   }
+}
+
+ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
+  auto observed = new ObservedGenotypes();
+  each_line_in_section(f,"Genotype Symbol", 
+    (line) {
+      auto res = parse_symbol_genotype_qtab(line);
+      auto symbol_names = res[0];
+      auto genotype_strs = res[1];
+      writeln("Symbol: ",symbol_names,"\t",genotype_strs);
+      auto combinator = new GenotypeCombinator(symbol_names[0], null, phase_known);
+      foreach (s ; symbol_names[1..$]) {
+        combinator.add_encoding(s);
+      }
+      foreach (g ; genotype_strs) { 
+        if (g == "None") continue;
+        combinator ~= new TrueGenotype(g);
+      }
+      // writeln(combinator.toEncodings);
+      observed ~= combinator;
+    });
   // writeln(observed);
   return observed;
 }
