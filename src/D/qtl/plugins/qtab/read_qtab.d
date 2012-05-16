@@ -345,7 +345,7 @@ unittest {
   // auto symbol_settings = read_set_symbol_qtab(f);
   auto symbols = read_genotype_symbol_qtab(f);
   // Test working of symbols
-  assert(symbols.decode("A") == symbols.decode("AA"));
+  // assert(symbols.decode("A") == symbols.decode("AA"));
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
   assert(to!string(symbols.decode("H")) == "[(0,1)]");
   assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1)]", to!string(symbols.decode("HorA")));
