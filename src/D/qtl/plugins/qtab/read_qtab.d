@@ -261,13 +261,13 @@ class SymbolSettings {
  * object
  */
 
-void do_parse(File f,string tag) {
-  f.rewind();
-}
-
 SymbolSettings read_set_symbol_qtab(File f) {
-  settings = new SymbolSettings;
-  do_parse(f,"Symbol Set");
+  auto settings = new SymbolSettings;
+  auto kvs = get_section_key_values(f,"Symbol Set");
+  foreach(k, v ; kvs) {
+    writeln(k,v);
+  }
+  if ("Phase" in kvs) settings.phase_known = (kvs["Phase"] == "known");
   return settings;
 }
 
@@ -306,12 +306,16 @@ unittest {
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
 
-  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
+  auto symbol_fn1 = to!string(buildPath(dir,"regression","test_symbol_phase.qtab"));
+  writeln("reading ",symbol_fn1);
+  auto f1 = File(symbol_fn1,"r");
+  auto symbol_settings1 = read_set_symbol_qtab(f1);
   // First read symbol information (the GenotypeCombinators)
+  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
   writeln("reading ",symbol_fn);
   auto f = File(symbol_fn,"r");
   auto symbol_settings = read_set_symbol_qtab(f);
-  auto symbols = read_genotype_symbol_qtab(f, symbol_settings.phase_known);
+  auto symbols = read_genotype_symbol_qtab(f,false);
   // Test working of symbols
   // assert(symbols.decode("A") == symbols.decode("AA"));
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
@@ -320,8 +324,8 @@ unittest {
   // Read genotype matrix
   auto genotype_fn = to!string(buildPath(dir,"regression","test_genotype.qtab"));
   writeln("reading ",genotype_fn);
-  auto f1 = File(genotype_fn,"r");
-  auto ret = read_genotype_qtab(f1, symbols);
+  auto f2 = File(genotype_fn,"r");
+  auto ret = read_genotype_qtab(f2, symbols);
   auto individuals = ret[0];
   auto genotype_matrix = ret[1];
   // Show the first individual and genotypes
