@@ -154,27 +154,19 @@ Tuple!(string, string[]) parse_genotype_qtab(string line) {
 
 auto read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
   Ms ret_ms[];
-  auto f = File(fn,"r");
-  scope(exit) f.close(); // always close the file on function exit
-  string buf;
   uint id=0;
-  while (f.readln(buf)) {
-    if (strip(buf) == "# --- Data Location begin") {
-      while (f.readln(buf)) { 
-        if (strip(buf) == "# --- Data Location end")
-           break;
-        if (buf[0] == '#') continue;
-        auto res = parse_marker_qtab(buf);
-        auto name = res[0];
-        auto cname = res[1];
-        auto c = new Chromosome(cname);
-        auto pos = res[2];
-        auto marker = new Marker(c,pos,name,id);
-	id++;
-	ret_ms ~= marker;
-      }
+  each_line_in_section(fn,"Data Location",
+    (line) {
+      auto res = parse_marker_qtab(line);
+      auto name = res[0];
+      auto cname = res[1];
+      auto c = new Chromosome(cname);
+      auto pos = res[2];
+      auto marker = new Marker(c,pos,name,id);
+    	id++;
+	    ret_ms ~= marker;
     }
-  }
+  );
   return ret_ms;
 }
 
