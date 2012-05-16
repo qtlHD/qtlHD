@@ -41,6 +41,7 @@ string[] str_split_line(string line, bool strip = true) {
 
 unittest {
   writeln("Unit test " ~ __FILE__);
+  assert(str_split_line("test  # remark") == ["test"],to!string(str_split_line("test  # remark")));
   assert(str_split_line("test") == ["test"],to!string(str_split_line("test")));
   assert(str_split_line("test\ttest") == ["test","test"]);
   assert(str_split_line("test\t test \t ",false) == ["test"," test "," "]);
