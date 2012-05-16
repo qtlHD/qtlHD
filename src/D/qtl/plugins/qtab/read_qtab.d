@@ -13,6 +13,8 @@ import std.path;
 import std.file;
 import std.typecons;
 import std.algorithm;
+import std.regex;
+alias std.string.split str_split;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
@@ -21,27 +23,29 @@ import qtl.core.genotype;
 import qtl.core.individual;
 
 /**
- * Low level parser, splits a tab delimited line into fields,
+ * Low level parser, str_splits a tab delimited line into fields,
  * and removes everything after a remark '#' symbol. Optionally
  * strips each field of white space.
  */
 
-string[] split_line(string line, bool strip = true) {
-  auto fields1 = split(line,"\t");
+string[] str_split_line(string line, bool strip = true) {
+  // strip remark and leading whitespace
+  auto res = splitter(line, regex("\\s+#\\s"));
+  writeln(res);
+  auto fields1 = [""]; // str_split(res,"\t");
   auto fields = (strip ?
-    std.array.array(map!"strip(a)"(fields1)) :
-    fields1);
-  // strip remark
+    std.array.array(map!"strip(a)"(fields1)) : fields1);
   return fields;
+  return null;
 }
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-  assert(split_line("test") == ["test"],to!string(split_line("test")));
-  assert(split_line("test\ttest") == ["test","test"]);
-  assert(split_line("test\t test \t ",false) == ["test"," test "," "]);
-  assert(split_line("test\t test\t") == ["test","test",""]);
-  assert(split_line("test\t test\t") == ["test","test",""]);
+  assert(str_split_line("test") == ["test"],to!string(str_split_line("test")));
+  assert(str_split_line("test\ttest") == ["test","test"]);
+  assert(str_split_line("test\t test \t ",false) == ["test"," test "," "]);
+  assert(str_split_line("test\t test\t") == ["test","test",""]);
+  assert(str_split_line("test\t test\t") == ["test","test",""]);
 }
 
 /**
@@ -68,7 +72,7 @@ string[string] read_founder_settings_qtab(string fn) {
 }
 
 Tuple!(string, string) parse_key_value_qtab(string line) {
-  auto fields1 = split(line,"\t");
+  auto fields1 = str_split(line,"\t");
   auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
   auto key = (fields.length > 0 ? strip(fields[0]) : null);
   auto value = (fields.length > 1 ? strip(fields[1]) : null);
@@ -92,7 +96,7 @@ unittest {
  */
 
 Tuple!(string, string[]) parse_phenotype_qtab(string line) {
-  auto fields1 = split(line,"\t");
+  auto fields1 = str_split(line,"\t");
   auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
   auto ind = (fields.length > 0 ? strip(fields[0]) : null);
   auto phenotypes = (fields.length > 1 ? fields[1..$] : null);
@@ -100,7 +104,7 @@ Tuple!(string, string[]) parse_phenotype_qtab(string line) {
 }
 
 Tuple!(string, string, double) parse_marker_qtab(string line) {
-  auto fields1 = split(line,"\t");
+  auto fields1 = str_split(line,"\t");
   auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
   auto name = (fields.length > 0 ? strip(fields[0]) : null);
   auto chromosome = (fields.length > 1 ? fields[1] : null);
@@ -113,7 +117,7 @@ Tuple!(string, string, double) parse_marker_qtab(string line) {
  */
 
 Tuple!(string, string[]) parse_genotype_qtab(string line) {
-  auto fields1 = split(line,"\t");
+  auto fields1 = str_split(line,"\t");
   auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
   auto ind = (fields.length > 0 ? strip(fields[0]) : null);
   auto data = (fields.length > 1 ? fields[1..$] : null);
@@ -212,7 +216,7 @@ unittest {
 }
 
 /**
- * Read a tabular qtlHD Genotype Symbol line - splits the line on
+ * Read a tabular qtlHD Genotype Symbol line - str_splits the line on
  * spaces, followed by looking for 'as'. E.g.
  *
  *   AC CA as 0,2 2,0
@@ -223,7 +227,7 @@ unittest {
  */
 
 Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
-  auto fields1 = split(line," ");
+  auto fields1 = str_split(line," ");
   auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
   auto res = find(fields,"as");
   auto genotypes = (res.length > 1 ? res[1..$] : null);
