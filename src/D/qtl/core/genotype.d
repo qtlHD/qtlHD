@@ -113,6 +113,7 @@ class TrueGenotype {
   }
   bool homozygous()   { return founders[0] == founders[1]; };
   bool heterozygous() { return !homozygous(); };
+  TrueGenotype reversed() { return new TrueGenotype(founders[1],founders[0]); }
   // Comparison for consistent sorting of true genotypes, based on founder 
   // genotype numbering scheme
   // e.g. 2,2 > 2,1 > 2,0 > 1,2 > 1,1 > 1,0 > 0,1 > 0,0
@@ -164,13 +165,15 @@ class GenotypeCombinator {
   TrueGenotype[] list;
   string name; // the display name
   Encoding encoding[]; // a list of encoding types (strings)
+  bool phase_known = true;
 
   // initialize a combinator by name. name
   // is also used for input encoding
-  this(string name, Encoding code = null) {
+  this(string name, Encoding code = null, bool phase_known = true) {
     this.name = name;
     add_encoding(name);
     if (code) add_encoding(code);
+    this.phase_known = phase_known;
   }
   // initialize a combinator with lists
   this(string names[], TrueGenotype gs[]) {
@@ -192,9 +195,13 @@ class GenotypeCombinator {
   // see if an input matches
   bool match(in Encoding code) { return canFind(encoding,code); }
   // uniquely add a genotype to the observed list. Return match.
+  // If phase_unknown is true, the method will also add the reversed
+  // founders to the list.
   TrueGenotype add(TrueGenotype g) {
+    // writeln("Adding ",g);
     foreach(m; list) { if (m.founders == g.founders) return m; }
     list ~= g;
+    if (!phase_known) add(g.reversed);
     return g;
   }
   // The ~ operator can add a true genotype to the list

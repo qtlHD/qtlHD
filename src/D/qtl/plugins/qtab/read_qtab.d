@@ -252,7 +252,7 @@ Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
  * Returns an ObservedGenotypes container
  */
 
-ObservedGenotypes read_genotype_symbol_qtab(File f) {
+ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
   auto observed = new ObservedGenotypes();
   string buf;
   while (f.readln(buf)) {
@@ -266,7 +266,7 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
         auto symbol_names = res[0];
         auto genotype_strs = res[1];
         writeln("Symbol: ",symbol_names,"\t",genotype_strs);
-        auto combinator = new GenotypeCombinator(symbol_names[0]);
+        auto combinator = new GenotypeCombinator(symbol_names[0], null, phase_known);
         foreach (s ; symbol_names[1..$]) {
           combinator.add_encoding(s);
         }
@@ -343,12 +343,12 @@ unittest {
   writeln("reading ",symbol_fn);
   auto f = File(symbol_fn,"r");
   // auto symbol_settings = read_set_symbol_qtab(f);
-  auto symbols = read_genotype_symbol_qtab(f);
+  auto symbols = read_genotype_symbol_qtab(f, false);
   // Test working of symbols
   // assert(symbols.decode("A") == symbols.decode("AA"));
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
-  assert(to!string(symbols.decode("H")) == "[(0,1)]");
-  // FIXME: assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1), (1,0)]", to!string(symbols.decode("HorA")));
+  assert(to!string(symbols.decode("H")) == "[(0,1), (1,0)]");
+  assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1), (1,0)]", to!string(symbols.decode("HorA")));
   // Read genotype matrix
   auto genotype_fn = to!string(buildPath(dir,"regression","test_genotype.qtab"));
   writeln("reading ",genotype_fn);
