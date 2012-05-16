@@ -31,12 +31,10 @@ import qtl.core.individual;
 string[] str_split_line(string line, bool strip = true) {
   // strip remark and leading whitespace
   auto res = splitter(line, regex("\\s+#\\s"));
-  writeln(res);
-  auto fields1 = [""]; // str_split(res,"\t");
+  auto fields1 = str_split(to!string(std.array.array(res)[0]),"\t");
   auto fields = (strip ?
     std.array.array(map!"strip(a)"(fields1)) : fields1);
   return fields;
-  return null;
 }
 
 unittest {
@@ -47,6 +45,8 @@ unittest {
   assert(str_split_line("test\t test \t ",false) == ["test"," test "," "]);
   assert(str_split_line("test\t test\t") == ["test","test",""]);
   assert(str_split_line("test\t test\t") == ["test","test",""]);
+  assert(str_split_line("test\t test\t# remark") == ["test","test"]);
+  assert(str_split_line("test\t test\t # remark") == ["test","test"]);
 }
 
 /**
@@ -228,8 +228,7 @@ unittest {
  */
 
 Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
-  auto fields1 = str_split(line," ");
-  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
+  auto fields = str_split_line(line);
   auto res = find(fields,"as");
   auto genotypes = (res.length > 1 ? res[1..$] : null);
   auto symbols = fields[0..$-genotypes.length-1];
