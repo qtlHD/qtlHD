@@ -109,14 +109,14 @@ symbol table (the example actually uses the prefab F2 observed genotype set,
 also defined in genotype.d):
 
         # --- qtlHD-in-0.1 Symbol Test
-        # --- Symbol Genotype begin
+        # --- Genotype Symbol begin
         NA - as None
         A AA as 0,0
         B BB as 1,1
         H AB BA as 0,1
         HorB C as 0,1 1,0 1,1
         HorA D as 0,0 0,1 1,0
-        # --- Symbol Genotype end
+        # --- Genotype Symbol end
 
 This needs to be parsed by read_qtab into the in-memory types we use.
 There are three basic types (in genotype.d):
@@ -251,14 +251,14 @@ in other words, we can digest the founder combination for every symbol, which
 is the information we gave qtlHD with the symbol table:
 
         # --- qtlHD-in-0.1 Symbol Test
-        # --- Symbol Genotype begin
+        # --- Genotype Symbol begin
         NA - as None
         A AA as 0,0
         B BB as 1,1
         H AB BA as 0,1
         HorB C as 0,1 1,0 1,1
         HorA D as 0,0 0,1 1,0
-        # --- Symbol Genotype end
+        # --- Genotype Symbol end
 
 At this stage you should know how to use the phenotype and genotype matrices.
 

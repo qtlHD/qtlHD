@@ -29,13 +29,13 @@ string ID = "qtlHD-in-" ~ VER;
 
 void write_symbol_qtab(File f, string descr, ObservedGenotypes observed) {
   f.writeln("# --- ",ID," Symbol ",descr);
-  f.writeln("# --- Symbol Genotype begin");
+  f.writeln("# --- Genotype Symbol begin");
   foreach(symbol ; observed.list) {
     f.write(symbol.toEncodingString," as ");
     f.write(symbol.toTrueGenotypes);
     f.writeln();
   }
-  f.writeln("# --- Symbol Genotype end");
+  f.writeln("# --- Genotype Symbol end");
 }
 
 /**

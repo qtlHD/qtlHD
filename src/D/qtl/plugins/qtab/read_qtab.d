@@ -138,9 +138,9 @@ Tuple!(P[][]) read_phenotype_qtab(P)(string fn) {
   scope(exit) f.close(); // always close the file on function exit
   string buf;
   while (f.readln(buf)) {
-    if (strip(buf) == "# --- Symbol Genotype begin") {
+    if (strip(buf) == "# --- Genotype Symbol begin") {
       while (f.readln(buf)) { 
-        if (strip(buf) == "# --- Symbol Genotype end")
+        if (strip(buf) == "# --- Genotype Symbol end")
            break;
         auto res = parse_symbol_genotype_qtab(buf);
         auto symbols = res[0];
@@ -192,7 +192,7 @@ unittest {
 }
 
 /**
- * Read a tabular qtlHD symbol genotype line - splits the line on
+ * Read a tabular qtlHD Genotype Symbol line - splits the line on
  * spaces, followed by looking for 'as'. E.g.
  *
  *   AC CA as 0,2 2,0
@@ -221,14 +221,14 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
   auto observed = new ObservedGenotypes();
   string buf;
   while (f.readln(buf)) {
-    if (strip(buf) == "# --- Symbol Genotype end")
+    if (strip(buf) == "# --- Genotype Symbol end")
        break;
     if (buf[0] == '#') continue;
     
     auto res = parse_symbol_genotype_qtab(buf);
     auto symbol_names = res[0];
     auto genotype_strs = res[1];
-    // writeln(symbol_names,"\t",genotype_strs);
+    writeln(symbol_names,"\t",genotype_strs);
     auto combinator = new GenotypeCombinator(symbol_names[0]);
     foreach (s ; symbol_names[1..$]) {
       combinator.add_encoding(s);
@@ -242,6 +242,23 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
   }
   // writeln(observed);
   return observed;
+}
+
+class SymbolSettings {
+}
+
+/**
+ * Read set symbol section in qtab file and convert to a SetSymbol
+ * object
+ */
+
+void do_parse(File f,string tag) {
+  f.rewind();
+}
+
+SymbolSettings read_set_symbol_qtab(File f) {
+  do_parse(f,"Symbol Set");
+  return null;
 }
 
 Tuple!(Individuals, Gref[][]) read_genotype_qtab(File f, ObservedGenotypes symbols) {
@@ -286,6 +303,8 @@ unittest {
   // First read symbol information (the GenotypeCombinators)
   writeln("reading ",symbol_fn);
   auto f = File(symbol_fn,"r");
+  auto symbol_settings = read_set_symbol_qtab(f);
+  /*
   auto symbols = read_genotype_symbol_qtab(f);
   // Test working of symbols
   assert(symbols.decode("A") == symbols.decode("AA"));
@@ -312,6 +331,7 @@ unittest {
   assert(genotype_matrix[0][3].list[0].founders[0] == 0);
   assert(genotype_matrix[0][3].list[0].founders[1] == 1);
   // assert(genotype_matrix[0][3].list[0] == 1);
+  */
 }
 
 

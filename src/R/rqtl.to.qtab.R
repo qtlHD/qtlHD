@@ -17,13 +17,13 @@ getID <- function(){
 
 rqtl.to.qtab.symbols <- function(cross, filename="symbols.qtab",descr = "My cross from r/qtl"){
   cat(file=filename, "# --- ",getID()," Symbol ",descr, "\n",sep="");
-  cat(file=filename, "# --- Symbol Genotype begin", "\n",sep="", append=TRUE)
+  cat(file=filename, "# --- Genotype Symbol begin", "\n",sep="", append=TRUE)
   mysymbols <- unique(as.numeric((pull.geno(cross))))
   for(symbol in mysymbols) {
     cat(file=filename, rqtl.symbol.toN(cross, symbol)," as ", sep="", append=TRUE)
     cat(file=filename, rqtl.symbol.toTG(cross, symbol), "\n", sep="", append=TRUE)
   }
-  cat(file=filename, "# --- Symbol Genotype end", "\n", sep="", append=TRUE)
+  cat(file=filename, "# --- Genotype Symbol end", "\n", sep="", append=TRUE)
 }
 
 rqtl.to.qtab.location <- function(cross, filename="locations.qtab", descr = "My cross from r/qtl"){
