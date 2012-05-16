@@ -29,34 +29,43 @@ import qtl.core.individual;
  */
 
 
-string[] str_split_line(string line,string split_with="\t") {
+string[] split_line(string line,string split_with="\t") {
   // strip remark and leading whitespace
   auto res = splitter(chomp(line), regex("\\s+#\\s"));
   return str_split(to!string(std.array.array(res)[0]),split_with);
 }
 
-string[] str_split_line_on_spaces(string line) {
-  return str_split_line(line," ");
+string[] split_line_on_spaces(string line) {
+  return split_line(line," ");
 }
 
-string[] str_split_line_strip(string line) {
-  auto fields1 = str_split_line(line);
+string[] split_line_strip(string line) {
+  auto fields1 = split_line(line);
   return std.array.array(map!"strip(a)"(fields1));
+}
+
+string[] split_line_on_whitespace(string line) {
+  auto res = splitter(strip(line), regex("\\s+#\\s"));
+  auto content = to!string(std.array.array(res)[0]);
+  auto res1 = splitter(content, regex("\\s+"));
+  return std.array.array(res1);
 }
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-  assert(str_split_line("test  # remark") == ["test"],to!string(str_split_line("test  # remark")));
-  assert(str_split_line("test\n") == ["test"],to!string(str_split_line("test")));
-  assert(str_split_line("test\ttest") == ["test","test"]);
-  assert(str_split_line("test\t test \t ") == ["test"," test "," "]);
-  assert(str_split_line_strip("test\t test\t") == ["test","test",""]);
-  assert(str_split_line_strip("test\t test\t") == ["test","test",""]);
-  assert(str_split_line_strip("test\t test\t# remark") == ["test","test"]);
-  assert(str_split_line_strip("test\t test\t # remark") == ["test","test"]);
-  assert(str_split_line_on_spaces("test test\t # remark") == ["test","test"]);
-  writeln(str_split_line_on_spaces("test test  test \n"));
-  assert(str_split_line_on_spaces("test test  test \n") == ["test","test","","test",""]);
+  assert(split_line("test  # remark") == ["test"],to!string(split_line("test  # remark")));
+  assert(split_line("test\n") == ["test"],to!string(split_line("test")));
+  assert(split_line("test\ttest") == ["test","test"]);
+  assert(split_line("test\t test \t ") == ["test"," test "," "]);
+  assert(split_line_strip("test\t test\t") == ["test","test",""]);
+  assert(split_line_strip("test\t test\t") == ["test","test",""]);
+  assert(split_line_strip("test\t test\t# remark") == ["test","test"]);
+  assert(split_line_strip("test\t test\t # remark") == ["test","test"]);
+  assert(split_line_on_spaces("test test\t # remark") == ["test","test"]);
+  writeln(split_line_on_spaces("test test  test \n"));
+  assert(split_line_on_spaces("test test  test \n") == ["test","test","","test",""]);
+  writeln(split_line_on_whitespace("test test\t test  test \n"));
+  assert(split_line_on_whitespace("test test\t test  test \n") == ["test","test","test","test"]);
 }
 
 /** 
@@ -64,7 +73,14 @@ unittest {
  */
 
 Tuple!(string, string[]) parse_line_key_values(string line) {
-  auto fields = str_split_line_strip(line);
+  auto fields = split_line_strip(line);
+  auto key = (fields.length > 0 ? fields[0] : null);
+  auto value = (fields.length > 1 ? fields[1..$] : null);
+  return tuple(key,value);
+}
+
+Tuple!(string, string[]) parse_line_key_values_on_whitespace(string line) {
+  auto fields = split_line_on_whitespace(line);
   auto key = (fields.length > 0 ? fields[0] : null);
   auto value = (fields.length > 1 ? fields[1..$] : null);
   return tuple(key,value);
@@ -101,7 +117,8 @@ void each_line_in_section(string fn, string tag, void delegate (string) call_lin
 string[string] get_section_key_values(File f, string tag) {
   string[string] ret;
   each_line_in_section(f,tag, (line) {
-    auto res = parse_line_key_values(line);
+    auto res = parse_line_key_values_on_whitespace(line);
+    writeln(res);
     ret[res[0]] = res[1][0]; // note: only one value per key, this may change
   });
   return ret;
@@ -215,7 +232,7 @@ unittest {
  */
 
 Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
-  auto fields = str_split_line_on_spaces(line);
+  auto fields = split_line_on_spaces(line);
   writeln(fields);
   auto res = find(fields,"as");
   auto genotypes = (res.length > 1 ? res[1..$] : null);
@@ -262,10 +279,11 @@ class SymbolSettings {
  */
 
 SymbolSettings read_set_symbol_qtab(File f) {
+  writeln("read_set_symbol_qtab");
   auto settings = new SymbolSettings;
-  auto kvs = get_section_key_values(f,"Symbol Set");
+  auto kvs = get_section_key_values(f,"Set Symbol");
   foreach(k, v ; kvs) {
-    writeln(k,v);
+    writeln("SymbolSetting: ",k,v);
   }
   if ("Phase" in kvs) settings.phase_known = (kvs["Phase"] == "known");
   return settings;
@@ -310,12 +328,18 @@ unittest {
   writeln("reading ",symbol_fn1);
   auto f1 = File(symbol_fn1,"r");
   auto symbol_settings1 = read_set_symbol_qtab(f1);
+  assert(symbol_settings1.phase_known == true);
+  auto symbols1 = read_genotype_symbol_qtab(f1,symbol_settings1.phase_known);
+  assert(to!string(symbols1.decode("AB")) == "[(0,1)]");
+  assert(to!string(symbols1.decode("BA")) == "[(1,0)]");
+
   // First read symbol information (the GenotypeCombinators)
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
   writeln("reading ",symbol_fn);
   auto f = File(symbol_fn,"r");
   auto symbol_settings = read_set_symbol_qtab(f);
-  auto symbols = read_genotype_symbol_qtab(f,false);
+  assert(symbol_settings.phase_known == false);
+  auto symbols = read_genotype_symbol_qtab(f,symbol_settings.phase_known);
   // Test working of symbols
   // assert(symbols.decode("A") == symbols.decode("AA"));
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
