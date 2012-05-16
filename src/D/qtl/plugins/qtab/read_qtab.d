@@ -272,33 +272,30 @@ SymbolSettings read_set_symbol_qtab(File f) {
 Tuple!(Individuals, Gref[][]) read_genotype_qtab(File f, ObservedGenotypes symbols) {
   Individuals ret_individuals = new Individuals;
   Gref ret_genotypes[][];  // return matrix
-  string buf;
-  // note, we skip the marker names - they are for reference only
-  while (f.readln(buf)) {
-    if (strip(buf) == "# --- Data Observed end")
-       break;
-    if (buf[0] == '#') continue;
-    
-    auto res = parse_line_key_values(buf);
-    auto name_ind_str = res[0];   // string
-    auto genotype_ind_str = res[1]; // array of string
-    // writeln(individual,"\t",genotype_ind_str);
+  each_line_in_section(f,"Data Genotype", 
+    (line) {
+      // note, we skip the marker names - they are for reference only
+      auto res = parse_line_key_values(line);
+      auto name_ind_str = res[0];   // string
+      auto genotype_ind_str = res[1]; // array of string
+      // writeln("Line: ",name_ind_str,"\t",genotype_ind_str);
 
-    // For every genotype symbol (A,B,H,C, etc) we need to find the 
-    // matching ObservedGenotype, which is derived from the symbol 
-    // table accompanying the genotype data. Next we add the reference
-    // to the genotype matrix.
-    Gref[] genotype_ind;
-    genotype_ind.reserve(genotype_ind_str.length);
+      // For every genotype symbol (A,B,H,C, etc) we need to find the 
+      // matching ObservedGenotype, which is derived from the symbol 
+      // table accompanying the genotype data. Next we add the reference
+      // to the genotype matrix.
+      Gref[] genotype_ind;
+      genotype_ind.reserve(genotype_ind_str.length);
 
-    foreach(g ; genotype_ind_str) {
-      auto genotype = symbols.decode(g); // genotype is now a reference
-      genotype_ind ~= genotype;
+      foreach(g ; genotype_ind_str) {
+        auto genotype = symbols.decode(g); // genotype is now a reference
+        genotype_ind ~= genotype;
+      }
+      
+      ret_individuals.list ~= new Individual(name_ind_str);
+      ret_genotypes ~= genotype_ind;
     }
-    
-    ret_individuals.list ~= new Individual(name_ind_str);
-    ret_genotypes ~= genotype_ind;
-  }
+  );
   return tuple(ret_individuals, ret_genotypes);
 }
 
