@@ -131,24 +131,12 @@ unittest {
 }
 
 Tuple!(string, string, double) parse_marker_qtab(string line) {
-  auto fields1 = str_split(line,"\t");
-  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
-  auto name = (fields.length > 0 ? strip(fields[0]) : null);
-  auto chromosome = (fields.length > 1 ? fields[1] : null);
-  auto position = (fields.length > 2 ? to!double(strip(fields[2])) : MARKER_POSITION_UNKNOWN);
+  auto res = parse_line_key_values(line);
+  auto name = res[0];
+  auto fields = res[1];
+  auto chromosome = (fields.length > 0 ? fields[0] : null);
+  auto position = (fields.length > 1 ? to!double(fields[1]) : MARKER_POSITION_UNKNOWN);
   return tuple(name,chromosome,position);
-}
-
-/**
- * Read a tabular qtlHD genotype line
- */
-
-Tuple!(string, string[]) parse_genotype_qtab(string line) {
-  auto fields1 = str_split(line,"\t");
-  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
-  auto ind = (fields.length > 0 ? strip(fields[0]) : null);
-  auto data = (fields.length > 1 ? fields[1..$] : null);
-  return tuple(ind,data);
 }
 
 
@@ -291,7 +279,7 @@ Tuple!(Individuals, Gref[][]) read_genotype_qtab(File f, ObservedGenotypes symbo
        break;
     if (buf[0] == '#') continue;
     
-    auto res = parse_genotype_qtab(buf);
+    auto res = parse_line_key_values(buf);
     auto name_ind_str = res[0];   // string
     auto genotype_ind_str = res[1]; // array of string
     // writeln(individual,"\t",genotype_ind_str);
