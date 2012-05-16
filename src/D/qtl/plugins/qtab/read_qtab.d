@@ -23,30 +23,40 @@ import qtl.core.genotype;
 import qtl.core.individual;
 
 /**
- * Low level parser, str_splits a tab delimited line into fields,
+ * Low level parsers, str_splits a tab delimited line into fields,
  * and removes everything after a remark '#' symbol. Optionally
  * strips each field of white space.
  */
 
-string[] str_split_line(string line, bool strip = true) {
+
+string[] str_split_line(string line,string split_with="\t") {
   // strip remark and leading whitespace
-  auto res = splitter(line, regex("\\s+#\\s"));
-  auto fields1 = str_split(to!string(std.array.array(res)[0]),"\t");
-  auto fields = (strip ?
-    std.array.array(map!"strip(a)"(fields1)) : fields1);
-  return fields;
+  auto res = splitter(chomp(line), regex("\\s+#\\s"));
+  return str_split(to!string(std.array.array(res)[0]),split_with);
+}
+
+string[] str_split_line_on_spaces(string line) {
+  return str_split_line(line," ");
+}
+
+string[] str_split_line_strip(string line) {
+  auto fields1 = str_split_line(line);
+  return std.array.array(map!"strip(a)"(fields1));
 }
 
 unittest {
   writeln("Unit test " ~ __FILE__);
   assert(str_split_line("test  # remark") == ["test"],to!string(str_split_line("test  # remark")));
-  assert(str_split_line("test") == ["test"],to!string(str_split_line("test")));
+  assert(str_split_line("test\n") == ["test"],to!string(str_split_line("test")));
   assert(str_split_line("test\ttest") == ["test","test"]);
-  assert(str_split_line("test\t test \t ",false) == ["test"," test "," "]);
-  assert(str_split_line("test\t test\t") == ["test","test",""]);
-  assert(str_split_line("test\t test\t") == ["test","test",""]);
-  assert(str_split_line("test\t test\t# remark") == ["test","test"]);
-  assert(str_split_line("test\t test\t # remark") == ["test","test"]);
+  assert(str_split_line("test\t test \t ") == ["test"," test "," "]);
+  assert(str_split_line_strip("test\t test\t") == ["test","test",""]);
+  assert(str_split_line_strip("test\t test\t") == ["test","test",""]);
+  assert(str_split_line_strip("test\t test\t# remark") == ["test","test"]);
+  assert(str_split_line_strip("test\t test\t # remark") == ["test","test"]);
+  assert(str_split_line_on_spaces("test test\t # remark") == ["test","test"]);
+  writeln(str_split_line_on_spaces("test test  test \n"));
+  assert(str_split_line_on_spaces("test test  test \n") == ["test","test","","test",""]);
 }
 
 /**
@@ -228,7 +238,8 @@ unittest {
  */
 
 Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
-  auto fields = str_split_line(line);
+  auto fields = str_split_line_on_spaces(line);
+  writeln(fields);
   auto res = find(fields,"as");
   auto genotypes = (res.length > 1 ? res[1..$] : null);
   auto symbols = fields[0..$-genotypes.length-1];
