@@ -31,6 +31,7 @@ string[] split_line(string line, bool strip = true) {
   auto fields = (strip ?
     std.array.array(map!"strip(a)"(fields1)) :
     fields1);
+  // strip remark
   return fields;
 }
 
@@ -39,7 +40,8 @@ unittest {
   assert(split_line("test") == ["test"],to!string(split_line("test")));
   assert(split_line("test\ttest") == ["test","test"]);
   assert(split_line("test\t test \t ",false) == ["test"," test "," "]);
-  assert(split_line("test\t test\t") == ["test","test"]);
+  assert(split_line("test\t test\t") == ["test","test",""]);
+  assert(split_line("test\t test\t") == ["test","test",""]);
 }
 
 /**
