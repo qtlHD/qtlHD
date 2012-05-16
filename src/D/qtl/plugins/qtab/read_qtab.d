@@ -60,6 +60,34 @@ unittest {
 }
 
 /**
+ * Call function 'call_line' for each line in a QTAB file section
+ */
+void each_line_in_section(File f, string tag, void delegate (string) call_line) {
+  string buf;
+  f.rewind();
+  while (f.readln(buf)) {
+    if (strip(buf) == "# --- "~tag~" begin") {
+      while (f.readln(buf)) { 
+        if (strip(buf) == "# --- "~tag~" end")
+           break;
+        if (buf[0] == '#') continue;
+        writeln("Line: ",buf); 
+        call_line(buf);
+      }
+    }
+  }
+}
+
+/**
+ * Turn a QTAB file section into key-value pairs
+ */
+
+string[string] get_section_key_values(File f, string tag, void delegate (string) call_line) {
+  each_line_in_section(f,tag, (line) {
+    writeln(line);
+  }
+}
+/**
  * Parse a Set Founder section, and return the results in a Hash
  */
 
@@ -251,22 +279,6 @@ Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
  *
  * Returns an ObservedGenotypes container
  */
-
-void each_line_in_section(File f, string tag, void delegate (string) call_line) {
-  string buf;
-  f.rewind();
-  while (f.readln(buf)) {
-    if (strip(buf) == "# --- "~tag~" begin") {
-      while (f.readln(buf)) { 
-        if (strip(buf) == "# --- "~tag~" end")
-           break;
-        if (buf[0] == '#') continue;
-        writeln("Line: ",buf); 
-        call_line(buf);
-      }
-    }
-  }
-}
 
 ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
   auto observed = new ObservedGenotypes();
