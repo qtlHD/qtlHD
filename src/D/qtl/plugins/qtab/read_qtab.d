@@ -20,8 +20,26 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.individual;
 
+/**
+ * Low level parser, splits a tab delimited line into fields,
+ * and removes everything after a remark '#' symbol. Optionally
+ * strips each field of white space.
+ */
+
+string[] split_line(string line, bool strip = true) {
+  auto fields1 = split(line,"\t");
+  auto fields = (strip ?
+    std.array.array(map!"strip(a)"(fields1)) :
+    fields1);
+  return fields;
+}
+
 unittest {
   writeln("Unit test " ~ __FILE__);
+  assert(split_line("test") == ["test"],to!string(split_line("test")));
+  assert(split_line("test\ttest") == ["test","test"]);
+  assert(split_line("test\t test \t ",false) == ["test"," test "," "]);
+  assert(split_line("test\t test\t") == ["test","test"]);
 }
 
 /**
@@ -138,9 +156,9 @@ Tuple!(P[][]) read_phenotype_qtab(P)(string fn) {
   scope(exit) f.close(); // always close the file on function exit
   string buf;
   while (f.readln(buf)) {
-    if (strip(buf) == "# --- Genotype Symbol begin") {
+    if (strip(buf) == "# --- ??Phenotype Symbol begin") {
       while (f.readln(buf)) { 
-        if (strip(buf) == "# --- Genotype Symbol end")
+        if (strip(buf) == "# --- ??Phenotype Symbol end")
            break;
         auto res = parse_symbol_genotype_qtab(buf);
         auto symbols = res[0];
@@ -221,24 +239,28 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
   auto observed = new ObservedGenotypes();
   string buf;
   while (f.readln(buf)) {
-    if (strip(buf) == "# --- Genotype Symbol end")
-       break;
-    if (buf[0] == '#') continue;
-    
-    auto res = parse_symbol_genotype_qtab(buf);
-    auto symbol_names = res[0];
-    auto genotype_strs = res[1];
-    writeln(symbol_names,"\t",genotype_strs);
-    auto combinator = new GenotypeCombinator(symbol_names[0]);
-    foreach (s ; symbol_names[1..$]) {
-      combinator.add_encoding(s);
+    if (strip(buf) == "# --- Genotype Symbol begin") {
+      while (f.readln(buf)) { 
+        if (strip(buf) == "# --- Genotype Symbol end")
+           break;
+        if (buf[0] == '#') continue;
+        
+        auto res = parse_symbol_genotype_qtab(buf);
+        auto symbol_names = res[0];
+        auto genotype_strs = res[1];
+        writeln("Symbol: ",symbol_names,"\t",genotype_strs);
+        auto combinator = new GenotypeCombinator(symbol_names[0]);
+        foreach (s ; symbol_names[1..$]) {
+          combinator.add_encoding(s);
+        }
+        foreach (g ; genotype_strs) { 
+          if (g == "None") continue;
+          combinator ~= new TrueGenotype(g);
+        }
+        // writeln(combinator.toEncodings);
+        observed ~= combinator;
+      }
     }
-    foreach (g ; genotype_strs) { 
-      if (g == "None") continue;
-      combinator ~= new TrueGenotype(g);
-    }
-    // writeln(combinator.toEncodings);
-    observed ~= combinator;
   }
   // writeln(observed);
   return observed;
@@ -303,8 +325,7 @@ unittest {
   // First read symbol information (the GenotypeCombinators)
   writeln("reading ",symbol_fn);
   auto f = File(symbol_fn,"r");
-  auto symbol_settings = read_set_symbol_qtab(f);
-  /*
+  // auto symbol_settings = read_set_symbol_qtab(f);
   auto symbols = read_genotype_symbol_qtab(f);
   // Test working of symbols
   assert(symbols.decode("A") == symbols.decode("AA"));
@@ -331,7 +352,6 @@ unittest {
   assert(genotype_matrix[0][3].list[0].founders[0] == 0);
   assert(genotype_matrix[0][3].list[0].founders[1] == 1);
   // assert(genotype_matrix[0][3].list[0] == 1);
-  */
 }
 
 
