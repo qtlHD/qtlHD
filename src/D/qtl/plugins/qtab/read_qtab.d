@@ -59,6 +59,18 @@ unittest {
   assert(str_split_line_on_spaces("test test  test \n") == ["test","test","","test",""]);
 }
 
+/** 
+ * Parse a line for key values
+ */
+
+Tuple!(string, string) parse_line_key_values(string line) {
+  auto fields1 = str_split(line,"\t");
+  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
+  auto key = (fields.length > 0 ? strip(fields[0]) : null);
+  auto value = (fields.length > 1 ? strip(fields[1]) : null);
+  return tuple(key,value);
+}
+
 /**
  * Call function 'call_line' for each line in a QTAB file section
  */
@@ -86,7 +98,7 @@ string[string] get_section_key_values(File f, string tag) {
   string[string] ret;
   each_line_in_section(f,tag, (line) {
     writeln(line);
-    auto res = parse_key_value_qtab(line);
+    auto res = parse_line_key_values(line);
     ret[res[0]] = res[1];
   });
   return ret;
@@ -102,14 +114,6 @@ string[string] read_founder_settings_qtab(string fn) {
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
   return get_section_key_values(f,"Set Founder");
-}
-
-Tuple!(string, string) parse_key_value_qtab(string line) {
-  auto fields1 = str_split(line,"\t");
-  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
-  auto key = (fields.length > 0 ? strip(fields[0]) : null);
-  auto value = (fields.length > 1 ? strip(fields[1]) : null);
-  return tuple(key,value);
 }
 
 unittest {
