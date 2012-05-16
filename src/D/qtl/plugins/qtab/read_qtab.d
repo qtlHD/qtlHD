@@ -82,11 +82,16 @@ void each_line_in_section(File f, string tag, void delegate (string) call_line) 
         if (strip(buf) == "# --- "~tag~" end")
            break;
         if (buf[0] == '#') continue;
-        writeln("Line: ",buf); 
         call_line(buf);
       }
     }
   }
+}
+
+void each_line_in_section(string fn, string tag, void delegate (string) call_line) {
+  auto f = File(fn,"r");
+  scope(exit) f.close(); // always close the file on function exit
+  each_line_in_section(f,tag,call_line);
 }
 
 /**
@@ -97,21 +102,20 @@ string[string] get_section_key_values(File f, string tag) {
   string[string] ret;
   each_line_in_section(f,tag, (line) {
     auto res = parse_line_key_values(line);
-    ret[res[0]] = res[1][0];
+    ret[res[0]] = res[1][0]; // note: only one value per key, this may change
   });
   return ret;
 }
 
-/**
- * Parse a Set Founder section, and return the results in a Hash
- */
-
-string[string] read_founder_settings_qtab(string fn) {
-  
+string[string] get_section_key_values(string fn, string tag) {
   string[string] ret;
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
-  return get_section_key_values(f,"Set Founder");
+  return get_section_key_values(f,tag);
+}
+
+string[string] read_founder_settings_qtab(string founder_fn) {
+  return get_section_key_values(founder_fn,"Set Founder");
 }
 
 unittest {
@@ -121,21 +125,9 @@ unittest {
 
   auto founder_fn = to!string(buildPath(dir,"input","listeria_qtab","listeria_founder.qtab"));
   writeln("reading ",founder_fn);
-  auto info = read_founder_settings_qtab(founder_fn);
+  auto info = get_section_key_values(founder_fn,"Set Founder");
   writeln(info);
   assert(info["Cross"] == "F2");
-}
-
-/**
- * Read a tabular qtlHD phenotype line
- */
-
-Tuple!(string, string[]) parse_phenotype_qtab(string line) {
-  auto fields1 = str_split(line,"\t");
-  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
-  auto ind = (fields.length > 0 ? strip(fields[0]) : null);
-  auto phenotypes = (fields.length > 1 ? fields[1..$] : null);
-  return tuple(ind,phenotypes);
 }
 
 Tuple!(string, string, double) parse_marker_qtab(string line) {
@@ -193,34 +185,15 @@ auto read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
  */
 Tuple!(P[][]) read_phenotype_qtab(P)(string fn) {
   P ret_phenotypes[][];  // return matrix
-  auto f = File(fn,"r");
-  scope(exit) f.close(); // always close the file on function exit
-  string buf;
-  while (f.readln(buf)) {
-    if (strip(buf) == "# --- ??Phenotype Symbol begin") {
-      while (f.readln(buf)) { 
-        if (strip(buf) == "# --- ??Phenotype Symbol end")
-           break;
-        auto res = parse_symbol_genotype_qtab(buf);
-        auto symbols = res[0];
-        auto genotypes = res[1];
-        // writeln(symbols,"\t",genotypes);
-      }
+  each_line_in_section(fn,"Data Phenotype", 
+    (line) {
+      auto res = parse_line_key_values(line);
+      auto ind = res[0];
+      auto fields  = res[1];
+      P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
+      ret_phenotypes ~= ps;
     }
-    if (strip(buf) == "# --- Data Phenotype begin") {
-      while (f.readln(buf)) { 
-        if (strip(buf) == "# --- Data Phenotype end")
-           break;
-        if (buf[0] == '#') continue;
-        auto res = parse_phenotype_qtab(buf);
-        auto ind = res[0];
-        auto fields  = res[1];
-        // writeln(ind,"\t",fields);
-        P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
-        ret_phenotypes ~= ps;
-      }
-    }
-  }
+  );
   return tuple(ret_phenotypes);
 }
 

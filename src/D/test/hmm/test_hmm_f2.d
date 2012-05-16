@@ -30,7 +30,7 @@ unittest {
   // load founder info
   auto founder_fn = to!string(buildPath(dir, "listeria_founder.qtab"));
   writeln("reading ", founder_fn);
-  auto info = read_founder_settings_qtab(founder_fn);
+  auto info = get_section_key_values(founder_fn,"Set Founder");
   assert(info["Cross"] == "F2");
   assert(info["Phase"] == "unknown");
 
