@@ -253,6 +253,7 @@ ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
 }
 
 class SymbolSettings {
+  bool phase_known = false; // default
 }
 
 /**
@@ -265,8 +266,9 @@ void do_parse(File f,string tag) {
 }
 
 SymbolSettings read_set_symbol_qtab(File f) {
+  settings = new SymbolSettings;
   do_parse(f,"Symbol Set");
-  return null;
+  return settings;
 }
 
 Tuple!(Individuals, Gref[][]) read_genotype_qtab(File f, ObservedGenotypes symbols) {
@@ -308,8 +310,8 @@ unittest {
   // First read symbol information (the GenotypeCombinators)
   writeln("reading ",symbol_fn);
   auto f = File(symbol_fn,"r");
-  // auto symbol_settings = read_set_symbol_qtab(f);
-  auto symbols = read_genotype_symbol_qtab(f, false);
+  auto symbol_settings = read_set_symbol_qtab(f);
+  auto symbols = read_genotype_symbol_qtab(f, symbol_settings.phase_known);
   // Test working of symbols
   // assert(symbols.decode("A") == symbols.decode("AA"));
   assert(to!string(symbols.decode("A")) == "[(0,0)]");
