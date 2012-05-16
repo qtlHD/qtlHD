@@ -250,7 +250,7 @@ ObservedGenotypes read_genotype_symbol_qtab(File f) {
         if (strip(buf) == "# --- Genotype Symbol end")
            break;
         if (buf[0] == '#') continue;
-        
+        writeln("Line: ",buf); 
         auto res = parse_symbol_genotype_qtab(buf);
         auto symbol_names = res[0];
         auto genotype_strs = res[1];
