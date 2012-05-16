@@ -106,7 +106,7 @@ The symbol table has the following configuration options
 
       # --- Set Symbol begin
       Phase      known     # known|unknown (default)
-      # --- Set Symbpl end
+      # --- Set Symbol end
 
 A possible founder symbol table
 

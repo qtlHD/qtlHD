@@ -1,9 +1,14 @@
 # --- qtlHD-in-0.1 Symbol Test
+
+# --- Set Symbol begin
+Phase      unknown  # default behaviour
+# --- Set Symbol end
+
 # --- Symbol Genotype begin
 NA - as None
-A AA as 0,0
-B BB as 1,1
-H AB BA as 0,1
-HorB C as 0,1 1,1
-HorA D as 0,0 0,1
+A as 0,0
+B as 1,1
+H as 0,1  # expands to 0,1 and 1,0
+HorB C as 0,1 1,1 # expands to 0,1 1,0 and 1,1
+HorA D as 0,0 0,1 # expands to 0,0 0,1 and 1,0
 # --- Symbol Genotype end
