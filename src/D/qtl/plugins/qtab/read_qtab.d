@@ -63,10 +63,10 @@ unittest {
  * Parse a line for key values
  */
 
-Tuple!(string, string) parse_line_key_values(string line) {
+Tuple!(string, string[]) parse_line_key_values(string line) {
   auto fields = str_split_line_strip(line);
   auto key = (fields.length > 0 ? fields[0] : null);
-  auto value = (fields.length > 1 ? fields[1] : null);
+  auto value = (fields.length > 1 ? fields[1..$] : null);
   return tuple(key,value);
 }
 
@@ -97,7 +97,7 @@ string[string] get_section_key_values(File f, string tag) {
   string[string] ret;
   each_line_in_section(f,tag, (line) {
     auto res = parse_line_key_values(line);
-    ret[res[0]] = res[1];
+    ret[res[0]] = res[1][0];
   });
   return ret;
 }
