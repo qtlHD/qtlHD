@@ -106,6 +106,12 @@ void R_Close() {
   Rf_endEmbeddedR(0);
 }
 
+// Rf_rpois but with output as integer (which it should be anyway)
+int rpois(double mu)
+{
+  return cast(int)Rf_rpois(mu);
+}
+
 unittest {
   R_Init();
   
@@ -115,10 +121,10 @@ unittest {
   writeln("  - unif_rand: " ~ to!string(unif_rand()));
   writeln("  - unif_rand: " ~ to!string(unif_rand()));
   writeln("  - unif_rand: " ~ to!string(unif_rand())); 
-  writeln("  ~ Rf_rpois(5):     " ~ to!string(Rf_rpois(5.0)));
-  writeln("  ~ Rf_rpois(2.5):   " ~ to!string(Rf_rpois(2.5)));
-  writeln("  ~ Rf_rpois(15.6):  " ~ to!string(Rf_rpois(15.6)));
-  writeln("  ~ Rf_rpois(50.1):  " ~ to!string(Rf_rpois(50.1)));
+  writeln("  ~ rpois(5):     " ~ to!string(rpois(5.0)));
+  writeln("  ~ rpois(2.5):   " ~ to!string(rpois(2.5)));
+  writeln("  ~ rpois(15.6):  " ~ to!string(rpois(15.6)));
+  writeln("  ~ rpois(50.1):  " ~ to!string(rpois(50.1)));
 
   R_Close();
 }
