@@ -112,6 +112,7 @@ int rpois(double mu)
   return cast(int)Rf_rpois(mu);
 }
 
+/* comment out; for now, can only do R_Init() and R_Close() once
 unittest {
   R_Init();
   
@@ -128,3 +129,4 @@ unittest {
 
   R_Close();
 }
+*/
