@@ -8,8 +8,6 @@ import std.algorithm;
 import std.math;
 import std.mathspecial;
 import std.stdio;
-import std.string;
-import std.conv;
 
 // normal density
 double dnorm(double x, double mu, double sigma, bool give_log = false)
