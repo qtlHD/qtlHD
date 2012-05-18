@@ -95,7 +95,11 @@ unittest {
 
   double y=0.0;
   foreach(i; 0..10) {
-    writefln("%9.5f %9.5f", y, dnorm(y, 5.0, 2.0, 0));
+    double z1 = dpois(y, 5.0, 0);
+    double z2 = ppois(y, 5.0, 1, 0);
+    double logz2 = ppois(y, 5.0, 1, 1);
+    //    double z3 = qpois(y/10.0, 5.0, 1, 0);
+    writefln("%9.5f %9.5f %9.5f %9.5f", y, z1, z2, logz2);
     y += 1.0;
   }
 
