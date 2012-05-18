@@ -262,4 +262,37 @@ unittest {
 
 
 // quantiles of poisson
+/*
+int qpois(in double p, in double lambda, in bool lower_tail = true)
+in {
+  assert(p >= 0 && p <= 1, "p must be in [0,1]");
+  assert(lambda > 0, "lambda must be >0");
+}
+body {
+}
 
+In R: they calculate
+mu = lambda
+sigma = sqrt(lambda)
+gamma = 1.0/sigma
+
+if(lower_tail) pp = p
+else pp = 1.0 - p;
+
+if(pp==0) return(0)
+if(pp==1) return(int.infinity)
+
+if (p + 1.01*double.epsilon >= 1.) return int.infinity;
+
+
+pp *= 1.0 - 64*double.epsilon
+
+y = approximate value
+z = qnorm(p, 0, 1, TRUE, FALSE)
+y = floor(mu + sigma*(z + gamma * (z*z-1.0)/6.0) + 0.5);
+z = ppois(y, lambda, TRUE, FALSE)
+*/
+
+unittest {
+  writeln(log10(double.epsilon));  
+}
