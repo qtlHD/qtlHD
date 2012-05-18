@@ -30,6 +30,9 @@ version(Windows){
   extern (C) double function(double, double, int, int) Rf_ppois;
   extern (C) double function(double, double, int, int) Rf_qpois;
 
+  extern (C) double function(double, double, double, int, int) Rf_qf;
+  extern (C) double function(double, double, double, int, int) Rf_pgamma;
+
   static this(){
     HXModule lib = load_library("R");
 
@@ -40,6 +43,9 @@ version(Windows){
     load_function(Rf_dpois)(lib, "Rf_dpois");
     load_function(Rf_ppois)(lib, "Rf_ppois");
     load_function(Rf_qpois)(lib, "Rf_qpois");
+
+    load_function(Rf_qf)(lib, "Rf_qf");
+    load_function(Rf_pgamma)(lib, "Rf_pgamma");
 
     writeln("Loaded R functionality");
   }
@@ -52,6 +58,9 @@ version(Windows){
   extern (C) double Rf_dpois(double, double, int);
   extern (C) double Rf_ppois(double, double, int, int);
   extern (C) double Rf_qpois(double, double, int, int);
+
+  extern (C) double Rf_qf(double, double, double, int, int);
+  extern (C) double Rf_pgamma(double, double, double, int, int);
 }
 
 
@@ -88,6 +97,16 @@ double qpois(double p, double lambda, int lower_tail, int log_p)
   return Rf_qpois(p, lambda, lower_tail, log_p);
 }
 
+double qf(double p, double df1, double df2, int lower_tail, int log_p)
+{
+  return Rf_qf(p, df1, df2, lower_tail, log_p);
+}
+
+double pgamma(double x, double alph, double scale, int lower_tail, int give_log)
+{
+  return Rf_pgamma(x, alph, scale, lower_tail, give_log);
+}
+
 
 
 unittest {
@@ -101,6 +120,18 @@ unittest {
     //    double z3 = qpois(y/10.0, 5.0, 1, 0);
     writefln("%9.5f %9.5f %9.5f %9.5f", y, z1, z2, logz2);
     y += 1.0;
+  }
+
+  writeln();
+  for(double p=0.1; p < 0.95; p += 0.1) {
+    y = qf(p, 10.0, 1.0, 1, 0);
+    writefln("%9.5f %9.5f", p, y);
+  }
+
+  writeln();
+  for(double p=0.0; p < 9.5; p += 1.0) {
+    y = pgamma(5.0, p+1.0, 1.0, 0, 0);
+    writefln("%9.5f %9.5f", p, y);
   }
 
 }
