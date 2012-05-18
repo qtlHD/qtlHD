@@ -163,14 +163,13 @@ unittest {
 
 
 // tail probabilities of gamma distribution
-/*
-double pgamma(in double x, in double shape, in double scale, in bool lower_tail)
+double pgamma(in double x, in double shape, in double scale, in bool lower_tail = true)
 in {
   assert(x > 0 && shape > 0 && scale > 0, "Arguments must be >0");
 }
 body {
-
-
+  if(lower_tail) return(gammaIncomplete(shape, x/scale));
+  else return(gammaIncompleteCompl(shape, x/scale));
 }
 
 unittest {
@@ -178,8 +177,15 @@ unittest {
   double[] pgamma2_3 = [0.0005433628352605681007, 0.1443048016123466004146, 0.3252930148517050312762, 0.6767601071186497563303];
   double[] pgamma9_2 = [5.1455073867610264603e-18, 1.1252025979690201321e-06, 8.9014374062638365907e-05, 9.8736580561048191418e-03];
 
+  foreach(i, xv; x) {
+    assert(abs(pgamma(xv, 2.0, 3.0) - pgamma2_3[i]) < 1e-12);
+    assert(abs(pgamma(xv, 9.0, 2.0) - pgamma9_2[i]) < 1e-12);
+    assert(abs(pgamma(xv, 2.0, 3.0, false) - (1.0-pgamma2_3[i])) < 1e-12);
+    assert(abs(pgamma(xv, 9.0, 2.0, false) - (1.0-pgamma9_2[i])) < 1e-12);
+  }
+
 }
-*/
+
 
 // quantiles of gamma distribution
 
