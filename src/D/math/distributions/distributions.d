@@ -61,7 +61,7 @@ body {
   else {
     if(lower_tail) return(normalDistribution(z));
     else return(1.0 - normalDistribution(z));
-  }    
+  }
 }
 
 unittest {
@@ -88,7 +88,7 @@ unittest {
 double qnorm(in double p, in double mu, in double sigma, in bool lower_tail = true)
 in {
   assert(sigma >= 0, "sigma must be >= 0");
-  assert(p >= 0 && p <= 1, "p must be in [0,1]"); 
+  assert(p >= 0 && p <= 1, "p must be in [0,1]");
 }
 body {
   double z = normalDistributionInverse(p);
@@ -123,4 +123,62 @@ unittest {
   assert(qnorm(0.0, 0.0, 1.0) == -real.infinity);
   assert(qnorm(0.0, 0.0, 1.0) != real.infinity);
 }
+
+
+
+// gamma density
+double dgamma(in double x, in double shape, in double scale, in bool give_log = false)
+in {
+  assert(x > 0 && shape > 0 && scale > 0, "Arguments must be >0");
+}
+body {
+  double z = x / scale;
+  double result = -z + (shape-1.0) * log(z) - logGamma(shape) - log(scale);
+
+  if(give_log) return(result);
+  else return(exp(result));
+}
+
+unittest {
+  double[] x = [0.1, 2.0, 3.5, 7.0];
+  double[] dgamma2_3 = [0.010746845560911176543, 0.114092693118353794013, 0.121101253744565762194, 0.075422641672315049455];
+  double[] logdgamma2_3 = [-4.5331430036635982361, -2.1707440634429406856, -2.1111282755075180262, -2.5846477616142395917];
+  double[] dgamma9_2 = [4.6078124249205551814e-16, 4.5619970383363459403e-06, 1.8955643271209153978e-04, 8.4326320176074404805e-03];
+  double[] logdgamma9_2 = [-35.3136082717371166950, -12.2977500833051944795, -8.5708237798218132042, -4.7756463353422518026];
+
+  foreach(i, xv; x) {
+    double y = dgamma(xv, 2.0, 3.0);
+    assert(abs(y - dgamma2_3[i]) < 1e-12);
+
+    y = dgamma(xv, 2.0, 3.0, true);
+    assert(abs(y - logdgamma2_3[i]) < 1e-12);
+
+    y = dgamma(xv, 9.0, 2.0);
+    assert(abs(y - dgamma9_2[i]) < 1e-12);
+
+    y = dgamma(xv, 9.0, 2.0, true);
+    assert(abs(y - logdgamma9_2[i]) < 1e-12);
+  }
+}
+
+
+// tail probabilities of gamma distribution
+/*
+double pgamma(in double x, in double shape, in double scale, in bool lower_tail)
+in {
+  assert(x > 0 && shape > 0 && scale > 0, "Arguments must be >0");
+}
+body {
+
+
+}
+*/
+
+// quantiles of gamma distribution
+
+// poisson probabilities
+
+// tail probabilities of poisson
+
+// quantiles of poisson
 
