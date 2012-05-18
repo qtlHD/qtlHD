@@ -11,7 +11,6 @@ import std.stdio;
 import std.string;
 import std.conv;
 
-
 // normal density
 double dnorm(double x, double mu, double sigma, bool give_log = false)
 in {
@@ -32,17 +31,10 @@ unittest {
   double[] dnorm0_2 = [0.120985362259571682664, 0.199471140200716351432, 0.064758797832945871886, 0.026995483256594031418];
 
   foreach(i, xv; x) {
-    double y = dnorm(xv, 1.0, 3.0, true);
-    assert(abs(y - logdnorm1_3[i]) < 1e-12);
-
-    y = dnorm(xv, 5.0, 0.1, true);
-    assert(abs(y - logdnorm5_01[i]) < 1e-12);
-
-    y = dnorm(xv, 1.0, 3.0);
-    assert(abs(y - dnorm1_3[i]) < 1e-12);
-
-    y = dnorm(xv, 0.0, 2.0);
-    assert(abs(y - dnorm0_2[i]) < 1e-12);
+    assert(abs(dnorm(xv, 1.0, 3.0, true) - logdnorm1_3[i]) < 1e-12);
+    assert(abs(dnorm(xv, 5.0, 0.1, true) - logdnorm5_01[i]) < 1e-12);
+    assert(abs(dnorm(xv, 1.0, 3.0) - dnorm1_3[i]) < 1e-12);
+    assert(abs(dnorm(xv, 0.0, 2.0) - dnorm0_2[i]) < 1e-12);
   }
 }
 
@@ -70,17 +62,10 @@ unittest {
   double[] pnorm0_2 = [0.15865525393145704647, 0.50000000000000000000, 0.93319279873114191481, 0.97724986805182079141];
 
   foreach(i, xv; x) {
-    double y = pnorm(xv, 1.0, 3.0);
-    assert(abs(y - pnorm1_3[i]) < 1e-12);
-
-    y = pnorm(xv, 1.0, 3.0, false);
-    assert(abs(y - (1.0 - pnorm1_3[i])) < 1e-12);
-
-    y = pnorm(xv, 0.0, 2.0);
-    assert(abs(y - pnorm0_2[i]) < 1e-12);
-
-    y = pnorm(xv, 0.0, 2.0, false);
-    assert(abs(y - (1.0 - pnorm0_2[i])) < 1e-12);
+    assert(abs(pnorm(xv, 1.0, 3.0) - pnorm1_3[i]) < 1e-12);
+    assert(abs(pnorm(xv, 1.0, 3.0, false) - (1.0 - pnorm1_3[i])) < 1e-12);
+    assert(abs(pnorm(xv, 0.0, 2.0) - pnorm0_2[i]) < 1e-12);
+    assert(abs(pnorm(xv, 0.0, 2.0, false) - (1.0 - pnorm0_2[i])) < 1e-12);
   }
 }
 
@@ -105,17 +90,10 @@ unittest {
   double[] uqnorm0_2 = [8.5297815878456511030, 4.6526957480816815149, 1.3489795003921634109, -6.1804646123356263843];
 
   foreach(i, pv; p) {
-    double y = qnorm(pv, 1.0, 3.0);
-    assert(abs(y - qnorm1_3[i]) < 1e-12);
-
-    y = qnorm(pv, 1.0, 3.0, false);
-    assert(abs(y - uqnorm1_3[i]) < 1e-12);
-
-    y = qnorm(pv, 0.0, 2.0);
-    assert(abs(y - qnorm0_2[i]) < 1e-12);
-
-    y = qnorm(pv, 0.0, 2.0, false);
-    assert(abs(y - uqnorm0_2[i]) < 1e-12);
+    assert(abs(qnorm(pv, 1.0, 3.0) - qnorm1_3[i]) < 1e-12);
+    assert(abs(qnorm(pv, 1.0, 3.0, false) - uqnorm1_3[i]) < 1e-12);
+    assert(abs(qnorm(pv, 0.0, 2.0) - qnorm0_2[i]) < 1e-12);
+    assert(abs(qnorm(pv, 0.0, 2.0, false) - uqnorm0_2[i]) < 1e-12);
   }
 
   // check the 0, 1 cases
@@ -147,17 +125,10 @@ unittest {
   double[] logdgamma9_2 = [-35.3136082717371166950, -12.2977500833051944795, -8.5708237798218132042, -4.7756463353422518026];
 
   foreach(i, xv; x) {
-    double y = dgamma(xv, 2.0, 3.0);
-    assert(abs(y - dgamma2_3[i]) < 1e-12);
-
-    y = dgamma(xv, 2.0, 3.0, true);
-    assert(abs(y - logdgamma2_3[i]) < 1e-12);
-
-    y = dgamma(xv, 9.0, 2.0);
-    assert(abs(y - dgamma9_2[i]) < 1e-12);
-
-    y = dgamma(xv, 9.0, 2.0, true);
-    assert(abs(y - logdgamma9_2[i]) < 1e-12);
+    assert(abs(dgamma(xv, 2.0, 3.0) - dgamma2_3[i]) < 1e-12);
+    assert(abs(dgamma(xv, 2.0, 3.0, true) - logdgamma2_3[i]) < 1e-12);
+    assert(abs(dgamma(xv, 9.0, 2.0) - dgamma9_2[i]) < 1e-12);
+    assert(abs(dgamma(xv, 9.0, 2.0, true) - logdgamma9_2[i]) < 1e-12);
   }
 }
 
