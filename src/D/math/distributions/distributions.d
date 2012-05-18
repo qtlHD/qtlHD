@@ -157,8 +157,16 @@ unittest {
 
 
 // quantiles of gamma distribution
+double qgamma(in double p, in double shape, in double scale, in bool lower_tail = true)
+in {
+  assert(shape > 0 && scale > 0, "shape and scale  must be >0");
+  assert(p >= 0 && p <= 1, "p must be in [0,1]");
+}
+body {
+  if(lower_tail) return(gammaIncompleteComplInverse(shape, 1.0-p)*scale);
+  else return(gammaIncompleteComplInverse(shape, p)*scale);
+}
 
-/*
 unittest {
   double[] p = [1e-5, 0.01, 0.25, 0.999];
   double[] qgamma2_3 = [0.013436448955373322262, 0.445664220759797780058, 2.883836289344330783280, 27.700240429354753501912];
@@ -166,8 +174,14 @@ unittest {
   double[] qgamma9_2 = [2.6301217192580859106, 7.0149109011725814256, 13.6752903503982921052, 42.3123963316799560630];
   double[] uqgamma9_2 = [55.6829073821474125339, 34.8053057347050867065, 21.6048897957281624826, 4.9048488087275510239];
 
+  foreach(i, pv; p) {
+    assert(abs(qgamma(pv, 2.0, 3.0) - qgamma2_3[i]) < 1e-12);
+    assert(abs(qgamma(pv, 2.0, 3.0, false) - uqgamma2_3[i]) < 1e-12);
+    assert(abs(qgamma(pv, 9.0, 2.0) - qgamma9_2[i]) < 1e-12);
+    assert(abs(qgamma(pv, 9.0, 2.0, false) - uqgamma9_2[i]) < 1e-12);
+  }
+
 }
-*/
 
 // poisson probabilities
 
