@@ -10,7 +10,6 @@ import std.algorithm;
 import std.math;
 import std.range;
 import std.random;
-import std.c.stdio;
 import std.stdio;
 import std.string;
 import std.conv;
@@ -82,5 +81,16 @@ unittest {
     assert(abs(dnorm(xv, 5.0, 3.0, true) - log(R_dn[i])) < 1e-12);
     assert(abs(pnorm(xv, 5.0, 3.0, true, true) - log(R_pn[i])) < 1e-12);
     assert(abs(qnorm(log(R_pn[i]), 5.0, 3.0, true, true) - xv) < 1e-12);
+
+    double y1 = dnorm(xv, 5.0, 3.0, false);
+    double y2 = pnorm(xv, 5.0, 3.0, true, false);
+    double z = R_pn[i];
+    double y3 = qnorm(z, 5.0, 3.0, true, false);
+
+    writeln("This is okay:");
+    writefln("%9.5f %9.5f %9.5f %9.5f", xv, y1, y2, y3);
+
+    writeln("But this gives a seg fault:");
+    writefln("%9.5f %9.5f %9.5f %9.5f", xv, y1, y2, qnorm(z, 5.0, 3.0, true, false));
   }
 }
