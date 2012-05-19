@@ -14,6 +14,7 @@ import std.conv;
 // normal density
 double dnorm(double x, double mu, double sigma, bool give_log = false)
 in {
+  // sigma should be > 0 not just >= 0
   assert(sigma >= 0, "sigma must be >= 0");
 }
 body {
@@ -109,6 +110,7 @@ unittest {
 // gamma density
 double dgamma(in double x, in double shape, in double scale, in bool give_log = false)
 in {
+  // x == 0 should be valid
   assert(x > 0 &&  shape > 0 && scale > 0, "Arguments must be >0");
 }
 body {
@@ -190,6 +192,7 @@ unittest {
 // poisson probabilities
 double dpois(in int x, in double lambda, in bool give_log = false)
 in {
+  // lambda = 0 should be okay
   assert(x >= 0, "x must be >= 0");
   assert(lambda > 0, "lambda must be > 0");
 }
