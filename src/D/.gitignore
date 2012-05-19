@@ -13,6 +13,8 @@ test_rlib
 test_hmm
 tags.json
 tags
+distributions
+meiosis
 *.qtab
 *.c
 *.cpp

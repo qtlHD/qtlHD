@@ -48,6 +48,7 @@ core_dfiles = Dir.glob("./qtl/core/*.d")
 map_dfiles  = Dir.glob("./qtl/core/map/*.d")
 hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d")
 util_dfiles = Dir.glob("./qtl/core/util/*.d")
+simulate_dfiles = Dir.glob("./qtl/core/simulate/*.d")
 lapack_dfiles = Dir.glob("./math/lapack/*.d")
 distributions_dfiles = Dir.glob("./math/distributions/*.d")
 if windows? then
@@ -130,6 +131,7 @@ exe_list = {
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
   'test_hmm' => { :path => './test/hmm', :list => ['./test/hmm/test_hmm_f2.d'] + ['./test/hmm/test_hmm_bc.d'] + all_core_dfiles + qtab_read_dfiles + main_dfile },
   'distributions' => { :path => './math/distributions', :list => distributions_dfiles + main_dfile },
+  'meiosis' => { :path => './qtl/core/simulate', :list => simulate_dfiles + distributions_dfiles + main_dfile },
 }
 
 build_list = { 
