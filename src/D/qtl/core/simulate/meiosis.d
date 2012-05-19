@@ -32,10 +32,10 @@ body {
 
 
 /*
- Simulate crossover locations on a chromosome
- chrlen = chromosome length in cM
- m = interference parameter
- p = proportion of crossovers coming from no interference model
+ Simulate crossover locations on a chromosome using Stahl model
+   chrlen = chromosome length in cM
+   m = interference parameter
+   p = proportion of crossovers coming from no interference model
 
  p=0 gives the chi-square model
  m=0 or p=1 gives the no-interference model
