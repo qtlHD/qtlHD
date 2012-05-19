@@ -4,10 +4,12 @@
 
 module math.distributions.distributions;
 
-import std.algorithm;
+import std.stdio;
 import std.math;
 import std.mathspecial;
-import std.stdio;
+import std.algorithm;
+import std.string;
+import std.conv;
 
 // normal density
 double dnorm(double x, double mu, double sigma, bool give_log = false)
@@ -22,6 +24,8 @@ body {
 }
 
 unittest {
+  writeln("Unit test " ~ __FILE__);
+
   double[] x = [-2.0, 0.0, 3.0, 4.0];
   double[] logdnorm1_3 = [-2.5175508218727822296, -2.0731063774283380319, -2.2397730440950045505, -2.5175508218727822296];
   double[] logdnorm5_01 = [-2448.616353440210787085, -1248.616353440210559711, -198.616353440210644976, -48.616353440210630765];
@@ -230,7 +234,7 @@ unittest {
 // tail probabilities of poisson
 double ppois(in int x, in double lambda, in bool lower_tail = true)
 in {
-  assert(x >= 0, "x must be >= 0");
+  assert(x >= 0, "x must be >= 0 [" ~ to!string(x) ~ "]");
   assert(lambda > 0, "lambda must be > 0");
 }
 body {
@@ -262,37 +266,73 @@ unittest {
 
 
 // quantiles of poisson
-/*
 int qpois(in double p, in double lambda, in bool lower_tail = true)
 in {
   assert(p >= 0 && p <= 1, "p must be in [0,1]");
   assert(lambda > 0, "lambda must be >0");
 }
 body {
+  // initial part follows R ver 2.15.0 (src/nmath/qpois.c)
+  double mu = lambda;
+  double sigma = sqrt(lambda);
+  double gamma = 1.0/sigma;
+
+  double pp; // can't change p because of the "in"
+  if(lower_tail) pp = p;
+  else pp = 1.0 - p;
+
+  if(pp == 0.0) return(0);
+  if(pp == 1.0) return(int.max);
+
+  // p too close to 1
+  if(pp + 1.01*double.epsilon >= 1.0) return int.max;
+
+  // initial guess
+  double z = qnorm(pp, 0.0, 1.0, true);
+  int q = cast(int)floor(mu + sigma*(z + gamma * (z*z-1.0)/6.0) + 0.5);
+  if(q < 0) q = 0;
+
+  double current_prob = ppois(q, lambda, true);
+
+  // slight jitter to ensure left continuity
+  pp *= 1.0 - 64*double.epsilon;
+
+  // Want the smallest integer with ppois >= pp
+  // This is a very crude method:
+  //     step by 1 from the initial guess
+  if(pp <= current_prob) { // may need to move down
+    while(pp <= current_prob) {
+      current_prob -= dpois(q, lambda, false);
+      q--;
+    }
+    return(q+1);
+  }
+  else { // need to move up
+    while(pp > current_prob) {
+      q++;
+      current_prob += dpois(q, lambda, false);
+    }
+    return(q);
+  }
 }
 
-In R: they calculate
-mu = lambda
-sigma = sqrt(lambda)
-gamma = 1.0/sigma
-
-if(lower_tail) pp = p
-else pp = 1.0 - p;
-
-if(pp==0) return(0)
-if(pp==1) return(int.infinity)
-
-if (p + 1.01*double.epsilon >= 1.) return int.infinity;
-
-
-pp *= 1.0 - 64*double.epsilon
-
-y = approximate value
-z = qnorm(p, 0, 1, TRUE, FALSE)
-y = floor(mu + sigma*(z + gamma * (z*z-1.0)/6.0) + 0.5);
-z = ppois(y, lambda, TRUE, FALSE)
-*/
 
 unittest {
-  writeln(log10(double.epsilon));  
+  double[] p = [0.0001, 0.1, 0.6, 0.9, 0.9999];
+  int[] qpois5 = [0, 2, 5, 8, 15];
+  int[] qpois001 = [0, 0, 0, 0, 1];
+  int[] qpois50 = [26, 41, 52, 59, 78];
+  int[] uqpois5 = [15, 8, 4, 2, 0];
+  int[] uqpois001 = [1, 0, 0, 0, 0];
+  int[] uqpois50 = [78, 59, 48, 41, 26];
+
+  foreach(i, pv; p) {
+    assert(qpois(pv, 5.0, true) == qpois5[i]);
+    assert(qpois(pv, 0.001, true) == qpois001[i]);
+    assert(qpois(pv, 50.0, true) == qpois50[i]);
+
+    assert(qpois(pv, 5.0, false) == uqpois5[i]);
+    assert(qpois(pv, 0.001, false) == uqpois001[i]);
+    assert(qpois(pv, 50.0, false) == uqpois50[i]);
+  }
 }
