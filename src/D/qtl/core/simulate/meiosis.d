@@ -31,8 +31,15 @@ body {
 
 
 
-// m = interference parameter
-// p = proportion of crossovers coming from no interference model
+/*
+ Simulate crossover locations on a chromosome
+ chrlen = chromosome length in cM
+ m = interference parameter
+ p = proportion of crossovers coming from no interference model
+
+ p=0 gives the chi-square model
+ m=0 or p=1 gives the no-interference model
+*/
 double[] meiosis(double chrlen, int m, double p, ref Random gen)
 in {
   assert(chrlen > 0, "chrlen must be > 0");
@@ -41,7 +48,7 @@ in {
 }
 body {
   // no interference case is simple
-  if(m==0 || p==0) return(meiosisNI(chrlen, gen));
+  if(m==0 || p==1) return(meiosisNI(chrlen, gen));
 
   // number of crossovers and intermediates (on 4-strand bundle)
   int n_points_interf = rpois(chrlen*(m+1)/50.0*(1.0-p), gen );
