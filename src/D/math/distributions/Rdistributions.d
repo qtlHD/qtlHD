@@ -41,6 +41,8 @@ version(Windows){
   }
 
 }else{
+  pragma(lib, "R");
+
   extern (C) double Rf_dnorm4(double, double, double, int);
   extern (C) double Rf_pnorm5(double, double, double, int, int);
   extern (C) double Rf_qnorm5(double, double, double, int, int);
