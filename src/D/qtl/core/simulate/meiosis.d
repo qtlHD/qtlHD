@@ -66,10 +66,10 @@ body {
 
   // every (m+1)st point is chiasma; thin to give crossovers
   int first = cast(int)uniform(0.0, m+1, gen);
-  for(auto i=first; i<n_points_interf; i+= m+1)
+  for(auto i=first; i<n_points_interf; i += m+1)
     if(dice(gen, 1, 1) < 0.5) xo_locations ~= pts_interf[i];
 
-  auto pts_ni = new double[](n_points_ni);
+  // crossovers from no interference mechanism
   foreach(i; 0..n_points_ni)
     xo_locations ~= uniform(0.0, chrlen_cM, gen);
 
