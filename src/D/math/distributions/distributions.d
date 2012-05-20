@@ -79,25 +79,44 @@ unittest {
 // gamma density
 double dgamma(in double x, in double shape, in double scale, in bool give_log = false)
 in {
-  // x == 0 should be valid
-  assert(x > 0 &&  shape > 0 && scale > 0, "Arguments must be >0");
+  assert(x >= 0, "x should be >= 0");
+  assert(shape > 0 && scale > 0, "shape and scale must be >0");
 }
 body {
+  double result;
+
+  if(x==0.0) { // deal with the 0 endpoint
+    if(shape > 1.0) result = 0;
+    else if(shape==1.0) result = 1.0;
+    else result = real.infinity;
+
+    if(give_log) return(log(result));
+    else return(result);
+  }
+
   double z = x / scale;
-  double result = -z + (shape-1.0) * log(z) - logGamma(shape) - log(scale);
+  result = -z + (shape-1.0) * log(z) - logGamma(shape) - log(scale);
 
   if(give_log) return(result);
   else return(exp(result));
 }
 
 unittest {
+  assert(abs(dgamma(0.0, 1.0, 1.0) - 1.0) < 1e-12);
+  assert(abs(dgamma(0.0, 2.0, 1.0)) < 1e-12);
+  assert(dgamma(0.0, 0.1, 1.0) == real.infinity);
+
+  assert(abs(dgamma(0.0, 1.0, 1.0, true)) < 1e-12);
+  assert(dgamma(0.0, 2.0, 1.0, true) == -real.infinity);
+  assert(dgamma(0.0, 0.1, 1.0, true) == real.infinity);
 }
 
 
 // tail probabilities of gamma distribution
 double pgamma(in double x, in double shape, in double scale, in bool lower_tail = true)
 in {
-  assert(x > 0 && shape > 0 && scale > 0, "Arguments must be >0");
+  assert(x >= 0, "x should be >= 0");
+  assert(shape > 0 && scale > 0, "shape and scale must be >0");
 }
 body {
   if(lower_tail) return(gammaIncomplete(shape, x/scale));
@@ -105,6 +124,9 @@ body {
 }
 
 unittest {
+  assert(abs(pgamma(0.0, 1.0, 1.0)) < 1e-12);
+  assert(abs(pgamma(0.0, 0.1, 1.0)) < 1e-12);
+  assert(abs(pgamma(0.0, 2.0, 1.0)) < 1e-12);
 }
 
 
@@ -120,6 +142,7 @@ body {
 }
 
 unittest {
+  assert(abs(qgamma(0.0, 1.0, 1.0)) < 1e-12);
 }
 
 // poisson probabilities
@@ -134,6 +157,8 @@ body {
 }
 
 unittest {
+  assert(abs(dpois(0, 5.0) - exp(-5.0)) < 1e-12);
+  assert(abs(dpois(0, 5.0, true) - (-5.0)) < 1e-12);
 }
 
 
@@ -148,6 +173,8 @@ body {
 }
 
 unittest {
+  assert(abs(ppois(0, 1.0) - dpois(0, 1.0)) < 1e-12);
+  assert(abs(ppois(1, 1.0) - 2*exp(-1.0)) < 1e-12);
 }
 
 // quantiles of poisson
@@ -203,4 +230,7 @@ body {
 
 
 unittest {
+  assert( qpois( ppois(4, 3.0)+dpois(5, 3.0)/2.0, 3.0) == 5);
+  assert( qpois( ppois(0, 3.0)+dpois(1, 3.0)/2.0, 3.0) == 1);
+  assert( qpois( dpois(0, 3.0)/2.0, 3.0) == 0);
 }
