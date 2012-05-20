@@ -49,8 +49,8 @@ map_dfiles  = Dir.glob("./qtl/core/map/*.d")
 hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d")
 util_dfiles = Dir.glob("./qtl/core/util/*.d")
 simulate_dfiles = Dir.glob("./qtl/core/simulate/*.d")
-lapack_dfiles = Dir.glob("./math/lapack/*.d")
 distributions_dfiles = Dir.glob("./math/distributions/*.d")
+lapack_dfiles = Dir.glob("./math/lapack/*.d")
 if windows? then
 lapack_dfiles += Dir.glob("./arch/*.d") + Dir.glob("./qtl/plugins/renv/*.d")
 end
@@ -67,6 +67,7 @@ example_dfiles = Dir.glob("./example/*.d")
 deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
   Dir.glob("./qtl/plugins/deprecate/*.d")
 main_dfile = ["test/main.d"]
+test_simulate_dfiles = Dir.glob("./test/simulate/*.d")
 
 all_core_dfiles = core_dfiles + map_dfiles + hmm_dfiles + util_dfiles + qtab_read_dfiles
 all_dfiles = all_core_dfiles + 
@@ -130,8 +131,7 @@ exe_list = {
   'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + arch_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
   'test_hmm' => { :path => './test/hmm', :list => ['./test/hmm/test_hmm_f2.d'] + ['./test/hmm/test_hmm_bc.d'] + all_core_dfiles + qtab_read_dfiles + main_dfile },
-  'distributions' => { :path => './math/distributions', :list => distributions_dfiles + main_dfile },
-  'meiosis' => { :path => './qtl/core/simulate', :list => simulate_dfiles + distributions_dfiles + main_dfile },
+  'test_simulate' => { :path => './test/simulate', :list => test_simulate_dfiles + simulate_dfiles + distributions_dfiles + main_dfile },
 }
 
 build_list = { 

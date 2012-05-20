@@ -11,10 +11,9 @@ test_scanone_listeria
 test_lapack
 test_rlib
 test_hmm
+test_simulate
 tags.json
 tags
-distributions
-meiosis
 *.qtab
 *.c
 *.cpp
