@@ -184,47 +184,42 @@ in {
   assert(lambda > 0, "lambda must be >0");
 }
 body {
-  // initial part follows R ver 2.15.0 (src/nmath/qpois.c)
-  double mu = lambda;
-  double sigma = sqrt(lambda);
-  double gamma = 1.0/sigma;
 
   double pp; // can't change p because of the "in"
   if(lower_tail) pp = p;
   else pp = 1.0 - p;
 
   if(pp == 0.0) return(0);
-  if(pp == 1.0) return(int.max);
-
-  // p too close to 1
-  if(pp + 1.01*double.epsilon >= 1.0) return int.max;
-
-  // initial guess
-  double z = qnorm(pp, 0.0, 1.0, true);
-  int q = cast(int)floor(mu + sigma*(z + gamma * (z*z-1.0)/6.0) + 0.5);
-  if(q < 0) q = 0;
-
-  double current_prob = ppois(q, lambda, true);
+  if(pp + 1.01*double.epsilon >= 1.0) return int.max; // close to 1
 
   // slight jitter to ensure left continuity
   pp *= 1.0 - 64*double.epsilon;
 
+  // initial guess
+  // following R ver 2.15.0 (src/nmath/qpois.c)
+  double mu = lambda;
+  double sigma = sqrt(lambda);
+  double z = qnorm(pp, 0.0, 1.0, true);
+  int guess = cast(int)floor(mu + sigma*z + (z*z-1.0)/6.0 + 0.5);
+  if(guess < 0) guess = 0;
+
+  double current_prob = ppois(guess, lambda, true);
+
   // Want the smallest integer with ppois >= pp
-  // This is a very crude method:
-  //     step by 1 from the initial guess
+  // This is a very crude method: step by 1 from the initial guess
   if(pp <= current_prob) { // may need to move down
     while(pp <= current_prob) {
-      current_prob -= dpois(q, lambda, false);
-      q--;
+      current_prob -= dpois(guess, lambda, false);
+      guess--;
     }
-    return(q+1);
+    return(guess+1);
   }
   else { // need to move up
     while(pp > current_prob) {
-      q++;
-      current_prob += dpois(q, lambda, false);
+      guess++;
+      current_prob += dpois(guess, lambda, false);
     }
-    return(q);
+    return(guess);
   }
 }
 
