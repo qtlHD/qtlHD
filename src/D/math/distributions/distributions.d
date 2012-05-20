@@ -200,7 +200,7 @@ body {
   double mu = lambda;
   double sigma = sqrt(lambda);
   double z = qnorm(pp, 0.0, 1.0, true);
-  int guess = cast(int)floor(mu + sigma*z + (z*z-1.0)/6.0 + 0.5);
+  int guess = cast(int)(mu + sigma*z + (z*z-1.0)/6.0 + 0.5);
   if(guess < 0) guess = 0;
 
   double current_prob = ppois(guess, lambda, true);
