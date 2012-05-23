@@ -17,7 +17,7 @@ import std.math;
 
 // generate map of equally-spaced markers for one chromosome
 // if first_marker_number=5, markers will be named like "m5", "m6", ...
-Marker[] generate_map_eqspacing_onechr(in double chrlen, in uint n_markers, in uint first_marker_number, 
+Marker[] generate_map_eqspacing_onechr(in double chrlen, in uint n_markers, in uint first_marker_number,
                                        Chromosome chromosome)
 in {
   assert(chrlen >= 0, "chrlen must be >= 0");
@@ -30,8 +30,7 @@ body {
   foreach(i; 0..n_markers) {
     double location = i*chrlen/(n_markers-1);
 
-    Marker m = new Marker(location, "m" ~ to!string(first_marker_number + i), first_marker_number+i);
-    m.chromosome = chromosome;
+    Marker m = new Marker(chromosome, location, "m" ~ to!string(first_marker_number + i), first_marker_number+i);
     map ~= m;
   }
   return map;
@@ -68,13 +67,11 @@ body {
   uint first_marker_number_local = first_marker_number;
 
   if(anchor_tel) { // place markers at 0.0 and chrlen
-    m = new Marker(0.0, "m" ~ to!string(first_marker_number_local), first_marker_number_local);
-    m.chromosome = chromosome;
+    m = new Marker(chromosome, 0.0, "m" ~ to!string(first_marker_number_local), first_marker_number_local);
     map ~= m;
 
     int marker_number = first_marker_number_local + n_markers_local - 1;
-    m = new Marker(chrlen, "m" ~ to!string(marker_number), marker_number);
-    m.chromosome = chromosome;
+    m = new Marker(chromosome, chrlen, "m" ~ to!string(marker_number), marker_number);
     map ~= m;
 
     if(n_markers_local == 2) return(map);
@@ -91,11 +88,10 @@ body {
   sort(locations);
 
   foreach(i; 0..n_markers_local) {
-    m = new Marker(locations[i], "m" ~ to!string(first_marker_number_local+i), first_marker_number_local+i);
-    m.chromosome = chromosome;
+    m = new Marker(chromosome, locations[i], "m" ~ to!string(first_marker_number_local+i), first_marker_number_local+i);
     map ~= m;
   }
-  
+
   sort(map);
   return(map);
 }
