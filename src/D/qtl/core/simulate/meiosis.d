@@ -243,19 +243,12 @@ FounderIndex[] simulate_meiotic_product(Marker[] marker_map, TrueGenotype[] pare
   double[] xo_locations = meiosis(start_cM, end_cM, m, p, gen);
 
   // draw genotype at first position
-  auto current_strand = dice(gen, 1, 1);
-  if(current_strand)
-    genotypes_on_product ~= parent[0].founders[1];
-  else
-    genotypes_on_product ~= parent[0].founders[0];
+  uint current_strand = cast(uint)dice(gen, 1, 1);
+  genotypes_on_product ~= pull_allele(parent[0].founders, current_strand);
 
   if(xo_locations.length == 0) { // no XOs: fill in with that strand
-    foreach(i; 1..parent.length) {
-      if(current_strand)
-        genotypes_on_product ~= parent[i].founders[1];
-      else
-        genotypes_on_product ~= parent[i].founders[0];
-    }
+    foreach(i; 1..parent.length)
+      genotypes_on_product ~= pull_allele(parent[i].founders, current_strand);
     return(genotypes_on_product);
   }
 
@@ -264,10 +257,7 @@ FounderIndex[] simulate_meiotic_product(Marker[] marker_map, TrueGenotype[] pare
     // loop markers up to that crossover; paste with current strand
     // then switch strand
     while(marker_map[current_marker].get_position < xoloc) {
-      if(current_strand)
-        genotypes_on_product ~= parent[current_marker].founders[1];
-      else
-        genotypes_on_product ~= parent[current_marker].founders[0];
+      genotypes_on_product ~= pull_allele(parent[current_marker].founders, current_strand);
       current_marker++;
 
       assert(current_marker < parent.length,
@@ -284,6 +274,12 @@ FounderIndex[] simulate_meiotic_product(Marker[] marker_map, TrueGenotype[] pare
       genotypes_on_product ~= parent[current_marker].founders[0];
   }
   return(genotypes_on_product);
+}
+
+FounderIndex pull_allele(Alleles founders, uint which)
+{
+  if(which) return(founders[1]);
+  else return(founders[0]);
 }
 
 unittest {
