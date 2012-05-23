@@ -57,7 +57,9 @@ body {
   // number of crossovers and intermediates (on 4-strand bundle)
   int n_points_interf = rpois(chrlen_cM*(m+1)/50.0*(1.0-p), gen );
   // number of crossovers from no interference mechanism (on final product)
-  int n_points_ni = rpois(chrlen_cM/100.0*p, gen);
+  int n_points_ni;
+  if(p==0) n_points_ni = 0;
+  else n_points_ni = rpois(chrlen_cM/100.0*p, gen);
 
   double[] xo_locations;
   xo_locations.reserve(n_points_interf/(m+1) + n_points_ni);
@@ -81,6 +83,21 @@ body {
   return(xo_locations);
 }
 
+double[] meiosis(double start_cM, double end_cM, int m, double p, ref Random gen)
+in {
+  assert(end_cM > start_cM, "end_cM must be > start_cM");
+  assert(m >= 0, "m must be >= 0");
+  assert(p >= 0 && p <= 1, "p must be in [0,1]");
+}
+body {
+  auto xo_locations = meiosis(end_cM - start_cM, m, p, gen);
+
+  foreach(ref xoloc; xo_locations) {
+    xoloc += start_cM;
+  }
+  return(xo_locations);
+}
+
 unittest {
   writeln("Unit test " ~ __FILE__);
 
@@ -89,8 +106,18 @@ unittest {
 
   double[] product;
 
+  writeln("Crossover locations in (0, 200):");
   foreach(m; 0..10) {
     product = meiosis(200.0, m, 0.05, gen);
+    writeln("No. crossovers = ", product.length);
+    foreach(p; product)
+      writef("%6.3f ", p);
+    writeln();
+  }
+
+  writeln("Crossover locations in (-200, 100):");
+  foreach(m; 0..10) {
+    product = meiosis(-200, 100, m, 0.0, gen);
     writeln("No. crossovers = ", product.length);
     foreach(p; product)
       writef("%6.3f ", p);
