@@ -4,6 +4,10 @@
 
 module qtl.core.simulate.meiosis;
 
+import qtl.core.genotype;
+import qtl.core.primitives;
+import qtl.core.chromosome;
+import qtl.core.simulate.map;
 import math.distributions.random;
 import std.algorithm;
 import std.stdio;
@@ -92,4 +96,105 @@ unittest {
       writef("%6.3f ", p);
     writeln();
   }
+}
+
+
+// generate genotypes for an inbred line
+TrueGenotype[] generate_founder_genotypes_onechr(Marker[] marker_map, FounderIndex founder)
+{
+  TrueGenotype[] genotypes;
+
+  foreach(m; marker_map) {
+    auto g = new TrueGenotype(founder, founder);
+    genotypes ~= g;
+  }
+
+  return(genotypes);
+}
+
+// generate genotypes for the F1 hybrid of two inbred lines
+TrueGenotype[] generate_f1_genotypes_onechr(Marker[] marker_map, FounderIndex[] founders)
+in {
+  assert(founders.length == 2, "founders must have length 2");
+}
+body {
+  TrueGenotype[] genotypes;
+
+  foreach(m; marker_map) {
+    auto g = new TrueGenotype(founders[0], founders[1]);
+    genotypes ~= g;
+  }
+
+  return(genotypes);
+}
+
+
+GenotypeCombinator[] make_genotypes_phase_unknown(TrueGenotype[] genotypes)
+{
+  GenotypeCombinator[] obs_genotypes;
+
+  foreach(g; genotypes) {
+    auto observed = new GenotypeCombinator("observed");
+    observed ~= g;
+    if(g.heterozygous()) {
+      auto g_reversephase = new TrueGenotype(g.founders[1], g.founders[0]);
+      observed ~= g_reversephase;
+    }
+    obs_genotypes ~= observed;
+  }
+
+  return(obs_genotypes);
+}
+
+
+unittest {
+  auto chromosome = get_chromosome_with_id("1");
+  auto marker_map = generate_map_eqspacing_onechr(100.0, 11, 1, chromosome);
+
+  FounderIndex[] founders = [1, 2];
+
+  auto inbred1 = generate_founder_genotypes_onechr(marker_map, founders[0]);
+  auto inbred2 = generate_founder_genotypes_onechr(marker_map, founders[1]);
+  auto f1 = generate_f1_genotypes_onechr(marker_map, founders);
+
+  writeln("Inbred 1: ");
+  foreach(g; inbred1) {
+    write(to!string(g) ~ " ");
+  }
+  writeln;
+
+  writeln("Inbred 2: ");
+  foreach(g; inbred2) {
+    write(to!string(g) ~ " ");
+  }
+  writeln;
+
+  writeln("F1: ");
+  foreach(g; f1) {
+    write(to!string(g) ~ " ");
+  }
+  writeln;
+
+  // phase-unknown versions
+  auto inbred1_puk = make_genotypes_phase_unknown(inbred1);
+  auto inbred2_puk = make_genotypes_phase_unknown(inbred2);
+  auto f1_puk = make_genotypes_phase_unknown(f1);
+
+  writeln("Inbred 1 (phase 'unknown'): ");
+  foreach(g; inbred1_puk) {
+    write(to!string(g) ~ " ");
+  }
+  writeln;
+
+  writeln("Inbred 2 (phase 'unknown'): ");
+  foreach(g; inbred2_puk) {
+    write(to!string(g) ~ " ");
+  }
+  writeln;
+
+  writeln("F1 (phase unknown): ");
+  foreach(g; f1_puk) {
+    write(to!string(g) ~ " ");
+  }
+  writeln;
 }
