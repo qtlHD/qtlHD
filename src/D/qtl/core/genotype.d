@@ -140,6 +140,10 @@ class TrueGenotype {
   const string toString() {
     return '(' ~ toTrueGenotype ~ ')';
   }
+  const FounderIndex get_allele(in uint allele_index) {
+    if(allele_index) return(this.founders[1]);
+    else return(this.founders[0]);
+  }
 }
 
 /**
