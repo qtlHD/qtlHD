@@ -18,7 +18,7 @@ import std.math;
 
 // simulate crossover locations on a chromosome under no interference
 // chrlen_cM = chromosome length in cM
-double[] meiosisNI(double chrlen_cM, ref Random gen)
+double[] meiosisNI(in double chrlen_cM, ref Random gen)
 in {
   assert(chrlen_cM > 0, "chrlen_cM must be > 0");
 }
@@ -44,7 +44,7 @@ body {
  p=0 gives the chi-square model
  m=0 or p=1 gives the no-interference model
 */
-double[] meiosis(double chrlen_cM, int m, double p, ref Random gen)
+double[] meiosis(in double chrlen_cM, in uint m, in double p, ref Random gen)
 in {
   assert(chrlen_cM > 0, "chrlen_cM must be > 0");
   assert(m >= 0, "m must be >= 0");
@@ -83,7 +83,7 @@ body {
   return(xo_locations);
 }
 
-double[] meiosis(double start_cM, double end_cM, int m, double p, ref Random gen)
+double[] meiosis(in double start_cM, in double end_cM, in uint m, in double p, ref Random gen)
 in {
   assert(end_cM > start_cM, "end_cM must be > start_cM");
   assert(m >= 0, "m must be >= 0");
@@ -127,7 +127,7 @@ unittest {
 
 
 // generate genotypes for an inbred line
-TrueGenotype[] generate_founder_genotypes_onechr(Marker[] marker_map, FounderIndex founder)
+TrueGenotype[] generate_founder_genotypes_onechr(in Marker[] marker_map, in FounderIndex founder)
 {
   TrueGenotype[] genotypes;
 
@@ -140,7 +140,7 @@ TrueGenotype[] generate_founder_genotypes_onechr(Marker[] marker_map, FounderInd
 }
 
 // generate genotypes for the F1 hybrid of two inbred lines
-TrueGenotype[] generate_f1_genotypes_onechr(Marker[] marker_map, FounderIndex[] founders)
+TrueGenotype[] generate_f1_genotypes_onechr(in Marker[] marker_map, in FounderIndex[] founders)
 in {
   assert(founders.length == 2, "founders must have length 2");
 }
@@ -231,8 +231,8 @@ unittest {
 
 // simulate a sperm/egg cell from parent
 // marker_map must be sorted
-FounderIndex[] simulate_meiotic_product(Marker[] marker_map, TrueGenotype[] parent,
-                                        int m, double p, Random gen)
+FounderIndex[] simulate_meiotic_product(in Marker[] marker_map, in TrueGenotype[] parent,
+                                        in uint m, in double p, ref Random gen)
 in {
   assert(marker_map.length == parent.length, "marker_map and parent must be the same length");
   assert(m >= 0, "m must be >= 0");
