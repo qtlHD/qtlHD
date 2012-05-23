@@ -17,7 +17,7 @@ import std.math;
 
 // generate map of equally-spaced markers for one chromosome
 // if first_marker_number=5, markers will be named like "m5", "m6", ...
-Marker[] generate_map_eqspacing_onechr(double chrlen, int n_markers, int first_marker_number, 
+Marker[] generate_map_eqspacing_onechr(in double chrlen, in uint n_markers, in uint first_marker_number, 
                                        Chromosome chromosome)
 in {
   assert(chrlen >= 0, "chrlen must be >= 0");
@@ -52,8 +52,8 @@ unittest {
 
 
 // generate map of randomly spaced markers for one chromosome
-Marker[] generate_map_random_onechr(double chrlen, int n_markers, int first_marker_number,
-                                    Chromosome chromosome, bool anchor_tel, Random gen)
+Marker[] generate_map_random_onechr(in double chrlen, in uint n_markers, in uint first_marker_number,
+                                    Chromosome chromosome, in bool anchor_tel, ref Random gen)
 in {
   assert(chrlen >= 0, "chrlen must be >= 0");
   assert(n_markers > 0, "n_markers must be > 0");
@@ -64,31 +64,34 @@ body {
   Marker[] map;
   Marker m;
 
+  uint n_markers_local = n_markers;
+  uint first_marker_number_local = first_marker_number;
+
   if(anchor_tel) { // place markers at 0.0 and chrlen
-    m = new Marker(0.0, "m" ~ to!string(first_marker_number), first_marker_number);
+    m = new Marker(0.0, "m" ~ to!string(first_marker_number_local), first_marker_number_local);
     m.chromosome = chromosome;
     map ~= m;
 
-    int marker_number = first_marker_number + n_markers - 1;
+    int marker_number = first_marker_number_local + n_markers_local - 1;
     m = new Marker(chrlen, "m" ~ to!string(marker_number), marker_number);
     m.chromosome = chromosome;
     map ~= m;
 
-    if(n_markers == 2) return(map);
+    if(n_markers_local == 2) return(map);
 
-    n_markers -= 2;
-    first_marker_number++;
+    n_markers_local -= 2;
+    first_marker_number_local++;
   }
 
   // simulate marker locations
-  auto locations = new double[](n_markers);
-  foreach(i; 0..n_markers) {
+  auto locations = new double[](n_markers_local);
+  foreach(i; 0..n_markers_local) {
     locations[i] = uniform(0.0, chrlen, gen);
   }
   sort(locations);
 
-  foreach(i; 0..n_markers) {
-    m = new Marker(locations[i], "m" ~ to!string(first_marker_number+i), first_marker_number+i);
+  foreach(i; 0..n_markers_local) {
+    m = new Marker(locations[i], "m" ~ to!string(first_marker_number_local+i), first_marker_number_local+i);
     m.chromosome = chromosome;
     map ~= m;
   }
