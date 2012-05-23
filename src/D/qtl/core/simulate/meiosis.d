@@ -233,8 +233,13 @@ unittest {
 // marker_map must be sorted
 FounderIndex[] simulate_meiotic_product(Marker[] marker_map, TrueGenotype[] parent,
                                         int m, double p, Random gen)
-{
-  FounderIndex[] genotypes_on_product;
+in {
+  assert(marker_map.length == parent.length, "marker_map and parent must be the same length");
+  assert(m >= 0, "m must be >= 0");
+  assert(p >= 0 && p <= 1, "p must be in [0,1]");
+}
+body {
+  auto genotypes_on_product = new FounderIndex[](parent.length);
 
   double start_cM = marker_map[0].get_position;
   double end_cM = marker_map[$-1].get_position;
@@ -244,11 +249,11 @@ FounderIndex[] simulate_meiotic_product(Marker[] marker_map, TrueGenotype[] pare
 
   // draw genotype at first position
   uint current_strand = cast(uint)dice(gen, 1, 1);
-  genotypes_on_product ~= parent[0].get_allele(current_strand);
+  genotypes_on_product[0] = parent[0].get_allele(current_strand);
 
   if(xo_locations.length == 0) { // no XOs: fill in with that strand
     foreach(i; 1..parent.length)
-      genotypes_on_product ~= parent[i].get_allele(current_strand);
+      genotypes_on_product[i] = parent[i].get_allele(current_strand);
     return(genotypes_on_product);
   }
 
@@ -257,7 +262,7 @@ FounderIndex[] simulate_meiotic_product(Marker[] marker_map, TrueGenotype[] pare
     // loop markers up to that crossover; paste with current strand
     // then switch strand
     while(marker_map[current_marker].get_position < xoloc) {
-      genotypes_on_product ~= parent[current_marker].get_allele(current_strand);
+      genotypes_on_product[current_marker] = parent[current_marker].get_allele(current_strand);
       current_marker++;
 
       assert(current_marker < parent.length,
@@ -268,10 +273,7 @@ FounderIndex[] simulate_meiotic_product(Marker[] marker_map, TrueGenotype[] pare
 
   // fill in the rest
   foreach(i; current_marker..parent.length) {
-    if(current_strand)
-      genotypes_on_product ~= parent[current_marker].founders[1];
-    else
-      genotypes_on_product ~= parent[current_marker].founders[0];
+    genotypes_on_product[i] = parent[i].get_allele(current_strand);
   }
   return(genotypes_on_product);
 }
