@@ -83,6 +83,7 @@ body {
   return(xo_locations);
 }
 
+// meiosis with start and end; basically meiosis(end-start)+start
 double[] meiosis(in double start_cM, in double end_cM, in uint m, in double p, ref Random gen)
 in {
   assert(end_cM > start_cM, "end_cM must be > start_cM");
