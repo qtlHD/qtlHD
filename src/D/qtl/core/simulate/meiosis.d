@@ -190,7 +190,7 @@ unittest {
   auto chromosome = get_chromosome_with_id("1");
   auto marker_map = generate_map_eqspacing_onechr(100.0, 11, 1, chromosome);
 
-  FounderIndex[] founders = [1, 2];
+  FounderIndex[] founders = [0, 1];
 
   auto inbred1 = generate_founder_genotypes_onechr(marker_map, founders[0]);
   auto inbred2 = generate_founder_genotypes_onechr(marker_map, founders[1]);
@@ -303,11 +303,29 @@ body {
   return(genotypes_on_product);
 }
 
+// combine two meiotic products to create a new individual
+//     (I was tempted to say "fertilize")
+TrueGenotype[] combine_meiotic_products(in FounderIndex[] egg, in FounderIndex[] sperm)
+in {
+  assert(egg.length == sperm.length, "egg and sperm must have same length");
+}
+body {
+  TrueGenotype[] genotypes;
+
+  foreach(i, eggv; egg) {
+    auto g = new TrueGenotype(eggv, sperm[i]);
+    genotypes ~= g;
+  }
+
+  return(genotypes);
+}
+
+
 unittest {
   auto chromosome = get_chromosome_with_id("1");
   auto marker_map = generate_map_eqspacing_onechr(100.0, 26, 1, chromosome);
 
-  FounderIndex[] founders = [1, 2];
+  FounderIndex[] founders = [0, 1];
 
   auto inbred1 = generate_founder_genotypes_onechr(marker_map, founders[0]);
   auto inbred2 = generate_founder_genotypes_onechr(marker_map, founders[1]);
@@ -324,6 +342,28 @@ unittest {
   foreach(g; meiotic_product) write(g);
   writeln;
 
+  writeln("Simulate backcross:");
+  auto parent0_chr = generate_founder_chromosome(marker_map, founders[0]);
+  meiotic_product = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  auto backcross = combine_meiotic_products(meiotic_product, parent0_chr);
+  foreach(g; backcross) write(g, " ");
+  writeln;
+  meiotic_product = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  backcross = combine_meiotic_products(meiotic_product, parent0_chr);
+  foreach(g; backcross) write(g, " ");
+  writeln;
+
+  writeln("Simulate intercross:");
+  auto meiotic_product1 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  auto meiotic_product2 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  auto intercross = make_genotypes_phase_unknown(combine_meiotic_products(meiotic_product1, meiotic_product2));
+  foreach(g; intercross) write(g, " ");
+  writeln;
+  meiotic_product1 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  meiotic_product2 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  intercross = make_genotypes_phase_unknown(combine_meiotic_products(meiotic_product1, meiotic_product2));
+  foreach(g; intercross) write(g, " ");
+  writeln;
 
   marker_map = generate_map_eqspacing_onechr(10000.0, 26, 1, chromosome);
 
@@ -337,5 +377,28 @@ unittest {
   writeln;
   meiotic_product = simulate_meiotic_product(marker_map, f1, 0, 0.0, gen);
   foreach(g; meiotic_product) write(g);
+  writeln;
+
+  writeln("Simulate backcross:");
+  parent0_chr = generate_founder_chromosome(marker_map, founders[0]);
+  meiotic_product = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  backcross = combine_meiotic_products(meiotic_product, parent0_chr);
+  foreach(g; backcross) write(g, " ");
+  writeln;
+  meiotic_product = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  backcross = combine_meiotic_products(meiotic_product, parent0_chr);
+  foreach(g; backcross) write(g, " ");
+  writeln;
+
+  writeln("Simulate intercross:");
+  meiotic_product1 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  meiotic_product2 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  intercross = make_genotypes_phase_unknown(combine_meiotic_products(meiotic_product1, meiotic_product2));
+  foreach(g; intercross) write(g, " ");
+  writeln;
+  meiotic_product1 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  meiotic_product2 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
+  intercross = make_genotypes_phase_unknown(combine_meiotic_products(meiotic_product1, meiotic_product2));
+  foreach(g; intercross) write(g, " ");
   writeln;
 }
