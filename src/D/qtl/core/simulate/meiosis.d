@@ -73,7 +73,7 @@ body {
   // every (m+1)st point is chiasma; thin to give crossovers
   int first = cast(int)uniform(0.0, m+1, gen);
   for(auto i=first; i<n_points_interf; i += m+1)
-    if(dice(gen, 1, 1) < 0.5) xo_locations ~= pts_interf[i];
+    if(dice(gen, 1, 1)) xo_locations ~= pts_interf[i];
 
   // crossovers from no interference mechanism
   foreach(i; 0..n_points_ni)
@@ -156,6 +156,7 @@ body {
 }
 
 
+// convert true genotypes to phase-unknown version
 GenotypeCombinator[] make_genotypes_phase_unknown(TrueGenotype[] genotypes)
 {
   GenotypeCombinator[] obs_genotypes;
@@ -223,5 +224,95 @@ unittest {
   foreach(g; f1_puk) {
     write(to!string(g) ~ " ");
   }
+  writeln;
+
+}
+
+
+// simulate a sperm/egg cell from parent
+// marker_map must be sorted
+FounderIndex[] simulate_meiotic_product(Marker[] marker_map, TrueGenotype[] parent,
+                                        int m, double p, Random gen)
+{
+  FounderIndex[] genotypes_on_product;
+
+  double start_cM = marker_map[0].get_position;
+  double end_cM = marker_map[$-1].get_position;
+
+  // locations of crossovers
+  double[] xo_locations = meiosis(start_cM, end_cM, m, p, gen);
+
+  // draw genotype at first position
+  auto current_strand = dice(gen, 1, 1);
+  if(current_strand)
+    genotypes_on_product ~= parent[0].founders[1];
+  else
+    genotypes_on_product ~= parent[0].founders[0];
+
+  if(xo_locations.length == 0) { // no XOs: fill in with that strand
+    foreach(i; 1..parent.length) {
+      if(current_strand)
+        genotypes_on_product ~= parent[i].founders[1];
+      else
+        genotypes_on_product ~= parent[i].founders[0];
+    }
+    return(genotypes_on_product);
+  }
+
+  auto current_marker = 1;
+  foreach(xoloc; xo_locations) {
+    // loop markers up to that crossover; paste with current strand
+    // then switch strand
+    while(marker_map[current_marker].get_position < xoloc) {
+      if(current_strand)
+        genotypes_on_product ~= parent[current_marker].founders[1];
+      else
+        genotypes_on_product ~= parent[current_marker].founders[0];
+      current_marker++;
+
+      assert(current_marker < parent.length,
+             "We shouldn't get here; all xo_locations should be < end_cM");
+    }
+    current_strand = 1-current_strand;
+  }
+
+  // fill in the rest
+  foreach(i; current_marker..parent.length) {
+    if(current_strand)
+      genotypes_on_product ~= parent[current_marker].founders[1];
+    else
+      genotypes_on_product ~= parent[current_marker].founders[0];
+  }
+  return(genotypes_on_product);
+}
+
+unittest {
+  auto chromosome = get_chromosome_with_id("1");
+  auto marker_map = generate_map_eqspacing_onechr(100.0, 26, 1, chromosome);
+
+  FounderIndex[] founders = [1, 2];
+
+  auto inbred1 = generate_founder_genotypes_onechr(marker_map, founders[0]);
+  auto inbred2 = generate_founder_genotypes_onechr(marker_map, founders[1]);
+  auto f1 = generate_f1_genotypes_onechr(marker_map, founders);
+
+  Random gen;
+  gen.seed(unpredictableSeed);
+
+  writeln("Simulated meiotic product:");
+  auto meiotic_product = simulate_meiotic_product(marker_map, f1, 0, 0.0, gen);
+  foreach(g; meiotic_product) write(g);
+  writeln;
+
+
+  marker_map = generate_map_eqspacing_onechr(10000.0, 26, 1, chromosome);
+
+  inbred1 = generate_founder_genotypes_onechr(marker_map, founders[0]);
+  inbred2 = generate_founder_genotypes_onechr(marker_map, founders[1]);
+  f1 = generate_f1_genotypes_onechr(marker_map, founders);
+
+  writeln("Simulated meiotic product:");
+  meiotic_product = simulate_meiotic_product(marker_map, f1, 0, 0.0, gen);
+  foreach(g; meiotic_product) write(g);
   writeln;
 }
