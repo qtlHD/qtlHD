@@ -321,7 +321,7 @@ import std.typecons;
  */
 
 unittest {
-  writeln("Unit test" ~ __FILE__);
+  writeln("Unit test " ~ __FILE__);
   // at this point founders are simply numbers
   FounderIndex[] founder = [ 1, 2, 3, 4, 5 ];
   // create a few genotypes (at a marker location)
