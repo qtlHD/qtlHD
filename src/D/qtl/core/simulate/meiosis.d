@@ -140,6 +140,16 @@ TrueGenotype[] generate_founder_genotypes_onechr(in Marker[] marker_map, in Foun
   return(genotypes);
 }
 
+// generate single chromosome of founder alleles
+FounderIndex[] generate_founder_chromosome(in Marker[] marker_map, in FounderIndex founder)
+{
+  FounderIndex[] founders;
+  foreach(m; marker_map) {
+    founders ~= founder;
+  }
+  return(founders);
+}
+
 // generate genotypes for the F1 hybrid of two inbred lines
 TrueGenotype[] generate_f1_genotypes_onechr(in Marker[] marker_map, in FounderIndex[] founders)
 in {
@@ -184,21 +194,35 @@ unittest {
 
   auto inbred1 = generate_founder_genotypes_onechr(marker_map, founders[0]);
   auto inbred2 = generate_founder_genotypes_onechr(marker_map, founders[1]);
+  auto inbredchr1 = generate_founder_chromosome(marker_map, founders[0]);
+  auto inbredchr2 = generate_founder_chromosome(marker_map, founders[1]);
   auto f1 = generate_f1_genotypes_onechr(marker_map, founders);
 
-  writeln("Inbred 1: ");
+  writeln("Inbred 1:");
   foreach(g; inbred1) {
     write(to!string(g) ~ " ");
   }
   writeln;
 
-  writeln("Inbred 2: ");
+  writeln("Inbred 1 chromosome:");
+  foreach(g; inbredchr1) {
+    write(to!string(g) ~ " ");
+  }
+  writeln;
+
+  writeln("Inbred 2:");
   foreach(g; inbred2) {
     write(to!string(g) ~ " ");
   }
   writeln;
 
-  writeln("F1: ");
+  writeln("Inbred 2 chromosome:");
+  foreach(g; inbredchr2) {
+    write(to!string(g) ~ " ");
+  }
+  writeln;
+
+  writeln("F1:");
   foreach(g; f1) {
     write(to!string(g) ~ " ");
   }
@@ -292,8 +316,11 @@ unittest {
   Random gen;
   gen.seed(unpredictableSeed);
 
-  writeln("Simulated meiotic product:");
+  writeln("Simulated meiotic products:");
   auto meiotic_product = simulate_meiotic_product(marker_map, f1, 0, 0.0, gen);
+  foreach(g; meiotic_product) write(g);
+  writeln;
+  meiotic_product = simulate_meiotic_product(marker_map, f1, 0, 0.0, gen);
   foreach(g; meiotic_product) write(g);
   writeln;
 
@@ -304,7 +331,10 @@ unittest {
   inbred2 = generate_founder_genotypes_onechr(marker_map, founders[1]);
   f1 = generate_f1_genotypes_onechr(marker_map, founders);
 
-  writeln("Simulated meiotic product:");
+  writeln("Simulated meiotic products:");
+  meiotic_product = simulate_meiotic_product(marker_map, f1, 0, 0.0, gen);
+  foreach(g; meiotic_product) write(g);
+  writeln;
   meiotic_product = simulate_meiotic_product(marker_map, f1, 0, 0.0, gen);
   foreach(g; meiotic_product) write(g);
   writeln;
