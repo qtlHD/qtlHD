@@ -47,7 +47,6 @@ body {
 double[] meiosis(in double chrlen_cM, in uint m, in double p, ref Random gen)
 in {
   assert(chrlen_cM > 0, "chrlen_cM must be > 0");
-  assert(m >= 0, "m must be >= 0");
   assert(p >= 0 && p <= 1, "p must be in [0,1]");
 }
 body {
@@ -87,7 +86,6 @@ body {
 double[] meiosis(in double start_cM, in double end_cM, in uint m, in double p, ref Random gen)
 in {
   assert(end_cM > start_cM, "end_cM must be > start_cM");
-  assert(m >= 0, "m must be >= 0");
   assert(p >= 0 && p <= 1, "p must be in [0,1]");
 }
 body {
@@ -266,7 +264,6 @@ FounderIndex[] simulate_meiotic_product(in Marker[] marker_map, in TrueGenotype[
                                         in uint m, in double p, ref Random gen)
 in {
   assert(marker_map.length == parent.length, "marker_map and parent must be the same length");
-  assert(m >= 0, "m must be >= 0");
   assert(p >= 0 && p <= 1, "p must be in [0,1]");
 }
 body {
