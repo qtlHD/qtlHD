@@ -28,7 +28,7 @@ double rgamma(in double shape, in double scale, ref Random gen)
   return( qgamma(r, shape, scale, true) );
 }
 
-int rpois(in double lambda, ref Random gen)
+uint rpois(in double lambda, ref Random gen)
 {
   double r = uniform(0.0, 1.0, gen);
   return( qpois(r, lambda, true) );
