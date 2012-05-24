@@ -167,15 +167,15 @@ body {
 }
 
 
-// convert true genotypes to phase-unknown version
-GenotypeCombinator[] make_genotypes_phase_unknown(TrueGenotype[] genotypes)
+// convert true genotypes to GenotypeCombinator version
+GenotypeCombinator[] convert_truegenotype_to_genotypecombinator(TrueGenotype[] genotypes, in bool make_phase_unknown=true)
 {
   GenotypeCombinator[] obs_genotypes;
 
   foreach(g; genotypes) {
     auto observed = new GenotypeCombinator("observed");
     observed ~= g;
-    if(g.heterozygous()) {
+    if(make_phase_unknown && g.heterozygous()) {
       auto g_reversephase = new TrueGenotype(g.founders[1], g.founders[0]);
       observed ~= g_reversephase;
     }
@@ -184,6 +184,7 @@ GenotypeCombinator[] make_genotypes_phase_unknown(TrueGenotype[] genotypes)
 
   return(obs_genotypes);
 }
+
 
 
 unittest {
@@ -229,9 +230,9 @@ unittest {
   writeln;
 
   // phase-unknown versions
-  auto inbred1_puk = make_genotypes_phase_unknown(inbred1);
-  auto inbred2_puk = make_genotypes_phase_unknown(inbred2);
-  auto f1_puk = make_genotypes_phase_unknown(f1);
+  auto inbred1_puk = convert_truegenotype_to_genotypecombinator(inbred1);
+  auto inbred2_puk = convert_truegenotype_to_genotypecombinator(inbred2);
+  auto f1_puk = convert_truegenotype_to_genotypecombinator(f1);
 
   writeln("Inbred 1 (phase 'unknown'): ");
   foreach(g; inbred1_puk) {
@@ -356,12 +357,12 @@ unittest {
   writeln("Simulate intercross:");
   auto meiotic_product1 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
   auto meiotic_product2 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
-  auto intercross = make_genotypes_phase_unknown(combine_meiotic_products(meiotic_product1, meiotic_product2));
+  auto intercross = convert_truegenotype_to_genotypecombinator(combine_meiotic_products(meiotic_product1, meiotic_product2));
   foreach(g; intercross) write(g, " ");
   writeln;
   meiotic_product1 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
   meiotic_product2 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
-  intercross = make_genotypes_phase_unknown(combine_meiotic_products(meiotic_product1, meiotic_product2));
+  intercross = convert_truegenotype_to_genotypecombinator(combine_meiotic_products(meiotic_product1, meiotic_product2));
   foreach(g; intercross) write(g, " ");
   writeln;
 
@@ -393,12 +394,12 @@ unittest {
   writeln("Simulate intercross:");
   meiotic_product1 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
   meiotic_product2 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
-  intercross = make_genotypes_phase_unknown(combine_meiotic_products(meiotic_product1, meiotic_product2));
+  intercross = convert_truegenotype_to_genotypecombinator(combine_meiotic_products(meiotic_product1, meiotic_product2));
   foreach(g; intercross) write(g, " ");
   writeln;
   meiotic_product1 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
   meiotic_product2 = simulate_meiotic_product(marker_map, f1, 10, 0.0, gen);
-  intercross = make_genotypes_phase_unknown(combine_meiotic_products(meiotic_product1, meiotic_product2));
+  intercross = convert_truegenotype_to_genotypecombinator(combine_meiotic_products(meiotic_product1, meiotic_product2));
   foreach(g; intercross) write(g, " ");
   writeln;
 }
