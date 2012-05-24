@@ -70,7 +70,7 @@ body {
     m = new Marker(chromosome, 0.0, "m" ~ to!string(first_marker_number_local), first_marker_number_local);
     map ~= m;
 
-    int marker_number = first_marker_number_local + n_markers_local - 1;
+    uint marker_number = first_marker_number_local + n_markers_local - 1;
     m = new Marker(chromosome, chrlen, "m" ~ to!string(marker_number), marker_number);
     map ~= m;
 

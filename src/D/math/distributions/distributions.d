@@ -146,7 +146,7 @@ unittest {
 }
 
 // poisson probabilities
-double dpois(in int x, in double lambda, in bool give_log = false)
+double dpois(in uint x, in double lambda, in bool give_log = false)
 in {
   // lambda = 0 should be okay
   assert(x >= 0, "x must be >= 0");
@@ -163,7 +163,7 @@ unittest {
 
 
 // tail probabilities of poisson
-double ppois(in int x, in double lambda, in bool lower_tail = true)
+double ppois(in uint x, in double lambda, in bool lower_tail = true)
 in {
   assert(x >= 0, "x must be >= 0 [" ~ to!string(x) ~ "]");
   assert(lambda > 0, "lambda must be > 0");
@@ -178,7 +178,7 @@ unittest {
 }
 
 // quantiles of poisson
-int qpois(in double p, in double lambda, in bool lower_tail = true)
+uint qpois(in double p, in double lambda, in bool lower_tail = true)
 in {
   assert(p >= 0 && p <= 1, "p must be in [0,1]");
   assert(lambda > 0, "lambda must be >0");
