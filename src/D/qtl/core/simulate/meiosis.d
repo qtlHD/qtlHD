@@ -23,7 +23,7 @@ in {
   assert(chrlen_cM > 0, "chrlen_cM must be > 0");
 }
 body {
-  int n_xo = rpois(chrlen_cM/100.0, gen);
+  uint n_xo = rpois(chrlen_cM/100.0, gen);
 
   auto xo_locations = new double[](n_xo);
   foreach(i; 0..n_xo)
@@ -55,9 +55,9 @@ body {
   if(m==0 || p==1) return(meiosisNI(chrlen_cM, gen));
 
   // number of crossovers and intermediates (on 4-strand bundle)
-  int n_points_interf = rpois(chrlen_cM*(m+1)/50.0*(1.0-p), gen );
+  uint n_points_interf = rpois(chrlen_cM*(m+1)/50.0*(1.0-p), gen );
   // number of crossovers from no interference mechanism (on final product)
-  int n_points_ni;
+  uint n_points_ni;
   if(p==0) n_points_ni = 0;
   else n_points_ni = rpois(chrlen_cM/100.0*p, gen);
 
@@ -71,7 +71,7 @@ body {
   sort(pts_interf);
 
   // every (m+1)st point is chiasma; thin to give crossovers
-  int first = cast(int)uniform(0.0, m+1, gen);
+  uint first = cast(uint)uniform(0.0, m+1, gen);
   for(auto i=first; i<n_points_interf; i += m+1)
     if(dice(gen, 1, 1)) xo_locations ~= pts_interf[i];
 

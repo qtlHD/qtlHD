@@ -430,7 +430,7 @@ double[] estmap_F2(in GenotypeCombinator[][] genotypes,
                    in Marker[] marker_map,
                    in double[] rec_frac, 
                    in double error_prob, 
-                   in int max_iterations,
+                   in uint max_iterations,
                    in double tol, 
                    in bool verbose)
 {

@@ -68,7 +68,7 @@ double[][] backwardEquations(alias init, alias emit, alias step)(in GenotypeComb
   }
 
   // backward equations
-  for(int pos = cast(int)n_positions-2; pos >= 0; pos--) {
+  for(size_t pos = n_positions-2; pos >= 0; pos--) {
     foreach(il, true_geno_left; all_true_geno) {
       if(isPseudoMarker(marker_map[pos+1]))
         beta[il][pos] = beta[0][pos+1] +
