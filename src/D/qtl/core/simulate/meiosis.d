@@ -131,6 +131,7 @@ unittest {
 TrueGenotype[] generate_founder_genotypes_onechr(in Marker[] marker_map, in FounderIndex founder)
 {
   TrueGenotype[] genotypes;
+  genotypes.reserve(marker_map.length);
 
   foreach(m; marker_map) {
     auto g = new TrueGenotype(founder, founder);
@@ -144,6 +145,8 @@ TrueGenotype[] generate_founder_genotypes_onechr(in Marker[] marker_map, in Foun
 FounderIndex[] generate_founder_chromosome(in Marker[] marker_map, in FounderIndex founder)
 {
   FounderIndex[] founders;
+  founders.reserve(marker_map.length);
+
   foreach(m; marker_map) {
     founders ~= founder;
   }
@@ -157,6 +160,7 @@ in {
 }
 body {
   TrueGenotype[] genotypes;
+  genotypes.reserve(marker_map.length);
 
   foreach(m; marker_map) {
     auto g = new TrueGenotype(founders[0], founders[1]);
@@ -171,6 +175,7 @@ body {
 GenotypeCombinator[] convert_truegenotype_to_genotypecombinator(TrueGenotype[] genotypes, in bool make_phase_unknown=true)
 {
   GenotypeCombinator[] obs_genotypes;
+  obs_genotypes.reserve(genotypes.length);
 
   foreach(g; genotypes) {
     auto observed = new GenotypeCombinator("observed");
