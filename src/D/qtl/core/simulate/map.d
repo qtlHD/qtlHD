@@ -26,6 +26,7 @@ in {
 }
 body {
   Marker[] map;
+  map.reserve(n_markers);
 
   foreach(i; 0..n_markers) {
     double location = i*chrlen/(n_markers-1);
@@ -61,6 +62,7 @@ in {
 }
 body {
   Marker[] map;
+  map.reserve(n_markers);
   Marker m;
 
   uint n_markers_local = n_markers;
