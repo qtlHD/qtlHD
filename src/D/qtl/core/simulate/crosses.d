@@ -19,7 +19,7 @@ import std.math;
 
 // simulate a backcross
 GenotypeCombinator[][] simulate_backcross_autosome(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
-                                                   uint m, double p, ref Random gen)
+                                                   in uint m, in double p, ref Random gen)
 in {
   assert(founders.length == 2, "founders must have length 2");
   assert(marker_map.length > 0, "marker_map must have length > 0");
@@ -64,7 +64,7 @@ unittest {
 
 // simulate an intercross
 GenotypeCombinator[][] simulate_intercross_autosome(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
-                                                    uint m, double p, ref Random gen)
+                                                    in uint m, in double p, ref Random gen)
 in {
   assert(founders.length == 2, "founders must have length 2");
   assert(marker_map.length > 0, "marker_map must have length > 0");
@@ -108,7 +108,7 @@ unittest {
 
 // simulate RIL by selfing, to complete inbreeding
 GenotypeCombinator[][] simulate_riself(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
-                                       uint m, double p, ref Random gen)
+                                       in uint m, in double p, ref Random gen)
 in {
   assert(founders.length == 2, "founders must have length 2");
   assert(marker_map.length > 0, "marker_map must have length > 0");
@@ -155,7 +155,7 @@ unittest {
   writeln;
 }
 
-uint count_het_genotypes(TrueGenotype[] genotypes)
+uint count_het_genotypes(in TrueGenotype[] genotypes)
 {
   uint number_het_genotypes=0;
 
@@ -168,7 +168,7 @@ uint count_het_genotypes(TrueGenotype[] genotypes)
 
 // simulate RIL by sib-mating, to complete inbreeding
 GenotypeCombinator[][] simulate_risib_autosome(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
-                                               uint m, double p, ref Random gen)
+                                               in uint m, in double p, ref Random gen)
 in {
   assert(founders.length == 2, "founders must have length 2");
   assert(marker_map.length > 0, "marker_map must have length > 0");
@@ -222,7 +222,7 @@ unittest {
 }
 
 
-uint count_genotype_differences(TrueGenotype[] genotypes1, TrueGenotype[] genotypes2)
+uint count_genotype_differences(in TrueGenotype[] genotypes1, in TrueGenotype[] genotypes2)
 in {
   assert(genotypes1.length == genotypes2.length, "genotypes1 and genotypes2 must have the same length");
 }

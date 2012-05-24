@@ -111,8 +111,8 @@ class TrueGenotype {
     auto field2 = to!uint(fields[1]);
     founders = Alleles(field1,field2);
   }
-  bool homozygous()   { return founders[0] == founders[1]; };
-  bool heterozygous() { return !homozygous(); };
+  const bool homozygous()   { return founders[0] == founders[1]; };
+  const bool heterozygous() { return !homozygous(); };
   TrueGenotype reversed() { return new TrueGenotype(founders[1],founders[0]); }
   // Comparison for consistent sorting of true genotypes, based on founder 
   // genotype numbering scheme
