@@ -179,8 +179,7 @@ GenotypeCombinator[] convert_truegenotype_to_genotypecombinator(TrueGenotype[] g
     auto observed = new GenotypeCombinator("observed");
     observed ~= g;
     if(make_phase_unknown && g.heterozygous()) {
-      auto g_reversephase = new TrueGenotype(g.founders[1], g.founders[0]);
-      observed ~= g_reversephase;
+      observed ~= g.reversed();
     }
     obs_genotypes ~= observed;
   }
