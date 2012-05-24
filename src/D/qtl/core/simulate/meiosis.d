@@ -1,6 +1,6 @@
-/*
- Code to simulate meiosis and basic crosses
-*/
+/**
+ * Code to simulate meiosis and basic crosses
+ */
 
 module qtl.core.simulate.meiosis;
 

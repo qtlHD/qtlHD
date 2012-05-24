@@ -1,4 +1,4 @@
-/*
+/**
  * distributions: densities, tail probabilities, and quantiles
  * tests in test/simulate/distributions
  */

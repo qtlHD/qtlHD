@@ -1,4 +1,4 @@
-/*
+/**
  * random: functions to generate random draws from various distributions
  */
 

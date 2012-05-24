@@ -1,6 +1,6 @@
-/*
- Code to generate a marker map
-*/
+/**
+ * Code to generate a marker map
+ */
 
 module qtl.core.simulate.map;
 
