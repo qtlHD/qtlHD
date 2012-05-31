@@ -159,7 +159,7 @@ exe_list.each do | fn, attr |
     desc "Test "+fn
   end
   file fn => list do
-    sh "dmd #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
+    sh "dmd -w #{d_debug} #{d_test} -of#{fn} #{list.join(' ')}"
     if debug
       print "RUNNING the debugger, to continue the test, type 'run'\n"
       sh 'gdb '+fn
