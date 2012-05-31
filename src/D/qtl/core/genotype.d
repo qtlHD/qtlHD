@@ -117,7 +117,7 @@ class TrueGenotype {
   // Comparison for consistent sorting of true genotypes, based on founder 
   // genotype numbering scheme
   // e.g. 2,2 > 2,1 > 2,0 > 1,2 > 1,1 > 1,0 > 0,1 > 0,0
-  int opCmp(Object other) {
+  override int opCmp(Object other) {
     TrueGenotype _other = cast(TrueGenotype)other;
     auto founders2 = _other.founders;
     if (founders[0] > founders2[0]) return 1;
@@ -127,7 +127,7 @@ class TrueGenotype {
     return 0;
   }
   // If both founders are equal, the genotype is the same
-  const bool opEquals(Object other) {
+  override const bool opEquals(Object other) {
     auto founders2 = (cast(TrueGenotype)other).founders;
     return founders[0] == founders2[0] && founders[1] == founders2[1];
   }
@@ -137,7 +137,7 @@ class TrueGenotype {
     return to!string(f0) ~ ',' ~ to!string(f1);
   }
   // string representation of true genotype, i.e. 1,0 -> "(1,0)"
-  const string toString() {
+  override const string toString() {
     return '(' ~ toTrueGenotype ~ ')';
   }
   const FounderIndex get_allele(in uint allele_index) {
@@ -215,20 +215,20 @@ class GenotypeCombinator {
   }
   // The ~ operator can add another combinator to the list
   GenotypeCombinator opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
-    foreach(g ; c.list ) { add(g); };
+    foreach(g ; c.list ) { add(g); }
     return this;
   }
   // Return the number of true genotypes available
   const auto length() { return list.length; }
   // Test for equality of two combinators
-  bool opEquals(Object other) {
+  override bool opEquals(Object other) {
     auto rhs = cast(GenotypeCombinator)other;
     return (list.sort == rhs.list.sort); // probably not the fastest way ;)
   }
   /**
    * Return a string format of the combinator in the form "[(p1,p2)]"
    */
-  const string toString() {
+  override const string toString() {
     if (isNA) return "[NA]";
     return to!string(list);
   }
@@ -309,9 +309,7 @@ class ObservedGenotypes {
     return this;
   }
   auto length() { return list.length; }
-  const string toString() {
-    return to!string(list);
-  }
+  override const string toString() { return to!string(list); }
 }
 
 /**

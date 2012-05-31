@@ -125,19 +125,19 @@ class Marker {
   }
 
   const Position get_position() { return position; }
-  bool opEquals(Object other) {
+  override bool opEquals(Object other) {
     //  test for chromosome?
     /// Markers at the same position are considered equal
     return get_position() == (cast(Marker)other).position;
   }
-  int opCmp(Object other) {
+  override int opCmp(Object other) {
     //  test for chromosome?
     auto cmp = position - (cast(Marker)other).position;
     if (cmp > 0) return 1;
     if (cmp < 0) return -1;
     return 0;
   }
-  string toString() { return name ~ "~" ~ to!string(position); }
+  override string toString() { return name ~ "~" ~ to!string(position); }
 }
 
 /** 

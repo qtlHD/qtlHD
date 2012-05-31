@@ -44,9 +44,7 @@ class ObservedRIL {
     return symbols.decode(s);
   }
   auto length() { return symbols.length; }
-  string toString() {
-    return to!string(symbols);
-  }
+  override string toString() { return to!string(symbols); }
 }
 
 unittest {
@@ -121,13 +119,9 @@ class ObservedBC {
     crosstype = bc;
   }
   /// Decode an input to an (observed) genotype
-  auto decode(in string s) {
-    return symbols.decode(s);
-  }
+  auto decode(in string s) { return symbols.decode(s); }
   auto length() { return symbols.length; }
-  string toString() {
-    return to!string(symbols);
-  }
+  override string toString() { return to!string(symbols); }
 
 }
 
@@ -193,13 +187,9 @@ class ObservedF2 {
     crosstype = f2;
   }
   /// Decode an input to an (observed) genotype
-  auto decode(in string s) {
-    return symbols.decode(s);
-  }
+  auto decode(in string s) { return symbols.decode(s); }
   auto length() { return symbols.length; }
-  string toString() {
-    return to!string(symbols);
-  }
+  override string toString() { return to!string(symbols); }
 }
 
 unittest {
@@ -314,13 +304,9 @@ class ObservedFlex {
     crosstype = flex;
   }
   /// Decode an input to an (observed) genotype
-  auto decode(in string s) {
-    return symbols.decode(s);
-  }
+  auto decode(in string s) { return symbols.decode(s); }
   auto length() { return symbols.length; }
-  string toString() {
-    return to!string(symbols);
-  }
+  override string toString() { return to!string(symbols); }
 
 }
 
