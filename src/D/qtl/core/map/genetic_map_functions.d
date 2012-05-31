@@ -135,6 +135,7 @@ body {
       break;
     case GeneticMapFunc.Carter_Falconer:
       dist_cM[i] = 12.5*(log(1+2*local_rf)-log(1-2*local_rf))+25*atan(2*local_rf);
+      break;
     default: break;
     }
   }
