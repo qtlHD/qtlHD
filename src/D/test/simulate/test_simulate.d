@@ -4,7 +4,7 @@
 
 module test.simulate.test_simulate;
 
-import test.simulate.distributions;
-import test.simulate.random;
-import test.simulate.meiosis;
-import test.simulate.scanone;
+import test.simulate.test_distributions;
+import test.simulate.test_random;
+import test.simulate.test_meiosis;
+import test.simulate.test_scanone;

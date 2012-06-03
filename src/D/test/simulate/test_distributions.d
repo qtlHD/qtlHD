@@ -2,7 +2,7 @@
  * test distibution functions
  */
 
-module test.simulate.distributions;
+module test.simulate.test_distributions;
 
 import math.distributions.distributions;
 import std.stdio;

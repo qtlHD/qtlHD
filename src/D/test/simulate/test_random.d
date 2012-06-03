@@ -2,7 +2,7 @@
  * test random nu
  */
 
-module test.simulate.random;
+module test.simulate.test_random;
 
 import math.distributions.random;
 

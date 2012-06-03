@@ -2,7 +2,7 @@
  * test simulation with scanone
  */
 
-module test.simulate.scanone;
+module test.simulate.test_scanone;
 
 import qtl.core.simulate.crosses;
 import math.distributions.random;
