@@ -31,7 +31,7 @@ body {
   foreach(i; 0..n_markers) {
     double location = i*chrlen/(n_markers-1);
 
-    Marker m = new Marker(chromosome, location, "m" ~ to!string(first_marker_number + i), first_marker_number+i);
+    Marker m = new Marker(chromosome, location, "m" ~ to!string(first_marker_number + i), first_marker_number+i-1);
     map ~= m;
   }
   return map;
@@ -69,11 +69,11 @@ body {
   uint first_marker_number_local = first_marker_number;
 
   if(anchor_tel) { // place markers at 0.0 and chrlen
-    m = new Marker(chromosome, 0.0, "m" ~ to!string(first_marker_number_local), first_marker_number_local);
+    m = new Marker(chromosome, 0.0, "m" ~ to!string(first_marker_number_local), first_marker_number_local-1);
     map ~= m;
 
     uint marker_number = first_marker_number_local + n_markers_local - 1;
-    m = new Marker(chromosome, chrlen, "m" ~ to!string(marker_number), marker_number);
+    m = new Marker(chromosome, chrlen, "m" ~ to!string(marker_number), marker_number-1);
     map ~= m;
 
     if(n_markers_local == 2) return(map);
@@ -90,7 +90,7 @@ body {
   sort(locations);
 
   foreach(i; 0..n_markers_local) {
-    m = new Marker(chromosome, locations[i], "m" ~ to!string(first_marker_number_local+i), first_marker_number_local+i);
+    m = new Marker(chromosome, locations[i], "m" ~ to!string(first_marker_number_local+i), first_marker_number_local+i-1);
     map ~= m;
   }
 
