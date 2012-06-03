@@ -22,7 +22,7 @@ double[][] forwardEquations(alias init, alias emit, alias step)(in GenotypeCombi
 in {
   foreach(i, m; marker_map)
     assert(isPseudoMarker(m) || (m.id >= 0 && m.id < genotypes.length),
-           "marker " ~ m.name ~ "[" ~ to!string(i) ~ "] has id out of range: " ~ to!string(m.id));
+           "marker " ~ m.name ~ " [" ~ to!string(i) ~ "] has id out of range: " ~ to!string(m.id));
 }
 body {
   size_t n_positions = marker_map.length;
@@ -67,7 +67,7 @@ double[][] backwardEquations(alias init, alias emit, alias step)(in GenotypeComb
 in {
   foreach(i, m; marker_map)
     assert(isPseudoMarker(m) || (m.id >= 0 && m.id < genotypes.length),
-           "marker " ~ m.name ~ "[" ~ to!string(i) ~ "] has id out of range: " ~ to!string(m.id));
+           "marker " ~ m.name ~ " [" ~ to!string(i) ~ "] has id out of range: " ~ to!string(m.id));
 }
 body {
   size_t n_positions = marker_map.length;
