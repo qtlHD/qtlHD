@@ -6,6 +6,8 @@ module qtl.core.hmm.forwardbackward;
 
 import std.stdio;
 import std.math;
+import std.string;
+import std.conv;
 
 import qtl.core.map.genetic_map_functions;
 import qtl.core.primitives, qtl.core.genotype;
@@ -17,7 +19,12 @@ double[][] forwardEquations(alias init, alias emit, alias step)(in GenotypeCombi
                                                                 in Marker[] marker_map,
                                                                 in Probability[] rec_frac,
                                                                 in Probability error_prob)
-{
+in {
+  foreach(i, m; marker_map)
+    assert(isPseudoMarker(m) || (m.id >= 0 && m.id < genotypes.length),
+           "marker " ~ m.name ~ "[" ~ to!string(i) ~ "] has id out of range: " ~ to!string(m.id));
+}
+body {
   size_t n_positions = marker_map.length;
 
   auto alpha = new double[][](all_true_geno.length, n_positions);
@@ -57,7 +64,12 @@ double[][] backwardEquations(alias init, alias emit, alias step)(in GenotypeComb
                                                                  in Marker[] marker_map,
                                                                  in Probability[] rec_frac,
                                                                  in Probability error_prob)
-{
+in {
+  foreach(i, m; marker_map)
+    assert(isPseudoMarker(m) || (m.id >= 0 && m.id < genotypes.length),
+           "marker " ~ m.name ~ "[" ~ to!string(i) ~ "] has id out of range: " ~ to!string(m.id));
+}
+body {
   size_t n_positions = marker_map.length;
 
   auto beta = new double[][](all_true_geno.length,n_positions);
