@@ -1,13 +1,13 @@
 #! /usr/bin/rake
 #
-# Rake file for building qtlHD binaries, libraries and unit tests. 
+# Rake file for building qtlHD binaries, libraries and unit tests.
 #
 # Examples:
 #
 #   rake                 # default build and test
 #   rake -T              # list all defined rake tasks
 #   rake clean
-#   rake build          
+#   rake build
 #   rake run
 #   rake test
 #   rake DEBUG=TRUE csv2xgap  # build utility with debug information
@@ -44,7 +44,7 @@ if ARGV.index("RELEASE=TRUE")
 end
 
 arch_dfiles = Dir.glob("./arch/*.d")
-core_dfiles = Dir.glob("./qtl/core/*.d") 
+core_dfiles = Dir.glob("./qtl/core/*.d")
 map_dfiles  = Dir.glob("./qtl/core/map/*.d")
 hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d")
 util_dfiles = Dir.glob("./qtl/core/util/*.d")
@@ -64,13 +64,13 @@ renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d")
 scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
 example_dfiles = Dir.glob("./example/*.d")
-deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + 
+deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") +
   Dir.glob("./qtl/plugins/deprecate/*.d")
 main_dfile = ["test/main.d"]
 test_simulate_dfiles = Dir.glob("./test/simulate/*.d")
 
 all_core_dfiles = core_dfiles + map_dfiles + hmm_dfiles + util_dfiles + qtab_read_dfiles
-all_dfiles = all_core_dfiles + 
+all_dfiles = all_core_dfiles +
              csv_dfiles + csvr_dfiles + qtab_dfiles + xgap_dfiles +
              deprecated_dfiles
 
@@ -94,7 +94,7 @@ LIB_EXT =       # set build target library file name
   if BUILD_SHLIBS
     shlib_suffix
   else
-    if(windows?) then 'lib' else 'a' end 
+    if(windows?) then 'lib' else 'a' end
   end
 
 LIB_QTAB = shlib_prefix + 'qtab.' + LIB_EXT
@@ -115,11 +115,11 @@ CLEAN.include(Dir.glob("../../build/*"))
 
 # The compile targets
 
-lib_list = { 
+lib_list = {
   LIB_QTAB => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_read_dfiles },
 }
 
-exe_list = { 
+exe_list = {
   'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles + example_dfiles + main_dfile },
   'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + example_dfiles + main_dfile },
   'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_read_dfiles + main_dfile },
@@ -131,10 +131,10 @@ exe_list = {
   'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + arch_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
   'test_hmm' => { :path => './test/hmm', :list => ['./test/hmm/test_hmm_f2.d'] + ['./test/hmm/test_hmm_bc.d'] + all_core_dfiles + qtab_read_dfiles + main_dfile },
-  'test_simulate' => { :path => './test/simulate', :list => test_simulate_dfiles + simulate_dfiles + distributions_dfiles + main_dfile + core_dfiles },
+  'test_simulate' => { :path => './test/simulate', :list => test_simulate_dfiles + simulate_dfiles + distributions_dfiles + main_dfile + all_core_dfiles + scanone_dfiles + lapack_dfiles },
 }
 
-build_list = { 
+build_list = {
   'scanone' => { path: './qtl/main', list: ['./qtl/main/scanone.d'] + all_core_dfiles }
 }
 
@@ -146,11 +146,11 @@ lib_list.each do | fn, attr |
   end
 end
 
-exe_list.each do | fn, attr | 
+exe_list.each do | fn, attr |
   path = attr[:path]
   list = attr[:list]
   source = path + '/' + fn + '.d'
-  list << source 
+  list << source
   list.uniq!
 
   if fn =~ /test/i
@@ -205,12 +205,12 @@ desc "Build default libraries"
 task :build_libs => [ LIB_QTAB ]
 
 desc "Build default binaries"
-task :build => BINARIES 
+task :build => BINARIES
 
 desc "Create tags (exurberant tags)"
 task :tags => [] do
   print "Creating tags!"
-  list = all_dfiles 
+  list = all_dfiles
   sh "dmd -c -Xftags.json #{list.join(' ')}"
   sh "rdmd ../../scripts/d2tags . > tags"
 end
@@ -218,27 +218,27 @@ end
 desc "Run #{PROG}"
 task :run => [PROG] do
   print "Running #{PROG}\n"
-  sh "./#{PROG}" 
+  sh "./#{PROG}"
 end
 
 desc "Test #{PROG}"
 task :test => [PROG] do
   print "Testing #{PROG}\n"
-  sh "./#{PROG}" 
+  sh "./#{PROG}"
 end
 
 # ---- Unit tests
 
 desc "Test XGAP"
-task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do 
+task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do
   sh "./write_xgapbin"
   sh "./read_xgapbin"
 end
 
 desc "Test qtlHD qtab"
 task :test_qtab => [ 'read_qtab', 'write_qtab' ] do
-  sh "./write_qtab" 
-  sh "./read_qtab" 
+  sh "./write_qtab"
+  sh "./read_qtab"
 end
 
 desc "Test CSV"
