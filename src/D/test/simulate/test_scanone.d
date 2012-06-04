@@ -63,6 +63,7 @@ unittest {
   auto rss0 = scanone_hk_null(phenotype, addcovar, weights);
   auto lod = rss_to_lod(rss, rss0, phenotype.length);
 
-  foreach(i, m; pmap)
-    writefln("%20s %5.1f %8.3f", m.name, m.get_position, lod[i]);
+  auto index = new int[](lod.length);
+  makeIndex!("b < a")(lod, index);
+  writefln("Max lod = %6.2f at %7.2f", lod[index[0]], pmap[index[0]].get_position);
 }
