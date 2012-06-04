@@ -40,7 +40,7 @@ unittest {
 
   auto phenotype = new Phenotype!double[](n_ind);
 
-  auto het = new TrueGenotype(0,0);
+  auto het = new TrueGenotype(1,0);
 
   foreach(i; 0..n_ind) {
     phenotype[i].value = rnorm(0.0, 1.0, gen);
