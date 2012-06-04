@@ -145,6 +145,24 @@ double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] 
 }
 
 
+// one phenotype version
+double[] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[] pheno,
+                    in double[][] addcovar, in double[][] intcovar,
+                    in double[] weights, in double tol=1e-8)
+{
+  auto pheno_2d = new Phenotype!double[][](pheno.length, 1);
+  foreach(i; 0..pheno.length)
+    pheno_2d[i][0].value = pheno[i].value;
+
+  auto rss_2d = scanone_hk(genoprobs, pheno_2d, addcovar, intcovar, weights, tol);
+  auto rss_1d = new double[](rss_2d.length);
+  foreach(i; 0..rss_2d.length)
+    rss_1d[i] = rss_2d[i][0];
+
+  return rss_1d;
+}
+
+
 // scanone for null model
 double[] scanone_hk_null(in Phenotype!(double)[][] pheno, in double[][] addcovar,
                          in double[] weights, in double tol=1e-8)
@@ -174,6 +192,19 @@ double[] scanone_hk_null(in Phenotype!(double)[][] pheno, in double[][] addcovar
                              addcovar, intcovar, local_weights, tol);
 }
 
+// one phenotype version
+double scanone_hk_null(in Phenotype!(double)[] pheno, in double[][] addcovar, 
+                       in double[] weights, in double tol=1e-8)
+{
+  auto pheno_2d = new Phenotype!double[][](pheno.length, 1);
+  foreach(i; 0..pheno.length)
+    pheno_2d[i][0].value = pheno[i].value;
+
+  auto rss = scanone_hk_null(pheno_2d, addcovar, weights, tol);
+
+  return rss[0];
+}
+
 
 // calculate lod scores
 double[][] rss_to_lod(in double[][] rss_alt, in double[] rss_null, in size_t n_ind)
@@ -185,9 +216,26 @@ double[][] rss_to_lod(in double[][] rss_alt, in double[] rss_null, in size_t n_i
 
   foreach(i; 0..rss_alt.length)
     foreach(j; 0..rss_alt[i].length)
-      lod[i][j] = cast(double)n_ind/2.0 * log10(rss_null[j] / rss_alt[i][j]);
+      lod[i][j] = rss_to_lod(rss_alt[i][j], rss_null[j], n_ind);
 
   return lod;
+}
+
+// one phenotype version
+double[] rss_to_lod(in double[] rss_alt, in double rss_null, in size_t n_ind)
+{
+  auto lod = new double[](rss_alt.length);
+
+  foreach(i; 0..rss_alt.length)
+    lod[i] = rss_to_lod(rss_alt[i], rss_null, n_ind);
+
+  return lod;
+}
+
+// single value version
+double rss_to_lod(in double rss_alt, in double rss_null, in size_t n_ind)
+{
+  return cast(double)n_ind/2.0 * log10(rss_null / rss_alt);
 }
 
 

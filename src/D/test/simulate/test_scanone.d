@@ -38,14 +38,14 @@ unittest {
   size_t n_ind = 100;
   auto BCgen = simulate_backcross_autosome(marker_map, n_ind, [0, 1], 10, 0.0, gen);
 
-  auto phenotype = new Phenotype!double[][](n_ind,1);
+  auto phenotype = new Phenotype!double[](n_ind);
 
   auto het = new TrueGenotype(0,0);
 
   foreach(i; 0..n_ind) {
-    phenotype[i][0].value = rnorm(0.0, 1.0, gen);
+    phenotype[i].value = rnorm(0.0, 1.0, gen);
     if(BCgen[i][5].match(het))
-      phenotype[i][0].value += 0.8;
+      phenotype[i].value += 0.8;
   }
 
   // pseudomarkers and HMM
@@ -59,14 +59,10 @@ unittest {
   auto weights = new double[](0);
 
   // scanone
-  writeln("phenotype.length: ", phenotype.length);
-  writeln("phenotype[0].length: ", phenotype[0].length);
-  writeln("genoprobs.length: ", genoprobs.length);
-  writeln("genoprobs[0].length: ", genoprobs[0].length);
   auto rss = scanone_hk(genoprobs, phenotype, addcovar, intcovar, weights);
   auto rss0 = scanone_hk_null(phenotype, addcovar, weights);
   auto lod = rss_to_lod(rss, rss0, phenotype.length);
 
   foreach(i, m; pmap)
-    writefln("%20s %5.1f %8.3f", m.name, m.get_position, lod[i][0]);
+    writefln("%20s %5.1f %8.3f", m.name, m.get_position, lod[i]);
 }
