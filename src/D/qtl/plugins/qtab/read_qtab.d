@@ -368,5 +368,38 @@ unittest {
   // assert(genotype_matrix[0][3].list[0] == 1);
 }
 
+/**
+ * Autodetect the contents of a qtab file - based on the first line descriptor
+ */
 
+enum QtabFileType {
+  symbols,
+  genotype,
+  phenotype,
+  unknown
+};
 
+QtabFileType autodetect_qtab_file_type(in string fn) {
+  auto f = File(fn,"r");
+  scope(exit) f.close(); // always close the file on function exit
+  string line;
+  if (!f.readln(line))
+    throw new Exception("Can not autdetect qtab file "~fn);
+  auto fields = split_line_on_whitespace(line);
+  writeln(line);
+  if (fields[0] != "#" || fields[1] != "---")
+    throw new Exception("Malformed detection line in qtab file "~fn~": "~line);
+  writeln(fields);
+  //# --- qtlHD-in-x.x Symbol Description
+  return QtabFileType.unknown;
+}
+
+unittest {
+  writeln("autodetect qtab files");
+  alias std.path.buildPath buildPath;
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
+
+  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol_phase.qtab"));
+  // Auto detect read files
+  assert(autodetect_qtab_file_type(symbol_fn)==QtabFileType.symbols);
+}
