@@ -18,6 +18,7 @@ import qtl.core.map.map;
 import qtl.core.hmm.bc;
 import qtl.core.hmm.f2;
 import qtl.core.scanone.scanone_hk;
+import qtl.core.scanone.peaks;
 
 import std.algorithm;
 import std.stdio;
@@ -64,9 +65,8 @@ unittest {
   auto rss0 = scanone_hk_null(phenotype, addcovar, weights);
   auto lod = rss_to_lod(rss, rss0, phenotype.length);
 
-  auto index = new int[](lod.length);
-  makeIndex!("b < a")(lod, index);
-  writefln("Max lod = %6.2f at %7.2f", lod[index[0]], pmap[index[0]].get_position);
+  auto peak = get_peak_scanone(lod, pmap);
+  writefln("Max lod = %6.2f at %7.2f", peak[0], peak[1].get_position);
 }
 
 unittest {
@@ -109,7 +109,7 @@ unittest {
   auto rss0 = scanone_hk_null(phenotype, addcovar, weights);
   auto lod = rss_to_lod(rss, rss0, phenotype.length);
 
-  auto index = new int[](lod.length);
-  makeIndex!("b < a")(lod, index);
-  writefln("Max lod = %6.2f at %7.2f", lod[index[0]], pmap[index[0]].get_position);
+  // maximum LOD score
+  auto peak = get_peak_scanone(lod, pmap);
+  writefln("Max lod = %6.2f at %7.2f", peak[0], peak[1].get_position);
 }

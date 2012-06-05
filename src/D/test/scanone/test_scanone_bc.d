@@ -25,6 +25,7 @@ import qtl.core.map.make_map;
 import qtl.core.map.genetic_map_functions;
 import qtl.core.hmm.bc;
 import qtl.core.scanone.scanone_hk;
+import qtl.core.scanone.peaks;
 
 unittest {
   writeln("Unit test " ~ __FILE__);
@@ -98,6 +99,12 @@ unittest {
   auto rss0 = scanone_hk_null(pheno_rev, addcovar, weights);
   auto lod = rss_to_lod(rss, rss0, pheno_rev.length);
 
+  auto peak = get_peak_scanone(lod, chr4_map);
+  foreach(i; 0..peak.length) {
+    writefln("Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i,
+             peak[i][0], peak[i][1].get_position);
+  }
+
   /*******************************
    * in R:
 
@@ -136,6 +143,12 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
   // run scanone and calculate LOD scores
   rss = scanone_hk(chr4probs, pheno_rev, addcovar, intcovar, weights);
   lod = rss_to_lod(rss, rss0, pheno_rev.length);
+
+  peak = get_peak_scanone(lod, pmap_stepped_chr4);
+  foreach(i; 0..peak.length) {
+    writefln("Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i,
+             peak[i][0], peak[i][1].get_position);
+  }
 
   /*******************************
    * Now, with pseudomarkers; need to round the map here to be like the qtab file
@@ -187,12 +200,26 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
   auto rss_null_acovar = scanone_hk_null(pheno_rev, addcovar, weights);
   auto lod_acovar = rss_to_lod(rss_acovar, rss_null_acovar, pheno_rev.length);
 
+  peak = get_peak_scanone(lod_acovar, pmap_stepped_chr15);
+  foreach(i; 0..peak.length) {
+    writefln("Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i,
+             peak[i][0], peak[i][1].get_position);
+  }
+
+  writeln(" --Scanone for hyper chr 15, with interactive covariates");
+
   // covariates
   intcovar = addcovar.dup;
 
   // run scanone and calculate LOD scores
   auto rss_icovar = scanone_hk(chr15probs, pheno_rev, addcovar, intcovar, weights);
   auto lod_icovar = rss_to_lod(rss_icovar, rss_null_acovar, pheno_rev.length);
+
+  peak = get_peak_scanone(lod_icovar, pmap_stepped_chr15);
+  foreach(i; 0..peak.length) {
+    writefln("Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i,
+             peak[i][0], peak[i][1].get_position);
+  }
 
   /*******************************
    * Now, with an additive covariate

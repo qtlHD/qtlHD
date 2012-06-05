@@ -25,6 +25,7 @@ import qtl.core.map.make_map;
 import qtl.core.map.genetic_map_functions;
 import qtl.core.hmm.f2;
 import qtl.core.scanone.scanone_hk;
+import qtl.core.scanone.peaks;
 import qtl.core.util.data_manip;
 
 
@@ -102,6 +103,12 @@ unittest {
   auto rss0 = scanone_hk_null(pheno, addcovar, weights);
   auto lod = rss_to_lod(rss, rss0, pheno.length);
 
+  auto peak = get_peak_scanone(lod, chr5_map_wpmark);
+  foreach(i; 0..peak.length) {
+    writefln("Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i,
+             peak[i][0], peak[i][1].get_position);
+  }
+
   /*******************************
    * in R:
 
@@ -143,6 +150,12 @@ unittest {
   rss0 = scanone_hk_null(pheno, addcovar, weights);
   lod = rss_to_lod(rss, rss0, pheno.length);
 
+  peak = get_peak_scanone(lod, chr12_map_wpmark);
+  foreach(i; 0..peak.length) {
+    writefln("Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i,
+             peak[i][0], peak[i][1].get_position);
+  }
+
   /*******************************
    * in R:
 
@@ -181,6 +194,12 @@ unittest {
   rss = scanone_hk(chr13probs, pheno, addcovar, intcovar, weights);
   rss0 = scanone_hk_null(pheno, addcovar, weights);
   lod = rss_to_lod(rss, rss0, pheno.length);
+
+  peak = get_peak_scanone(lod, chr13_map_wpmark);
+  foreach(i; 0..peak.length) {
+    writefln("Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i,
+             peak[i][0], peak[i][1].get_position);
+  }
 
   /*******************************
    * in R:
