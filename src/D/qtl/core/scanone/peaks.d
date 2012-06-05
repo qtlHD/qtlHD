@@ -10,26 +10,51 @@ import std.container;
 import std.variant;
 import std.conv;
 import std.typecons;
+import std.random;
 
 import qtl.core.chromosome;
 import qtl.core.primitives;
 
 // find maximum lod score and the position at which it occurred
-Tuple!(double, Marker) get_peak_scanone(double[] lod, Marker[] map)
+// if multiple positions share maximum, return a random one
+Tuple!(double, Marker) get_peak_scanone(double[] lod, Marker[] map, ref Random gen)
 in {
+  assert(lod.length > 0, "lod should have length > 0");
   assert(lod.length == map.length, "lod and map should have the same length");
 }
 body {
-  auto index = new size_t[](lod.length);
+  if(lod.length==1)
+    return Tuple!(double, Marker)(lod[0], map[0]);
 
-  // FIX ME: if multiple locations having the maximum LOD, pick random one?
-  makeIndex!("b < a")(lod, index);
+  double maxlod = lod[0];
+  size_t[] index_maxlod = [0];
 
-  return Tuple!(double, Marker)(lod[index[0]], map[index[0]]);
+  foreach(i; 1..lod.length) {
+    if(lod[i] == maxlod)
+      index_maxlod ~= i;
+    if(lod[i] > maxlod) {
+      index_maxlod = [i];
+      maxlod = lod[i];
+    }
+  }
+
+  if(index_maxlod.length > 1)
+    index_maxlod[0] = index_maxlod[uniform(0, index_maxlod.length, gen)];
+
+  return Tuple!(double, Marker)(lod[index_maxlod[0]], map[index_maxlod[0]]);
 }
 
+// same with self-initiated random seed
+Tuple!(double, Marker) get_peak_scanone(double[] lod, Marker[] map)
+{
+  Random gen;
+  gen.seed(unpredictableSeed);
+  return get_peak_scanone(lod, map, gen);
+}
+
+
 // same for doubly-index LOD scores
-Tuple!(double, Marker)[] get_peak_scanone(double[][] lod, Marker[] map)
+Tuple!(double, Marker)[] get_peak_scanone(double[][] lod, Marker[] map, ref Random gen)
 in {
   assert(lod.length == map.length, "lod and map should have the same length");
 }
@@ -41,10 +66,18 @@ body {
     foreach(j; 0..lod.length)
       thislod[j] = lod[j][i];
 
-    peaks ~= get_peak_scanone(thislod, map);
+    peaks ~= get_peak_scanone(thislod, map, gen);
   }
 
   return peaks;
+}
+
+// same with self-initiated random seed
+Tuple!(double, Marker)[] get_peak_scanone(double[][] lod, Marker[] map)
+{
+  Random gen;
+  gen.seed(unpredictableSeed);
+  return get_peak_scanone(lod, map, gen);
 }
 
 unittest {
