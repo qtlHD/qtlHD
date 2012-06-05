@@ -35,8 +35,8 @@ int main(string[] args) {
                "d|debug", (string o, string d) { debug_level = to!int(d); }
   );
 
-  writeln("Verbosity ",verbosity);
-  writeln("Debug level ",debug_level);
-  writeln(args);
+  writeln("Verbosity: ",verbosity);
+  writeln("Debug level: ",debug_level);
+  writeln("Input files: ",args[1..$]);
   return 0;
 }
