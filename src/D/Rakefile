@@ -135,7 +135,8 @@ exe_list = {
 }
 
 build_list = {
-  'scanone' => { path: './qtl/main', list: ['./qtl/main/scanone.d'] + all_core_dfiles }
+  'scanone' => { path: './qtl/main', list: ['./qtl/main/scanone.d'] + all_core_dfiles
+  }
 }
 
 lib_list.each do | fn, attr |
