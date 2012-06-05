@@ -86,6 +86,7 @@ unittest {
   import qtl.core.simulate.map;
   import qtl.core.chromosome;
 
+  // singly indexed lod
   double[] lod = [1.0, 3.0, 2.3, 5.6, 1.8];
 
   auto chromosome = get_chromosome_with_id("1");
@@ -94,8 +95,21 @@ unittest {
   auto peak = get_peak_scanone(lod, map);
   assert(peak[0] == 5.6 && peak[1].name == "m4");
 
+  // doubly indexed lod
   double[][] lod_2d = [[4.0, 5.0], [5.0, 2.6], [4.9, 0.3], [4.9, 5.3], [2.8, 2.8]];
   auto peak_2d = get_peak_scanone(lod_2d, map);
   assert(peak_2d[0][0] == 5.0 && peak_2d[0][1].name == "m2");
   assert(peak_2d[1][0] == 5.3 && peak_2d[1][1].name == "m4");
+
+  // multiple positions sharing maximum LOD
+  lod = [1.0, 5.6, 2.3, 5.6, 1.8];
+
+  Random gen;
+  gen.seed(51118652);
+  peak = get_peak_scanone(lod, map, gen);
+  assert(peak[0] == 5.6 && peak[1].name == "m4");
+
+  gen.seed(20276563);
+  peak = get_peak_scanone(lod, map, gen);
+  assert(peak[0] == 5.6 && peak[1].name == "m2");
 }
