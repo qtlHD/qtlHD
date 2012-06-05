@@ -28,9 +28,15 @@ int main(string[] args) {
     writeln(usage);
     return 0;
   }
+  writeln(args);
   uint verbosity = 1;
-  getopt(args, "v|verbosity", (string o, string v) { verbosity = to!int(v); } );
+  uint debug_level = 0;
+  getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
+               "d|debug", (string o, string d) { debug_level = to!int(d); }
+  );
 
   writeln("Verbosity ",verbosity);
+  writeln("Debug level ",debug_level);
+  writeln(args);
   return 0;
 }
