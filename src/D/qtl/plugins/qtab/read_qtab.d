@@ -116,7 +116,8 @@ void each_line_in_section(string fn, string tag, void delegate (string) call_lin
 
 string[string] get_section_key_values(File f, string tag) {
   string[string] ret;
-  each_line_in_section(f,tag, (line) {
+  each_line_in_section(f,tag, 
+  (string line) {
     auto res = parse_line_key_values_on_whitespace(line);
     writeln(res);
     ret[res[0]] = res[1][0]; // note: only one value per key, this may change
@@ -161,7 +162,7 @@ auto read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
   Ms ret_ms[];
   uint id=0;
   each_line_in_section(fn,"Data Location",
-    (line) {
+    (string line) {
       auto res = parse_marker_qtab(line);
       auto name = res[0];
       auto cname = res[1];
@@ -183,7 +184,7 @@ auto read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
 Tuple!(P[][]) read_phenotype_qtab(P)(string fn) {
   P ret_phenotypes[][];  // return matrix
   each_line_in_section(fn,"Data Phenotype", 
-    (line) {
+    (string line) {
       auto res = parse_line_key_values(line);
       auto ind = res[0];
       auto fields  = res[1];
@@ -249,7 +250,7 @@ Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
 ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
   auto observed = new ObservedGenotypes();
   each_line_in_section(f,"Genotype Symbol", 
-    (line) {
+    (string line) {
       auto res = parse_symbol_genotype_qtab(line);
       auto symbol_names = res[0];
       auto genotype_strs = res[1];
@@ -293,7 +294,7 @@ Tuple!(Individuals, Gref[][]) read_genotype_qtab(File f, ObservedGenotypes symbo
   Individuals ret_individuals = new Individuals;
   Gref ret_genotypes[][];  // return matrix
   each_line_in_section(f,"Data Genotype", 
-    (line) {
+    (string line) {
       // note, we skip the marker names - they are for reference only
       auto res = parse_line_key_values(line);
       auto name_ind_str = res[0];   // string
