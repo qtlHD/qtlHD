@@ -160,6 +160,34 @@ unittest {
 
 }
 
+// Collapse genotype probabilities to allele probabilities
+double[][][] collapse_geno_prob_to_allele_prob(in double[][][] genoprobs, in TrueGenotype[] all_true_genotypes)
+in {
+  assert(genoprobs[0][0].length == all_true_genotypes.length);
+}
+body {
+  // founder allele frequency table
+  auto allele_freq_table = create_allele_freq_table(all_true_genotypes);
+
+  auto n_pos = genoprobs.length;
+  auto n_ind = genoprobs[0].length;
+  auto n_geno = allele_freq_table.length;
+  auto n_allele = allele_freq_table[0].length;
+
+  auto alleleprobs = new double[][][](n_pos, n_ind, n_allele);
+  foreach(i; 0..n_pos) {
+    foreach(j; 0..n_ind) {
+      foreach(k; 0..n_allele) {
+        alleleprobs[i][j][k] = 0.0;
+        foreach(g; 0..n_geno)
+          alleleprobs[i][j][k] += genoprobs[i][j][g]*allele_freq_table[g][k];
+      }
+    }
+  }
+
+  return alleleprobs;
+}
+
 
 // find maximum lod score and the position at which it occurred
 // if multiple positions share maximum, return a random one
