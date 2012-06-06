@@ -14,6 +14,7 @@ import std.random;
 
 import qtl.core.chromosome;
 import qtl.core.primitives;
+import qtl.core.genotype;
 
 // fill up X matrix for scanone, one position
 double[] create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addcovar,
@@ -58,6 +59,105 @@ double[] create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addc
   }
 
   return Xmatrix;
+}
+
+
+FounderIndex[] get_sorted_founder_alleles(in TrueGenotype[] all_true_genotypes)
+{
+  // create vector of founder alleles
+  size_t[FounderIndex] founders_hash;
+
+  foreach(g; all_true_genotypes) {
+    founders_hash[g.founders[0]] = 1;
+    founders_hash[g.founders[1]] = 1;
+  }
+
+  FounderIndex[] founders_unique = founders_hash.keys;
+  sort(founders_unique);
+
+  return founders_unique;
+}
+
+unittest {
+  import qtl.core.hmm.bc;
+  import qtl.core.hmm.f2;
+
+  auto f2_geno = allTrueGeno_F2();
+  auto f2_founders = get_sorted_founder_alleles(f2_geno);
+  write("F2 founder alleles:\t");
+  foreach(f; f2_founders)
+    write(f, " ");
+  writeln;
+
+  auto f2pk_geno = allTrueGeno_F2PK();
+  auto f2pk_founders = get_sorted_founder_alleles(f2pk_geno);
+  write("F2PK founder alleles:\t");
+  foreach(f; f2pk_founders)
+    write(f, " ");
+  writeln;
+
+  auto bc_geno = allTrueGeno_BC();
+  auto bc_founders = get_sorted_founder_alleles(bc_geno);
+  write("BC founder alleles:\t");
+  foreach(f; bc_founders)
+    write(f, " ");
+  writeln;
+}
+
+// create table of possible genotyeps vs frequency of founder alleles
+double[][] create_allele_freq_table(in TrueGenotype[] all_true_genotypes)
+{
+  // sorted founder alleles, and hash with indices
+  auto founders = get_sorted_founder_alleles(all_true_genotypes);
+  size_t[FounderIndex] founders_index;
+  foreach(i, f; founders)
+    founders_index[f] = i;
+
+  // begin with matrix of 0's
+  auto allele_freq_table = new double[][](all_true_genotypes.length, founders.length);
+  foreach(i; 0..allele_freq_table.length)
+    foreach(j; 0..allele_freq_table[i].length)
+      allele_freq_table[i][j] = 0.0;
+
+  foreach(ig, g; all_true_genotypes) {
+    allele_freq_table[ig][founders_index[g.founders[0]]] += 0.5;
+    allele_freq_table[ig][founders_index[g.founders[1]]] += 0.5;
+  }
+
+  return allele_freq_table;
+}
+
+unittest {
+  import qtl.core.hmm.bc;
+  import qtl.core.hmm.f2;
+
+  auto f2_geno = allTrueGeno_F2();
+  auto f2_allelefreq = create_allele_freq_table(f2_geno);
+  writeln("F2 founder allele freq:");
+  foreach(i; 0..f2_allelefreq.length) {
+    foreach(j; 0..f2_allelefreq[i].length)
+      writef("%3.1f ", f2_allelefreq[i][j]);
+    writeln;
+  }
+
+  auto f2pk_geno = allTrueGeno_F2PK();
+  auto f2pk_allelefreq = create_allele_freq_table(f2pk_geno);
+  writeln("F2PK founder allele freq:");
+  foreach(i; 0..f2pk_allelefreq.length) {
+    foreach(j; 0..f2pk_allelefreq[i].length)
+      writef("%3.1f ", f2pk_allelefreq[i][j]);
+    writeln;
+  }
+
+  auto bc_geno = allTrueGeno_BC();
+  auto bc_allelefreq = create_allele_freq_table(bc_geno);
+  writeln("BC founder allele freq:");
+  foreach(i; 0..bc_allelefreq.length) {
+    foreach(j; 0..bc_allelefreq[i].length)
+      writef("%3.1f ", bc_allelefreq[i][j]);
+    writeln;
+  }
+
 }
 
 
