@@ -282,8 +282,11 @@ For example,
         ...
         # --- Data Location end
 
-where, again, marker names and chromosomes can be symbols. Position is in 
-cM by default. To override, you can set it to base pairs (bp or Mbp).
+where, again, marker names and chromosomes can be symbols.  Additional columns
+can be added, e.g. PhysicalPos, which can be used for CIS/TRANS locations.
+
+Position is in cM by default.  To override the units, you can set Position to
+base pairs (bp or Mbp).
 
         # --- Set Location begin
         Position cM                       # cM (default), bp or Mbp
