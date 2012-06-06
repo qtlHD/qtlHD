@@ -422,13 +422,20 @@ unittest {
   assert(autodetect_qtab_file_type(symbol_fn)==QtabFileType.symbols);
 }
 
+/**
+ * Note the use of Variant is a health hazard
+ */
+
 Variant[] load_qtab(string fn) {
   switch (autodetect_qtab_file_type(fn)) {
     case QtabFileType.symbols: 
-      auto f1 = File(fn,"r");
-      auto symbol_settings = read_set_symbol_qtab(f1);
-      auto observed_genotypes = read_genotype_symbol_qtab(f1,symbol_settings.phase_known);
+      auto f = File(fn,"r");
+      auto symbol_settings = read_set_symbol_qtab(f);
+      auto observed_genotypes = read_genotype_symbol_qtab(f,symbol_settings.phase_known);
       return variantArray(QtabFileType.symbols,symbol_settings,observed_genotypes);
+    case QtabFileType.founder: 
+      auto info = get_section_key_values(fn,"Set Founder");
+      return variantArray(QtabFileType.founder,info);
     default: return null; // tuple(QtabFileType.undefined,variantArray(null));
   }
 }
@@ -438,9 +445,12 @@ unittest {
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
 
-  auto vars = load_qtab(to!string(buildPath(dir,"regression","test_symbol_phase.qtab")));
-  assert(vars[0]==QtabFileType.symbols);
-  auto symbol_settings = vars[1].get!SymbolSettings;
+  auto symbols = load_qtab(to!string(buildPath(dir,"regression","test_symbol_phase.qtab")));
+  assert(symbols[0]==QtabFileType.symbols);
+  auto symbol_settings = symbols[1].get!SymbolSettings;
   assert(symbol_settings.phase_known == true);
+  auto founders = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_founder.qtab")));
+  assert(founders[0]==QtabFileType.founder);
+  
 }
 
