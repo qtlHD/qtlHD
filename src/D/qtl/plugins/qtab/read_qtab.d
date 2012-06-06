@@ -387,11 +387,13 @@ QtabFileType autodetect_qtab_file_type(in string fn) {
     throw new Exception("Can not autdetect qtab file "~fn);
   auto fields = split_line_on_whitespace(line);
   writeln(line);
-  if (fields[0] != "#" || fields[1] != "---")
+  if (fields[0] != "#" || fields[1] != "---" || fields.length != 5)
     throw new Exception("Malformed detection line in qtab file "~fn~": "~line);
   writeln(fields);
-  //# --- qtlHD-in-x.x Symbol Description
-  return QtabFileType.unknown;
+  switch (fields[3]) {
+    case "Symbol": return QtabFileType.symbols;
+    default:       return QtabFileType.unknown;
+  }
 }
 
 unittest {
