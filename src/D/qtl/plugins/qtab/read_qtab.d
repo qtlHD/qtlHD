@@ -376,6 +376,7 @@ enum QtabFileType {
   symbols,
   genotype,
   phenotype,
+  founder,
   unknown
 };
 
@@ -391,8 +392,12 @@ QtabFileType autodetect_qtab_file_type(in string fn) {
     throw new Exception("Malformed detection line in qtab file "~fn~": "~line);
   writeln(fields);
   switch (fields[3]) {
-    case "Symbol": return QtabFileType.symbols;
-    default:       return QtabFileType.unknown;
+    case "Symbol":    return QtabFileType.symbols;
+    case "Phenotype": return QtabFileType.phenotype;
+    case "Genotype":  return QtabFileType.genotype;
+    case "Founder":   return QtabFileType.founder;
+    default:          
+      throw new Exception("Cannot autodetect type from qtab file "~fn~": "~line);
   }
 }
 
