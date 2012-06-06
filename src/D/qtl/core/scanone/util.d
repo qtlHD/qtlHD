@@ -79,6 +79,8 @@ FounderIndex[] get_sorted_founder_alleles(in TrueGenotype[] all_true_genotypes)
 }
 
 unittest {
+  writeln("Unit test " ~ __FILE__);
+
   import qtl.core.hmm.bc;
   import qtl.core.hmm.f2;
 
@@ -264,8 +266,6 @@ Tuple!(double, Marker)[] get_peak_scanone(double[][] lod, Marker[] map)
 }
 
 unittest {
-  writeln("Unit test " ~ __FILE__);
-
   import qtl.core.simulate.map;
   import qtl.core.chromosome;
 
