@@ -1,17 +1,3 @@
-csv2xgap
-scanone
-read_csv
-read_csvr
-write_qtab
-read_qtab
-write_xgapbin
-read_xgapbin
-test_scanone
-test_scanone_listeria
-test_lapack
-test_rlib
-test_hmm
-test_simulate
 tags.json
 tags
 *.qtab

@@ -1,10 +1,12 @@
 /**
  * Module for Haley-Knott scanone (single QTL mapping by HK regression).
- *
- * NOTE: this module is under development
  */
 
 module qtl.core.scanone.scanone_hk;
+
+import qtl.core.scanone.util;
+import qtl.core.primitives;
+import math.lapack.linreg;
 
 import std.container;
 import std.stdio;
@@ -14,53 +16,6 @@ import std.string;
 import std.conv;
 import std.exception;
 
-import qtl.core.primitives;
-import math.lapack.linreg;
-
-// fill up X matrix for scanone, one position
-double[] create_scanone_Xmatrix(in Probability[][] genoprobs, in double[][] addcovar,
-                                in double [][] intcovar, in double[] weights)
-{
-  if(genoprobs.length != weights.length)
-    throw new Exception("Mismatch in no. individuals in genoprobs and weights");
-  if(addcovar.length > 0 && addcovar[0].length > 0 && genoprobs.length != addcovar.length)
-    throw new Exception("Mismatch in no. individuals in genoprobs and addcovar");
-  if(intcovar.length > 0 && intcovar[0].length > 0 && genoprobs.length != intcovar.length)
-    throw new Exception("Mismatch in no. individuals in genoprobs and intcovar");
-  // genoprobs is [individuals][genotypes]
-  // addcovar, intcovar are [individuals][covariates]
-
-  auto n_ind = genoprobs.length;
-  auto n_gen = genoprobs[0].length;
-
-  size_t n_addcovar=0, n_intcovar=0;
-
-  if(addcovar.length > 0) n_addcovar = addcovar[0].length;
-  if(intcovar.length > 0) n_intcovar = intcovar[0].length;
-
-  // X matrix
-  auto ncolx = n_gen + n_addcovar + (n_gen-1)*n_intcovar;
-  auto Xmatrix = new double[](n_ind * ncolx);
-
-  size_t i, j, k1, k2, s;
-
-  for(i=0; i<n_ind; i++) {
-    // genotype probability columns
-    for(j=0; j<n_gen; j++)
-      Xmatrix[i+j*n_ind] = genoprobs[i][j]*weights[i];
-
-    // addcovar columns
-    for(j=0; j<n_addcovar; j++)
-      Xmatrix[i+(j+n_gen)*n_ind] = addcovar[i][j]*weights[i];
-
-    // intcovar columns
-    for(k1=0,s=0; k1<n_gen-1; k1++)
-      for(k2=0; k2<n_intcovar; k2++,s++)
-        Xmatrix[i+(n_gen+n_addcovar+s)*n_ind] = genoprobs[i][k1]*intcovar[i][k2]*weights[i];
-  }
-
-  return Xmatrix;
-}
 
 // scanone, one position
 //    returns vector of residual sums of squares
