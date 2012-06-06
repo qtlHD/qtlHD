@@ -322,7 +322,7 @@ defined in the header, using the phenotype names:
         P4  Discrete  T,N,S                 # predefined discrete types
         P5  Integer 1..$                    # only values larger than 1
         P6  Percentage 0..100               # Percentages with range (floating point)
-        P8  Founders                        # Directional founder information
+        P8  Founders MxF                    # Directional founder information
         ...
         # --- Type Phenotype end
 
@@ -332,7 +332,10 @@ values. When a type is illegal (say a float for an int), or a type falls
 outside a predefined set, which can be checked with `P2`, `P3`, `P4`, `P5`, and `P6`, the
 software should throw an error.
 
-We define founders as directional symbols (defined in the symbol table), or numbers. For example a valid founders would be "((AxB)x(DxE))x((CxF)x(HxG))".
+Sex is a discrete phenotype (default M,F) wich sets the male, female type.
+
+We define founders as directional symbols (defined in the symbol table), or numbers. For example a valid founder list would be "((AxB)x(DxE))x((CxF)x(HxG))". The direction
+of the parents can be set (default MxF).
 
 In addition, every Phenotype section can have a header with (batch) properties. A
 number of properties are standardized, such as Date, Time, Location, Author,
