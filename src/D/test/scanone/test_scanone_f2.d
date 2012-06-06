@@ -31,9 +31,7 @@ import qtl.core.util.data_manip;
 
 unittest {
   writeln("Unit test " ~ __FILE__);
-}
 
-unittest {
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~
                        buildPath("..","..","..","..","test","data", "input", "listeria_qtab"));
@@ -224,4 +222,34 @@ unittest {
            to!string(i) ~ "  " ~ to!string(lod[i][0]) ~ "  " ~ to!string(Rlod[i]) ~
            "  " ~ to!string(log10(abs(lod[i][0] - Rlod[i]))));
 
+
+  // Additive allele model
+
+  // collapse genotype probabilities to allele probabilities
+  auto chr5_allele_probs = collapse_geno_prob_to_allele_prob(chr5probs, allTrueGeno_F2());
+
+  // run scanone and calculate LOD scores
+  rss = scanone_hk(chr5_allele_probs, pheno, addcovar, intcovar, weights);
+  rss0 = scanone_hk_null(pheno, addcovar, weights);
+  lod = rss_to_lod(rss, rss0, pheno.length);
+
+  peak = get_peak_scanone(lod, chr5_map_wpmark);
+  foreach(i; 0..peak.length) {
+    writefln("Additive allele model: Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i,
+             peak[i][0], peak[i][1].get_position);
+  }
+
+  // collapse genotype probabilities to allele probabilities
+  auto chr13_allele_probs = collapse_geno_prob_to_allele_prob(chr13probs, allTrueGeno_F2());
+
+  // run scanone and calculate LOD scores
+  rss = scanone_hk(chr13_allele_probs, pheno, addcovar, intcovar, weights);
+  rss0 = scanone_hk_null(pheno, addcovar, weights);
+  lod = rss_to_lod(rss, rss0, pheno.length);
+
+  peak = get_peak_scanone(lod, chr13_map_wpmark);
+  foreach(i; 0..peak.length) {
+    writefln("Additive allele model: Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i,
+             peak[i][0], peak[i][1].get_position);
+  }
 }
