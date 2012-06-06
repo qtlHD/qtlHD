@@ -272,6 +272,9 @@ ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
 
 class SymbolSettings {
   bool phase_known = false; // default
+  override const string toString() {
+    return "Phase known: "~(phase_known?"True":"False");
+  }
 }
 
 /**
@@ -377,15 +380,10 @@ enum QtabFileType {
   genotype,
   phenotype,
   founder,
-  unknown
+  undefined
 };
 
-QtabFileType autodetect_qtab_file_type(in string fn) {
-  auto f = File(fn,"r");
-  scope(exit) f.close(); // always close the file on function exit
-  string line;
-  if (!f.readln(line))
-    throw new Exception("Can not autdetect qtab file "~fn);
+QtabFileType autodetect_qtab_file_type_from_header(string fn, string line) {
   auto fields = split_line_on_whitespace(line);
   writeln(line);
   if (fields[0] != "#" || fields[1] != "---" || fields.length != 5)
@@ -401,12 +399,59 @@ QtabFileType autodetect_qtab_file_type(in string fn) {
   }
 }
 
+QtabFileType autodetect_qtab_file_type(in string fn) {
+  auto f = File(fn,"r");
+  scope(exit) f.close(); // always close the file on function exit
+  string line;
+  if (!f.readln(line))
+    throw new Exception("Can not autdetect qtab file "~fn);
+  return autodetect_qtab_file_type_from_header(fn,line);
+}
+
 unittest {
   writeln("autodetect qtab files");
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
 
+  assert(autodetect_qtab_file_type_from_header("no file","# --- qtl* Symbol Test")==QtabFileType.symbols);
+  assert(autodetect_qtab_file_type_from_header("no file","# --- qtl* Genotype Test")==QtabFileType.genotype);
+
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol_phase.qtab"));
   // Auto detect read files
   assert(autodetect_qtab_file_type(symbol_fn)==QtabFileType.symbols);
+}
+
+/**
+ * Base class for passing Qtab sections
+ */
+
+class Qtabs {
+  SymbolSettings symbol_settings;
+  ObservedGenotypes observed_genotypes;
+};
+
+Tuple!(QtabFileType,Qtabs) load_qtab(string fn) {
+  auto qtabs = new Qtabs;
+  switch (autodetect_qtab_file_type(fn)) {
+    case QtabFileType.symbols: 
+      auto f1 = File(fn,"r");
+      qtabs.symbol_settings = read_set_symbol_qtab(f1);
+      qtabs.observed_genotypes = read_genotype_symbol_qtab(f1,qtabs.symbol_settings.phase_known);
+      
+      return tuple(QtabFileType.symbols,qtabs);
+    default: return tuple(QtabFileType.undefined,cast(Qtabs)null);
+  }
+}
+
+unittest {
+  writeln("automatic data loading");
+
+  alias std.path.buildPath buildPath;
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
+
+  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol_phase.qtab"));
+  auto res = load_qtab(symbol_fn);
+  assert(res[0]==QtabFileType.symbols);
+  assert(res[1].symbol_settings.phase_known == true);
+
 }
