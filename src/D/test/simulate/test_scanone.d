@@ -18,7 +18,7 @@ import qtl.core.map.map;
 import qtl.core.hmm.bc;
 import qtl.core.hmm.f2;
 import qtl.core.scanone.scanone_hk;
-import qtl.core.scanone.peaks;
+import qtl.core.scanone.util;
 
 import std.algorithm;
 import std.stdio;
