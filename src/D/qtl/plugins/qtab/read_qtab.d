@@ -438,8 +438,7 @@ unittest {
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
 
-  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol_phase.qtab"));
-  auto vars = load_qtab(symbol_fn);
+  auto vars = load_qtab(to!string(buildPath(dir,"regression","test_symbol_phase.qtab")));
   assert(vars[0]==QtabFileType.symbols);
   auto symbol_settings = vars[1].get!SymbolSettings;
   assert(symbol_settings.phase_known == true);
