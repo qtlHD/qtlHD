@@ -14,6 +14,7 @@ import std.file;
 import std.typecons;
 import std.algorithm;
 import std.regex;
+import std.variant;
 alias std.string.split str_split;
 
 import qtl.core.primitives;
@@ -421,37 +422,26 @@ unittest {
   assert(autodetect_qtab_file_type(symbol_fn)==QtabFileType.symbols);
 }
 
-/**
- * Base class for passing Qtab sections
- */
-
-class Qtabs {
-  SymbolSettings symbol_settings;
-  ObservedGenotypes observed_genotypes;
-};
-
-Tuple!(QtabFileType,Qtabs) load_qtab(string fn) {
-  auto qtabs = new Qtabs;
+Variant[] load_qtab(string fn) {
   switch (autodetect_qtab_file_type(fn)) {
     case QtabFileType.symbols: 
       auto f1 = File(fn,"r");
-      qtabs.symbol_settings = read_set_symbol_qtab(f1);
-      qtabs.observed_genotypes = read_genotype_symbol_qtab(f1,qtabs.symbol_settings.phase_known);
-      
-      return tuple(QtabFileType.symbols,qtabs);
-    default: return tuple(QtabFileType.undefined,cast(Qtabs)null);
+      auto symbol_settings = read_set_symbol_qtab(f1);
+      auto observed_genotypes = read_genotype_symbol_qtab(f1,symbol_settings.phase_known);
+      return variantArray(QtabFileType.symbols,symbol_settings,observed_genotypes);
+    default: return null; // tuple(QtabFileType.undefined,variantArray(null));
   }
 }
 
 unittest {
   writeln("automatic data loading");
-
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
 
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol_phase.qtab"));
-  auto res = load_qtab(symbol_fn);
-  assert(res[0]==QtabFileType.symbols);
-  assert(res[1].symbol_settings.phase_known == true);
-
+  auto vars = load_qtab(symbol_fn);
+  assert(vars[0]==QtabFileType.symbols);
+  auto symbol_settings = vars[1].get!SymbolSettings;
+  assert(symbol_settings.phase_known == true);
 }
+
