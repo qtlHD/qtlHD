@@ -309,18 +309,20 @@ For example,
 Where the phenotype names are listed in the symbols file. The optional 
 name row is ignored by qtlHD as it starts with a Hash symbol.
 
-Phenotypic values can have types. For example, floating point (which is the default
-type), integer, binary, discrete, and perhaps ranges. These are defined in the
-header, using the phenotype names:
+Phenotypic values can have types. For example, floating point (which is the
+default type), integer, binary, discrete, ranges, sex, and founders. These are
+defined in the header, using the phenotype names:
 
         # --- Type Phenotype begin
-        Sex Discrete                        # types are automatically found from data
+        Sex M,F                             # M,F allowed types, or
+        Sex Discrete                        # types are automatically found from data 
         P1  Float                           # double precision value with floating point (default)
         P2  Integer
         P3  Ranges 0..1 1..4 4..112 112..$  # valid ranges
         P4  Discrete  T,N,S                 # predefined discrete types
         P5  Integer 1..$                    # only values larger than 1
         P6  Percentage 0..100               # Percentages with range (floating point)
+        P8  Founders                        # Directional founder information
         ...
         # --- Type Phenotype end
 
@@ -330,7 +332,9 @@ values. When a type is illegal (say a float for an int), or a type falls
 outside a predefined set, which can be checked with `P2`, `P3`, `P4`, `P5`, and `P6`, the
 software should throw an error.
 
-In addition, every Phenotype section can have a header with batch properties. A
+We define founders as directional symbols (defined in the symbol table), or numbers. For example a valid founders would be "((AxB)x(DxE))x((CxF)x(HxG))".
+
+In addition, every Phenotype section can have a header with (batch) properties. A
 number of properties are standardized, such as Date, Time, Location, Author,
 Temperature.  Other fields can be added freely. So
 
@@ -361,7 +365,7 @@ table named Property, which mirrors the Data table using the `Id` field:
 This allows phenotype measurements to be split out according to other
 parameters. 
 
-An example of a phenotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_phenotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). Note that qtab phenotype is only partially implemented in qtlHD.
+An example of a phenotype reader can be found [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_phenotype.qtab). Reader and writer are [here](https://github.com/pjotrp/qtlHD/tree/master/src/D/qtl/plugins/qtab). Note that qtab phenotype, at this point, is only partially implemented in qtlHD.
 
 # Manifest section
 
