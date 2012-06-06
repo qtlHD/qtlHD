@@ -161,14 +161,11 @@ unittest {
 }
 
 // Collapse genotype probabilities to allele probabilities
-double[][][] collapse_geno_prob_to_allele_prob(in double[][][] genoprobs, in TrueGenotype[] all_true_genotypes)
+double[][][] collapse_geno_prob_to_allele_prob(in double[][][] genoprobs, in double[][] allele_freq_table)
 in {
-  assert(genoprobs[0][0].length == all_true_genotypes.length);
+  assert(genoprobs[0][0].length == allele_freq_table.length);
 }
 body {
-  // founder allele frequency table
-  auto allele_freq_table = create_allele_freq_table(all_true_genotypes);
-
   auto n_pos = genoprobs.length;
   auto n_ind = genoprobs[0].length;
   auto n_geno = allele_freq_table.length;
@@ -186,6 +183,18 @@ body {
   }
 
   return alleleprobs;
+}
+
+// Create allele table then collapse genotype probabilities to allele probabilities
+double[][][] collapse_geno_prob_to_allele_prob(in double[][][] genoprobs, in TrueGenotype[] all_true_genotypes)
+in {
+  assert(genoprobs[0][0].length == all_true_genotypes.length);
+}
+body {
+  // founder allele frequency table
+  auto allele_freq_table = create_allele_freq_table(all_true_genotypes);
+
+  return collapse_geno_prob_to_allele_prob(genoprobs, allele_freq_table);
 }
 
 
