@@ -34,3 +34,17 @@ read_csv
 *.qtab
 build/
 build
+src/D/csv2xgap
+src/D/scanone
+src/D/read_csv
+src/D/read_csvr
+src/D/write_qtab
+src/D/read_qtab
+src/D/write_xgapbin
+src/D/read_xgapbin
+src/D/test_scanone
+src/D/test_scanone_listeria
+src/D/test_lapack
+src/D/test_rlib
+src/D/test_hmm
+src/D/test_simulate

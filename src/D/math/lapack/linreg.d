@@ -2,7 +2,7 @@
  * linreg: linear regression utility functions
  *
  * dgels uses QR, but X matrix must be full rank
- * dgelsy allows X matrix < full rank, but I can't figure out how to get the RSS in that case
+ * dgelsy allows X matrix < full rank
  *
  * Lapack benchmarks at http://www.netlib.org/lapack/lug/node71.html
  *     dgelsy indistinguishable from dgels
@@ -42,8 +42,8 @@ version(Windows){
                            f_double *B, f_int *ldb, f_int *jpvt, f_double *rcond,
                            f_int *rank, f_double *work, f_int *lwork, f_int *info) dgelsy_;
 
-  extern (C) void function(f_char *transa, f_char *transb, f_int *m, f_int *n, f_int *k, 
-                           f_double *alpha, f_double *a, f_int *lda, f_double *b, f_int *ldb, 
+  extern (C) void function(f_char *transa, f_char *transb, f_int *m, f_int *n, f_int *k,
+                           f_double *alpha, f_double *a, f_int *lda, f_double *b, f_int *ldb,
                            f_double *beta, f_double *c, f_int *ldc) dgemm_;
 
   static this(){
@@ -51,8 +51,8 @@ version(Windows){
     load_function(dgels_)(lib_lapack,"dgels_");
     load_function(dgelsy_)(lib_lapack,"dgelsy_");
     writeln("Loaded Rlapack functionality");
-    
-    
+
+
     HXModule lib_blas = load_library("Rblas");
     load_function(dgemm_)(lib_blas,"dgemm_");
     writeln("Loaded Rblas functionality");
@@ -73,8 +73,8 @@ version(Windows){
                           f_int *rank, f_double *work, f_int *lwork, f_int *info);
 
   // dgemm is BLAS function for matrix multiplication
-  extern (C) void dgemm_(f_char *transa, f_char *transb, f_int *m, f_int *n, f_int *k, 
-                         f_double *alpha, f_double *A, f_int *lda, f_double *B, f_int *ldb, 
+  extern (C) void dgemm_(f_char *transa, f_char *transb, f_int *m, f_int *n, f_int *k,
+                         f_double *alpha, f_double *A, f_int *lda, f_double *B, f_int *ldb,
                          f_double *beta, f_double *C, f_int *ldc);
 }
 
@@ -96,7 +96,6 @@ void gels(f_char trans,    // whether to consider A transpose (='N' for standard
   dgels_(&trans, &m, &n, &nrhs, A, &lda, B, &ldb, work, &lwork, info);
 
   if(*info<0) throw new Exception("dgels_: illegal value in argument " ~ to!string(*info));
-  if(*info>0) throw new Exception("dgels_: covariate matrix not of full rank" ~ to!string(*info));
 }
 
 // The D interface is a D-ified call which calls the C interface dgelsy_
@@ -148,7 +147,7 @@ void gemm(f_char transa,    // N: don't transpose A; T/C: tranpose A
 // fit linear regression model and return residual sum of squares
 // **ADD** I should follow this with another function that will pull out the estimates
 //         and then a third function that will calculate their variance matrix
-//         (both making use of the new state of 
+//         (both making use of the new state of
 double[] calc_linreg_rss(double x[], size_t nrow, size_t ncolx, double y[], size_t ncoly,
                          double tol=1e-8)
 {

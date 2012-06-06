@@ -25,7 +25,7 @@ import qtl.core.map.make_map;
 import qtl.core.map.genetic_map_functions;
 import qtl.core.hmm.bc;
 import qtl.core.scanone.scanone_hk;
-import qtl.core.scanone.peaks;
+import qtl.core.scanone.util;
 
 unittest {
   writeln("Unit test " ~ __FILE__);
