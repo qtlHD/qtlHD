@@ -7,6 +7,8 @@ import std.exception;
 import std.file;
 import std.string;
 
+import qtl.plugins.qtab.read_qtab;
+
 static string ver = import("VERSION");
 
 string copyright = "; qtlHD project (c) 2012";
@@ -37,6 +39,7 @@ int main(string[] args) {
 
   writeln("Verbosity: ",verbosity);
   writeln("Debug level: ",debug_level);
-  writeln("Input files: ",args[1..$]);
+  auto res = load_qtab(args[1..$]);
+
   return 0;
 }
