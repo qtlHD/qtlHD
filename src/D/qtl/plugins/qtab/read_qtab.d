@@ -415,14 +415,31 @@ Tuple!(string[],PhenotypeMatrix) get_phenotype_matrix(string fn) {
 }
 
 /**
+ * Return genotypes as the original strings
+ */
+
+Tuple!(string[],string[][]) get_genotype_matrix(string fn) {
+  string[][] gm;
+  string[] inds;
+  // auto type = get_section_key_values(fn,"Type Genotype");
+  each_section_key_values(fn,"Data Genotype", 
+    (key, values) {
+      inds ~= key;
+      gm ~= values;
+    }
+  );
+  return tuple(inds,gm);
+}
+
+/**
  * Autodetect the contents of a qtab file - based on the first line descriptor
  */
 
 enum QtabFileType {
   symbols,
+  founder,
   genotype,
   phenotype,
-  founder,
   location,
   undefined
 };
@@ -482,7 +499,8 @@ Variant[] load_qtab(string fn) {
       case founder: 
         return variantArray(t,get_section_key_values(fn,"Set Founder"));
       case genotype: 
-        return variantArray(t,get_section_key_values(fn,"Data Genotype"));
+        auto res = get_genotype_matrix(fn);
+        return variantArray(t,res[0],res[1]);
       case phenotype: 
         auto res = get_phenotype_matrix(fn);
         return variantArray(t,res[0],res[1]);
@@ -524,32 +542,43 @@ unittest {
  */
 
 alias string[string] Location;
-alias string[string] Inds;
+alias string[] Inds;
 
-Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix) load_qtab(string[] fns) {
+Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix, ObservedGenotypes, GenotypeMatrix) load_qtab(string[] fns) {
   SymbolSettings s;
   Founders f;
   Location m;
   Inds i;
   PhenotypeMatrix p;
+  string[][] g;
+  ObservedGenotypes observed;
   foreach (fn ; fns) {
     auto res = load_qtab(fn);
     auto t = res[0].get!QtabFileType;
     auto d = res[1];
     with (QtabFileType) {
       switch(t) {
-        case symbols: s = d.get!SymbolSettings; break;
+        case symbols: 
+          s = d.get!SymbolSettings; 
+          observed = res[2].get!ObservedGenotypes;
+          break;
         case founder: f = d.get!Founders; writeln(f); break;
         case location: m = d.get!Location; break;
-        case genotype: i = d.get!Inds; writeln(i); break;
+        case genotype: 
+          i = d.get!Inds;
+          g = res[2].get!(string[][]);
+          writeln(g);
+          break;
         case phenotype: 
-          pis = d;
+          // auto pids = d; ignored, for now
           p = res[2].get!PhenotypeMatrix; break;
         default: throw new Exception("Unsupported file type for " ~ fn);
       }
     }
   }
-  return tuple(s,f,m,i,p);
+  // Turn the genotype matrix into a combinator
+  auto gc = convert_to_combinator_matrix(g,observed);
+  return tuple(s,f,m,i,p,observed,gc);
 }
 
 unittest {

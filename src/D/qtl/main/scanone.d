@@ -40,6 +40,22 @@ int main(string[] args) {
   writeln("Verbosity: ",verbosity);
   writeln("Debug level: ",debug_level);
   auto res = load_qtab(args[1..$]);
+  auto s = res[0];
+  auto i = res[3];
+  auto p = res[4];
+  auto o = res[5];
+  auto g = res[6];
 
+  if (debug_level > 2) {
+    writeln("* Symbol data");
+    writeln(s);
+    writeln(o);
+    writeln("* Individuals");
+    writeln(i);
+    writeln("* Genotype data");
+    writeln(g);
+    writeln("* Phenotype data");
+    writeln(p);
+  }
   return 0;
 }

@@ -197,16 +197,8 @@ struct Genotype(T) {
   }
 }
 
-/**
- * GenoTypeMatrix holds markers (cols) against individual's genotype (rows)
- */
-
-mixin template RealizeGenotypeMatrix(T)
-{
-  alias Genotype!T[][] GenotypeMatrix; // = new double[][][](n_markers,n_ind);
-}
-
 alias double Probability;
+
 
 /**
  * GenoProb keeps track of genotype probabilities
