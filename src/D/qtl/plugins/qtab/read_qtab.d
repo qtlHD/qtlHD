@@ -542,7 +542,9 @@ Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix) load_qtab(stri
         case founder: f = d.get!Founders; writeln(f); break;
         case location: m = d.get!Location; break;
         case genotype: i = d.get!Inds; writeln(i); break;
-        case phenotype: p = res[2].get!PhenotypeMatrix; break;
+        case phenotype: 
+          pis = d;
+          p = res[2].get!PhenotypeMatrix; break;
         default: throw new Exception("Unsupported file type for " ~ fn);
       }
     }
