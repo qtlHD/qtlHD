@@ -394,25 +394,24 @@ unittest {
  * supported. Multiple data types will be stored as multiple tables.
  */
 
-PhenotypeMatrix get_phenotype_matrix(string fn) {
+Tuple!(string[],PhenotypeMatrix) get_phenotype_matrix(string fn) {
   PhenotypeMatrix p;
-  // string[] phenotypenames;
+  string[] phenotypenames;
   auto type = get_section_key_values(fn,"Type Phenotype");
   uint i = 0;
   each_section_key_values(fn,"Data Phenotype", 
     (key, values) {
+      phenotypenames ~= key;
       Phenotype!double[] ps;
       ps.reserve(values.length);
-      // writeln(key, values);
       foreach (j, v ; values) {
-        // writeln(j,",",v,",",values);
         ps ~= set_phenotype!double(v);
       }
       i++;
       p ~= ps;
     }
   );
-  return p;
+  return tuple(phenotypenames,p);
 }
 
 /**
@@ -485,8 +484,8 @@ Variant[] load_qtab(string fn) {
       case genotype: 
         return variantArray(t,get_section_key_values(fn,"Data Genotype"));
       case phenotype: 
-        // return variantArray(t,get_section_key_values(fn,"Type Phenotype"),get_section_key_values(fn,"Data Phenotype"));
-        return variantArray(t,get_phenotype_matrix(fn));
+        auto res = get_phenotype_matrix(fn);
+        return variantArray(t,res[0],res[1]);
       case location: 
         return variantArray(t,get_section_key_values(fn,"Data Location"));
       default: return null; // tuple(QtabFileType.undefined,variantArray(null));
@@ -509,6 +508,10 @@ unittest {
   assert(genotypes[0]==QtabFileType.genotype);
   auto phenotypes = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_phenotype.qtab")));
   assert(phenotypes[0]==QtabFileType.phenotype);
+  auto pnames = phenotypes[1];
+  assert(to!string(pnames[0]) == "1",to!string(pnames[0]));
+  auto pmatrix = phenotypes[2];
+  assert(to!string(pmatrix[0][0]) == "118.317",to!string(pmatrix[0][0]));
   auto markermap = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_marker_map.qtab")));
   assert(markermap[0]==QtabFileType.location);
   auto markers = markermap[1];
@@ -539,7 +542,7 @@ Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix) load_qtab(stri
         case founder: f = d.get!Founders; writeln(f); break;
         case location: m = d.get!Location; break;
         case genotype: i = d.get!Inds; writeln(i); break;
-        case phenotype: p = d.get!PhenotypeMatrix; break;
+        case phenotype: p = res[2].get!PhenotypeMatrix; break;
         default: throw new Exception("Unsupported file type for " ~ fn);
       }
     }
@@ -547,4 +550,7 @@ Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix) load_qtab(stri
   return tuple(s,f,m,i,p);
 }
 
+unittest {
+  writeln("automatic data loading (2)");
 
+}
