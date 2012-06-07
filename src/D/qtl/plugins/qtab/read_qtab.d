@@ -1,4 +1,4 @@
-/*genotypes*
+/**
  * Read tabular qtlHD files (.qtab)
  *
  * See ./doc/input/qtab.md for a definition of the qtab standard
@@ -23,7 +23,9 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.individual;
 
-alias Phenotype!double[][] PhenotypeMatrix;
+mixin RealizePhenotypeMatrix!double;
+
+// alias Phenotype!double[][] PhenotypeMatrix;
 
 /**
  * Low level parsers, str_splits a tab delimited line into fields,
@@ -388,19 +390,29 @@ unittest {
 
 /**
  * Get phenotype matrix by iterating through the data section and building up
- * the matrix. At this point only double is supported. Multiple data types will
- * be stored as multiple tables.
+ * the matrix, using the lower level parser. At this point only double is
+ * supported. Multiple data types will be stored as multiple tables.
  */
 
 PhenotypeMatrix get_phenotype_matrix(string fn) {
+  PhenotypeMatrix p;
+  // string[] phenotypenames;
   auto type = get_section_key_values(fn,"Type Phenotype");
+  uint i = 0;
   each_section_key_values(fn,"Data Phenotype", 
     (key, values) {
-      writeln(key, values);
+      Phenotype!double[] ps;
+      ps.reserve(values.length);
+      // writeln(key, values);
+      foreach (j, v ; values) {
+        // writeln(j,",",v,",",values);
+        ps ~= set_phenotype!double(v);
+      }
+      i++;
+      p ~= ps;
     }
   );
-  // auto p = new PhenotypeMatrix();
-  return null;
+  return p;
 }
 
 /**
