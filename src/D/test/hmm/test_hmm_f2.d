@@ -32,7 +32,7 @@ unittest {
   writeln("reading ", founder_fn);
   auto info = get_section_key_values(founder_fn,"Set Founder");
   assert(info["Cross"] == "F2");
-  assert(info["Phase"] == "unknown");
+  // assert(info["Phase"] == "unknown");
 
   // load symbols
   auto symbol_fn = to!string(buildPath(dir,"listeria_symbol.qtab"));
