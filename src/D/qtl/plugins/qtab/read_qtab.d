@@ -23,6 +23,8 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.individual;
 
+alias Phenotype!double[][] PhenotypeMatrix;
+
 /**
  * Low level parsers, str_splits a tab delimited line into fields,
  * and removes everything after a remark '#' symbol. Optionally
@@ -131,6 +133,18 @@ string[string] get_section_key_values(string fn, string tag) {
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
   return get_section_key_values(f,tag);
+}
+
+/**
+ * Iterate for section key values without loading the full table in memory twice
+ */
+void each_section_key_values(string fn, string tag, void delegate (string, string[]) call_line) {
+  each_line_in_section(fn, tag, 
+    (line) {
+      auto res = parse_line_key_values_on_whitespace(line);
+      call_line(res[0],res[1]);
+    }
+  );
 }
 
 string[string] read_founder_settings_qtab(string founder_fn) {
@@ -373,6 +387,23 @@ unittest {
 }
 
 /**
+ * Get phenotype matrix by iterating through the data section and building up
+ * the matrix. At this point only double is supported. Multiple data types will
+ * be stored as multiple tables.
+ */
+
+PhenotypeMatrix get_phenotype_matrix(string fn) {
+  auto type = get_section_key_values(fn,"Type Phenotype");
+  each_section_key_values(fn,"Data Phenotype", 
+    (key, values) {
+      writeln(key, values);
+    }
+  );
+  // auto p = new PhenotypeMatrix();
+  return null;
+}
+
+/**
  * Autodetect the contents of a qtab file - based on the first line descriptor
  */
 
@@ -442,7 +473,8 @@ Variant[] load_qtab(string fn) {
       case genotype: 
         return variantArray(t,get_section_key_values(fn,"Data Genotype"));
       case phenotype: 
-        return variantArray(t,get_section_key_values(fn,"Type Phenotype"),get_section_key_values(fn,"Data Phenotype"));
+        // return variantArray(t,get_section_key_values(fn,"Type Phenotype"),get_section_key_values(fn,"Data Phenotype"));
+        return variantArray(t,get_phenotype_matrix(fn));
       case location: 
         return variantArray(t,get_section_key_values(fn,"Data Location"));
       default: return null; // tuple(QtabFileType.undefined,variantArray(null));
@@ -479,11 +511,12 @@ unittest {
 alias string[string] Location;
 alias string[string] Inds;
 
-Tuple!(SymbolSettings, Founders, Location, Inds) load_qtab(string[] fns) {
+Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix) load_qtab(string[] fns) {
   SymbolSettings s;
   Founders f;
   Location m;
   Inds i;
+  PhenotypeMatrix p;
   foreach (fn ; fns) {
     auto res = load_qtab(fn);
     auto t = res[0].get!QtabFileType;
@@ -494,12 +527,12 @@ Tuple!(SymbolSettings, Founders, Location, Inds) load_qtab(string[] fns) {
         case founder: f = d.get!Founders; writeln(f); break;
         case location: m = d.get!Location; break;
         case genotype: i = d.get!Inds; writeln(i); break;
-        case phenotype: break;
+        case phenotype: p = d.get!PhenotypeMatrix; break;
         default: throw new Exception("Unsupported file type for " ~ fn);
       }
     }
   }
-  return tuple(s,f,m,i);
+  return tuple(s,f,m,i,p);
 }
 
 

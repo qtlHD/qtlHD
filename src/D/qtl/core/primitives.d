@@ -53,6 +53,7 @@ mixin template Attributes()
   Attribute[] attrib_list;  /// Ref. to list of attributes
 }
 
+// Named primitives - for descriptive parameters
 alias double Position;
 alias string[string] Founders;
 
