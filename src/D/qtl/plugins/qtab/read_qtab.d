@@ -438,6 +438,8 @@ Variant[] load_qtab(string fn) {
       return variantArray(t,get_section_key_values(fn,"Set Founder"));
     case QtabFileType.genotype: 
       return variantArray(t,get_section_key_values(fn,"Data Genotype"));
+    case QtabFileType.phenotype: 
+      return variantArray(t,get_section_key_values(fn,"Type Phenotype"),get_section_key_values(fn,"Data Phenotype"));
     default: return null; // tuple(QtabFileType.undefined,variantArray(null));
   }
 }
@@ -455,6 +457,8 @@ unittest {
   assert(founders[0]==QtabFileType.founder);
   auto genotypes = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_genotype.qtab")));
   assert(genotypes[0]==QtabFileType.genotype);
+  auto phenotypes = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_phenotype.qtab")));
+  assert(phenotypes[0]==QtabFileType.phenotype);
   
 }
 
