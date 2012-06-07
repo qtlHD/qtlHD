@@ -231,12 +231,12 @@ The file, or section, starts with
 
 Valid genotypes could be (tab delimited):
 
-        # --- Data Observed begin
+        # --- Data Genotype begin
         #     M1   M2    M3   M4    M5      M6   
         Ind1   A   AorB   1   1,1   0,1   0,1|1,1
         Ind2   H   AorH   NA  1,1   1,1     1,1
         ...
-        # --- Data Observed end
+        # --- Data Genotype end
 
 where the last marker of Ind1 represents, for example, an AorH. Note the use of
 NA - which is the standard name in qtlHD for a missing value. Also note the

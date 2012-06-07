@@ -1,4 +1,4 @@
-/**
+/*genotypes*
  * Read tabular qtlHD files (.qtab)
  *
  * See ./doc/input/qtab.md for a definition of the qtab standard
@@ -120,7 +120,7 @@ string[string] get_section_key_values(File f, string tag) {
   each_line_in_section(f,tag, 
   (string line) {
     auto res = parse_line_key_values_on_whitespace(line);
-    writeln(res);
+    // writeln(res);
     ret[res[0]] = res[1][0]; // note: only one value per key, this may change
   });
   return ret;
@@ -427,15 +427,17 @@ unittest {
  */
 
 Variant[] load_qtab(string fn) {
-  switch (autodetect_qtab_file_type(fn)) {
+  auto t = autodetect_qtab_file_type(fn);
+  switch (t) {
     case QtabFileType.symbols: 
       auto f = File(fn,"r");
       auto symbol_settings = read_set_symbol_qtab(f);
       auto observed_genotypes = read_genotype_symbol_qtab(f,symbol_settings.phase_known);
-      return variantArray(QtabFileType.symbols,symbol_settings,observed_genotypes);
+      return variantArray(t,symbol_settings,observed_genotypes);
     case QtabFileType.founder: 
-      auto info = get_section_key_values(fn,"Set Founder");
-      return variantArray(QtabFileType.founder,info);
+      return variantArray(t,get_section_key_values(fn,"Set Founder"));
+    case QtabFileType.genotype: 
+      return variantArray(t,get_section_key_values(fn,"Data Genotype"));
     default: return null; // tuple(QtabFileType.undefined,variantArray(null));
   }
 }
@@ -451,6 +453,8 @@ unittest {
   assert(symbol_settings.phase_known == true);
   auto founders = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_founder.qtab")));
   assert(founders[0]==QtabFileType.founder);
+  auto genotypes = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_genotype.qtab")));
+  assert(genotypes[0]==QtabFileType.genotype);
   
 }
 
