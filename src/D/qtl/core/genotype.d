@@ -545,6 +545,8 @@ unittest {
 }
 
 GenotypeMatrix convert_to_combinator_matrix(string[][] g,ObservedGenotypes observed) {
-  return null;
+  GenotypeMatrix gm; 
+
+  return gm;
 }
 
