@@ -14,6 +14,7 @@ import std.file;
 import std.typecons;
 import std.algorithm;
 import std.regex;
+import std.variant;
 alias std.string.split str_split;
 
 import qtl.core.primitives;
@@ -21,6 +22,10 @@ import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.individual;
+
+mixin RealizePhenotypeMatrix!double;
+
+// alias Phenotype!double[][] PhenotypeMatrix;
 
 /**
  * Low level parsers, str_splits a tab delimited line into fields,
@@ -116,9 +121,10 @@ void each_line_in_section(string fn, string tag, void delegate (string) call_lin
 
 string[string] get_section_key_values(File f, string tag) {
   string[string] ret;
-  each_line_in_section(f,tag, (line) {
+  each_line_in_section(f,tag, 
+  (string line) {
     auto res = parse_line_key_values_on_whitespace(line);
-    writeln(res);
+    // writeln(res);
     ret[res[0]] = res[1][0]; // note: only one value per key, this may change
   });
   return ret;
@@ -129,6 +135,18 @@ string[string] get_section_key_values(string fn, string tag) {
   auto f = File(fn,"r");
   scope(exit) f.close(); // always close the file on function exit
   return get_section_key_values(f,tag);
+}
+
+/**
+ * Iterate for section key values without loading the full table in memory twice
+ */
+void each_section_key_values(string fn, string tag, void delegate (string, string[]) call_line) {
+  each_line_in_section(fn, tag, 
+    (line) {
+      auto res = parse_line_key_values_on_whitespace(line);
+      call_line(res[0],res[1]);
+    }
+  );
 }
 
 string[string] read_founder_settings_qtab(string founder_fn) {
@@ -161,7 +179,7 @@ auto read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
   Ms ret_ms[];
   uint id=0;
   each_line_in_section(fn,"Data Location",
-    (line) {
+    (string line) {
       auto res = parse_marker_qtab(line);
       auto name = res[0];
       auto cname = res[1];
@@ -183,7 +201,7 @@ auto read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
 Tuple!(P[][]) read_phenotype_qtab(P)(string fn) {
   P ret_phenotypes[][];  // return matrix
   each_line_in_section(fn,"Data Phenotype", 
-    (line) {
+    (string line) {
       auto res = parse_line_key_values(line);
       auto ind = res[0];
       auto fields  = res[1];
@@ -249,7 +267,7 @@ Tuple!(string[], string[]) parse_symbol_genotype_qtab(string line) {
 ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
   auto observed = new ObservedGenotypes();
   each_line_in_section(f,"Genotype Symbol", 
-    (line) {
+    (string line) {
       auto res = parse_symbol_genotype_qtab(line);
       auto symbol_names = res[0];
       auto genotype_strs = res[1];
@@ -271,6 +289,9 @@ ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
 
 class SymbolSettings {
   bool phase_known = false; // default
+  override const string toString() {
+    return "Phase known: "~(phase_known?"True":"False");
+  }
 }
 
 /**
@@ -293,7 +314,7 @@ Tuple!(Individuals, Gref[][]) read_genotype_qtab(File f, ObservedGenotypes symbo
   Individuals ret_individuals = new Individuals;
   Gref ret_genotypes[][];  // return matrix
   each_line_in_section(f,"Data Genotype", 
-    (line) {
+    (string line) {
       // note, we skip the marker names - they are for reference only
       auto res = parse_line_key_values(line);
       auto name_ind_str = res[0];   // string
@@ -367,5 +388,200 @@ unittest {
   // assert(genotype_matrix[0][3].list[0] == 1);
 }
 
+/**
+ * Get phenotype matrix by iterating through the data section and building up
+ * the matrix, using the lower level parser. At this point only double is
+ * supported. Multiple data types will be stored as multiple tables.
+ */
 
+Tuple!(string[],PhenotypeMatrix) get_phenotype_matrix(string fn) {
+  PhenotypeMatrix p;
+  string[] phenotypenames;
+  auto type = get_section_key_values(fn,"Type Phenotype");
+  uint i = 0;
+  each_section_key_values(fn,"Data Phenotype", 
+    (key, values) {
+      phenotypenames ~= key;
+      Phenotype!double[] ps;
+      ps.reserve(values.length);
+      foreach (j, v ; values) {
+        ps ~= set_phenotype!double(v);
+      }
+      i++;
+      p ~= ps;
+    }
+  );
+  return tuple(phenotypenames,p);
+}
 
+/**
+ * Return genotypes as the original strings
+ */
+
+Tuple!(string[],string[][]) get_genotype_matrix(string fn) {
+  string[][] gm;
+  string[] inds;
+  // auto type = get_section_key_values(fn,"Type Genotype");
+  each_section_key_values(fn,"Data Genotype", 
+    (key, values) {
+      inds ~= key;
+      gm ~= values;
+    }
+  );
+  return tuple(inds,gm);
+}
+
+/**
+ * Autodetect the contents of a qtab file - based on the first line descriptor
+ */
+
+enum QtabFileType {
+  symbols,
+  founder,
+  genotype,
+  phenotype,
+  location,
+  undefined
+};
+
+QtabFileType autodetect_qtab_file_type_from_header(string fn, string line) {
+  auto fields = split_line_on_whitespace(line);
+  writeln(line);
+  if (fields[0] != "#" || fields[1] != "---" || fields.length != 5)
+    throw new Exception("Malformed detection line in qtab file "~fn~": "~line);
+  writeln(fields);
+  switch (fields[3]) {
+    case "Symbol":    return QtabFileType.symbols;
+    case "Phenotype": return QtabFileType.phenotype;
+    case "Genotype":  return QtabFileType.genotype;
+    case "Founder":   return QtabFileType.founder;
+    case "Location":   return QtabFileType.location;
+    default:          
+      throw new Exception("Cannot autodetect type from qtab file "~fn~": "~line);
+  }
+}
+
+QtabFileType autodetect_qtab_file_type(in string fn) {
+  auto f = File(fn,"r");
+  scope(exit) f.close(); // always close the file on function exit
+  string line;
+  if (!f.readln(line))
+    throw new Exception("Can not autdetect qtab file "~fn);
+  return autodetect_qtab_file_type_from_header(fn,line);
+}
+
+unittest {
+  writeln("autodetect qtab files");
+  alias std.path.buildPath buildPath;
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
+
+  assert(autodetect_qtab_file_type_from_header("no file","# --- qtl* Symbol Test")==QtabFileType.symbols);
+  assert(autodetect_qtab_file_type_from_header("no file","# --- qtl* Genotype Test")==QtabFileType.genotype);
+
+  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol_phase.qtab"));
+  // Auto detect read files
+  assert(autodetect_qtab_file_type(symbol_fn)==QtabFileType.symbols);
+}
+
+/**
+ * Note the use of Variant is a health hazard
+ */
+
+Variant[] load_qtab(string fn) {
+  auto t = autodetect_qtab_file_type(fn);
+  with (QtabFileType) {
+    switch (t) {
+      case symbols: 
+        auto f = File(fn,"r");
+        auto symbol_settings = read_set_symbol_qtab(f);
+        auto observed_genotypes = read_genotype_symbol_qtab(f,symbol_settings.phase_known);
+        return variantArray(t,symbol_settings,observed_genotypes);
+      case founder: 
+        return variantArray(t,get_section_key_values(fn,"Set Founder"));
+      case genotype: 
+        auto res = get_genotype_matrix(fn);
+        return variantArray(t,res[0],res[1]);
+      case phenotype: 
+        auto res = get_phenotype_matrix(fn);
+        return variantArray(t,res[0],res[1]);
+      case location: 
+        return variantArray(t,get_section_key_values(fn,"Data Location"));
+      default: return null; // tuple(QtabFileType.undefined,variantArray(null));
+    }
+  }
+}
+
+unittest {
+  writeln("automatic data loading");
+  alias std.path.buildPath buildPath;
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
+
+  auto symbols = load_qtab(to!string(buildPath(dir,"regression","test_symbol_phase.qtab")));
+  assert(symbols[0]==QtabFileType.symbols);
+  auto symbol_settings = symbols[1].get!SymbolSettings;  // Class needs the 'cast'
+  assert(symbol_settings.phase_known == true);
+  auto founders = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_founder.qtab")));
+  assert(founders[0]==QtabFileType.founder);
+  auto genotypes = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_genotype.qtab")));
+  assert(genotypes[0]==QtabFileType.genotype);
+  auto phenotypes = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_phenotype.qtab")));
+  assert(phenotypes[0]==QtabFileType.phenotype);
+  auto pnames = phenotypes[1];
+  assert(to!string(pnames[0]) == "1",to!string(pnames[0]));
+  auto pmatrix = phenotypes[2];
+  assert(to!string(pmatrix[0][0]) == "118.317",to!string(pmatrix[0][0]));
+  auto markermap = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_marker_map.qtab")));
+  assert(markermap[0]==QtabFileType.location);
+  auto markers = markermap[1];
+  assert(markers["D15M34"]=="15");
+}
+
+/**
+ * Main qtab file parser - should load all sections and return the data in the proper
+ * containers.
+ */
+
+alias string[string] Location;
+alias string[] Inds;
+
+Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix, ObservedGenotypes, GenotypeMatrix) load_qtab(string[] fns) {
+  SymbolSettings s;
+  Founders f;
+  Location m;
+  Inds i;
+  PhenotypeMatrix p;
+  string[][] g;
+  ObservedGenotypes observed;
+  foreach (fn ; fns) {
+    auto res = load_qtab(fn);
+    auto t = res[0].get!QtabFileType;
+    auto d = res[1];
+    with (QtabFileType) {
+      switch(t) {
+        case symbols: 
+          s = d.get!SymbolSettings; 
+          observed = res[2].get!ObservedGenotypes;
+          break;
+        case founder: f = d.get!Founders; writeln(f); break;
+        case location: m = d.get!Location; break;
+        case genotype: 
+          i = d.get!Inds;
+          g = res[2].get!(string[][]);
+          writeln(g);
+          break;
+        case phenotype: 
+          // auto pids = d; ignored, for now
+          p = res[2].get!PhenotypeMatrix; break;
+        default: throw new Exception("Unsupported file type for " ~ fn);
+      }
+    }
+  }
+  // Turn the genotype matrix into a combinator
+  auto gc = convert_to_combinator_matrix(g,observed);
+  return tuple(s,f,m,i,p,observed,gc);
+}
+
+unittest {
+  writeln("automatic data loading (2)");
+
+}

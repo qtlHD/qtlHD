@@ -12,6 +12,8 @@ import std.exception;
 import std.algorithm;
 import qtl.core.primitives;
 
+alias GenotypeCombinator[][] GenotypeMatrix; // = new double[][][](n_markers,n_ind);
+
 /**
 
   Genotypes:
@@ -540,5 +542,11 @@ unittest {
   assert(to!string(symbols.decode("AB")) == "[(1,0)]"); // phase known!
   assert(to!string(symbols.decode("BA")) == "[(0,1)]"); // phase known!
   assert(to!string(symbols.decode("AorABorAC")) == "[(0,0), (0,1), (0,2), (1,0), (2,0)]");
+}
+
+GenotypeMatrix convert_to_combinator_matrix(string[][] g,ObservedGenotypes observed) {
+  GenotypeMatrix gm; 
+
+  return gm;
 }
 
