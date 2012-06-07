@@ -54,6 +54,7 @@ mixin template Attributes()
 }
 
 alias double Position;
+alias string[string] Founders;
 
 mixin template MarkerInfo() {
   mixin Identity;

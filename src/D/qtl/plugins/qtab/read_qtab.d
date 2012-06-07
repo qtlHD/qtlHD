@@ -430,21 +430,23 @@ unittest {
 
 Variant[] load_qtab(string fn) {
   auto t = autodetect_qtab_file_type(fn);
-  switch (t) {
-    case QtabFileType.symbols: 
-      auto f = File(fn,"r");
-      auto symbol_settings = read_set_symbol_qtab(f);
-      auto observed_genotypes = read_genotype_symbol_qtab(f,symbol_settings.phase_known);
-      return variantArray(t,symbol_settings,observed_genotypes);
-    case QtabFileType.founder: 
-      return variantArray(t,get_section_key_values(fn,"Set Founder"));
-    case QtabFileType.genotype: 
-      return variantArray(t,get_section_key_values(fn,"Data Genotype"));
-    case QtabFileType.phenotype: 
-      return variantArray(t,get_section_key_values(fn,"Type Phenotype"),get_section_key_values(fn,"Data Phenotype"));
-    case QtabFileType.location: 
-      return variantArray(t,get_section_key_values(fn,"Data Location"));
-    default: return null; // tuple(QtabFileType.undefined,variantArray(null));
+  with (QtabFileType) {
+    switch (t) {
+      case symbols: 
+        auto f = File(fn,"r");
+        auto symbol_settings = read_set_symbol_qtab(f);
+        auto observed_genotypes = read_genotype_symbol_qtab(f,symbol_settings.phase_known);
+        return variantArray(t,symbol_settings,observed_genotypes);
+      case founder: 
+        return variantArray(t,get_section_key_values(fn,"Set Founder"));
+      case genotype: 
+        return variantArray(t,get_section_key_values(fn,"Data Genotype"));
+      case phenotype: 
+        return variantArray(t,get_section_key_values(fn,"Type Phenotype"),get_section_key_values(fn,"Data Phenotype"));
+      case location: 
+        return variantArray(t,get_section_key_values(fn,"Data Location"));
+      default: return null; // tuple(QtabFileType.undefined,variantArray(null));
+    }
   }
 }
 
@@ -468,4 +470,36 @@ unittest {
   auto markers = markermap[1];
   assert(markers["D15M34"]=="15");
 }
+
+/**
+ * Main qtab file parser - should load all sections and return the data in the proper
+ * containers.
+ */
+
+alias string[string] Location;
+alias string[string] Inds;
+
+Tuple!(SymbolSettings, Founders, Location, Inds) load_qtab(string[] fns) {
+  SymbolSettings s;
+  Founders f;
+  Location m;
+  Inds i;
+  foreach (fn ; fns) {
+    auto res = load_qtab(fn);
+    auto t = res[0].get!QtabFileType;
+    auto d = res[1];
+    with (QtabFileType) {
+      switch(t) {
+        case symbols: s = d.get!SymbolSettings; break;
+        case founder: f = d.get!Founders; writeln(f); break;
+        case location: m = d.get!Location; break;
+        case genotype: i = d.get!Inds; writeln(i); break;
+        case phenotype: break;
+        default: throw new Exception("Unsupported file type for " ~ fn);
+      }
+    }
+  }
+  return tuple(s,f,m,i);
+}
+
 
