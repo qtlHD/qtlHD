@@ -381,6 +381,7 @@ enum QtabFileType {
   genotype,
   phenotype,
   founder,
+  location,
   undefined
 };
 
@@ -395,6 +396,7 @@ QtabFileType autodetect_qtab_file_type_from_header(string fn, string line) {
     case "Phenotype": return QtabFileType.phenotype;
     case "Genotype":  return QtabFileType.genotype;
     case "Founder":   return QtabFileType.founder;
+    case "Location":   return QtabFileType.location;
     default:          
       throw new Exception("Cannot autodetect type from qtab file "~fn~": "~line);
   }
@@ -440,6 +442,8 @@ Variant[] load_qtab(string fn) {
       return variantArray(t,get_section_key_values(fn,"Data Genotype"));
     case QtabFileType.phenotype: 
       return variantArray(t,get_section_key_values(fn,"Type Phenotype"),get_section_key_values(fn,"Data Phenotype"));
+    case QtabFileType.location: 
+      return variantArray(t,get_section_key_values(fn,"Data Location"));
     default: return null; // tuple(QtabFileType.undefined,variantArray(null));
   }
 }
@@ -451,7 +455,7 @@ unittest {
 
   auto symbols = load_qtab(to!string(buildPath(dir,"regression","test_symbol_phase.qtab")));
   assert(symbols[0]==QtabFileType.symbols);
-  auto symbol_settings = symbols[1].get!SymbolSettings;
+  auto symbol_settings = symbols[1].get!SymbolSettings;  // Class needs the 'cast'
   assert(symbol_settings.phase_known == true);
   auto founders = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_founder.qtab")));
   assert(founders[0]==QtabFileType.founder);
@@ -459,6 +463,9 @@ unittest {
   assert(genotypes[0]==QtabFileType.genotype);
   auto phenotypes = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_phenotype.qtab")));
   assert(phenotypes[0]==QtabFileType.phenotype);
-  
+  auto markermap = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_marker_map.qtab")));
+  assert(markermap[0]==QtabFileType.location);
+  auto markers = markermap[1];
+  assert(markers["D15M34"]=="15");
 }
 
