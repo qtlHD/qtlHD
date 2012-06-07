@@ -7,6 +7,8 @@ import std.exception;
 import std.file;
 import std.string;
 
+import qtl.plugins.qtab.read_qtab;
+
 static string ver = import("VERSION");
 
 string copyright = "; qtlHD project (c) 2012";
@@ -28,9 +30,32 @@ int main(string[] args) {
     writeln(usage);
     return 0;
   }
+  writeln(args);
   uint verbosity = 1;
-  getopt(args, "v|verbosity", (string o, string v) { verbosity = to!int(v); } );
+  uint debug_level = 0;
+  getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
+               "d|debug", (string o, string d) { debug_level = to!int(d); }
+  );
 
-  writeln("Verbosity ",verbosity);
+  writeln("Verbosity: ",verbosity);
+  writeln("Debug level: ",debug_level);
+  auto res = load_qtab(args[1..$]);
+  auto s = res[0];
+  auto i = res[3];
+  auto p = res[4];
+  auto o = res[5];
+  auto g = res[6];
+
+  if (debug_level > 2) {
+    writeln("* Symbol data");
+    writeln(s);
+    writeln(o);
+    writeln("* Individuals");
+    writeln(i);
+    writeln("* Genotype data");
+    writeln(g);
+    writeln("* Phenotype data");
+    writeln(p);
+  }
   return 0;
 }

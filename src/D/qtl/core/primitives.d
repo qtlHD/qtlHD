@@ -53,7 +53,9 @@ mixin template Attributes()
   Attribute[] attrib_list;  /// Ref. to list of attributes
 }
 
+// Named primitives - for descriptive parameters
 alias double Position;
+alias string[string] Founders;
 
 mixin template MarkerInfo() {
   mixin Identity;
@@ -195,16 +197,8 @@ struct Genotype(T) {
   }
 }
 
-/**
- * GenoTypeMatrix holds markers (cols) against individual's genotype (rows)
- */
-
-mixin template RealizeGenotypeMatrix(T)
-{
-  alias Genotype!T[][] GenotypeMatrix; // = new double[][][](n_markers,n_ind);
-}
-
 alias double Probability;
+
 
 /**
  * GenoProb keeps track of genotype probabilities
