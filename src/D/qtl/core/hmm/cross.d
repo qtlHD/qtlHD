@@ -10,26 +10,18 @@ import std.conv;
 
 import qtl.core.primitives;
 import qtl.core.genotype;
-import qtl.core.hmm.calcgenoprob;
-import qtl.core.hmm.estmap;
 import qtl.core.map.genetic_map_functions;
 
 // class to contain HMM-related functions
 class Cross {
   string cross_type;
   
-  TrueGenotype[] all_true_geno, all_true_geno_phaseknown;
+  TrueGenotype[] all_true_geno;
   
   abstract double init(in TrueGenotype truegen);
-  abstract double init_phaseknown(in TrueGenotype truegen);
-
   abstract double step(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac);
-  abstract double step_phaseknown(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac);
-
   abstract double emit(in GenotypeCombinator obsgen, in TrueGenotype truegen, in double error_prob);
-
   abstract double nrec(in TrueGenotype truegen_left, in TrueGenotype truegen_right);
-
 }
 
 // the switch
@@ -45,6 +37,16 @@ Cross form_cross(string which_cross) {
 }
 
 
+// the switch
+Cross form_cross_phaseknown(Cross cross) {
+  switch(cross.cross_type) {
+  case "BC": return(cross);
+  case "F2": return(new F2_phaseknown);
+  default: throw new Exception("cross type " ~ cross.cross_type ~ " not supported.");
+  }
+}
+
+
 // BC (backcross)
 class BC : Cross {
   this() {
@@ -54,7 +56,6 @@ class BC : Cross {
     auto g1 = new TrueGenotype(0,0);
     auto g2 = new TrueGenotype(1,0);
     all_true_geno = [g1, g2];
-    all_true_geno_phaseknown = all_true_geno;
   }
 
   // ln Pr(true genotype)
@@ -66,8 +67,6 @@ class BC : Cross {
     
     return(-LN2);
   }
-
-  double init_phaseknown(in TrueGenotype truegen) { return init(truegen); }
 
   // ln Pr(genotype at right marker | genotype at left marker)
   double step(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
@@ -89,11 +88,6 @@ class BC : Cross {
     }
 
     throw new Exception("inputs not among the possible true genotypes");
-  }
-
-  double step_phaseknown(in TrueGenotype truegen_left, in TrueGenotype truegen_right,
-                         in double rec_frac) {
-    return step(truegen_left, truegen_right, rec_frac);
   }
 
   // ln Pr(observed genotype | true genotype)
@@ -191,10 +185,8 @@ class F2 : Cross {
 
     auto g1 = new TrueGenotype(0,0);
     auto g2 = new TrueGenotype(1,0);
-    auto g3 = new TrueGenotype(0,1);
-    auto g4 = new TrueGenotype(1,1);
-    all_true_geno = [g1, g2, g4];
-    all_true_geno_phaseknown = [g1, g2, g3, g4];
+    auto g3 = new TrueGenotype(1,1);
+    all_true_geno = [g1, g2, g3];
   }
 
   // ln Pr(true genotype)
@@ -207,18 +199,6 @@ class F2 : Cross {
 
     if(truegen==atg[1]) // AB
       return(-LN2);
-
-    throw new Exception("truegen not among possible true genotypes");
-  }
-
-  // ln Pr(true genotype) for est_map
-  double init_phaseknown(in TrueGenotype truegen)
-  {
-    alias all_true_geno_phaseknown atg;
-
-    if(truegen==atg[0] || truegen==atg[1] ||
-       truegen==atg[2] || truegen==atg[3])
-      return(-2.0*LN2);
 
     throw new Exception("truegen not among possible true genotypes");
   }
@@ -255,10 +235,63 @@ class F2 : Cross {
     throw new Exception("inputs not among the possible true genotypes");
   }
   
-  // like step, but with phase-known genotypes (for use with est_map)
-  double step_phaseknown(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
+  // ln Pr(observed genotype | true genotype)
+  double emit(in GenotypeCombinator obsgen, in TrueGenotype truegen, in double error_prob)
   {
-    alias all_true_geno_phaseknown atgpk;
+    auto n_obsgen = obsgen.list.length;
+
+    if(n_obsgen==0) // missing value
+      return(0.0); // log(1.0)
+
+    if(obsgen.match(truegen)) { // compatible with truegen
+      if(n_obsgen>2) // AorH and HorB cases
+        return(log(1.0-error_prob/2.0));
+      else // A, H, B cases
+        return(log(1.0-error_prob));
+    }
+    else {
+      if(n_obsgen>2) // AorH and HorB cases
+        return(log(error_prob));
+      else // A, H, B cases
+        return(log(error_prob/2.0));
+    }
+  }
+
+  // proportion of recombination events
+  double nrec(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
+  {
+    throw new Exception("nrec undefined for cross type F2");
+  }
+}
+
+// F2_phaseknown (intercross with phase-known genotypes)
+class F2_phaseknown : F2 {
+  this() {
+    cross_type = "F2_phaseknown";
+
+    auto g1 = new TrueGenotype(0,0);
+    auto g2 = new TrueGenotype(1,0);
+    auto g3 = new TrueGenotype(0,1);
+    auto g4 = new TrueGenotype(1,1);
+    all_true_geno = [g1, g2, g3, g4];
+  }
+
+  // ln Pr(true genotype)
+  override double init(in TrueGenotype truegen)
+  {
+    alias all_true_geno atg;
+
+    if(truegen==atg[0] || truegen==atg[1] ||
+       truegen==atg[2] || truegen==atg[3])
+      return(-2.0*LN2);
+
+    throw new Exception("truegen not among possible true genotypes");
+  }
+
+  // ln Pr(genotype at right marker | genotype at left marker)
+  override double step(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
+  {
+    alias all_true_geno atgpk;
 
     if(truegen_left==atgpk[0]) {
       if(truegen_right==atgpk[0]) // AA -> AA
@@ -299,32 +332,10 @@ class F2 : Cross {
     throw new Exception("inputs not among the possible true genotypes");
   }
 
-  // ln Pr(observed genotype | true genotype)
-  double emit(in GenotypeCombinator obsgen, in TrueGenotype truegen, in double error_prob)
-  {
-    auto n_obsgen = obsgen.list.length;
-
-    if(n_obsgen==0) // missing value
-      return(0.0); // log(1.0)
-
-    if(obsgen.match(truegen)) { // compatible with truegen
-      if(n_obsgen>2) // AorH and HorB cases
-        return(log(1.0-error_prob/2.0));
-      else // A, H, B cases
-        return(log(1.0-error_prob));
-    }
-    else {
-      if(n_obsgen>2) // AorH and HorB cases
-        return(log(error_prob));
-      else // A, H, B cases
-        return(log(error_prob/2.0));
-    }
-  }
-
   // proportion of recombination events
-  double nrec(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
+  override double nrec(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
   {
-    alias all_true_geno_phaseknown atgpk;
+    alias all_true_geno atgpk;
 
     if(truegen_left==atgpk[0]) {
       if(truegen_right==atgpk[0]) // AA -> AA
@@ -367,13 +378,16 @@ class F2 : Cross {
 
 }
 
+
+
 unittest {
   writeln("Unit test " ~ __FILE__ ~ " F2");
 
   // unit test allTrueGeno for F2
   auto f2 = form_cross("F2");
+  auto f2PK = form_cross_phaseknown(f2);
   auto g = f2.all_true_geno;
-  auto gPK = f2.all_true_geno_phaseknown;
+  auto gPK = f2PK.all_true_geno;
 
   assert(g.length == 3);
   assert(g[0] == new TrueGenotype(0,0));
@@ -395,7 +409,7 @@ unittest {
 
   // unit test init for F2 (phase-known)
   foreach(gv; gPK)
-    assert(to!string(f2.init_phaseknown(gv)) == to!string(val[0]));
+    assert(to!string(f2PK.init(gv)) == to!string(val[0]));
 
   //  unit test step for F2
   double rf = 0.01;
@@ -423,40 +437,40 @@ unittest {
 
 
   // unit test step for F2 (phase-known)
-  assert( to!string( f2.step_phaseknown(gPK[0], gPK[0], rf) ) ==
+  assert( to!string( f2PK.step(gPK[0], gPK[0], rf) ) ==
           to!string( log((1-rf)^^2) ));
-  assert( to!string( f2.step_phaseknown(gPK[0], gPK[1], rf) ) ==
+  assert( to!string( f2PK.step(gPK[0], gPK[1], rf) ) ==
           to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2.step_phaseknown(gPK[0], gPK[2], rf) ) ==
+  assert( to!string( f2PK.step(gPK[0], gPK[2], rf) ) ==
           to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2.step_phaseknown(gPK[0], gPK[3], rf) ) ==
+  assert( to!string( f2PK.step(gPK[0], gPK[3], rf) ) ==
           to!string( log(rf^^2) ));
 
-  assert( to!string( f2.step_phaseknown(gPK[1], gPK[0], rf) ) ==
+  assert( to!string( f2PK.step(gPK[1], gPK[0], rf) ) ==
           to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2.step_phaseknown(gPK[1], gPK[1], rf) ) ==
+  assert( to!string( f2PK.step(gPK[1], gPK[1], rf) ) ==
           to!string( log((1-rf)^^2) ));
-  assert( to!string( f2.step_phaseknown(gPK[1], gPK[2], rf) ) ==
+  assert( to!string( f2PK.step(gPK[1], gPK[2], rf) ) ==
           to!string( log(rf^^2) ));
-  assert( to!string( f2.step_phaseknown(gPK[1], gPK[3], rf) ) ==
+  assert( to!string( f2PK.step(gPK[1], gPK[3], rf) ) ==
           to!string( log(rf*(1.0-rf)) ));
 
-  assert( to!string( f2.step_phaseknown(gPK[2], gPK[0], rf) ) ==
+  assert( to!string( f2PK.step(gPK[2], gPK[0], rf) ) ==
           to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2.step_phaseknown(gPK[2], gPK[2], rf) ) ==
+  assert( to!string( f2PK.step(gPK[2], gPK[2], rf) ) ==
           to!string( log((1-rf)^^2) ));
-  assert( to!string( f2.step_phaseknown(gPK[2], gPK[1], rf) ) ==
+  assert( to!string( f2PK.step(gPK[2], gPK[1], rf) ) ==
           to!string( log(rf^^2) ));
-  assert( to!string( f2.step_phaseknown(gPK[2], gPK[3], rf) ) ==
+  assert( to!string( f2PK.step(gPK[2], gPK[3], rf) ) ==
           to!string( log(rf*(1.0-rf)) ));
 
-  assert( to!string( f2.step_phaseknown(gPK[3], gPK[3], rf) ) ==
+  assert( to!string( f2PK.step(gPK[3], gPK[3], rf) ) ==
           to!string( log((1-rf)^^2) ));
-  assert( to!string( f2.step_phaseknown(gPK[3], gPK[1], rf) ) ==
+  assert( to!string( f2PK.step(gPK[3], gPK[1], rf) ) ==
           to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2.step_phaseknown(gPK[3], gPK[2], rf) ) ==
+  assert( to!string( f2PK.step(gPK[3], gPK[2], rf) ) ==
           to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2.step_phaseknown(gPK[3], gPK[0], rf) ) ==
+  assert( to!string( f2PK.step(gPK[3], gPK[0], rf) ) ==
           to!string( log(rf^^2) ));
 
   // unit test emit for F2
@@ -503,54 +517,54 @@ unittest {
   assert(to!string(f2.emit(HorB, g[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
   assert(to!string(f2.emit(HorB, g[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
 
-  assert(f2.emit(NA, gPK[0], error_prob) == 0);
-  assert(f2.emit(NA, gPK[1], error_prob) == 0);
-  assert(f2.emit(NA, gPK[2], error_prob) == 0);
-  assert(f2.emit(NA, gPK[3], error_prob) == 0);
+  assert(f2PK.emit(NA, gPK[0], error_prob) == 0);
+  assert(f2PK.emit(NA, gPK[1], error_prob) == 0);
+  assert(f2PK.emit(NA, gPK[2], error_prob) == 0);
+  assert(f2PK.emit(NA, gPK[3], error_prob) == 0);
 
-  assert(to!string(f2.emit(A, gPK[0], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2.emit(A, gPK[1], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2.emit(A, gPK[2], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2.emit(A, gPK[3], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(f2PK.emit(A, gPK[0], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(f2PK.emit(A, gPK[1], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(f2PK.emit(A, gPK[2], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(f2PK.emit(A, gPK[3], error_prob)) == to!string(log(error_prob/2.0)));
 
-  assert(to!string(f2.emit(H, gPK[1], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2.emit(H, gPK[2], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2.emit(H, gPK[0], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2.emit(H, gPK[3], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(f2PK.emit(H, gPK[1], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(f2PK.emit(H, gPK[2], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(f2PK.emit(H, gPK[0], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(f2PK.emit(H, gPK[3], error_prob)) == to!string(log(error_prob/2.0)));
 
-  assert(to!string(f2.emit(B, gPK[3], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2.emit(B, gPK[0], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2.emit(B, gPK[1], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2.emit(B, gPK[2], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(f2PK.emit(B, gPK[3], error_prob)) == to!string(log(1.0-error_prob)));
+  assert(to!string(f2PK.emit(B, gPK[0], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(f2PK.emit(B, gPK[1], error_prob)) == to!string(log(error_prob/2.0)));
+  assert(to!string(f2PK.emit(B, gPK[2], error_prob)) == to!string(log(error_prob/2.0)));
 
-  assert(to!string(f2.emit(AorH, gPK[0], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2.emit(AorH, gPK[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2.emit(AorH, gPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2.emit(AorH, gPK[3], error_prob)) == to!string(log(error_prob)));
+  assert(to!string(f2PK.emit(AorH, gPK[0], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(f2PK.emit(AorH, gPK[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(f2PK.emit(AorH, gPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(f2PK.emit(AorH, gPK[3], error_prob)) == to!string(log(error_prob)));
 
-  assert(to!string(f2.emit(HorB, gPK[0], error_prob)) == to!string(log(error_prob)));
-  assert(to!string(f2.emit(HorB, gPK[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2.emit(HorB, gPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2.emit(HorB, gPK[3], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(f2PK.emit(HorB, gPK[0], error_prob)) == to!string(log(error_prob)));
+  assert(to!string(f2PK.emit(HorB, gPK[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(f2PK.emit(HorB, gPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
+  assert(to!string(f2PK.emit(HorB, gPK[3], error_prob)) == to!string(log(1.0-error_prob/2.0)));
 
   // unit test nrec for F2 (phase-known)
-  assert( f2.nrec(gPK[0], gPK[0]) == 0.0 );
-  assert( f2.nrec(gPK[0], gPK[1]) == 0.5 );
-  assert( f2.nrec(gPK[0], gPK[2]) == 0.5 );
-  assert( f2.nrec(gPK[0], gPK[3]) == 1.0 );
+  assert( f2PK.nrec(gPK[0], gPK[0]) == 0.0 );
+  assert( f2PK.nrec(gPK[0], gPK[1]) == 0.5 );
+  assert( f2PK.nrec(gPK[0], gPK[2]) == 0.5 );
+  assert( f2PK.nrec(gPK[0], gPK[3]) == 1.0 );
 
-  assert( f2.nrec(gPK[1], gPK[0]) == 0.5 );
-  assert( f2.nrec(gPK[1], gPK[1]) == 0.0 );
-  assert( f2.nrec(gPK[1], gPK[2]) == 1.0 );
-  assert( f2.nrec(gPK[1], gPK[3]) == 0.5 );
+  assert( f2PK.nrec(gPK[1], gPK[0]) == 0.5 );
+  assert( f2PK.nrec(gPK[1], gPK[1]) == 0.0 );
+  assert( f2PK.nrec(gPK[1], gPK[2]) == 1.0 );
+  assert( f2PK.nrec(gPK[1], gPK[3]) == 0.5 );
 
-  assert( f2.nrec(gPK[2], gPK[0]) == 0.5 );
-  assert( f2.nrec(gPK[2], gPK[2]) == 0.0 );
-  assert( f2.nrec(gPK[2], gPK[1]) == 1.0 );
-  assert( f2.nrec(gPK[2], gPK[3]) == 0.5 );
+  assert( f2PK.nrec(gPK[2], gPK[0]) == 0.5 );
+  assert( f2PK.nrec(gPK[2], gPK[2]) == 0.0 );
+  assert( f2PK.nrec(gPK[2], gPK[1]) == 1.0 );
+  assert( f2PK.nrec(gPK[2], gPK[3]) == 0.5 );
 
-  assert( f2.nrec(gPK[3], gPK[3]) == 0.0 );
-  assert( f2.nrec(gPK[3], gPK[1]) == 0.5 );
-  assert( f2.nrec(gPK[3], gPK[2]) == 0.5 );
-  assert( f2.nrec(gPK[3], gPK[0]) == 1.0 );
+  assert( f2PK.nrec(gPK[3], gPK[3]) == 0.0 );
+  assert( f2PK.nrec(gPK[3], gPK[1]) == 0.5 );
+  assert( f2PK.nrec(gPK[3], gPK[2]) == 0.5 );
+  assert( f2PK.nrec(gPK[3], gPK[0]) == 1.0 );
 }
