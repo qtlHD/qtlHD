@@ -37,7 +37,7 @@ Cross form_cross(string which_cross) {
 }
 
 
-// the switch
+// the second switch: phase-known versions
 Cross form_cross_phaseknown(Cross cross) {
   switch(cross.cross_type) {
   case "BC": return(cross);
@@ -59,7 +59,7 @@ class BC : Cross {
   }
 
   // ln Pr(true genotype)
-  double init(TrueGenotype truegen)
+  override double init(TrueGenotype truegen)
   {
     if(truegen != all_true_geno[0] &&
        truegen != all_true_geno[1])
@@ -69,7 +69,7 @@ class BC : Cross {
   }
 
   // ln Pr(genotype at right marker | genotype at left marker)
-  double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
   {
     alias all_true_geno atg;
 
@@ -91,7 +91,7 @@ class BC : Cross {
   }
 
   // ln Pr(observed genotype | true genotype)
-  double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
   {
     if(obsgen.list.length==0) // missing value
       return(0.0); // log(1.0)
@@ -103,7 +103,7 @@ class BC : Cross {
   }
 
   // No. recombination events
-  double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right)
   {
     alias all_true_geno atg;
 
@@ -177,7 +177,7 @@ unittest {
 }
 
 
-// F2 (intercross)
+// F2 (intercross) [ used in calc_geno_prob]
 class F2 : Cross {
 
   this() {
@@ -190,7 +190,7 @@ class F2 : Cross {
   }
 
   // ln Pr(true genotype)
-  double init(TrueGenotype truegen)
+  override double init(TrueGenotype truegen)
   {
     alias all_true_geno atg;
 
@@ -204,7 +204,7 @@ class F2 : Cross {
   }
 
   // ln Pr(genotype at right marker | genotype at left marker)
-  double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
   {
     alias all_true_geno atg;
 
@@ -236,7 +236,7 @@ class F2 : Cross {
   }
   
   // ln Pr(observed genotype | true genotype)
-  double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
   {
     auto n_obsgen = obsgen.list.length;
 
@@ -258,13 +258,13 @@ class F2 : Cross {
   }
 
   // proportion of recombination events
-  double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right)
   {
     throw new Exception("nrec undefined for cross type F2");
   }
 }
 
-// F2_phaseknown (intercross with phase-known genotypes)
+// F2_phaseknown (intercross with phase-known genotypes) [used in est_map]
 class F2_phaseknown : F2 {
   this() {
     cross_type = "F2_phaseknown";
