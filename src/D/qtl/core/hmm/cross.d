@@ -1,5 +1,5 @@
 /**
- * HMM backcross functions
+ * Cross classes for HMM-related functions
  **/
 
 module qtl.core.hmm.cross;
@@ -10,9 +10,8 @@ import std.conv;
 
 import qtl.core.primitives;
 import qtl.core.genotype;
-import qtl.core.map.genetic_map_functions;
 
-// class to contaHMM-related functions
+// class to contain HMM-related functions
 class Cross {
   string cross_type;
   
