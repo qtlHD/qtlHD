@@ -217,7 +217,7 @@ double[] calc_linreg_rss_fullrank(double x[], size_t nrow, size_t ncolx, double 
   info = 0;
   gels('N', cast(int)nrow, cast(int)ncolx, cast(int)ncoly, x.ptr, lda, y.ptr, ldb, work.ptr, lwork, &info);
 
-  if(!info) { /* check whether x seems singular */
+  if(!info) { // check whether x seems singular
     foreach(i; 0..ncolx) {
       if(abs(x[i+i*nrow]) < tol) {
         info = 1;
@@ -245,9 +245,9 @@ double[] calc_linreg_rss_fullrank(double x[], size_t nrow, size_t ncolx, double 
 }
 
 
-/**********************************************************************
+/**
  * unit tests
- **********************************************************************/
+ **/
 
 unittest {
   writeln("Unit test " ~ __FILE__);

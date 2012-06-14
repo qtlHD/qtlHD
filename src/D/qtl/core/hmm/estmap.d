@@ -86,11 +86,11 @@ double[] estmap(alias init, alias emit, alias step, alias nrec)(in GenotypeCombi
 	      cur_rec_frac[j] += nrec(left_gen, right_gen) * exp(gamma[il][ir] - sum_gamma);
 	    }
 	  }
-	} /* loop over marker intervals */
+	} // loop over marker intervals
 
-      } /* loop over individuals */
+      } // loop over individuals
 
-      /* rescale */
+      // rescale
       foreach(ref rf; cur_rec_frac) {
 	rf /= n_individuals;
 	if(rf < tol/1000.0) rf = tol/1000.0;
@@ -109,7 +109,7 @@ double[] estmap(alias init, alias emit, alias step, alias nrec)(in GenotypeCombi
 	writefln("%4d %.12f", it, tempdif);
       }
 
-      /* check convergence */
+      // check convergence
       auto converged = true;
       foreach(j; 0..prev_rec_frac.length) {
 	if(abs(prev_rec_frac[j] - cur_rec_frac[j]) > tol*(cur_rec_frac[j]+tol*100.0)) {
@@ -123,7 +123,7 @@ double[] estmap(alias init, alias emit, alias step, alias nrec)(in GenotypeCombi
       prev_rec_frac = cur_rec_frac.dup;
     }
 
-    /* calculate log likelihood */
+    // calculate log likelihood
     auto loglik = 0.0;
     double curloglik;
     foreach(ind; 0..n_individuals) {
