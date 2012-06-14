@@ -15,11 +15,11 @@ import qtl.core.hmm.util;
 import qtl.core.hmm.cross;
 
 // forward Equations
-double[][] forwardEquations(in Cross cross,
-                            in GenotypeCombinator[] genotypes,
-                            in Marker[] marker_map,
-                            in Probability[] rec_frac,
-                            in Probability error_prob)
+double[][] forwardEquations(Cross cross,
+                            GenotypeCombinator[] genotypes,
+                            Marker[] marker_map,
+                            Probability[] rec_frac,
+                            Probability error_prob)
 in {
   foreach(i, m; marker_map)
     assert(isPseudoMarker(m) || (m.id >= 0 && m.id < genotypes.length),
@@ -60,11 +60,11 @@ body {
 
 
 // backward Equations
-double[][] backwardEquations(in Cross cross,
-                             in GenotypeCombinator[] genotypes,
-                             in Marker[] marker_map,
-                             in Probability[] rec_frac,
-                             in Probability error_prob)
+double[][] backwardEquations(Cross cross,
+                             GenotypeCombinator[] genotypes,
+                             Marker[] marker_map,
+                             Probability[] rec_frac,
+                             Probability error_prob)
 in {
   foreach(i, m; marker_map)
     assert(isPseudoMarker(m) || (m.id >= 0 && m.id < genotypes.length),

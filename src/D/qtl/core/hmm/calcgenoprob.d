@@ -14,11 +14,11 @@ import qtl.core.hmm.forwardbackward;
 import qtl.core.hmm.cross;
 
 // calculate QTL genotype probabilities
-double[][][] calc_geno_prob(in Cross cross,
-                            in GenotypeCombinator[][] genotypes,
-                            in Marker[] marker_map,
-                            in double[] rec_frac,
-                            in double error_prob)
+double[][][] calc_geno_prob(Cross cross,
+                            GenotypeCombinator[][] genotypes,
+                            Marker[] marker_map,
+                            double[] rec_frac,
+                            double error_prob)
 {
   if(marker_map.length != rec_frac.length+1) {
     throw new Exception("no. positions in marker map doesn't match rec_frac length");

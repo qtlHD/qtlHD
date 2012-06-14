@@ -12,16 +12,16 @@ import qtl.core.primitives;
 import qtl.core.genotype;
 import qtl.core.map.genetic_map_functions;
 
-// class to contain HMM-related functions
+// class to contaHMM-related functions
 class Cross {
   string cross_type;
   
   TrueGenotype[] all_true_geno;
   
-  abstract double init(in TrueGenotype truegen);
-  abstract double step(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac);
-  abstract double emit(in GenotypeCombinator obsgen, in TrueGenotype truegen, in double error_prob);
-  abstract double nrec(in TrueGenotype truegen_left, in TrueGenotype truegen_right);
+  abstract double init(TrueGenotype truegen);
+  abstract double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac);
+  abstract double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob);
+  abstract double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right);
 }
 
 // the switch
@@ -59,7 +59,7 @@ class BC : Cross {
   }
 
   // ln Pr(true genotype)
-  double init(in TrueGenotype truegen)
+  double init(TrueGenotype truegen)
   {
     if(truegen != all_true_geno[0] &&
        truegen != all_true_geno[1])
@@ -69,7 +69,7 @@ class BC : Cross {
   }
 
   // ln Pr(genotype at right marker | genotype at left marker)
-  double step(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
+  double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
   {
     alias all_true_geno atg;
 
@@ -91,7 +91,7 @@ class BC : Cross {
   }
 
   // ln Pr(observed genotype | true genotype)
-  double emit(in GenotypeCombinator obsgen, in TrueGenotype truegen, in double error_prob)
+  double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
   {
     if(obsgen.list.length==0) // missing value
       return(0.0); // log(1.0)
@@ -103,7 +103,7 @@ class BC : Cross {
   }
 
   // No. recombination events
-  double nrec(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
+  double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right)
   {
     alias all_true_geno atg;
 
@@ -190,7 +190,7 @@ class F2 : Cross {
   }
 
   // ln Pr(true genotype)
-  double init(in TrueGenotype truegen)
+  double init(TrueGenotype truegen)
   {
     alias all_true_geno atg;
 
@@ -204,7 +204,7 @@ class F2 : Cross {
   }
 
   // ln Pr(genotype at right marker | genotype at left marker)
-  double step(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
+  double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
   {
     alias all_true_geno atg;
 
@@ -236,7 +236,7 @@ class F2 : Cross {
   }
   
   // ln Pr(observed genotype | true genotype)
-  double emit(in GenotypeCombinator obsgen, in TrueGenotype truegen, in double error_prob)
+  double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
   {
     auto n_obsgen = obsgen.list.length;
 
@@ -258,7 +258,7 @@ class F2 : Cross {
   }
 
   // proportion of recombination events
-  double nrec(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
+  double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right)
   {
     throw new Exception("nrec undefined for cross type F2");
   }
@@ -277,7 +277,7 @@ class F2_phaseknown : F2 {
   }
 
   // ln Pr(true genotype)
-  override double init(in TrueGenotype truegen)
+  override double init(TrueGenotype truegen)
   {
     alias all_true_geno atg;
 
@@ -289,7 +289,7 @@ class F2_phaseknown : F2 {
   }
 
   // ln Pr(genotype at right marker | genotype at left marker)
-  override double step(in TrueGenotype truegen_left, in TrueGenotype truegen_right, in double rec_frac)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
   {
     alias all_true_geno atgpk;
 
@@ -333,7 +333,7 @@ class F2_phaseknown : F2 {
   }
 
   // proportion of recombination events
-  override double nrec(in TrueGenotype truegen_left, in TrueGenotype truegen_right)
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right)
   {
     alias all_true_geno atgpk;
 
