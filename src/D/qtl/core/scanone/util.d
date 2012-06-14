@@ -81,24 +81,26 @@ FounderIndex[] get_sorted_founder_alleles(in TrueGenotype[] all_true_genotypes)
 unittest {
   writeln("Unit test " ~ __FILE__);
 
-  import qtl.core.hmm.bc;
-  import qtl.core.hmm.f2;
+  import qtl.core.hmm.cross;
 
-  auto f2_geno = allTrueGeno_F2();
+  auto f2 = form_cross("F2");
+  auto f2_geno = f2.all_true_geno;
   auto f2_founders = get_sorted_founder_alleles(f2_geno);
   write("F2 founder alleles:\t");
   foreach(f; f2_founders)
     write(f, " ");
   writeln;
 
-  auto f2pk_geno = allTrueGeno_F2PK();
+  auto f2pk = form_cross_phaseknown(f2);
+  auto f2pk_geno = f2pk.all_true_geno;
   auto f2pk_founders = get_sorted_founder_alleles(f2pk_geno);
   write("F2PK founder alleles:\t");
   foreach(f; f2pk_founders)
     write(f, " ");
   writeln;
 
-  auto bc_geno = allTrueGeno_BC();
+  auto bc = form_cross("BC");
+  auto bc_geno = bc.all_true_geno;
   auto bc_founders = get_sorted_founder_alleles(bc_geno);
   write("BC founder alleles:\t");
   foreach(f; bc_founders)
@@ -130,10 +132,10 @@ double[][] create_allele_freq_table(in TrueGenotype[] all_true_genotypes)
 }
 
 unittest {
-  import qtl.core.hmm.bc;
-  import qtl.core.hmm.f2;
+  import qtl.core.hmm.cross;
 
-  auto f2_geno = allTrueGeno_F2();
+  auto f2 = form_cross("F2");
+  auto f2_geno = f2.all_true_geno;
   auto f2_allelefreq = create_allele_freq_table(f2_geno);
   writeln("F2 founder allele freq:");
   foreach(i; 0..f2_allelefreq.length) {
@@ -142,7 +144,8 @@ unittest {
     writeln;
   }
 
-  auto f2pk_geno = allTrueGeno_F2PK();
+  auto f2pk = form_cross_phaseknown(f2);
+  auto f2pk_geno = f2pk.all_true_geno;
   auto f2pk_allelefreq = create_allele_freq_table(f2pk_geno);
   writeln("F2PK founder allele freq:");
   foreach(i; 0..f2pk_allelefreq.length) {
@@ -151,7 +154,9 @@ unittest {
     writeln;
   }
 
-  auto bc_geno = allTrueGeno_BC();
+  
+  auto bc = form_cross("BC");
+  auto bc_geno = bc.all_true_geno;
   auto bc_allelefreq = create_allele_freq_table(bc_geno);
   writeln("BC founder allele freq:");
   foreach(i; 0..bc_allelefreq.length) {

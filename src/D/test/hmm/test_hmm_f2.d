@@ -15,8 +15,9 @@ import qtl.core.phenotype, qtl.core.chromosome, qtl.core.genotype;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.map.make_map, qtl.core.map.map;
 import qtl.core.map.genetic_map_functions;
-import qtl.core.hmm.f2;
-
+import qtl.core.hmm.cross;
+import qtl.core.hmm.calcgenoprob;
+import qtl.core.hmm.estmap;
 
 unittest {
   writeln("Unit test " ~ __FILE__);
@@ -160,12 +161,15 @@ unittest {
     pmap_minimal = add_minimal_markers_autosome(chr[1], 5.0, 0.0);
   }
 
+  // create cross
+  auto f2 = form_cross("F2");
+
   // test calc_geno_prob with listeria data, chr 4
   writeln("Test calc_geno_prob with listeria data, chr 4");
   auto chr4_map = markers_by_chr_sorted[3][1];
   auto rec_frac = recombination_fractions(chr4_map, GeneticMapFunc.Haldane);
 
-  auto genoprobs = calc_geno_prob_F2(genotype_matrix, chr4_map, rec_frac, 0.002);
+  auto genoprobs = calc_geno_prob(f2, genotype_matrix, chr4_map, rec_frac, 0.002);
 
   /******************************
    * in R:
@@ -239,7 +243,7 @@ unittest {
   auto pmap_minimal_chr13 = add_minimal_markers_autosome(chr13_map, 1.0, 0.0);
   rec_frac = recombination_fractions(pmap_minimal_chr13, GeneticMapFunc.Kosambi);
 
-  genoprobs = calc_geno_prob_F2(genotype_matrix, pmap_minimal_chr13, rec_frac, 0.01);
+  genoprobs = calc_geno_prob(f2, genotype_matrix, pmap_minimal_chr13, rec_frac, 0.01);
 
   /******************************
    * in R:
@@ -311,7 +315,7 @@ unittest {
   auto pmap_stepped_chr19 = add_stepped_markers_autosome(chr19_map, 1.0, 0.0);
   rec_frac = recombination_fractions(pmap_stepped_chr19, GeneticMapFunc.Carter_Falconer);
 
-  genoprobs = calc_geno_prob_F2(genotype_matrix, pmap_stepped_chr19, rec_frac, 0.001);
+  genoprobs = calc_geno_prob(f2, genotype_matrix, pmap_stepped_chr19, rec_frac, 0.001);
 
   /******************************
    * in R:
@@ -381,7 +385,7 @@ unittest {
 
   chr13_map = markers_by_chr_sorted[12][1];
   rec_frac = recombination_fractions(chr13_map, GeneticMapFunc.Kosambi);
-  auto rec_frac_rev = estmap_F2(genotype_matrix, chr13_map, rec_frac, 0.002, 100, 1e-6, false);
+  auto rec_frac_rev = estmap(f2, genotype_matrix, chr13_map, rec_frac, 0.002, 100, 1e-6, false);
 
   /******************************
    * in R:
@@ -419,7 +423,7 @@ unittest {
 
   auto chr7_map = markers_by_chr_sorted[6][1];
   rec_frac = recombination_fractions(chr7_map, GeneticMapFunc.Haldane);
-  rec_frac_rev = estmap_F2(genotype_matrix, chr7_map, rec_frac, 0.01, 100, 1e-6, false);
+  rec_frac_rev = estmap(f2, genotype_matrix, chr7_map, rec_frac, 0.01, 100, 1e-6, false);
 
   /******************************
    * in R:

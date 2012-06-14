@@ -15,7 +15,9 @@ import qtl.core.phenotype, qtl.core.chromosome, qtl.core.genotype;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.map.make_map, qtl.core.map.map;
 import qtl.core.map.genetic_map_functions;
-import qtl.core.hmm.bc;
+import qtl.core.hmm.cross;
+import qtl.core.hmm.calcgenoprob;
+import qtl.core.hmm.estmap;
 
 unittest {
   writeln("Unit test " ~ __FILE__);
@@ -150,6 +152,9 @@ unittest {
     auto pmap_minimal = add_minimal_markers_autosome(chr[1], 1, 0);
   }
 
+  // create cross
+  auto bc = form_cross("BC");
+
   // test calc_geno_prob with hyper data
   writeln("Test calc_geno_prob with hyper data, chr 4");
   auto chr4_map = markers_by_chr_sorted[3][1];
@@ -158,7 +163,7 @@ unittest {
 
   auto rec_frac = recombination_fractions(pmap_stepped_chr4, GeneticMapFunc.Kosambi);
   writeln("running calc_geno_prob");
-  auto genoprobs = calc_geno_prob_BC(genotype_matrix, pmap_stepped_chr4, rec_frac, 0.001);
+  auto genoprobs = calc_geno_prob(bc, genotype_matrix, pmap_stepped_chr4, rec_frac, 0.001);
 
   /******************************
    * in R:
@@ -264,7 +269,7 @@ unittest {
   }
 
   writeln("      - Run calcGenoprob for BC");
-  genoprobs = calc_geno_prob_BC(genotype_matrix, chr5_map, rec_frac, 0.002);
+  genoprobs = calc_geno_prob(bc, genotype_matrix, chr5_map, rec_frac, 0.002);
 
   writeln("      - Compare results to R/qtl");
   /******************************
@@ -366,11 +371,11 @@ unittest {
 
   auto map2 = markers_by_chr_sorted[1][1];
   auto rf2 = recombination_fractions(map2, GeneticMapFunc.Carter_Falconer);
-  auto estrf2 = estmap_BC(genotype_matrix, map2, rf2, 0.01, 1000, 1e-5, false);
+  auto estrf2 = estmap(bc, genotype_matrix, map2, rf2, 0.01, 1000, 1e-5, false);
 
   auto map17 = markers_by_chr_sorted[16][1];
   auto rf17 = recombination_fractions(map17, GeneticMapFunc.Haldane);
-  auto estrf17 = estmap_BC(genotype_matrix, map17, rf17, 0.002, 1000, 1e-5, false);
+  auto estrf17 = estmap(bc, genotype_matrix, map17, rf17, 0.002, 1000, 1e-5, false);
 
   /******************************
    * in R:
