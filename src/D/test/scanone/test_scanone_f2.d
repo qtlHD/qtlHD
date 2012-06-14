@@ -23,7 +23,8 @@ import qtl.core.map.map;
 import qtl.core.map.make_map;
 
 import qtl.core.map.genetic_map_functions;
-import qtl.core.hmm.f2;
+import qtl.core.hmm.cross;
+import qtl.core.hmm.calcgenoprob;
 import qtl.core.scanone.scanone_hk;
 import qtl.core.scanone.util;
 import qtl.core.util.data_manip;
@@ -87,9 +88,12 @@ unittest {
   // add pseudomarkers
   auto chr5_map_wpmark = add_minimal_markers_autosome(chr5_map, 2.0);
 
+  // form cross
+  auto f2 = form_cross("F2");
+  
   // calc_genoprob
   auto rec_frac = recombination_fractions(chr5_map_wpmark, GeneticMapFunc.Kosambi);
-  auto chr5probs = calc_geno_prob_F2(genotype_matrix, chr5_map_wpmark, rec_frac, 0.01);
+  auto chr5probs = calc_geno_prob(f2, genotype_matrix, chr5_map_wpmark, rec_frac, 0.01);
 
   // empty covariate matrices
   auto addcovar = new double[][](0, 0);
@@ -141,7 +145,7 @@ unittest {
 
   // calc_genoprob
   rec_frac = recombination_fractions(chr12_map_wpmark, GeneticMapFunc.Haldane);
-  auto chr12probs = calc_geno_prob_F2(genotype_matrix, chr12_map_wpmark, rec_frac, 0.02);
+  auto chr12probs = calc_geno_prob(f2, genotype_matrix, chr12_map_wpmark, rec_frac, 0.02);
 
   // run scanone and calculate LOD scores
   rss = scanone_hk(chr12probs, pheno, addcovar, intcovar, weights);
@@ -186,7 +190,7 @@ unittest {
 
   // calc_genoprob
   rec_frac = recombination_fractions(chr13_map_wpmark, GeneticMapFunc.Haldane);
-  auto chr13probs = calc_geno_prob_F2(genotype_matrix, chr13_map_wpmark, rec_frac, 0.001);
+  auto chr13probs = calc_geno_prob(f2, genotype_matrix, chr13_map_wpmark, rec_frac, 0.001);
 
   // run scanone and calculate LOD scores
   rss = scanone_hk(chr13probs, pheno, addcovar, intcovar, weights);
@@ -226,7 +230,7 @@ unittest {
   // Additive allele model
 
   // collapse genotype probabilities to allele probabilities
-  auto chr5_allele_probs = collapse_geno_prob_to_allele_prob(chr5probs, allTrueGeno_F2());
+  auto chr5_allele_probs = collapse_geno_prob_to_allele_prob(chr5probs, f2.all_true_geno);
 
   // run scanone and calculate LOD scores
   rss = scanone_hk(chr5_allele_probs, pheno, addcovar, intcovar, weights);
@@ -240,7 +244,7 @@ unittest {
   }
 
   // collapse genotype probabilities to allele probabilities
-  auto chr13_allele_probs = collapse_geno_prob_to_allele_prob(chr13probs, allTrueGeno_F2());
+  auto chr13_allele_probs = collapse_geno_prob_to_allele_prob(chr13probs, f2.all_true_geno);
 
   // run scanone and calculate LOD scores
   rss = scanone_hk(chr13_allele_probs, pheno, addcovar, intcovar, weights);

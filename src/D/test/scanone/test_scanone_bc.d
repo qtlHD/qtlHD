@@ -23,7 +23,8 @@ import qtl.core.map.map;
 import qtl.core.map.make_map;
 
 import qtl.core.map.genetic_map_functions;
-import qtl.core.hmm.bc;
+import qtl.core.hmm.cross;
+import qtl.core.hmm.calcgenoprob;
 import qtl.core.scanone.scanone_hk;
 import qtl.core.scanone.util;
 
@@ -77,10 +78,13 @@ unittest {
   auto chr4_map = markers_by_chr_sorted[3][1];
   sort(chr4_map); // sort in place
 
+  // form cross
+  auto bc = form_cross("BC");
+
   writeln(" --Scanone for hyper chr 4, no pseudomarkers");
   // calc_geno_prob
   auto rec_frac = recombination_fractions(chr4_map, GeneticMapFunc.Carter_Falconer);
-  auto chr4probs = calc_geno_prob_BC(genotype_matrix, chr4_map, rec_frac, 0.001);
+  auto chr4probs = calc_geno_prob(bc, genotype_matrix, chr4_map, rec_frac, 0.001);
 
   // empty covariate matrices
   auto addcovar = new double[][](0, 0);
@@ -138,7 +142,7 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
 
   // calc_geno_prob
   rec_frac = recombination_fractions(pmap_stepped_chr4, GeneticMapFunc.Kosambi);
-  chr4probs = calc_geno_prob_BC(genotype_matrix, pmap_stepped_chr4, rec_frac, 0.002);
+  chr4probs = calc_geno_prob(bc, genotype_matrix, pmap_stepped_chr4, rec_frac, 0.002);
 
   // run scanone and calculate LOD scores
   rss = scanone_hk(chr4probs, pheno_rev, addcovar, intcovar, weights);
@@ -186,7 +190,7 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
 
   // calc_geno_prob
   rec_frac = recombination_fractions(pmap_stepped_chr15, GeneticMapFunc.Haldane);
-  auto chr15probs = calc_geno_prob_BC(genotype_matrix, pmap_stepped_chr15, rec_frac, 0.002);
+  auto chr15probs = calc_geno_prob(bc, genotype_matrix, pmap_stepped_chr15, rec_frac, 0.002);
 
   // covariates
   addcovar = new double[][](genotype_matrix.length, 1);

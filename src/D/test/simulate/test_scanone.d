@@ -15,8 +15,8 @@ import qtl.core.genotype;
 import qtl.core.map.make_map;
 import qtl.core.map.genetic_map_functions;
 import qtl.core.map.map;
-import qtl.core.hmm.bc;
-import qtl.core.hmm.f2;
+import qtl.core.hmm.cross;
+import qtl.core.hmm.calcgenoprob;
 import qtl.core.scanone.scanone_hk;
 import qtl.core.scanone.util;
 
@@ -50,10 +50,13 @@ unittest {
       phenotype[i].value += 0.8;
   }
 
+  // form cross
+  auto bc = form_cross("BC");
+
   // pseudomarkers and HMM
   auto pmap = add_stepped_markers_autosome(marker_map, 1.0, 0.0);
   auto rec_frac = recombination_fractions(pmap, GeneticMapFunc.Carter_Falconer);
-  auto genoprobs = calc_geno_prob_BC(BCgen, pmap, rec_frac, 0.001);
+  auto genoprobs = calc_geno_prob(bc, BCgen, pmap, rec_frac, 0.001);
 
   // empty covariate matrices
   auto addcovar = new double[][](0, 0);
@@ -94,10 +97,13 @@ unittest {
       phenotype[i].value += 1.0;
   }
 
+  // form cross
+  auto f2 = form_cross("F2");
+
   // pseudomarkers and HMM
   auto pmap = add_stepped_markers_autosome(marker_map, 1.0, 0.0);
   auto rec_frac = recombination_fractions(pmap, GeneticMapFunc.Carter_Falconer);
-  auto genoprobs = calc_geno_prob_F2(F2gen, pmap, rec_frac, 0.001);
+  auto genoprobs = calc_geno_prob(f2, F2gen, pmap, rec_frac, 0.001);
 
   // empty covariate matrices
   auto addcovar = new double[][](0, 0);
