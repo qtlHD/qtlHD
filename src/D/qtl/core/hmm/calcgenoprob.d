@@ -11,13 +11,14 @@ import std.math;
 import qtl.core.primitives, qtl.core.genotype;
 import qtl.core.hmm.util;
 import qtl.core.hmm.forwardbackward;
+import qtl.core.hmm.cross;
 
 // calculate QTL genotype probabilities
-double[][][] calc_geno_prob(alias init, alias emit, alias step)(in GenotypeCombinator[][] genotypes,
-                                                                in TrueGenotype[] all_true_geno,
-                                                                in Marker[] marker_map,
-                                                                in double[] rec_frac,
-                                                                in double error_prob)
+double[][][] calc_geno_prob(in Cross cross,
+                            in GenotypeCombinator[][] genotypes,
+                            in Marker[] marker_map,
+                            in double[] rec_frac,
+                            in double error_prob)
 {
   if(marker_map.length != rec_frac.length+1) {
     throw new Exception("no. positions in marker map doesn't match rec_frac length");
@@ -32,24 +33,24 @@ double[][][] calc_geno_prob(alias init, alias emit, alias step)(in GenotypeCombi
   size_t n_individuals = genotypes.length;
   size_t n_positions = marker_map.length;
 
-  auto alpha = new double[][](all_true_geno.length,n_positions);
-  auto beta = new double[][](all_true_geno.length,n_positions);
-  auto genoprobs = new double[][][](n_positions,n_individuals,all_true_geno.length);
+  auto alpha = new double[][](cross.all_true_geno.length, n_positions);
+  auto beta = new double[][](cross.all_true_geno.length, n_positions);
+  auto genoprobs = new double[][][](n_positions, n_individuals, cross.all_true_geno.length);
 
   foreach(ind; 0..n_individuals) {
-    alpha = forwardEquations!(init, emit, step)(genotypes[ind], all_true_geno, marker_map, rec_frac, error_prob);
-    beta = backwardEquations!(init, emit, step)(genotypes[ind], all_true_geno, marker_map, rec_frac, error_prob);
+    alpha = forwardEquations(cross, genotypes[ind], marker_map, rec_frac, error_prob);
+    beta = backwardEquations(cross, genotypes[ind], marker_map, rec_frac, error_prob);
 
     // calculate genotype probabilities
     double sum_at_pos;
     foreach(pos; 0..n_positions) {
       sum_at_pos = genoprobs[pos][ind][0] = alpha[0][pos] + beta[0][pos];
-      foreach(i; 1 .. all_true_geno.length) {
-        auto true_geno = all_true_geno[i];
+      foreach(i; 1 .. cross.all_true_geno.length) {
+        auto true_geno = cross.all_true_geno[i];
         genoprobs[pos][ind][i] = alpha[i][pos] + beta[i][pos];
         sum_at_pos = addlog(sum_at_pos, genoprobs[pos][ind][i]);
       }
-      foreach(i, true_geno; all_true_geno) {
+      foreach(i, true_geno; cross.all_true_geno) {
         genoprobs[pos][ind][i] = exp(genoprobs[pos][ind][i] - sum_at_pos);
       }
     }
