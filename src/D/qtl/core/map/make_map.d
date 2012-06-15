@@ -12,6 +12,8 @@ import std.path;
 import std.exception;
 import std.algorithm;
 import std.math;
+import std.typecons;
+
 alias std.algorithm.find find;
 
 import qtl.core.marker;
@@ -80,7 +82,7 @@ Ms add_stepped_markers(Ms)(in Ms markerlist, in Position step=1.0, in Position o
   return new_markerlist;
 }
 
-Tuple!(Chromosome,Ms)[] add_stepped_markers(Ms)(in Tuple!(Chromosome,Ms)[] map_by_chr, in Position step=1.0, 
+Tuple!(Chromosome,Ms)[] add_stepped_markers(Ms)(Tuple!(Chromosome,Ms)[] map_by_chr, in Position step=1.0, 
                                                 in Position off_end=0.0)
 {
   Tuple!(Chromosome,Ms)[] newlist;
@@ -140,7 +142,7 @@ Ms add_minimal_markers(Ms)(in Ms markerlist, in Position step=1.0, in Position o
 }
 
 
-Tuple!(Chromosome,Ms)[] add_minimal_markers(Ms)(in Tuple!(Chromosome,Ms)[] map_by_chr, in Position step=1.0, 
+Tuple!(Chromosome,Ms)[] add_minimal_markers(Ms)(Tuple!(Chromosome,Ms)[] map_by_chr, in Position step=1.0, 
                                                 in Position off_end=0.0)
 {
   Tuple!(Chromosome,Ms)[] newlist;
