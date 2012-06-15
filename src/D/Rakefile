@@ -62,6 +62,8 @@ qtab_dfiles = qtab_read_dfiles + qtab_write_dfiles
 xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d") + csv_dfiles
 renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d")
 scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
+test_scanone_dfiles = Dir.glob("./test/scanone/*.d")
+test_hmm_dfiles = Dir.glob("./test/hmm/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
 example_dfiles = Dir.glob("./example/*.d")
 deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") +
@@ -126,11 +128,11 @@ exe_list = {
   'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_write_dfiles + csv_dfiles + example_dfiles + main_dfile },
   'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + main_dfile },
   'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + main_dfile },
-  'test_scanone' => { :path => './test/scanone', :list => ['./test/scanone/test_scanone_f2.d'] + ['./test/scanone/test_scanone_bc.d'] + all_core_dfiles + scanone_dfiles + main_dfile + lapack_dfiles + util_dfiles + simulate_dfiles + distributions_dfiles },
+  'test_scanone' => { :path => './test/scanone', :list => test_scanone_dfiles + all_core_dfiles + scanone_dfiles + main_dfile + lapack_dfiles + util_dfiles + simulate_dfiles + distributions_dfiles },
   'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] + renv_dfiles + arch_dfiles },
   'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + arch_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
-  'test_hmm' => { :path => './test/hmm', :list => ['./test/hmm/test_hmm_f2.d'] + ['./test/hmm/test_hmm_bc.d'] + all_core_dfiles + qtab_read_dfiles + main_dfile },
+  'test_hmm' => { :path => './test/hmm', :list => test_hmm_dfiles + all_core_dfiles + qtab_read_dfiles + main_dfile },
   'test_simulate' => { :path => './test/simulate', :list => test_simulate_dfiles + simulate_dfiles + distributions_dfiles + main_dfile + all_core_dfiles + scanone_dfiles + lapack_dfiles },
 }
 
