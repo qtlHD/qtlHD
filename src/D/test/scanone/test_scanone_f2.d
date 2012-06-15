@@ -86,7 +86,7 @@ unittest {
   sort(chr5_map); // sort in place
 
   // add pseudomarkers
-  auto chr5_map_wpmark = add_minimal_markers_autosome(chr5_map, 2.0);
+  auto chr5_map_wpmark = add_minimal_markers(chr5_map, 2.0);
 
   // form cross
   auto f2 = form_cross("F2");
@@ -141,7 +141,7 @@ unittest {
   sort(chr12_map); // sort in place
 
   // add pseudomarkers
-  auto chr12_map_wpmark = add_minimal_markers_autosome(chr12_map, 2.0);
+  auto chr12_map_wpmark = add_minimal_markers(chr12_map, 2.0);
 
   // calc_genoprob
   rec_frac = recombination_fractions(chr12_map_wpmark, GeneticMapFunc.Haldane);
@@ -186,7 +186,7 @@ unittest {
   sort(chr13_map); // sort in place
 
   // add pseudomarkers
-  auto chr13_map_wpmark = add_minimal_markers_autosome(chr13_map, 2.5);
+  auto chr13_map_wpmark = add_minimal_markers(chr13_map, 2.5);
 
   // calc_genoprob
   rec_frac = recombination_fractions(chr13_map_wpmark, GeneticMapFunc.Haldane);
