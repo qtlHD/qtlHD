@@ -11,6 +11,9 @@ import std.path;
 import std.algorithm;
 import std.math;
 import std.algorithm;
+import std.container;
+import std.conv;
+import std.typecons;
 
 import qtl.plugins.qtab.read_qtab;
 
@@ -35,6 +38,7 @@ import qtl.core.util.data_manip;
 unittest {
   writeln("Unit test " ~ __FILE__);
 
+  writeln(" --Loading data");
   // form file names
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~
@@ -61,4 +65,22 @@ unittest {
 
   // load marker map
   auto markers = read_marker_map_qtab!(Marker)(files[4]);
+
+  // omit individuals with missing phenotype
+  auto ind_to_omit = is_any_phenotype_missing(pheno);
+  auto n_to_omit = count(ind_to_omit, true);
+  writeln(" --Omitting ", n_to_omit, " individuals with missing phenotype");
+  genotype_matrix = omit_ind_from_genotypes(genotype_matrix, ind_to_omit);
+  pheno = omit_ind_from_phenotypes(pheno, ind_to_omit);
+
+  // split markers into chromsomes; sort chromosomes
+  auto markers_by_chr = sort_chromosomes_by_marker_id(get_markers_by_chromosome(markers));
+
+  Tuple!(Marker[])[] pmar;
+
+  // add pseudomarkers
+  foreach(i; 0..19) {
+    auto temp_pmap = add_minimal_markers_autosome(markers_by_chr[i][1], 1.0);
+    pmar =~ Tuple!(Marker[])(temp_pmap);
+  }
 }
