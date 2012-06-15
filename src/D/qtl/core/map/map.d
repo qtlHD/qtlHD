@@ -12,6 +12,11 @@ import std.math;
 import std.array;
 import std.stdio;
 
+import std.conv;
+import std.container;
+import std.typecons;
+
+
 /**
  * Find first (most-left) marker - do not assume markers is sorted
  */
@@ -49,5 +54,21 @@ double[] recombination_fractions(OrderedMs)(in OrderedMs markers, in GeneticMapF
 
   return dist_to_recfrac(distances, which_genmapfunc);
 }
+
+// Same, taking tuple
+Tuple!(double[])[] recombination_fractions(OrderedMs)(in Tuple!(Chromosome, OrderedMs[])[] markers_by_chr, 
+                                                        in GeneticMapFunc which_genmapfunc = GeneticMapFunc.Haldane)
+{
+  Tuple!(double[])[] list;
+
+  foreach(chr; markers_by_chr) {
+    auto recfrac = recombination_fractions(chr[1], which_genmapfunc);
+    list ~= Tuple!(double[])(recfrac);
+  }
+
+  return list;
+}
+
+
 
 // unittests in test_scanone.d
