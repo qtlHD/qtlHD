@@ -20,7 +20,7 @@ import qtl.core.chromosome;
 
 /**
  * In R/qtl one function existed for create.map (in util.R), now split into
- * fixed_distance_map, fixed_distance_map_sex and add_marker_if_single.
+ * add_stepped_markers and add_marker_if_single.
  */
 
  /**
@@ -39,7 +39,7 @@ import qtl.core.chromosome;
  * (status: under review)
  */
 
-Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, in Position step=1.0, in Position off_end=0.0) {
+Ms add_stepped_markers(Ms)(in Ms markerlist, in Position step=1.0, in Position off_end=0.0) {
   enforce(step>0);
   enforce(off_end>=0);
   // With R/qtl, if step is zero, the purpose was to add a marker if there is
@@ -80,8 +80,8 @@ Ms add_stepped_markers_autosome(Ms)(in Ms markerlist, in Position step=1.0, in P
   return new_markerlist;
 }
 
-// like add_stepped_markers_autosome, but add minimal number of pseudomarkers so that gaps < step
-Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, in Position step=1.0, in Position off_end=0.0) {
+// like add_stepped_markers, but add minimal number of pseudomarkers so that gaps < step
+Ms add_minimal_markers(Ms)(in Ms markerlist, in Position step=1.0, in Position off_end=0.0) {
   enforce(step>0);
   enforce(off_end>=0);
 
@@ -127,15 +127,6 @@ Ms add_minimal_markers_autosome(Ms)(in Ms markerlist, in Position step=1.0, in P
   return new_markerlist;
 }
 
-
-/**
- * NYI FIXME - implementation of sex chromosome will be done later
- */
-
-Ms add_stepped_markers_sex(Ms)(in Ms markers, in Position step=1.0, in Position off_end=0.0)
-{
-  throw new Exception("Function not implemented");
-}
 
 /**
  * Add a marker if there is only one. Ms is a list of markers, and
@@ -207,14 +198,14 @@ unittest {
   auto new_markers2 = add_stepped_if_single_marker(markers,1.0,5.0);
   assert(new_markers2.list.length == 11, "Length is " ~ to!string(new_markers2.list.length));
 
-  writeln("test autosome pseudomarker insertion:");
-  // --- test autosome pseudomarker insertion
+  writeln("test pseudomarker insertion:");
+  // --- test pseudomarker insertion
   auto markers2 = new Markers!(Marker)();
   // start with three markers
   markers2.list ~= new Marker(10.0);
   markers2.list ~= new Marker(20.0);
   markers2.list ~= new Marker(30.0);
-  auto res2 = add_stepped_markers_autosome(markers2.list,1.0,1.0);
+  auto res2 = add_stepped_markers(markers2.list,1.0,1.0);
   auto list = res2; // new marker list
   // assert there are no duplicates
   assert(list.length == 23, to!string(list.length));
@@ -231,20 +222,20 @@ unittest {
   markers3.list ~= new Marker(10.0);
   markers3.list ~= new Marker(20.0);
   markers3.list ~= new Marker(30.0);
-  auto res3 = add_stepped_markers_autosome(markers3.list, 5.0, 7.5);
+  auto res3 = add_stepped_markers(markers3.list, 5.0, 7.5);
   auto list3 = res3;
   assert(list3.length == 7, to!string(list3.length));
   auto uniq_list3 = uniq!"a.get_position() == b.get_position()"(list3);
   auto pos_list3 = map!"a.get_position()"(uniq_list3);
   assert(equal(pos_list3, [5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0]), to!string(pos_list3));
 
-  writeln("test add_minimal_markers_autosome:");
-  // test add_minimal_markers_autosome
+  writeln("test add_minimal_markers:");
+  // test add_minimal_markers
   auto markers4 = new Markers!(Marker)();
   markers4.list ~= new Marker(10.0);
   markers4.list ~= new Marker(17.0);
   markers4.list ~= new Marker(27.0);
-  auto res4 = add_minimal_markers_autosome(markers4.list, 2.0, 7.5);
+  auto res4 = add_minimal_markers(markers4.list, 2.0, 7.5);
   auto list4 = res4;
   assert(list4.length == 18, to!string(list4.length));
   auto uniq_list4 = uniq!"a.get_position() == b.get_position()"(list4);
@@ -253,13 +244,13 @@ unittest {
 			   28.875, 30.75, 32.625, 34.5]),
 	 to!string(pos_list4));
 
-  writeln("test add_minimal_markers_autosome with off_end=0:");
-  // test add_minimal_markers_autosome with off_end=0
+  writeln("test add_minimal_markers with off_end=0:");
+  // test add_minimal_markers with off_end=0
   auto markers5 = new Markers!(Marker)();
   markers5.list ~= new Marker(5.0);
   markers5.list ~= new Marker(8.3);
   markers5.list ~= new Marker(9.8);
-  auto res5 = add_minimal_markers_autosome(markers5.list, 1.0, 0);
+  auto res5 = add_minimal_markers(markers5.list, 1.0, 0);
   auto list5 = res5;
   assert(list5.length == 7, to!string(list5.length));
   auto uniq_list5 = uniq!"a.get_position() == b.get_position()"(list5);
