@@ -81,7 +81,9 @@ unittest {
 
   // add pseudomarkers at 1.0 spacing
   auto pmar_by_chr = add_stepped_markers(markers_by_chr, 1.0);
-  // or: auto pmar_by_chr = add_minimal_markers(markers_by_chr, 1.0);
+
+  // inter-marker recombination fractions
+  auto rec_frac = recombination_fractions(pmar_by_chr, GeneticMapFunc.Haldane);
 
   // empty covariate matrices
   auto addcovar = new double[][](0, 0);
@@ -94,8 +96,7 @@ unittest {
   // calc genoprob for each chromosome, then scanone
   writeln(" --Peaks with LOD > 2:");
   foreach(i, chr; pmar_by_chr) {
-    auto rec_frac = recombination_fractions(chr[1], GeneticMapFunc.Haldane);
-    auto genoprobs = calc_geno_prob(cross_class, genotype_matrix, chr[1], rec_frac, 0.002);
+    auto genoprobs = calc_geno_prob(cross_class, genotype_matrix, chr[1], rec_frac[i][0], 0.002);
     auto rss = scanone_hk(genoprobs, pheno, addcovar, intcovar, weights);
     auto lod = rss_to_lod(rss, rss0, pheno.length);
     auto peak = get_peak_scanone(lod, chr[1]);
