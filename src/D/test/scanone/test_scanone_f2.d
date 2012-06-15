@@ -1,5 +1,5 @@
 /**
- * Test scanone routines
+ * Test scanone routines: intercross (listeria data)
  */
 
 module test.scanone.test_scanone_f2;

@@ -1,5 +1,5 @@
 /**
- * Test scanone routines
+ * Test scanone routines: backcross (hyper data)
  */
 
 module test.scanone.test_scanone_bc;
