@@ -76,7 +76,33 @@ unittest {
   // split markers into chromsomes; sort chromosomes
   auto markers_by_chr = sort_chromosomes_by_marker_id(get_markers_by_chromosome(markers));
 
+  // drop X chromosome
+  markers_by_chr = markers_by_chr[0..($-1)];
+
   // add pseudomarkers at 1.0 spacing
-  auto pmar_stepped_by_chr = add_stepped_markers(markers_by_chr, 1.0);
-  auto pmar_minimal_by_chr = add_minimal_markers(markers_by_chr, 1.0);
+  auto pmar_by_chr = add_stepped_markers(markers_by_chr, 1.0);
+  // or: auto pmar_by_chr = add_minimal_markers(markers_by_chr, 1.0);
+
+  // empty covariate matrices
+  auto addcovar = new double[][](0, 0);
+  auto intcovar = new double[][](0, 0);
+  auto weights = new double[](0);
+
+  // null model
+  auto rss0 = scanone_hk_null(pheno, addcovar, weights);
+
+  // calc genoprob for each chromosome, then scanone
+  writeln(" --Peaks with LOD > 2:");
+  foreach(i, chr; pmar_by_chr) {
+    auto rec_frac = recombination_fractions(chr[1], GeneticMapFunc.Haldane);
+    auto genoprobs = calc_geno_prob(cross_class, genotype_matrix, chr[1], rec_frac, 0.002);
+    auto rss = scanone_hk(genoprobs, pheno, addcovar, intcovar, weights);
+    auto lod = rss_to_lod(rss, rss0, pheno.length);
+    auto peak = get_peak_scanone(lod, chr[1]);
+    foreach(j; 0..peak.length) {
+      if(peak[j][0] > 2)
+        writefln(" ----Chr %-2s : peak for phenotype %d: max lod = %7.2f at pos = %7.2f", chr[0].name, j,
+                 peak[j][0], peak[j][1].get_position);
+    }
+  }
 }
