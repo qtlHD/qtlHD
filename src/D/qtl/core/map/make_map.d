@@ -80,6 +80,18 @@ Ms add_stepped_markers(Ms)(in Ms markerlist, in Position step=1.0, in Position o
   return new_markerlist;
 }
 
+Tuple!(Chromosome,Ms)[] add_stepped_markers(Ms)(in Tuple!(Chromosome,Ms)[] map_by_chr, in Position step=1.0, 
+                                                in Position off_end=0.0)
+{
+  Tuple!(Chromosome,Ms)[] newlist;
+
+  foreach(i, mc; map_by_chr) {
+    auto pmar = add_stepped_markers(mc[1], step, off_end);
+    newlist ~= Tuple!(Chromosome, Ms)(mc[0], pmar);
+  }
+  return newlist;
+}
+
 // like add_stepped_markers, but add minimal number of pseudomarkers so that gaps < step
 Ms add_minimal_markers(Ms)(in Ms markerlist, in Position step=1.0, in Position off_end=0.0) {
   enforce(step>0);
@@ -127,6 +139,18 @@ Ms add_minimal_markers(Ms)(in Ms markerlist, in Position step=1.0, in Position o
   return new_markerlist;
 }
 
+
+Tuple!(Chromosome,Ms)[] add_minimal_markers(Ms)(in Tuple!(Chromosome,Ms)[] map_by_chr, in Position step=1.0, 
+                                                in Position off_end=0.0)
+{
+  Tuple!(Chromosome,Ms)[] newlist;
+
+  foreach(i, mc; map_by_chr) {
+    auto pmar = add_minimal_markers(mc[1], step, off_end);
+    newlist ~= Tuple!(Chromosome, Ms)(mc[0], pmar);
+  }
+  return newlist;
+}
 
 /**
  * Add a marker if there is only one. Ms is a list of markers, and
