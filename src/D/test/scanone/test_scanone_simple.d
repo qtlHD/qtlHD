@@ -76,11 +76,7 @@ unittest {
   // split markers into chromsomes; sort chromosomes
   auto markers_by_chr = sort_chromosomes_by_marker_id(get_markers_by_chromosome(markers));
 
-  Tuple!(Marker[])[] pmar;
-
-  // add pseudomarkers
-  foreach(i; 0..19) {
-    auto temp_pmap = add_minimal_markers_autosome(markers_by_chr[i][1], 1.0);
-    pmar =~ Tuple!(Marker[])(temp_pmap);
-  }
+  // add pseudomarkers at 1.0 spacing
+  auto pmar_stepped_by_chr = add_stepped_markers(markers_by_chr, 1.0);
+  auto pmar_minimal_by_chr = add_minimal_markers(markers_by_chr, 1.0);
 }
