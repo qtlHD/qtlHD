@@ -54,7 +54,7 @@ unittest {
   auto bc = form_cross("BC");
 
   // pseudomarkers and HMM
-  auto pmap = add_stepped_markers_autosome(marker_map, 1.0, 0.0);
+  auto pmap = add_stepped_markers(marker_map, 1.0, 0.0);
   auto rec_frac = recombination_fractions(pmap, GeneticMapFunc.Carter_Falconer);
   auto genoprobs = calc_geno_prob(bc, BCgen, pmap, rec_frac, 0.001);
 
@@ -101,7 +101,7 @@ unittest {
   auto f2 = form_cross("F2");
 
   // pseudomarkers and HMM
-  auto pmap = add_stepped_markers_autosome(marker_map, 1.0, 0.0);
+  auto pmap = add_stepped_markers(marker_map, 1.0, 0.0);
   auto rec_frac = recombination_fractions(pmap, GeneticMapFunc.Carter_Falconer);
   auto genoprobs = calc_geno_prob(f2, F2gen, pmap, rec_frac, 0.001);
 

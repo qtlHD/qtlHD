@@ -138,7 +138,7 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
 
   writeln(" --Scanone for hyper chr 4, with pseudomarkers");
   // map with pseudomarkers
-  auto pmap_stepped_chr4 = add_stepped_markers_autosome(chr4_map, 1.0, 0.0);
+  auto pmap_stepped_chr4 = add_stepped_markers(chr4_map, 1.0, 0.0);
 
   // calc_geno_prob
   rec_frac = recombination_fractions(pmap_stepped_chr4, GeneticMapFunc.Kosambi);
@@ -186,7 +186,7 @@ auto Rlod = [[2.62548658296896064712, 2.70202540976865179800],[5.446875177705464
   // chr 15 map with pseudomarkers
   auto chr15_map = markers_by_chr_sorted[14][1];
   sort(chr15_map); // sort in place
-  auto pmap_stepped_chr15 = add_stepped_markers_autosome(chr15_map, 2.5, 0.0);
+  auto pmap_stepped_chr15 = add_stepped_markers(chr15_map, 2.5, 0.0);
 
   // calc_geno_prob
   rec_frac = recombination_fractions(pmap_stepped_chr15, GeneticMapFunc.Haldane);

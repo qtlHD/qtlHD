@@ -157,8 +157,8 @@ unittest {
       assert(chr[1][i].chromosome.name == chr[0].name);
     }
 
-    pmap_stepped = add_stepped_markers_autosome(chr[1], 5.0, 0.0);
-    pmap_minimal = add_minimal_markers_autosome(chr[1], 5.0, 0.0);
+    pmap_stepped = add_stepped_markers(chr[1], 5.0, 0.0);
+    pmap_minimal = add_minimal_markers(chr[1], 5.0, 0.0);
   }
 
   // create cross
@@ -240,7 +240,7 @@ unittest {
   // test calc_geno_prob with listeria data, chr 13
   writeln("Test calc_geno_prob with listeria data, chr 13");
   auto chr13_map = markers_by_chr_sorted[12][1];
-  auto pmap_minimal_chr13 = add_minimal_markers_autosome(chr13_map, 1.0, 0.0);
+  auto pmap_minimal_chr13 = add_minimal_markers(chr13_map, 1.0, 0.0);
   rec_frac = recombination_fractions(pmap_minimal_chr13, GeneticMapFunc.Kosambi);
 
   genoprobs = calc_geno_prob(f2, genotype_matrix, pmap_minimal_chr13, rec_frac, 0.01);
@@ -312,7 +312,7 @@ unittest {
   // test calc_geno_prob with listeria data, chr 19
   writeln("Test calc_geno_prob with listeria data, chr 19");
   auto chr19_map = markers_by_chr_sorted[18][1];
-  auto pmap_stepped_chr19 = add_stepped_markers_autosome(chr19_map, 1.0, 0.0);
+  auto pmap_stepped_chr19 = add_stepped_markers(chr19_map, 1.0, 0.0);
   rec_frac = recombination_fractions(pmap_stepped_chr19, GeneticMapFunc.Carter_Falconer);
 
   genoprobs = calc_geno_prob(f2, genotype_matrix, pmap_stepped_chr19, rec_frac, 0.001);

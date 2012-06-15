@@ -148,8 +148,8 @@ unittest {
       assert(chr[1][i].chromosome.name == chr[0].name);
     }
 
-    auto pmap_stepped = add_stepped_markers_autosome(chr[1], 1, 0);
-    auto pmap_minimal = add_minimal_markers_autosome(chr[1], 1, 0);
+    auto pmap_stepped = add_stepped_markers(chr[1], 1, 0);
+    auto pmap_minimal = add_minimal_markers(chr[1], 1, 0);
   }
 
   // create cross
@@ -159,7 +159,7 @@ unittest {
   writeln("Test calc_geno_prob with hyper data, chr 4");
   auto chr4_map = markers_by_chr_sorted[3][1];
   sort(chr4_map); // sort in place
-  auto pmap_stepped_chr4 = add_stepped_markers_autosome(chr4_map, 1.0, 0.0);
+  auto pmap_stepped_chr4 = add_stepped_markers(chr4_map, 1.0, 0.0);
 
   auto rec_frac = recombination_fractions(pmap_stepped_chr4, GeneticMapFunc.Kosambi);
   writeln("running calc_geno_prob");
