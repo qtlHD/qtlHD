@@ -287,6 +287,11 @@ ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
   return observed;
 }
 
+ObservedGenotypes read_genotype_symbol_qtab(string filename, bool phase_known = true) {
+  auto f = File(filename, "r");
+  return read_genotype_symbol_qtab(f, phase_known);
+}
+
 class SymbolSettings {
   bool phase_known = false; // default
   override const string toString() {
@@ -338,6 +343,11 @@ Tuple!(Individuals, Gref[][]) read_genotype_qtab(File f, ObservedGenotypes symbo
     }
   );
   return tuple(ret_individuals, ret_genotypes);
+}
+
+Tuple!(Individuals, Gref[][]) read_genotype_qtab(string filename, ObservedGenotypes symbols) {
+  File f = File(filename, "r");
+  return read_genotype_qtab(f, symbols);
 }
 
 unittest {
