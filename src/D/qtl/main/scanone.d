@@ -18,6 +18,7 @@ string usage = "
   options:
 
     -v --verbosity    Set verbosity level (default 1)
+    -d --debug        Set debug message level (default 0)
 
   examples:
 
