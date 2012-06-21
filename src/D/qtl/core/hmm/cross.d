@@ -13,7 +13,7 @@ import qtl.core.genotype;
 
 // class to contain HMM-related functions
 class Cross {
-  string cross_type;
+  string cross_type, phase_known_class_name;
   
   TrueGenotype[] all_true_geno;
   
@@ -25,26 +25,33 @@ class Cross {
 
 // the switch
 Cross form_cross(string which_cross) {
-  Cross cross;
 
-  switch(which_cross) {
-  case "BC": cross = new BC; break;
-  case "F2": cross = new F2; break;
-  default: throw new Exception("cross type " ~ which_cross ~ " not supported.");
+  Cross cross = cast(Cross)Object.factory("qtl.core.hmm.cross." ~ which_cross);
+
+  if(!cross) {
+    throw new Exception("cross type " ~ which_cross ~ " not supported.");
   }
+
   return cross;
 }
 
-
 // the second switch: phase-known versions
 Cross form_cross_phaseknown(Cross cross) {
-  switch(cross.cross_type) {
-  case "BC": return(cross);
-  case "F2": return(new F2_phaseknown);
-  default: throw new Exception("cross type " ~ cross.cross_type ~ " not supported.");
-  }
-}
 
+  string which_cross = cross.phase_known_class_name;
+  if(!which_cross) {
+    throw new Exception("input cross doesn't contain phase_known_class_name\n" ~
+                        "    to indicate corresponding phase-known cross class.");
+  }
+
+  Cross pkcross = cast(Cross)Object.factory("qtl.core.hmm.cross." ~ which_cross);
+
+  if(!pkcross) {
+    throw new Exception("cross type " ~ cross.cross_type ~ " not supported.");
+  }
+
+  return(pkcross);
+}
 
 // BC (backcross)
 class BC : Cross {
@@ -55,6 +62,8 @@ class BC : Cross {
     auto g1 = new TrueGenotype(0,0);
     auto g2 = new TrueGenotype(1,0);
     all_true_geno = [g1, g2];
+
+    phase_known_class_name = "BC";
   }
 
   // ln Pr(true genotype)
@@ -186,6 +195,8 @@ class F2 : Cross {
     auto g2 = new TrueGenotype(1,0);
     auto g3 = new TrueGenotype(1,1);
     all_true_geno = [g1, g2, g3];
+
+    phase_known_class_name = "F2_phaseknown";
   }
 
   // ln Pr(true genotype)
