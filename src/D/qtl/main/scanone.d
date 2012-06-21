@@ -1,4 +1,4 @@
-// Entry point for CLI scanone tool
+// Entry point for command line (CLI) scanone tool
 
 import std.getopt;
 import std.stdio;
