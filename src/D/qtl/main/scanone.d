@@ -6,10 +6,29 @@ import std.conv;
 import std.exception;
 import std.file;
 import std.string;
+import std.path;
+import std.algorithm;
+import std.math;
 
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.chromosome;
 import qtl.core.util.data_manip;
+import qtl.core.primitives;
+import qtl.core.marker;
+import qtl.core.genotype;
+import qtl.core.phenotype;
+import qtl.plugins.qtab.read_qtab;
+import qtl.core.map.map;
+import qtl.core.map.make_map;
+
+import qtl.core.map.genetic_map_functions;
+import qtl.core.hmm.cross;
+import qtl.core.hmm.calcgenoprob;
+import qtl.core.scanone.scanone_hk;
+import qtl.core.scanone.util;
+import qtl.core.util.data_manip;
+
+
 
 static string ver = import("VERSION");
 
@@ -73,18 +92,47 @@ int main(string[] args) {
   auto ind_to_omit = is_any_phenotype_missing(p);
   auto n_to_omit = count(ind_to_omit, true);
   writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
-  auto p2 = omit_ind_from_phenotypes(p, ind_to_omit);
-  writeln(p2);
+  auto pheno = omit_ind_from_phenotypes(p, ind_to_omit);
 
   auto genotype_matrix = omit_ind_from_genotypes(g, ind_to_omit);
-  writeln(genotype_matrix[0..3]);
+  // writeln(genotype_matrix[0..3]);
 
-  // TODO: split markers into chromosomes
   auto markers_by_chr = get_markers_by_chromosome(ms);
+  // sorted chromosomes
+  auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
   // TODO: pseudo markers
   // TODO: form Cross
   // TODO: calc geno prob
   // TODO: run scanone
-  // 
+  // chr 5
+  auto chr5_map = markers_by_chr_sorted[4][1];
+  sort(chr5_map); // sort in place
+
+  // add pseudomarkers
+  auto chr5_map_wpmark = add_minimal_markers(chr5_map, 2.0);
+
+  // form cross
+  auto f2 = form_cross("F2");
+  
+  // calc_genoprob
+  auto rec_frac = recombination_fractions(chr5_map_wpmark, GeneticMapFunc.Kosambi);
+  auto chr5probs = calc_geno_prob(f2, genotype_matrix, chr5_map_wpmark, rec_frac, 0.01);
+
+  // empty covariate matrices
+  auto addcovar = new double[][](0, 0);
+  auto intcovar = new double[][](0, 0);
+  auto weights = new double[](0);
+
+  // run scanone and calculate LOD scores
+  auto rss = scanone_hk(chr5probs, pheno, addcovar, intcovar, weights);
+  auto rss0 = scanone_hk_null(pheno, addcovar, weights);
+  auto lod = rss_to_lod(rss, rss0, pheno.length);
+
+  auto peak = get_peak_scanone(lod, chr5_map_wpmark);
+  foreach(i2; 0..peak.length) {
+    writefln("Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i2,
+             peak[i2][0], peak[i2][1].get_position);
+  }
+
   return 0;
 }
