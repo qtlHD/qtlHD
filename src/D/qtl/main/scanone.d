@@ -45,11 +45,13 @@ int main(string[] args) {
   // Load all information into data structures, basically following
   // test/scanone/test_scanone_f2.d
   auto res = load_qtab(args[1..$]);
-  auto s = res[0];
-  auto i = res[3];
-  auto p = res[4];
-  auto o = res[5];
-  auto g = res[6]; // genotype combinator matrix
+  auto s  = res[0];
+  auto f  = res[1];
+  auto ms = res[2];
+  auto i  = res[3];
+  auto p  = res[4];
+  auto o  = res[5];
+  auto g  = res[6]; // genotype combinator matrix
 
   if (debug_level > 2) {
     writeln("* Symbol data");
@@ -61,10 +63,14 @@ int main(string[] args) {
     writeln(g[0..3]);
     writeln("* Phenotype data");
     writeln(p);
+    writeln("* Marker data");
+    writeln(ms);
   }
 
-  // TODO: genotype data
   // TODO: read markers
+  // auto marker_map_fn = to!string(buildPath(dir,"listeria_marker_map.qtab"));
+  // auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
+
   // TODO: reduce missing phenotype data
   // TODO: reduce missing genotype data
   // TODO: split markers into chromosomes
