@@ -8,6 +8,8 @@ import std.file;
 import std.string;
 
 import qtl.plugins.qtab.read_qtab;
+import qtl.core.util.data_manip;
+
 
 static string ver = import("VERSION");
 
@@ -72,6 +74,7 @@ int main(string[] args) {
   auto n_to_omit = count(ind_to_omit, true);
   writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
   auto p2 = omit_ind_from_phenotypes(p, ind_to_omit);
+  writeln(p2);
 
   // genotype_matrix = omit_ind_from_genotypes(genotype_matrix, ind_to_omit);
 
