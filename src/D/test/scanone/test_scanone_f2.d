@@ -10,7 +10,6 @@ import std.string;
 import std.path;
 import std.algorithm;
 import std.math;
-import std.algorithm;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
