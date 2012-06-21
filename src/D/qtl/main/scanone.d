@@ -67,11 +67,14 @@ int main(string[] args) {
     writeln(ms);
   }
 
-  // TODO: read markers
-  // auto marker_map_fn = to!string(buildPath(dir,"listeria_marker_map.qtab"));
-  // auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
-
   // TODO: reduce missing phenotype data
+  auto ind_to_omit = is_any_phenotype_missing(p);
+  auto n_to_omit = count(ind_to_omit, true);
+  writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
+  auto p2 = omit_ind_from_phenotypes(p, ind_to_omit);
+
+  // genotype_matrix = omit_ind_from_genotypes(genotype_matrix, ind_to_omit);
+
   // TODO: reduce missing genotype data
   // TODO: split markers into chromosomes
   // TODO: pseudo markers
