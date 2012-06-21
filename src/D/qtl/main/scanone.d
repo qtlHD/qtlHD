@@ -10,7 +10,6 @@ import std.string;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.util.data_manip;
 
-
 static string ver = import("VERSION");
 
 string copyright = "; qtlHD project (c) 2012";
@@ -69,16 +68,16 @@ int main(string[] args) {
     writeln(ms);
   }
 
-  // TODO: reduce missing phenotype data
+  // TODO: reduce missing phenotype data (not all individuals?)
   auto ind_to_omit = is_any_phenotype_missing(p);
   auto n_to_omit = count(ind_to_omit, true);
   writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
   auto p2 = omit_ind_from_phenotypes(p, ind_to_omit);
   writeln(p2);
 
-  // genotype_matrix = omit_ind_from_genotypes(genotype_matrix, ind_to_omit);
+  auto genotype_matrix = omit_ind_from_genotypes(g, ind_to_omit);
+  writeln(genotype_matrix[0..3]);
 
-  // TODO: reduce missing genotype data
   // TODO: split markers into chromosomes
   // TODO: pseudo markers
   // TODO: form Cross
