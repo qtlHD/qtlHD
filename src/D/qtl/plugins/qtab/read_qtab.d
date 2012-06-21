@@ -577,7 +577,6 @@ Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix, ObservedGenoty
         case genotype: 
           i = d.get!Inds;
           g = res[2].get!(string[][]);
-          writeln(g);
           break;
         case phenotype: 
           // auto pids = d; ignored, for now
@@ -586,7 +585,7 @@ Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix, ObservedGenoty
       }
     }
   }
-  // Turn the genotype matrix into a combinator
+  // Turn the genotype matrix into a genotype combinator matrix
   auto gc = convert_to_combinator_matrix(g,observed);
   return tuple(s,f,m,i,p,observed,gc);
 }

@@ -49,7 +49,7 @@ int main(string[] args) {
   auto i = res[3];
   auto p = res[4];
   auto o = res[5];
-  auto g = res[6];
+  auto g = res[6]; // genotype combinator matrix
 
   if (debug_level > 2) {
     writeln("* Symbol data");
@@ -58,12 +58,12 @@ int main(string[] args) {
     writeln("* Individuals");
     writeln(i);
     writeln("* Genotype data");
-    writeln(g);
+    writeln(g[0..3]);
     writeln("* Phenotype data");
     writeln(p);
   }
 
-  // TODO: genotype empty
+  // TODO: genotype data
   // TODO: read markers
   // TODO: reduce missing phenotype data
   // TODO: reduce missing genotype data
