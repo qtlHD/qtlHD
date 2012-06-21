@@ -8,6 +8,7 @@ import std.file;
 import std.string;
 
 import qtl.plugins.qtab.read_qtab;
+import qtl.core.chromosome;
 import qtl.core.util.data_manip;
 
 static string ver = import("VERSION");
@@ -79,6 +80,7 @@ int main(string[] args) {
   writeln(genotype_matrix[0..3]);
 
   // TODO: split markers into chromosomes
+  auto markers_by_chr = get_markers_by_chromosome(ms);
   // TODO: pseudo markers
   // TODO: form Cross
   // TODO: calc geno prob
