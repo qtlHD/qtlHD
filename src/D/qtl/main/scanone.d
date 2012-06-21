@@ -42,6 +42,8 @@ int main(string[] args) {
 
   writeln("Verbosity: ",verbosity);
   writeln("Debug level: ",debug_level);
+  // Load all information into data structures, basically following
+  // test/scanone/test_scanone_f2.d
   auto res = load_qtab(args[1..$]);
   auto s = res[0];
   auto i = res[3];
@@ -60,5 +62,16 @@ int main(string[] args) {
     writeln("* Phenotype data");
     writeln(p);
   }
+
+  // TODO: genotype empty
+  // TODO: read markers
+  // TODO: reduce missing phenotype data
+  // TODO: reduce missing genotype data
+  // TODO: split markers into chromosomes
+  // TODO: pseudo markers
+  // TODO: form Cross
+  // TODO: calc geno prob
+  // TODO: run scanone
+  // 
   return 0;
 }
