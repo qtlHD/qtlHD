@@ -100,10 +100,6 @@ int main(string[] args) {
   auto markers_by_chr = get_markers_by_chromosome(ms);
   // sorted chromosomes
   auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
-  // TODO: pseudo markers
-  // TODO: form Cross
-  // TODO: calc geno prob
-  // TODO: run scanone
   // chr 5
   auto chr5_map = markers_by_chr_sorted[4][1];
   sort(chr5_map); // sort in place
