@@ -177,13 +177,14 @@ Tuple!(string, string, double) parse_marker_qtab(string line) {
 
 auto read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
   Ms ret_ms[];
+  Chromosome[string] clist; // track chromosome objects
   uint id=0;
   each_line_in_section(fn,"Data Location",
     (string line) {
       auto res = parse_marker_qtab(line);
       auto name = res[0];
       auto cname = res[1];
-      auto c = new Chromosome(cname);
+      auto c = (cname in clist ? clist[cname] : new Chromosome(cname));
       auto pos = res[2];
       auto marker = new Marker(c,pos,name,id);
     	id++;
@@ -450,7 +451,7 @@ enum QtabFileType {
   founder,
   genotype,
   phenotype,
-  location,
+  location,  // i.e. marker data
   undefined
 };
 
@@ -465,7 +466,7 @@ QtabFileType autodetect_qtab_file_type_from_header(string fn, string line) {
     case "Phenotype": return QtabFileType.phenotype;
     case "Genotype":  return QtabFileType.genotype;
     case "Founder":   return QtabFileType.founder;
-    case "Location":   return QtabFileType.location;
+    case "Location":  return QtabFileType.location;
     default:          
       throw new Exception("Cannot autodetect type from qtab file "~fn~": "~line);
   }
@@ -592,5 +593,4 @@ Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix, ObservedGenoty
 
 unittest {
   writeln("automatic data loading (2)");
-
 }
