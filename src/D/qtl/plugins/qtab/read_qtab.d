@@ -175,7 +175,7 @@ Tuple!(string, string, double) parse_marker_qtab(string line) {
 }
 
 
-auto read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
+Ms[] read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
   Ms ret_ms[];
   Chromosome[string] clist; // track chromosome objects
   uint id=0;
