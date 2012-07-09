@@ -122,53 +122,56 @@ size_t[][] create_phenotype_batches(T)(Phenotype!T[][] pheno)
 {
   size_t[][] phenotype_batches = [ [0] ];
 
-  size_t[] ind_with_missing_values = [];
+  size_t[] first_pattern = [];
+  size_t[][] patterns;
 
-  if(pheno.length == 1) return phenotype_batches;
+  if(pheno[0].length == 1) return phenotype_batches;
 
-  foreach(j; 0..pheno[0].length) {
-    if(isNA(pheno[0][j]))
-      ind_with_missing_values ~= j;
-  }
-  writeln(ind_with_missing_values);
-
-  foreach(i; 1..pheno.length) {
-
-  }
-
-  /*
-  auto ret = new bool[](pheno.length);
   foreach(i; 0..pheno.length) {
-    ret[i] = false;
-    foreach(j; 0..pheno[i].length) {
-      if(isNA(pheno[i][j])) ret[i] = true;
-      break;
+    if(isNA(pheno[i][0]))
+      first_pattern ~= i;
+  }
+  writeln(first_pattern);
+  patterns ~= first_pattern;
+
+  foreach(j; 1..pheno[0].length) {
+    size_t[] this_pattern = [];
+
+    foreach(i; 0..pheno.length) {
+      if(isNA(pheno[i][j]))
+        this_pattern ~= i;
+    }
+    if(this_pattern == first_pattern) {
+      writeln(j, " has same pattern as 0");
     }
   }
-  */
 
   return phenotype_batches;
 }
 
 unittest {
-  writeln(" Test create_phenotype_batches");
+  writeln("Test create_phenotype_batches");
 
   Phenotype!double pheno[][];
-
-  auto pdbl = [ ["5.3", "6.0"],  ["25.0", "3.1"], ["1.0", "-"] ];
+  auto pdbl = [ ["0.0", "0.0", "0.0", "0.0", "0.0"],  
+                ["0.0", "0.0", "0.0", "0.0", "0.0"], 
+                [  "-", "0.0", "0.0",   "-", "0.0"], 
+                ["0.0", "0.0", "0.0", "0.0", "0.0"], 
+                ["0.0", "0.0", "0.0", "0.0", "0.0"], 
+                ["0.0", "0.0", "0.0", "0.0", "0.0"], 
+                [  "-",   "-",   "-",   "-",   "-"], 
+                ["0.0", "0.0", "0.0", "0.0", "0.0"], 
+                [  "-",   "-", "0.0",   "-",   "-"], 
+                ["0.0", "0.0", "0.0", "0.0", "0.0"], 
+                ["0.0",   "-",   "-", "0.0",   "-"], 
+                ["0.0",   "-",   "-", "0.0",   "-"], 
+                ["0.0", "0.0", "0.0", "0.0", "0.0"]];
 
   foreach(line; pdbl) {
       Phenotype!double[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(line));
       pheno ~= ps;
   }
 
-  writeln(pheno.length);
-  writeln(pheno[0].length);
-
-  foreach(i; 0..pheno.length) {
-    foreach(j; 0..pheno[i].length) {
-      writeln(pheno[i][j], " ", isNA(pheno[i][j]));
-    }
-  }
+  auto batches = create_phenotype_batches(pheno);
 
 }
