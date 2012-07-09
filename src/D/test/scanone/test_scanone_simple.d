@@ -49,22 +49,14 @@ unittest {
   foreach(ref file; files)
     file = dir ~ dirSeparator ~ file;
 
-  // load founder info
-  auto founder_info = read_founder_settings_qtab(files[0]);
-  // cross type -> Cross class
+  // load all qtab files
+  auto all_data = load_qtab(files);
+  auto founder_info = all_data[1];
+  auto markers = all_data[2];
+  auto pheno = all_data[4];
+  auto genotype_matrix = all_data[6];
+
   auto cross_class = form_cross(founder_info["Cross"]);
-
-  // load symbols and genotype data
-  auto symbols = read_genotype_symbol_qtab(files[1]);
-  auto g_res = read_genotype_qtab(files[2], symbols);
-  auto genotype_matrix = g_res[1];
-
-  // load phenotype data
-  auto p_res = read_phenotype_qtab!(Phenotype!double)(files[3]);
-  Phenotype!double[][] pheno = p_res[0];
-
-  // load marker map
-  auto markers = read_marker_map_qtab!(Marker)(files[4]);
 
   // omit individuals with missing phenotype
   auto ind_to_omit = is_any_phenotype_missing(pheno);
