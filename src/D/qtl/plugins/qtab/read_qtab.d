@@ -175,15 +175,16 @@ Tuple!(string, string, double) parse_marker_qtab(string line) {
 }
 
 
-auto read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
+Ms[] read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
   Ms ret_ms[];
+  Chromosome[string] clist; // track chromosome objects
   uint id=0;
   each_line_in_section(fn,"Data Location",
     (string line) {
       auto res = parse_marker_qtab(line);
       auto name = res[0];
       auto cname = res[1];
-      auto c = new Chromosome(cname);
+      auto c = (cname in clist ? clist[cname] : new Chromosome(cname));
       auto pos = res[2];
       auto marker = new Marker(c,pos,name,id);
     	id++;
@@ -450,7 +451,7 @@ enum QtabFileType {
   founder,
   genotype,
   phenotype,
-  location,
+  location,  // i.e. marker data
   undefined
 };
 
@@ -465,7 +466,7 @@ QtabFileType autodetect_qtab_file_type_from_header(string fn, string line) {
     case "Phenotype": return QtabFileType.phenotype;
     case "Genotype":  return QtabFileType.genotype;
     case "Founder":   return QtabFileType.founder;
-    case "Location":   return QtabFileType.location;
+    case "Location":  return QtabFileType.location;
     default:          
       throw new Exception("Cannot autodetect type from qtab file "~fn~": "~line);
   }
@@ -515,7 +516,8 @@ Variant[] load_qtab(string fn) {
         auto res = get_phenotype_matrix(fn);
         return variantArray(t,res[0],res[1]);
       case location: 
-        return variantArray(t,get_section_key_values(fn,"Data Location"));
+        auto ms = read_marker_map_qtab!Marker(fn);
+        return variantArray(t,ms);
       default: return null; // tuple(QtabFileType.undefined,variantArray(null));
     }
   }
@@ -542,8 +544,8 @@ unittest {
   assert(to!string(pmatrix[0][0]) == "118.317",to!string(pmatrix[0][0]));
   auto markermap = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_marker_map.qtab")));
   assert(markermap[0]==QtabFileType.location);
-  auto markers = markermap[1];
-  assert(markers["D15M34"]=="15");
+  // auto markers = markermap[1];
+  // assert(markers["D15M34"]=="15");
 }
 
 /**
@@ -551,13 +553,13 @@ unittest {
  * containers.
  */
 
-alias string[string] Location;
+// alias string[string] Location;
 alias string[] Inds;
 
-Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix, ObservedGenotypes, GenotypeMatrix) load_qtab(string[] fns) {
+Tuple!(SymbolSettings, Founders, Marker[], Inds, PhenotypeMatrix, ObservedGenotypes, GenotypeMatrix) load_qtab(string[] fns) {
   SymbolSettings s;
   Founders f;
-  Location m;
+  Marker[] ms;
   Inds i;
   PhenotypeMatrix p;
   string[][] g;
@@ -573,11 +575,13 @@ Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix, ObservedGenoty
           observed = res[2].get!ObservedGenotypes;
           break;
         case founder: f = d.get!Founders; writeln(f); break;
-        case location: m = d.get!Location; break;
+        case location: 
+          ms = d.get!(Marker[]); 
+          writeln(ms);
+          break;
         case genotype: 
           i = d.get!Inds;
           g = res[2].get!(string[][]);
-          writeln(g);
           break;
         case phenotype: 
           // auto pids = d; ignored, for now
@@ -586,12 +590,11 @@ Tuple!(SymbolSettings, Founders, Location, Inds, PhenotypeMatrix, ObservedGenoty
       }
     }
   }
-  // Turn the genotype matrix into a combinator
+  // Turn the genotype matrix into a genotype combinator matrix
   auto gc = convert_to_combinator_matrix(g,observed);
-  return tuple(s,f,m,i,p,observed,gc);
+  return tuple(s,f,ms,i,p,observed,gc);
 }
 
 unittest {
   writeln("automatic data loading (2)");
-
 }

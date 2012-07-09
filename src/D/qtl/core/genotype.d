@@ -544,8 +544,20 @@ unittest {
   assert(to!string(symbols.decode("AorABorAC")) == "[(0,0), (0,1), (0,2), (1,0), (2,0)]");
 }
 
+/**
+ * Convert a genotype matrix, in string representation, to a genotype combinator
+ * matrix
+ */
+
 GenotypeMatrix convert_to_combinator_matrix(string[][] g,ObservedGenotypes observed) {
-  GenotypeMatrix gm; 
+  GenotypeMatrix gm;
+  foreach(row ; g) {
+    auto nrow = new GenotypeCombinator[](row.length);
+    foreach(i, symbolname; row) {
+      nrow[i] = observed.decode(symbolname); 
+    }
+    gm ~= nrow;
+  }
 
   return gm;
 }
