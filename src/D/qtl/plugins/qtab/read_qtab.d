@@ -458,7 +458,7 @@ enum QtabFileType {
 QtabFileType autodetect_qtab_file_type_from_header(string fn, string line) {
   auto fields = split_line_on_whitespace(line);
   writeln(line);
-  if (fields[0] != "#" || fields[1] != "---" || fields.length != 5)
+  if (fields[0] != "#" || fields[1] != "---" || fields.length < 5)
     throw new Exception("Malformed detection line in qtab file "~fn~": "~line);
   writeln(fields);
   switch (fields[3]) {
