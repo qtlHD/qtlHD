@@ -73,7 +73,7 @@ unittest {
 }
 
 unittest {
-  writeln("test cross");
+  writeln("test intercross");
 
   Random gen;
   gen.seed(unpredictableSeed);
