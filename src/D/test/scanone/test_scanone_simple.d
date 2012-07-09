@@ -71,7 +71,7 @@ unittest {
   // drop X chromosome
   markers_by_chr = markers_by_chr[0..($-1)];
 
-  // add pseudomarkers at 1.0 spacing
+  // add pseudomarkers at 1.0 cM spacing
   auto pmar_by_chr = add_stepped_markers(markers_by_chr, 1.0);
 
   // inter-marker recombination fractions
