@@ -10,6 +10,12 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.plugins.qtab.read_qtab;
 
+import std.typecons;
+import std.algorithm;
+import std.regex;
+import std.variant;
+
+
 // return boolean vector indicating whether any
 bool[] is_any_phenotype_missing(T)(Phenotype!T[][] pheno)
 {
@@ -28,7 +34,7 @@ bool[] is_any_phenotype_missing(T)(Phenotype!T[][] pheno)
 Phenotype!T[][] omit_ind_from_phenotypes(T)(Phenotype!T[][] pheno, bool[] to_omit)
 {
   if(pheno.length != to_omit.length)
-    throw new Exception("no. individuals in pheno (" ~ to!string(pheno.length) ~ 
+    throw new Exception("no. individuals in pheno (" ~ to!string(pheno.length) ~
                         ") doesn't match length of to_omit (" ~ to!string(to_omit.length) ~ ")");
 
   Phenotype!T[][] ret;
@@ -45,7 +51,7 @@ Phenotype!T[][] omit_ind_from_phenotypes(T)(Phenotype!T[][] pheno, bool[] to_omi
 GenotypeCombinator[][] omit_ind_from_genotypes(GenotypeCombinator[][] geno, bool[] to_omit)
 {
   if(geno.length != to_omit.length)
-    throw new Exception("no. individuals in geno (" ~ to!string(geno.length) ~ 
+    throw new Exception("no. individuals in geno (" ~ to!string(geno.length) ~
                         ") doesn't match length of to_omit (" ~ to!string(to_omit.length) ~ ")");
 
   GenotypeCombinator[][] ret;
@@ -90,7 +96,7 @@ unittest {
   assert(pheno_rev.length == 116);
   auto has_missing_rev = is_any_phenotype_missing(pheno_rev);
   assert(count(has_missing_rev, true) == 0);
-  
+
   // First read symbol information (the GenotypeCombinators)
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
   writeln("reading ",symbol_fn);
@@ -108,4 +114,61 @@ unittest {
   // omit individuals with missing phenotypes
   auto genotype_matrix_rev = omit_ind_from_genotypes(genotype_matrix, has_missing);
   assert(genotype_matrix_rev.length == 116);
+}
+
+
+// batches of phenotypes with common missing data patterns
+size_t[][] create_phenotype_batches(T)(Phenotype!T[][] pheno)
+{
+  size_t[][] phenotype_batches = [ [0] ];
+
+  size_t[] ind_with_missing_values = [];
+
+  if(pheno.length == 1) return phenotype_batches;
+
+  foreach(j; 0..pheno[0].length) {
+    if(isNA(pheno[0][j]))
+      ind_with_missing_values ~= j;
+  }
+  writeln(ind_with_missing_values);
+
+  foreach(i; 1..pheno.length) {
+
+  }
+
+  /*
+  auto ret = new bool[](pheno.length);
+  foreach(i; 0..pheno.length) {
+    ret[i] = false;
+    foreach(j; 0..pheno[i].length) {
+      if(isNA(pheno[i][j])) ret[i] = true;
+      break;
+    }
+  }
+  */
+
+  return phenotype_batches;
+}
+
+unittest {
+  writeln(" Test create_phenotype_batches");
+
+  Phenotype!double pheno[][];
+
+  auto pdbl = [ ["5.3", "6.0"],  ["25.0", "3.1"], ["1.0", "-"] ];
+
+  foreach(line; pdbl) {
+      Phenotype!double[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(line));
+      pheno ~= ps;
+  }
+
+  writeln(pheno.length);
+  writeln(pheno[0].length);
+
+  foreach(i; 0..pheno.length) {
+    foreach(j; 0..pheno[i].length) {
+      writeln(pheno[i][j], " ", isNA(pheno[i][j]));
+    }
+  }
+
 }
