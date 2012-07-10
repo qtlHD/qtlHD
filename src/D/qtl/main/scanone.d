@@ -93,41 +93,43 @@ int main(string[] args) {
   auto n_to_omit = count(ind_to_omit, true);
   writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
   auto pheno = omit_ind_from_phenotypes(p, ind_to_omit);
+  writeln("done omitting from phenotypes");
 
   auto genotype_matrix = omit_ind_from_genotypes(g, ind_to_omit);
-  // writeln(genotype_matrix[0..3]);
+  writeln("done omitting from genotypes");
 
-  auto markers_by_chr = get_markers_by_chromosome(ms);
-  // sorted chromosomes
-  auto markers_by_chr_sorted = sort_chromosomes_by_marker_id(markers_by_chr);
-  // chr 5
-  auto chr5_map = markers_by_chr_sorted[4][1];
-  sort(chr5_map); // sort in place
+  // cross type
+  auto cross_class = form_cross(f["Cross"]);
+  writeln("formed cross class");
 
-  // add pseudomarkers
-  auto chr5_map_wpmark = add_minimal_markers(chr5_map, 2.0);
+  auto markers_by_chr = sort_chromosomes_by_marker_id(get_markers_by_chromosome(ms));
 
-  // form cross
-  auto f2 = form_cross("F2");
-  
-  // calc_genoprob
-  auto rec_frac = recombination_fractions(chr5_map_wpmark, GeneticMapFunc.Kosambi);
-  auto chr5probs = calc_geno_prob(f2, genotype_matrix, chr5_map_wpmark, rec_frac, 0.01);
+  // add pseudomarkers at 2.0 cM spacing
+  auto pmar_by_chr = add_minimal_markers(markers_by_chr, 2.0);
+
+  // inter-marker recombination fractions
+  auto rec_frac = recombination_fractions(pmar_by_chr, GeneticMapFunc.Haldane);
 
   // empty covariate matrices
   auto addcovar = new double[][](0, 0);
   auto intcovar = new double[][](0, 0);
   auto weights = new double[](0);
 
-  // run scanone and calculate LOD scores
-  auto rss = scanone_hk(chr5probs, pheno, addcovar, intcovar, weights);
+  // null model
   auto rss0 = scanone_hk_null(pheno, addcovar, weights);
-  auto lod = rss_to_lod(rss, rss0, pheno.length);
 
-  auto peak = get_peak_scanone(lod, chr5_map_wpmark);
-  foreach(i2; 0..peak.length) {
-    writefln("Peak for phenotype %d: max lod = %7.2f at pos = %7.2f", i2,
-             peak[i2][0], peak[i2][1].get_position);
+  // calcgenoprob for each chromosome, then scanone
+  writeln(" --Peaks with LOD > 2:");
+  foreach(j, chr; pmar_by_chr) {
+    auto genoprobs = calc_geno_prob(cross_class, genotype_matrix, chr[1], rec_frac[j][0], 0.002);
+    auto rss = scanone_hk(genoprobs, pheno, addcovar, intcovar, weights);
+    auto lod = rss_to_lod(rss, rss0, pheno.length);
+    auto peak = get_peak_scanone(lod, chr[1]);
+    foreach(k; 0..peak.length) {
+      if(peak[k][0] > 2)
+        writefln(" ----Chr %-2s : peak for phenotype %d: max lod = %7.2f at pos = %7.2f", chr[0].name, k,
+                 peak[k][0], peak[k][1].get_position);
+    }
   }
 
   return 0;
