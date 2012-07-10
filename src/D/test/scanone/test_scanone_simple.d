@@ -10,7 +10,6 @@ import std.string;
 import std.path;
 import std.algorithm;
 import std.math;
-import std.algorithm;
 import std.container;
 import std.conv;
 import std.typecons;
