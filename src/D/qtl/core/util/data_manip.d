@@ -131,7 +131,6 @@ size_t[][] create_phenotype_batches(T)(Phenotype!T[][] pheno)
     if(isNA(pheno[i][0]))
       first_pattern ~= i;
   }
-  writeln(first_pattern);
   patterns ~= first_pattern;
 
   foreach(j; 1..pheno[0].length) {
@@ -141,8 +140,17 @@ size_t[][] create_phenotype_batches(T)(Phenotype!T[][] pheno)
       if(isNA(pheno[i][j]))
         this_pattern ~= i;
     }
-    if(this_pattern == first_pattern) {
-      writeln(j, " has same pattern as 0");
+
+    bool found = false;
+    foreach(i; 0..patterns.length) {
+      if(this_pattern == patterns[i]) {
+        found = true;
+        phenotype_batches[i] ~= j;
+      }
+    }
+    if(!found) {
+      phenotype_batches ~= [j];
+      patterns ~= this_pattern;
     }
   }
 
@@ -173,5 +181,9 @@ unittest {
   }
 
   auto batches = create_phenotype_batches(pheno);
-
+  assert(batches.length == 3);
+  assert(batches[0] == [0,3]);
+  assert(batches[1] == [1,4]);
+  assert(batches[2] == [2]);
+  writeln("batches: ", batches);
 }
