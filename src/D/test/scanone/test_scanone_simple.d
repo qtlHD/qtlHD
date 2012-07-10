@@ -101,7 +101,7 @@ unittest {
 
   // print peaks
   writeln(" --Peaks with LOD > 2:");
-  foreach(i, peak; peaks) {
+  foreach(peak; peaks) {
     foreach(j; 0..peak.length) {
       if(peak[j][0] > 2)
         writefln(" ----Chr %-2s : peak for phenotype %d: max lod = %7.2f at pos = %7.2f", peak[j][1].chromosome.name, j,
