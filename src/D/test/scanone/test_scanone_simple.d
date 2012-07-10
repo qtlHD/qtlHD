@@ -85,10 +85,11 @@ unittest {
   // null model
   auto rss0 = scanone_hk_null(pheno, addcovar, weights);
 
-  // calc genoprob for each chromosome, then scanone
+  // to store LOD curves and peaks for all chromosomes
   double[][] lod;
   Tuple!(double, Marker)[][] peaks;
-
+ 
+ // calc genoprob for each chromosome, then scanone
   foreach(i, chr; pmar_by_chr) {
     auto genoprobs = calc_geno_prob(cross_class, genotype_matrix, chr[1], rec_frac[i][0], 0.002);
     auto rss = scanone_hk(genoprobs, pheno, addcovar, intcovar, weights);
