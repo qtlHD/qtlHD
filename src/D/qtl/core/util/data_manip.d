@@ -226,7 +226,11 @@ unittest {
   assert(create_missing_phenotype_pattern(pheno, 2) == "6|10|11");
 
   // hash-based version
-  auto batches2 = create_phenotype_batches_hash(pheno);
-  writeln("batches2: ", batches2);
+  auto batches_hash = create_phenotype_batches_hash(pheno);
+  writeln("batches_hash: ", batches_hash);
+  assert(batches_hash.length == 3);
+  assert(batches_hash["2|6|8"] == [0,3]);
+  assert(batches_hash["6|8|10|11"] == [1,4]);
+  assert(batches_hash["6|10|11"] == [2]);
 }
 
