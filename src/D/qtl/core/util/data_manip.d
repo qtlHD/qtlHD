@@ -157,6 +157,38 @@ size_t[][] create_phenotype_batches(T)(Phenotype!T[][] pheno)
   return phenotype_batches;
 }
 
+// create string with pattern of missing values for a phenotype column
+//    if individuals 2, 6, 8 are missing, the output will be "2|6|8"
+string create_missing_phenotype_pattern(T)(Phenotype!T[][] pheno, size_t pheno_column)
+{
+  string pattern;
+
+  foreach(i; 0..pheno.length) {
+    if(isNA(pheno[i][pheno_column])) {
+      if(pattern == "") pattern = to!string(i);
+      else pattern ~= "|" ~ to!string(i);
+    }
+  }
+
+  return pattern;
+}
+
+
+// batches of phenotypes with common missing data patterns
+size_t[][string] create_phenotype_batches_hash(T)(Phenotype!T[][] pheno)
+{
+  auto pattern = create_missing_phenotype_pattern(pheno, 0);
+  auto phenotype_batches = [pattern: [cast(size_t)0]];
+  if(pheno[0].length == 1) return phenotype_batches;
+  
+  foreach(i; 1..pheno[0].length) {
+    pattern = create_missing_phenotype_pattern(pheno, i);
+    phenotype_batches[pattern] ~= i;
+  }
+
+  return phenotype_batches;
+}
+
 unittest {
   writeln("Test create_phenotype_batches");
 
@@ -180,10 +212,21 @@ unittest {
       pheno ~= ps;
   }
 
+  // original version
   auto batches = create_phenotype_batches(pheno);
   assert(batches.length == 3);
   assert(batches[0] == [0,3]);
   assert(batches[1] == [1,4]);
   assert(batches[2] == [2]);
   writeln("batches: ", batches);
+
+  // test creation of patterns
+  assert(create_missing_phenotype_pattern(pheno, 0) == "2|6|8");
+  assert(create_missing_phenotype_pattern(pheno, 1) == "6|8|10|11");
+  assert(create_missing_phenotype_pattern(pheno, 2) == "6|10|11");
+
+  // hash-based version
+  auto batches2 = create_phenotype_batches_hash(pheno);
+  writeln("batches2: ", batches2);
 }
+
