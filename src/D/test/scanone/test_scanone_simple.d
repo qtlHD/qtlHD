@@ -10,7 +10,6 @@ import std.string;
 import std.path;
 import std.algorithm;
 import std.math;
-import std.algorithm;
 import std.container;
 import std.conv;
 import std.typecons;
@@ -85,16 +84,28 @@ unittest {
   // null model
   auto rss0 = scanone_hk_null(pheno, addcovar, weights);
 
-  // calc genoprob for each chromosome, then scanone
-  writeln(" --Peaks with LOD > 2:");
+  // to store LOD curves and peaks for all chromosomes
+  double[][] lod;
+  Tuple!(double, Marker)[][] peaks;
+
+ // calc genoprob for each chromosome, then scanone
   foreach(i, chr; pmar_by_chr) {
     auto genoprobs = calc_geno_prob(cross_class, genotype_matrix, chr[1], rec_frac[i][0], 0.002);
     auto rss = scanone_hk(genoprobs, pheno, addcovar, intcovar, weights);
-    auto lod = rss_to_lod(rss, rss0, pheno.length);
-    auto peak = get_peak_scanone(lod, chr[1]);
+    auto lod_this_chr = rss_to_lod(rss, rss0, pheno.length);
+    lod ~= lod_this_chr;
+
+    auto peak_this_chr = get_peak_scanone(lod_this_chr, chr[1]);
+    peaks ~= peak_this_chr;
+  }
+
+  // print peaks
+  double threshold = 2;
+  writeln(" --Peaks with LOD > ", threshold, ":");
+  foreach(peak; peaks) {
     foreach(j; 0..peak.length) {
-      if(peak[j][0] > 2)
-        writefln(" ----Chr %-2s : peak for phenotype %d: max lod = %7.2f at pos = %7.2f", chr[0].name, j,
+      if(peak[j][0] > threshold)
+        writefln(" ----Chr %-2s : peak for phenotype %d: max lod = %7.2f at pos = %7.2f", peak[j][1].chromosome.name, j,
                  peak[j][0], peak[j][1].get_position);
     }
   }
