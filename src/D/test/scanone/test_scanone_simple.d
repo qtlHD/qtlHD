@@ -87,7 +87,7 @@ unittest {
   // to store LOD curves and peaks for all chromosomes
   double[][] lod;
   Tuple!(double, Marker)[][] peaks;
- 
+
  // calc genoprob for each chromosome, then scanone
   foreach(i, chr; pmar_by_chr) {
     auto genoprobs = calc_geno_prob(cross_class, genotype_matrix, chr[1], rec_frac[i][0], 0.002);
