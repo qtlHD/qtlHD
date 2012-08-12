@@ -24,8 +24,9 @@ Phenotype!T set_phenotype(T)(in string s) {
   return p;
 }
 
-
-bool isNA(T)(Phenotype!T phe)
-{ 
+/**
+ * Check whether a phenotype is missing
+ */
+bool isNA(T)(Phenotype!T phe) { 
   return(phe.value == PHENOTYPE_NA);
 }

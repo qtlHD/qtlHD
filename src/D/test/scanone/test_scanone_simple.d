@@ -10,7 +10,9 @@ import std.string;
 import std.path;
 import std.algorithm;
 import std.math;
-import std.algorithm;
+import std.container;
+import std.conv;
+import std.typecons;
 
 import qtl.plugins.qtab.read_qtab;
 
@@ -35,6 +37,7 @@ import qtl.core.util.data_manip;
 unittest {
   writeln("Unit test " ~ __FILE__);
 
+  writeln(" --Loading data");
   // form file names
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~
@@ -45,20 +48,65 @@ unittest {
   foreach(ref file; files)
     file = dir ~ dirSeparator ~ file;
 
-  // load founder info
-  auto founder_info = read_founder_settings_qtab(files[0]);
-  // cross type -> Cross class
+  // load all qtab files
+  auto all_data = load_qtab(files);
+  auto founder_info = all_data[1];
+  auto markers = all_data[2];
+  auto pheno = all_data[4];
+  auto genotype_matrix = all_data[6];
+
   auto cross_class = form_cross(founder_info["Cross"]);
 
-  // load symbols and genotype data
-  auto symbols = read_genotype_symbol_qtab(files[1]);
-  auto g_res = read_genotype_qtab(files[2], symbols);
-  auto genotype_matrix = g_res[1];
+  // omit individuals with missing phenotype
+  auto ind_to_omit = is_any_phenotype_missing(pheno);
+  auto n_to_omit = count(ind_to_omit, true);
+  writeln(" --Omitting ", n_to_omit, " individuals with missing phenotype");
+  genotype_matrix = omit_ind_from_genotypes(genotype_matrix, ind_to_omit);
+  pheno = omit_ind_from_phenotypes(pheno, ind_to_omit);
 
-  // load phenotype data
-  auto p_res = read_phenotype_qtab!(Phenotype!double)(files[3]);
-  Phenotype!double[][] pheno = p_res[0];
+  // split markers into chromsomes; sort chromosomes
+  auto markers_by_chr = sort_chromosomes_by_marker_id(get_markers_by_chromosome(markers));
 
-  // load marker map
-  auto markers = read_marker_map_qtab!(Marker)(files[4]);
+  // drop X chromosome
+  markers_by_chr = markers_by_chr[0..($-1)];
+
+  // add pseudomarkers at 1.0 cM spacing
+  auto pmar_by_chr = add_stepped_markers(markers_by_chr, 1.0);
+
+  // inter-marker recombination fractions
+  auto rec_frac = recombination_fractions(pmar_by_chr, GeneticMapFunc.Haldane);
+
+  // empty covariate matrices
+  auto addcovar = new double[][](0, 0);
+  auto intcovar = new double[][](0, 0);
+  auto weights = new double[](0);
+
+  // null model
+  auto rss0 = scanone_hk_null(pheno, addcovar, weights);
+
+  // to store LOD curves and peaks for all chromosomes
+  double[][] lod;
+  Tuple!(double, Marker)[][] peaks;
+
+ // calc genoprob for each chromosome, then scanone
+  foreach(i, chr; pmar_by_chr) {
+    auto genoprobs = calc_geno_prob(cross_class, genotype_matrix, chr[1], rec_frac[i][0], 0.002);
+    auto rss = scanone_hk(genoprobs, pheno, addcovar, intcovar, weights);
+    auto lod_this_chr = rss_to_lod(rss, rss0, pheno.length);
+    lod ~= lod_this_chr;
+
+    auto peak_this_chr = get_peak_scanone(lod_this_chr, chr[1]);
+    peaks ~= peak_this_chr;
+  }
+
+  // print peaks
+  double threshold = 2;
+  writeln(" --Peaks with LOD > ", threshold, ":");
+  foreach(peak; peaks) {
+    foreach(j; 0..peak.length) {
+      if(peak[j][0] > threshold)
+        writefln(" ----Chr %-2s : peak for phenotype %d: max lod = %7.2f at pos = %7.2f", peak[j][1].chromosome.name, j,
+                 peak[j][0], peak[j][1].get_position);
+    }
+  }
 }
