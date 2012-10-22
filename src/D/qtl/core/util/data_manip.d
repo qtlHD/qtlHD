@@ -28,7 +28,7 @@ bool[] is_any_phenotype_missing(T)(Phenotype!T[][] pheno)
 Phenotype!T[][] omit_ind_from_phenotypes(T)(Phenotype!T[][] pheno, bool[] to_omit)
 {
   if(pheno.length != to_omit.length)
-    throw new Exception("no. individuals in pheno (" ~ to!string(pheno.length) ~ 
+    throw new Exception("no. individuals in pheno (" ~ to!string(pheno.length) ~
                         ") doesn't match length of to_omit (" ~ to!string(to_omit.length) ~ ")");
 
   Phenotype!T[][] ret;
@@ -45,7 +45,7 @@ Phenotype!T[][] omit_ind_from_phenotypes(T)(Phenotype!T[][] pheno, bool[] to_omi
 GenotypeCombinator[][] omit_ind_from_genotypes(GenotypeCombinator[][] geno, bool[] to_omit)
 {
   if(geno.length != to_omit.length)
-    throw new Exception("no. individuals in geno (" ~ to!string(geno.length) ~ 
+    throw new Exception("no. individuals in geno (" ~ to!string(geno.length) ~
                         ") doesn't match length of to_omit (" ~ to!string(to_omit.length) ~ ")");
 
   GenotypeCombinator[][] ret;
@@ -90,7 +90,7 @@ unittest {
   assert(pheno_rev.length == 116);
   auto has_missing_rev = is_any_phenotype_missing(pheno_rev);
   assert(count(has_missing_rev, true) == 0);
-  
+
   // First read symbol information (the GenotypeCombinators)
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
   writeln("reading ",symbol_fn);
