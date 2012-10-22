@@ -61,13 +61,13 @@ unittest {
 size_t[] random_stratified_permutation(in char strata[], ref Random gen)
 {
   size_t[size_t][char] stratav;
-  size_t[char] stratav_length;
+  size_t[char] hashlength;
   auto output = new size_t[](strata.length);
 
   // create strata indices
   foreach(i, s; strata) {
-    stratav_length[s]++;
-    stratav[s][stratav_length[s]-1] = i;
+    hashlength[s]++;
+    stratav[s][hashlength[s]-1] = i;
   }
 
   // randomize within each stratum
@@ -129,13 +129,13 @@ unittest {
 size_t[][] random_stratified_permutation(in size_t n_perm, in char strata[], ref Random gen)
 {
   size_t[size_t][char] stratav;
-  size_t[char] stratav_length;
+  size_t[char] hashlength;
   auto output = new size_t[][](n_perm, strata.length);
 
   // create strata indices
   foreach(i, s; strata) {
-    stratav_length[s]++;
-    stratav[s][stratav_length[s]-1] = i;
+    hashlength[s]++;
+    stratav[s][hashlength[s]-1] = i;
   }
 
   // randomize within each stratum
