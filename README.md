@@ -16,9 +16,9 @@ high-throughput data; for example for RNA-seq.
 
 ## Compiling qtlHD
 
-To compile qtlHD a recent edition of the [D compiler][D] is needed, currently:
+To compile qtlHD a recent edition of the [D compiler][Ddownload] is needed, currently:
 
-    DMD64 D Compiler v2.059
+    DMD64 D Compiler v2.060
 
 After D installation, build and test (which needs [rake][rake]):
 
@@ -58,6 +58,7 @@ The source code for qtlHD can be found on [github][source].
 
 [rqtl]: http://www.rqtl.org/
 [D]: http://dlang.org/
+[Ddownload]: http://dlang.org/download.html
 [rake]: http://rake.rubyforge.org/
 [source]: https://github.com/qtlHD/qtlHDA
 [issues]: https://github.com/qtlHD/qtlHD/issues
