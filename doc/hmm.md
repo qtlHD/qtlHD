@@ -17,8 +17,8 @@ For a given type of cross, there is some fixed set of true genotypes,
 and then another set of possible observed marker genotypes.  The
 possible observed genotypes may be viewed as subsets of the true
 genotypes.  For example, in an intercross, the possible true genotypes
-are {AA, AB, BB}, and the possible observed genotypes are {-, A, H, B,
-&ldquo;not BB&rdquo;, &ldquo;not AA&rdquo;}, with - indicating missing
+are {AA, AB, BB}, and the possible observed genotypes are {&ndash;, A, H, B,
+&ldquo;not BB&rdquo;, &ldquo;not AA&rdquo;}, with &ndash; indicating missing
 data.
 
 
