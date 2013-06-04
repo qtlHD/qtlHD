@@ -82,4 +82,23 @@ and possibly the cross direction for an individual.
 
 #### Recommendation
 
-I would recommend...
+For the encodings of both the true genotypes and the observed marker
+genotypes, the X chromosome can be treated in *exactly* the same way
+as the autosomes.  We just need some system for identifying the sex of
+each individual as well as its cross information.
+
+I would suggest
+
+1. When we need the individuals' sexes, it should be included as a
+phenotype, and we should have some simple way to identify which one.
+For example, a parameter `sexname` in the data file indicates the name
+of the phenotype that corresponds to sex, plus something like a
+`Sex Symbol` table that indicates the symbols for `female` and
+`male`, so that one might write `F`/`M`, `Female`/`Male`, `0`/`1`,
+etc.
+
+2. Similarly, we need a system for capturing each individuals' cross
+direction information.  For maximal flexibility, I'm inclined to say
+that this should be a character string.  It could be included in the
+phenotypes, again with a parameter like `crossinfoname` in the data
+file that indicates the name of the corresponding phenotype.
