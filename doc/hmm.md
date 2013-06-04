@@ -149,3 +149,23 @@ genotypes.
 
 Yes, I think this final idea is the right one: identify the hemizygous
 genotypes with the homozygous ones.
+
+
+## Details on all cases
+
+Maybe it would be useful if I filled out the details on all of the
+important cases.
+
+### Backcross
+
+### Intercross
+
+### Recombinant inbred lines
+
+### Phase-known 4-way cross
+
+### Collaborative Cross (CC)
+
+### Diversity Outcross (DO)
+
+Note that heterogeneous stock (HS) is a special case of the DO.
