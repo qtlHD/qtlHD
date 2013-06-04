@@ -80,25 +80,31 @@ int main(string[] args) {
   writeln("Verbosity: ",verbosity);
   writeln("Debug level: ",debug_level);
 
-  InputInfo res;
+  SymbolSettings s;
+  Founders f;
+  Marker[] ms;
+  Inds i;
+  PhenotypeMatrix p; 
+  ObservedGenotypes o; 
+  GenotypeMatrix g;
  
   switch(format) {
     case "qtab" :
-      res = load_qtab(args[1..$]);
+      auto res = load_qtab(args[1..$]);
+      s  = res[0];  // symbols
+      f  = res[1];  // founder (contains Cross information)
+      ms = res[2];  // markers
+      i  = res[3];  // individuals
+      p  = res[4];  // phenotype matrix
+      o  = res[5];  // observed genotypes
+      g  = res[6];  // observed genotype matrix
       break;
     case "csv" : 
-      res = load_csv(args[1]);
+      auto res = load_csv(args[1]);
       break;
     default :
       throw new Exception("Unknown format "~format);
   }
-  auto s  = res[0];  // symbols
-  auto f  = res[1];  // founder (contains Cross information)
-  auto ms = res[2];  // markers
-  auto i  = res[3];  // individuals
-  auto p  = res[4];  // phenotype matrix
-  auto o  = res[5];  // observed genotypes
-  auto g  = res[6];  // observed genotype matrix
   
 
   if (debug_level > 2) {

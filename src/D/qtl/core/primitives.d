@@ -311,6 +311,7 @@ class Individual {
   /// See also Markers!M and chromosome.d to 
 }
 
+alias string[] Inds;
 
 @property M[] list(M)(M[] ms) { return ms; };
 
