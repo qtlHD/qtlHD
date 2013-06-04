@@ -138,41 +138,12 @@ class ReadSimpleCSV(XType,ObservedXType) {
   }
 }
 
-
 InputInfo load_csv(string fn) {
-  SymbolSettings s;
-  Founders f;
   Marker[] ms;
   Inds i;
   PhenotypeMatrix p;
   string[][] g;
   ObservedGenotypes observed;
-  foreach (fn ; fns) {
-    auto res = load_qtab(fn);
-    auto t = res[0].get!QtabFileType;
-    auto d = res[1];
-    with (QtabFileType) {
-      switch(t) {
-        case symbols: 
-          s = d.get!SymbolSettings; 
-          observed = res[2].get!ObservedGenotypes;
-          break;
-        case founder: f = d.get!Founders; writeln(f); break;
-        case location: 
-          ms = d.get!(Marker[]); 
-          writeln(ms);
-          break;
-        case genotype: 
-          i = d.get!Inds;
-          g = res[2].get!(string[][]);
-          break;
-        case phenotype: 
-          // auto pids = d; ignored, for now
-          p = res[2].get!PhenotypeMatrix; break;
-        default: throw new Exception("Unsupported file type for " ~ fn);
-      }
-    }
-  }
   // Turn the genotype matrix into a genotype combinator matrix
   auto gc = convert_to_combinator_matrix(g,observed);
   return tuple(s,f,ms,i,p,observed,gc);
