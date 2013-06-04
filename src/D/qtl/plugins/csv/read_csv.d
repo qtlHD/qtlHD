@@ -147,11 +147,15 @@ Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) l
   auto F2 = data.crosstype;
   // P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
   // auto squares = map!(a => a * a)(chain(arr1, arr2));
-  auto x = map!(ind => ind.name)(data.individuals[0..$]);
+  Inds i;
+  // auto x = map!(ind => ind.name)(data.individuals[0..$]);
+  foreach(ind ; data.individuals) {
+    i ~= ind.name;
+  }
 
   // Turn the genotype matrix into a genotype combinator matrix
   auto gc = convert_to_combinator_matrix(g,observed);
-  return tuple(ms,data.individuals,p,observed,gc);
+  return tuple(data.markers,i,p,observed,gc);
 }
 
 
