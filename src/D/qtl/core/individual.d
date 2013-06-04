@@ -16,8 +16,11 @@ import std.stdio;
 // import std.container;
 import std.typecons;
 
+
 class Individuals {
-  mixin ActList!Individual;
+  uint cursor = 0;
+  Individual[] list;
+  // mixin ActList!Individual;
   Individuals opOpAssign(string op)(string name) if (op == "~") {
     list ~= new Individual(name);
     return this;
@@ -27,5 +30,16 @@ class Individuals {
     // list ~= ind.dup;
     return this;
   }
+ 
+  @property auto front() {
+    return list[cursor];
+  }
+ 
+  void popFront() {
+    cursor += 1;
+  }
+ 
+  @property bool empty() { return false; }
+ 
 }
 

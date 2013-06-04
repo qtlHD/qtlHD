@@ -66,7 +66,7 @@ mixin template MarkerInfo() {
 
 /**
  * Mixing in ActList will create a list of T, and turn the class into an
- * iterator
+ * iterator for foreach
  */
 
 mixin template ActList(T) {
