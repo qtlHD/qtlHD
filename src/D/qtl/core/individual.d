@@ -16,6 +16,7 @@ import std.stdio;
 // import std.container;
 import std.typecons;
 
+// FIXME: move cursor out of class
 
 class Individuals {
   uint cursor = 0;
@@ -40,6 +41,7 @@ class Individuals {
   }
  
   @property bool empty() { return false; }
- 
 }
+
+
 
