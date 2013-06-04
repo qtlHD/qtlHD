@@ -148,7 +148,7 @@ Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) l
   // P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
   // auto squares = map!(a => a * a)(chain(arr1, arr2));
   Inds i;
-  // auto x = map!(ind => ind.name)(data.individuals[0..$]);
+  auto x = map!(ind => ind.name)(data.individuals[0..$]);
   foreach(ind ; data.individuals) {
     i ~= ind.name;
   }
