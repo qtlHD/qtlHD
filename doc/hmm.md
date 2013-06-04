@@ -102,3 +102,8 @@ direction information.  For maximal flexibility, I'm inclined to say
 that this should be a character string.  It could be included in the
 phenotypes, again with a parameter like `crossinfoname` in the data
 file that indicates the name of the corresponding phenotype.
+
+3. The genotype symbols for the X chromosome need to be allowed to be
+different, and the encodings need to be different for each sex and
+each cross direction.  For example, `AA` might correspond to `0,0` for
+a female but `0,1` for a male.
