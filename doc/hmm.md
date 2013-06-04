@@ -73,3 +73,13 @@ hemizygous genotypes would often be encoded as homozygous.
 needs to include some special covariates to handle cross direction and
 sex.
 
+So, for the X chromosome, the set of possible true genotypes is
+different, and it can depend on the *sex* of an individual and also on
+the cross direction that led to that individual.
+
+And so also the possible observed marker genotypes depend on the sex
+and possibly the cross direction for an individual.
+
+#### Recommendation
+
+I would recommend...
