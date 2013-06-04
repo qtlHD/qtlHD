@@ -1,0 +1,37 @@
+# Hidden Markov models (HMM)
+
+## Introduction
+
+A key issue in QTL analysis is the handling of missing genotype
+information: either to consider positions between markers
+(&ldquo;interval mapping&rdquo;) or to handle less-than-fully
+informative markers.
+
+We use a hidden Markov model (HMM) that connects the underlying
+&ldquo;true&rdquo; genotypes to the observed marker genotypes.
+The main task is to calculate probabilities for each possible true
+genotype at each position along the genome, given the observed marker
+genotypes.
+
+For a given type of cross, there is some fixed set of true genotypes,
+and then another set of possible observed marker genotypes.  The
+possible observed genotypes may be viewed as subsets of the true
+genotypes.  For example, in an intercross, the possible true genotypes
+are {AA, AB, BB}, and the possible observed genotypes are {-, A, H, B,
+&ldquo;not BB&rdquo;, &ldquo;not AA&rdquo;}, with - indicating missing
+data.
+
+
+
+## Components of the HMM
+
+The HMM has three components: `init` concerns the probabilities for
+the true genotypes at any one position, `step` concerns the transition
+probabilities for the true genotypes from one position to the next,
+and `emit` concerns the relationship between the observed and true
+genotype at a given marker.
+
+## Genotype encodings
+
+When observed marker genotypes are read from a data file, they are
+converted to a system for encoding 
