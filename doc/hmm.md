@@ -113,7 +113,7 @@ a male.
 ### Crosses with more than two founders
 
 For crosses like the Collaborative Cross (CC), heterogeneous stock
-(HS), the diversity outcross population (DO), and MAGIC lines, in
+(HS), the diversity outcross population (DO), and [MAGIC lines](http://www.ncbi.nlm.nih.gov/pubmed/19593375), in
 which there are more than two founders, there is the added complexity
 that the observed marker genotypes require two tables.  We would
 generally have SNP genotypes, and we would need the SNP genotypes for
