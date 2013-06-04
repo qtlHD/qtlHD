@@ -143,3 +143,9 @@ given genotype may be autosome or X-linked, and the X-linked ones can
 be for a female (two alleles, just like autosome) or a male (just one
 allele).
 
+Alternatively, we could just let the *f* homozygous genotypes be
+allowable for males, and use those to indicate that hemizygous
+genotypes.
+
+Yes, I think this final idea is the right one: identify the hemizygous
+genotypes with the homozygous ones.
