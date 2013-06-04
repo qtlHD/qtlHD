@@ -4,7 +4,7 @@
 
 When preparing for the scanone routine, the input is a vector of markers, the
 genotypes of individuals at those markers, and phenotypes for individuals.
-After inferring maker/genotypes at fixed distances on the genome with an HMM,
+After inferring marker/genotypes at fixed distances on the genome with an HMM,
 scanone outputs LOD scores at these locations. A score beyond a certain LOD
 threshold is a significant quantitative trait locus (QTL).
 
