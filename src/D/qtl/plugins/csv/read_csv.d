@@ -13,15 +13,14 @@ import std.conv;
 import std.string;
 import std.path;
 import std.typecons;
+import std.algorithm;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
-// import qtl.core.util.matrix;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.individual;
-// import example.genotype_examples;
-
+import example.genotype_examples;
 
 /**
  * Read a simple CSV file containing marker names, chromosome nrs, position,
@@ -141,13 +140,18 @@ mixin RealizePhenotypeMatrix!double;
 
 Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) load_csv(string fn) {
   Marker[] ms;
-  Inds i;
   PhenotypeMatrix p;
   string[][] g;
   ObservedGenotypes observed;
+  auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
+  auto F2 = data.crosstype;
+  // P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
+  // auto squares = map!(a => a * a)(chain(arr1, arr2));
+  auto x = map!(ind => ind.name)(data.individuals[0..$]);
+
   // Turn the genotype matrix into a genotype combinator matrix
   auto gc = convert_to_combinator_matrix(g,observed);
-  return tuple(ms,i,p,observed,gc);
+  return tuple(ms,data.individuals,p,observed,gc);
 }
 
 

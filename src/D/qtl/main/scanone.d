@@ -53,7 +53,7 @@ string usage = "
 
     Execute scanone with the listeria dataset, the csv version
 
-      ./scanone --format csv ../../test/data/input/listeria_csv
+      ./scanone --format csv ../../test/data/input/listeria.csv
 
     the qtab version
 

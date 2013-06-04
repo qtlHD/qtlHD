@@ -77,7 +77,7 @@ all_dfiles = all_core_dfiles +
              csv_dfiles + csvr_dfiles + qtab_dfiles + xgap_dfiles +
              deprecated_dfiles
 # for bin and lib builds:
-all_scanone_dfiles = all_core_dfiles + scanone_dfiles + csv_dfiles + simulate_dfiles + distributions_dfiles + lapack_dfiles
+all_scanone_dfiles = all_core_dfiles + scanone_dfiles + csv_dfiles + simulate_dfiles + distributions_dfiles + lapack_dfiles + example_dfiles
 
 def shlib_suffix
   if windows? then

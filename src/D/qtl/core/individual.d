@@ -16,8 +16,6 @@ import std.stdio;
 // import std.container;
 import std.typecons;
 
-
-
 class Individuals {
   mixin ActList!Individual;
   Individuals opOpAssign(string op)(string name) if (op == "~") {
