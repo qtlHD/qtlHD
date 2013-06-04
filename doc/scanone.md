@@ -2,10 +2,13 @@
 
 ## Introduction
 
-Scanone is a routine that takes as input a vector of markers, genotypes of individuals at
-those markers, and phenotypes, and outputs LOD scores at
-marker locations. A score beyond a certain LOD threshold is a significant 
-quantitative trait locus (QTL).
+When preparing for the scanone routine, the input is a vector of markers, the
+genotypes of individuals at those markers, and phenotypes for individuals.
+After inferring maker/genotypes at fixed distances on the genome with an HMM,
+scanone outputs LOD scores at these locations. A score beyond a certain LOD
+threshold is a significant quantitative trait locus (QTL).
+
+### Markers and genotypes
 
 The markers represent genomic locations on chromosomes, with individuals having
 an observed genotype, e.g., the marker/individual matrix:
@@ -32,13 +35,19 @@ are on one chromosome, we introduce pseudo-markers at fixed intervals. So we get
 Of course we do not know the true genotypes at the pseudo marker locations, but
 we can infer that PM11 for individual 1 is likely to be 1 or 2. To calculate
 the probabilities of the inferred genotypes we create a 3D matrix with the
-probabilities on the z-axis. The (inferred) genotypeprobabilities are
+probabilities on the z-axis. The (inferred) genotype probabilities are
 calculated using an HMM.
+
+### Scanone routine
+
+The actual scanone routine uses the genotype probabilities at a marker location
+and the phenotypes as inputs. Optionally, weights and covariates can be passed
+in.
 
 Using the genotype probabilities we can use models (where the model is we have
 a QTL at a marker location, or we have no QTL, i.e.  the LOD score compares the
 probability of obtaining the test data if the two markers are linked to the
-probability of obtaining the test data if the two markers are not linked.) to
+probability of obtaining the test data if the two markers are not linked) to
 map phenotypes against genotype. The outcome is a LOD score (logarithm of odds)
 at every marker position. Additional parameters are covariates and weights.
 Covariates (such as sex, laboratory, or greenhouse, but also other phenotypes
