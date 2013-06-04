@@ -87,7 +87,7 @@ genotypes, the X chromosome can be treated in *exactly* the same way
 as the autosomes.  We just need some system for identifying the sex of
 each individual as well as its cross information.
 
-I would suggest
+I would suggest:
 
 1. When we need the individuals' sexes, it should be included as a
 phenotype, and we should have some simple way to identify which one.
@@ -104,6 +104,23 @@ phenotypes, again with a parameter like `crossinfoname` in the data
 file that indicates the name of the corresponding phenotype.
 
 3. The genotype symbols for the X chromosome need to be allowed to be
-different, and the encodings need to be different for each sex and
-each cross direction.  For example, `AA` might correspond to `0,0` for
-a female but `0,1` for a male.
+different for each sex and each cross direction, and they are
+different from those used on the autosomes.  For example, in an
+intercross, `AA` might correspond to `0,0` for a female but `0,1` for
+a male.
+
+
+### Crosses with more than two founders
+
+For crosses like the Collaborative Cross (CC), heterogeneous stock
+(HS), the diversity outcross population (DO), and MAGIC lines, in
+which there are more than two founders, there is the added complexity
+that the observed marker genotypes require two tables.  We would
+generally have SNP genotypes, and we would need the SNP genotypes for
+both the individuals phenotyped for QTL mapping and the SNP genoytypes
+for the founder lines.
+
+For each cross type, we would generally need individual-level
+information on the cross direction, which might be encoded as a
+character string.  Further, as with the simpler two-founder crosses,
+we would need the sex of each individual.
