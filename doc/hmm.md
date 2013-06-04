@@ -85,7 +85,8 @@ and possibly the cross direction for an individual.
 For the encodings of both the true genotypes and the observed marker
 genotypes, the X chromosome can be treated in *exactly* the same way
 as the autosomes.  We just need some system for identifying the sex of
-each individual as well as its cross information.
+each individual as well as its cross information, and we need to
+handle the observed marker genotype data somewhat specially.
 
 I would suggest:
 
@@ -109,6 +110,9 @@ different from those used on the autosomes.  For example, in an
 intercross, `AA` might correspond to `0,0` for a female but `0,1` for
 a male.
 
+4. Alternatively, in a cross with *n* founders, we could allow let
+genotype *n+1* correspond to the Y chromosome.
+
 
 ### Crosses with more than two founders
 
@@ -124,3 +128,18 @@ For each cross type, we would generally need individual-level
 information on the cross direction, which might be encoded as a
 character string.  Further, as with the simpler two-founder crosses,
 we would need the sex of each individual.
+
+
+## Not sure where to fit this in...
+
+With *f* founders, there are *2<sup>f</sup>* possible phase-known
+genotypes and *f* + *f(f-1)/2* possible phase-unknown genotypes.
+When the X chromosome is involved, we have that many genotypes for
+females and then another *f* genotypes for males.
+
+We could fit the males into the current system for handling true
+genotypes, but it would probably be best to expand it for males:  a
+given genotype may be autosome or X-linked, and the X-linked ones can
+be for a female (two alleles, just like autosome) or a male (just one
+allele).
+
