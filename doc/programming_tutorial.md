@@ -15,7 +15,7 @@ description of the tabulated qtab file format, and the implemented qtab [reader 
 
 Start with the unit tests in [read_qtab.d](https://github.com/pjotrp/qtlHD/blob/master/src/D/qtl/plugins/qtab/read_qtab.d) (in source code directory qtl/plugins/qtab).
 Currently we read the CSV with *read_csv.d*. The implementation of read_csv.d
-creates a class ReadSimpleCSV wich contains the data as sub-attributes (i.e.
+creates a class ReadSimpleCSV which contains the data as sub-attributes (e.g.,
 data.phenotypes), which get referenced in that container, a typical OOP
 approach.  We should use Tuples instead - which we are doing with more recent
 code. The reason to use Tuples is that objects, such as ReadSimpleCSV, contain a lot of extra
@@ -30,7 +30,7 @@ parameters into the function. That way we can see in one go what the
 interface is like. This interface is predictable:
 
 ```D
-        void write_phenotype_qtab(P)(File f, string descr, in Individuals individuals, in string[] phenotypenames, in P[][] phenotypes)
+void write_phenotype_qtab(P)(File f, string descr, in Individuals individuals, in string[] phenotypenames, in P[][] phenotypes)
 ```
 
 i.e. what you see is what you get.
@@ -41,10 +41,10 @@ Next, in read_qtab.d, read_qtab reads the record and returns the phenotype qtab
 file into a Tuple. Here we access a phenotype matrix
 
 ```D
-        auto res = read_qtab!(Phenotype!double)(pheno_fn);
-        Phenotype!double[][] pheno = res[0];
-        // 1st ind, 1st phenotype
-        assert(pheno[0][0].value == 118.317);
+auto res = read_qtab!(Phenotype!double)(pheno_fn);
+Phenotype!double[][] pheno = res[0];
+// 1st ind, 1st phenotype
+assert(pheno[0][0].value == 118.317);
 ```
 
 please check this code. Is it clear what happens? read_qtab uses a
@@ -58,16 +58,16 @@ these types of templates. The only difference is that D uses an exclamation
 mark to pass the template parameter(s).
 
 In the function read_qtab you can see Phenotype!double is used as a
-matrix of values (P[][]). The phenotypes get parsed in the data file section
+matrix of values (`P[][]`). The phenotypes get parsed in the data file section
 
 ```D
-        if (strip(buf) == "# --- Data Phenotype begin") 
+if (strip(buf) == "# --- Data Phenotype begin") 
 ```
 
 where
 
 ```D
-        auto res = parse_phenotype_qtab(buf);
+auto res = parse_phenotype_qtab(buf);
 ```
 
 parses the input string into substrings (returning a Tuple of the
@@ -76,7 +76,7 @@ ID, and the values as an array of strings).
 The next one is a bit of functional magic
 
 ```D
-        P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
+P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
 ```
 
 The function map!(func)(list) takes a list (or array), and applies func to list,
@@ -90,10 +90,10 @@ a 'bag' of different data structures.
 Finally, we test for values with
 
 ```D
-        // get the first element of the Tuple (there is only one now):
-        Phenotype!double[][] pheno = p_res[0];
-        // test 1st ind, 1st phenotype
-        assert(pheno[0][0].value == 118.317);
+// get the first element of the Tuple (there is only one now):
+Phenotype!double[][] pheno = p_res[0];
+// test 1st ind, 1st phenotype
+assert(pheno[0][0].value == 118.317);
 ```
 
 The test passes.
@@ -108,21 +108,21 @@ their observed genotypes. After parsing the Listeria CSV write_qtab writes the
 symbol table (the example actually uses the prefab F2 observed genotype set,
 also defined in genotype.d):
 
-        # --- qtlHD-in-0.1 Symbol Test
-        # --- Genotype Symbol begin
-        NA - as None
-        A AA as 0,0
-        B BB as 1,1
-        H AB BA as 0,1
-        HorB C as 0,1 1,0 1,1
-        HorA D as 0,0 0,1 1,0
-        # --- Genotype Symbol end
+    # --- qtlHD-in-0.1 Symbol Test
+    # --- Genotype Symbol begin
+    NA - as None
+    A AA as 0,0
+    B BB as 1,1
+    H AB BA as 0,1
+    HorB C as 0,1 1,0 1,1
+    HorA D as 0,0 0,1 1,0
+    # --- Genotype Symbol end
 
 This needs to be parsed by read_qtab into the in-memory types we use.
 There are three basic types (in genotype.d):
 
 1. TrueGenotype contains the two founder alleles.
-2. GenotypeCombinator brings multiple names/encodings (i.e. 'A' and 'AA')
+2. GenotypeCombinator brings multiple names/encodings (e.g., 'A' and 'AA')
    and the true genotypes together (with 'A' is is 0,0). It maintains
    two lists. One for the names/encodings, the other for the matching,
    or observed, true genotypes (see 1.)
@@ -132,27 +132,27 @@ There are three basic types (in genotype.d):
 The unittest in read_qtab reads
 
 ```D
-        unittest {
-        The unittest in read_qtab:
+unittest {
+The unittest in read_qtab:
 
-        unittest {
-          // Symbol and genotype reader
-          alias std.path.buildPath buildPath;
-          auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..",
-        "..","test","data"));
-          auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
-          writeln("reading ",symbol_fn);
-          auto f = File(symbol_fn,"r");
-          auto symbols = read_genotype_symbol_qtab(f);
-          assert(symbols.decode("A") == symbols.decode("AA"));
-          assert(to!string(symbols.decode("A")) == "[(0,0)]");
-          assert(to!string(symbols.decode("H")) == "[(0,1)]");
-          assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1), (1,0)]");
-          // It is also possible to encode directly with
-          assert(to!string(symbols.decode("0,0")) == "[(0,0)]");
-          assert(to!string(symbols.decode("0,1")) == "[(0,1)]");
-          assert(to!string(symbols.decode("0,0|0,1")) == "[(0,0), (0,1)]");
-        }
+unittest {
+  // Symbol and genotype reader
+  alias std.path.buildPath buildPath;
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..",
+"..","test","data"));
+  auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
+  writeln("reading ",symbol_fn);
+  auto f = File(symbol_fn,"r");
+  auto symbols = read_genotype_symbol_qtab(f);
+  assert(symbols.decode("A") == symbols.decode("AA"));
+  assert(to!string(symbols.decode("A")) == "[(0,0)]");
+  assert(to!string(symbols.decode("H")) == "[(0,1)]");
+  assert(to!string(symbols.decode("HorA")) == "[(0,0), (0,1), (1,0)]");
+  // It is also possible to encode directly with
+  assert(to!string(symbols.decode("0,0")) == "[(0,0)]");
+  assert(to!string(symbols.decode("0,1")) == "[(0,1)]");
+  assert(to!string(symbols.decode("0,0|0,1")) == "[(0,0), (0,1)]");
+}
 ```
 
 which parses the symbol file, and loads above data structures. The three
@@ -182,26 +182,26 @@ In the previous section we read the symbol table into a ObservedGenotypes
 container (defined in genotype.d) named symbols using
 
 ```D
-          auto f = File(symbol_fn,"r");
-          auto symbols = read_genotype_symbol_qtab(f);
+auto f = File(symbol_fn,"r");
+auto symbols = read_genotype_symbol_qtab(f);
 ```
 
 Now we read the genotype matrix with
 
 ```D
-          auto f = File(genotype_fn,"r");
-          auto ret = read_genotype_qtab(f1, symbols);
-          auto individuals = ret[0];
-          auto genotype_matrix = ret[1];
-          // Show the first individual and genotypes
-          writeln(individuals.list[0].name,genotype_matrix[0]);
+auto f = File(genotype_fn,"r");
+auto ret = read_genotype_qtab(f1, symbols);
+auto individuals = ret[0];
+auto genotype_matrix = ret[1];
+// Show the first individual and genotypes
+writeln(individuals.list[0].name,genotype_matrix[0]);
 ```
 
 which returns a Tuple with individuals and accompanying genotypes, in a matrix of references to symbols, i.e. GenotypeCombinators(!). For convenience we named these
 Gref. So a matrix of references to (observed) genotype combinators is defined as
 
 ```D
-          Gref genotype_matrix[][]
+Gref genotype_matrix[][]
 ```
 
 This implies that the matrix contains only references (pointers) to a limited
@@ -212,26 +212,26 @@ genotypes by querying the relevant symbol or ObservedGenotypes container. To
 use this genotype, we can match the decoder:
 
 ```D
-          assert(genotype_matrix[0][0] == symbols.decode("B"));
-          assert(genotype_matrix[0][3] == symbols.decode("H"));
+assert(genotype_matrix[0][0] == symbols.decode("B"));
+assert(genotype_matrix[0][3] == symbols.decode("H"));
 ```
 
 or we can ask for the true genotypes using a symbol
 
 ```D
-          assert(genotype_matrix[0][0] == symbols.decode("B"));
-          assert(genotype_matrix[0][3] == symbols.decode("H"));
+assert(genotype_matrix[0][0] == symbols.decode("B"));
+assert(genotype_matrix[0][3] == symbols.decode("H"));
 ```
 
 or we can query the founder parents directly
 
 ```D
-          assert(genotype_matrix[0][0].list[0].homozygous == true);
-          assert(genotype_matrix[0][0].list[0].founders[0] == 1);
-          assert(genotype_matrix[0][0].list[0].founders[1] == 1);
-          assert(genotype_matrix[0][3].list[0].heterozygous == true);
-          assert(genotype_matrix[0][3].list[0].founders[0] == 0);
-          assert(genotype_matrix[0][3].list[0].founders[1] == 1);
+assert(genotype_matrix[0][0].list[0].homozygous == true);
+assert(genotype_matrix[0][0].list[0].founders[0] == 1);
+assert(genotype_matrix[0][0].list[0].founders[1] == 1);
+assert(genotype_matrix[0][3].list[0].heterozygous == true);
+assert(genotype_matrix[0][3].list[0].founders[0] == 0);
+assert(genotype_matrix[0][3].list[0].founders[1] == 1);
 ```
 
 (we may add some syntactic sugar later). Note both B and H have
@@ -239,26 +239,26 @@ one set of parents. If there are more, as in the case of HorB for marker
 M you get
 
 ```D
-          assert(genotype_matrix[0][M].list[0].heterozygous == true);
-          assert(genotype_matrix[0][M].list[0].founders[0] == 0);
-          assert(genotype_matrix[0][M].list[0].founders[1] == 1);
-          assert(genotype_matrix[0][M].list[1].homozygous == true);
-          assert(genotype_matrix[0][M].list[1].founders[0] == 1);
-          assert(genotype_matrix[0][M].list[1].founders[1] == 1);
+assert(genotype_matrix[0][M].list[0].heterozygous == true);
+assert(genotype_matrix[0][M].list[0].founders[0] == 0);
+assert(genotype_matrix[0][M].list[0].founders[1] == 1);
+assert(genotype_matrix[0][M].list[1].homozygous == true);
+assert(genotype_matrix[0][M].list[1].founders[0] == 1);
+assert(genotype_matrix[0][M].list[1].founders[1] == 1);
 ```
 
 in other words, we can digest the founder combination for every symbol, which
 is the information we gave qtlHD with the symbol table:
 
-        # --- qtlHD-in-0.1 Symbol Test
-        # --- Genotype Symbol begin
-        NA - as None
-        A AA as 0,0
-        B BB as 1,1
-        H AB BA as 0,1
-        HorB C as 0,1 1,0 1,1
-        HorA D as 0,0 0,1 1,0
-        # --- Genotype Symbol end
+    # --- qtlHD-in-0.1 Symbol Test
+    # --- Genotype Symbol begin
+    NA - as None
+    A AA as 0,0
+    B BB as 1,1
+    H AB BA as 0,1
+    HorB C as 0,1 1,0 1,1
+    HorA D as 0,0 0,1 1,0
+    # --- Genotype Symbol end
 
 At this stage you should know how to use the phenotype and genotype matrices.
 
@@ -270,12 +270,12 @@ a marker consists of a name, a chromosome name, and a position on that chromosom
 marker info is defined in primitives.d (unsurprisingly) as 
 
 ```D
-          mixin template MarkerInfo() {
-            mixin Identity;
-            mixin Attributes;
-            Chromosome chromosome;      /// Reference to Chromosome
-            Position position;          /// Marker position - content depends on map
-          }
+mixin template MarkerInfo() {
+  mixin Identity;
+  mixin Attributes;
+  Chromosome chromosome;      /// Reference to Chromosome
+  Position position;          /// Marker position - content depends on map
+}
 ```
 
 where identity gives it a name. Attributes is perhaps the strange one - we use
@@ -289,51 +289,51 @@ First we parse the qtab marker map in *read_qtab.d*, much the same as to what we
 earlier. Pass in the qtab file (or section) and return a list of markers.
 
 ```D
-            auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
-            assert(markers[0].name == "D10M44");
-            assert(markers[0].chromosome.name == "1");
-            assert(markers[3].position == 40.4136);
+auto markers = read_marker_map_qtab!(Marker)(marker_map_fn);
+assert(markers[0].name == "D10M44");
+assert(markers[0].chromosome.name == "1");
+assert(markers[3].position == 40.4136);
 ```
 
 The file parser looks like this
 
 ```D
-          auto read_marker_map_qtab(M)(string fn) {
-            M ret_ms[];
-            auto f = File(fn,"r");
-            scope(exit) f.close(); // always close the file on function exit
-            string buf;
-            while (f.readln(buf)) {
-              if (strip(buf) == "# --- Data Location begin") {
-                while (f.readln(buf)) { 
-                  if (strip(buf) == "# --- Data Location end")
-                     break;
-                  if (buf[0] == '#') continue;
-                  auto res = parse_marker_qtab(buf);
-                  auto name = res[0];
-                  auto cname = res[1];
-                  auto c = new Chromosome(cname);
-                  auto pos = res[2];
-                  auto marker = new Marker(c,pos,name);
-                  ret_ms ~= marker;
-                }
-              }
-            }
-            return ret_ms;
-          }
+auto read_marker_map_qtab(M)(string fn) {
+  M ret_ms[];
+  auto f = File(fn,"r");
+  scope(exit) f.close(); // always close the file on function exit
+  string buf;
+  while (f.readln(buf)) {
+    if (strip(buf) == "# --- Data Location begin") {
+      while (f.readln(buf)) { 
+        if (strip(buf) == "# --- Data Location end")
+           break;
+        if (buf[0] == '#') continue;
+        auto res = parse_marker_qtab(buf);
+        auto name = res[0];
+        auto cname = res[1];
+        auto c = new Chromosome(cname);
+        auto pos = res[2];
+        auto marker = new Marker(c,pos,name);
+        ret_ms ~= marker;
+      }
+    }
+  }
+  return ret_ms;
+}
 ```
 
 The line parser reads 
 
 ```D
-          Tuple!(string, string, double) parse_marker_qtab(string line) {
-            auto fields1 = split(line,"\t");
-            auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
-            auto name = (fields.length > 0 ? strip(fields[0]) : null);
-            auto chromosome = (fields.length > 1 ? fields[1] : null);
-            auto position = (fields.length > 2 ? to!double(strip(fields[2])) : MARKER_POSITION_UNKNOWN);
-            return tuple(name,chromosome,position);
-          }
+Tuple!(string, string, double) parse_marker_qtab(string line) {
+  auto fields1 = split(line,"\t");
+  auto fields = std.array.array(map!"strip(a)"(fields1));  // <- note conversion to array
+  auto name = (fields.length > 0 ? strip(fields[0]) : null);
+  auto chromosome = (fields.length > 1 ? fields[1] : null);
+  auto position = (fields.length > 2 ? to!double(strip(fields[2])) : MARKER_POSITION_UNKNOWN);
+  return tuple(name,chromosome,position);
+}
 ```
 
 Pretty straightforward again. Note, however, that the line parser does very little 
@@ -341,7 +341,7 @@ syntax checking. Also a new chromosome object gets created with evey marker obje
 maybe not what we want. Also, the allocation of 
 
 ```D
-            M ret_ms[];
+M ret_ms[];
 ```
 
 is dynamically allocated, and may slow things down with appending markers to
