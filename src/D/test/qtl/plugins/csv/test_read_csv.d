@@ -21,6 +21,7 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.individual;
 import example.genotype_examples;
+import qtl.plugins.csv.read_csv;
 
 // ==== UNIT TESTS ===================================================
 
