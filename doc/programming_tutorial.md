@@ -15,7 +15,7 @@ description of the tabulated qtab file format, and the implemented qtab [reader 
 
 Start with the unit tests in [read_qtab.d](https://github.com/pjotrp/qtlHD/blob/master/src/D/qtl/plugins/qtab/read_qtab.d) (in source code directory qtl/plugins/qtab).
 Currently we read the CSV with *read_csv.d*. The implementation of read_csv.d
-creates a class ReadSimpleCSV wich contains the data as sub-attributes (i.e.
+creates a class ReadSimpleCSV which contains the data as sub-attributes (e.g.,
 data.phenotypes), which get referenced in that container, a typical OOP
 approach.  We should use Tuples instead - which we are doing with more recent
 code. The reason to use Tuples is that objects, such as ReadSimpleCSV, contain a lot of extra
@@ -122,7 +122,7 @@ This needs to be parsed by read_qtab into the in-memory types we use.
 There are three basic types (in genotype.d):
 
 1. TrueGenotype contains the two founder alleles.
-2. GenotypeCombinator brings multiple names/encodings (i.e. 'A' and 'AA')
+2. GenotypeCombinator brings multiple names/encodings (e.g., 'A' and 'AA')
    and the true genotypes together (with 'A' is is 0,0). It maintains
    two lists. One for the names/encodings, the other for the matching,
    or observed, true genotypes (see 1.)
