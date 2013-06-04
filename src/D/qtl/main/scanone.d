@@ -30,18 +30,22 @@ import qtl.core.scanone.scanone_hk;
 import qtl.core.scanone.util;
 import qtl.core.util.data_manip;
 
-
-
 static string ver = import("VERSION");
 
-string copyright = "; qtlHD project (c) 2012";
+string credits = "Karl W. Broman, Pjotr Prins and Danny Arends";
+string copyright = "; qtlHD project (c) 2012-2013";
 string usage = "
   usage: scanone [options] inputfile(s)
 
   options:
 
+    --format          qtab|csv (default qtab)
+
+  other options:
+
     -v --verbosity    Set verbosity level (default 1)
     -d --debug        Set debug message level (default 0)
+    --credits         Show list of contributors
 
   examples:
 
@@ -56,27 +60,36 @@ int main(string[] args) {
     writeln(usage);
     return 0;
   }
-  writeln(args);
   uint verbosity = 1;
   uint debug_level = 0;
+  bool contributors = false;
+  string format = "qtab";
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
-               "d|debug", (string o, string d) { debug_level = to!int(d); }
+               "d|debug", (string o, string d) { debug_level = to!int(d); },
+               "format", (string o, string s) { format = s; },
+               "credits", (string o) { contributors = true; }
   );
 
+  if (debug_level > 0) writeln(args);
+  if (contributors) {
+    writeln("  by ",credits);
+    return 1;
+  }
   writeln("Verbosity: ",verbosity);
   writeln("Debug level: ",debug_level);
-  // Load all information into data structures, basically following
-  // test/scanone/test_scanone_f2.d
+
   auto res = load_qtab(args[1..$]);
-  auto s  = res[0];
-  auto f  = res[1];
-  auto ms = res[2];
-  auto i  = res[3];
-  auto p  = res[4];
-  auto o  = res[5];
-  auto g  = res[6]; // genotype combinator matrix
+  auto s  = res[0];  // symbols
+  auto f  = res[1];  // founders
+  auto ms = res[2];  // markers
+  auto i  = res[3];  // individuals
+  auto p  = res[4];  // phenotype matrix
+  auto o  = res[5];  // observed genotypes
+  auto g  = res[6];  // observed genotype matrix
 
   if (debug_level > 2) {
+    writeln("* Format");
+    writeln(format);
     writeln("* Symbol data");
     writeln(s);
     writeln(o);
