@@ -11,7 +11,9 @@ import std.algorithm;
 import std.math;
 import std.container;
 import std.typecons;
+import std.variant;
 
+import qtl.plugins.csv.read_csv;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.chromosome;
 import qtl.core.util.data_manip;
@@ -78,14 +80,26 @@ int main(string[] args) {
   writeln("Verbosity: ",verbosity);
   writeln("Debug level: ",debug_level);
 
-  auto res = load_qtab(args[1..$]);
+  InputInfo res;
+ 
+  switch(format) {
+    case "qtab" :
+      res = load_qtab(args[1..$]);
+      break;
+    case "csv" : 
+      res = load_csv(args[1]);
+      break;
+    default :
+      throw new Exception("Unknown format "~format);
+  }
   auto s  = res[0];  // symbols
-  auto f  = res[1];  // founders
+  auto f  = res[1];  // founder (contains Cross information)
   auto ms = res[2];  // markers
   auto i  = res[3];  // individuals
   auto p  = res[4];  // phenotype matrix
   auto o  = res[5];  // observed genotypes
   auto g  = res[6];  // observed genotype matrix
+  
 
   if (debug_level > 2) {
     writeln("* Format");
