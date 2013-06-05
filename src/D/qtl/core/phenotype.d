@@ -45,9 +45,9 @@ bool isNA(T)(Phenotype!T phe) {
 bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] pheno)
 {
   auto ret = new bool[pheno.length];
+  ret[] = false;
   foreach(i; 0..pheno.length) {
     // walk all individuals
-    ret[i] = false;
     foreach(j; 0..pheno[i].length) {
       // walk all phenotypes
       if(isNA(pheno[i][j])) ret[i] = true;
