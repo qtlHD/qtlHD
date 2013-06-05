@@ -16,8 +16,7 @@ import qtl.core.primitives;
 import qtl.core.phenotype;
 
 import std.typecons;
-import std.algorithm : map;
-
+import std.algorithm : map, reduce;
 
 Phenotype!T set_phenotype(T)(in string s) {
   // writeln(s);
@@ -43,15 +42,18 @@ bool isNA(T)(Phenotype!T phe) {
 
 // return boolean vector of size individuals indicating whether a 
 // phenotype is missing (true)
-bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] pheno_matrix)
+bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] phenotype_matrix)
 {
-  auto ret = new bool[pheno_matrix.length];
+  auto ret = new bool[phenotype_matrix.length];
   ret[] = false;
-  foreach(i, ind_pheno; pheno_matrix) {
-    foreach(p; ind_pheno) {
-      if(isNA(p)) ret[i] = true;
-      break;
-    }
+  foreach(i, ind_phenotypes; phenotype_matrix) {
+    auto num = reduce!( (a,b) => a+isNA(b) )(0,ind_phenotypes);
+    ret[i] = num > 0;
+    // writeln( reduce!( p => isNA(p) )(ind_phenotypes).array() );
+    // foreach(p; ind_pheno) {
+    //   if(isNA(p)) ret[i] = true;
+    //  break;
+    // }
   }
   return ret;
 }
