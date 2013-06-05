@@ -12,7 +12,6 @@ import std.exception, std.path, std.file;
 import qtl.core.primitives;
 import qtl.core.phenotype;
 import qtl.core.genotype;
-import qtl.plugins.qtab.read_qtab;
 
 import std.typecons;
 import std.algorithm : map;
