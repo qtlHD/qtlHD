@@ -50,9 +50,10 @@ double[] estmap(T)(Cross cross,
 
     auto cur_rec_frac = rec_frac.dup;
     auto prev_rec_frac = rec_frac.dup;
-    double[][] alpha = new double[][](crossPK.all_true_geno.length, n_markers);
-    double[][] beta = new double[][](crossPK.all_true_geno.length, n_markers);
-    double[][] gamma = new double[][](crossPK.all_true_geno.length, n_markers);
+    auto all_true_geno = crossPK.all_true_geno(is_X_chr);
+    double[][] alpha = new double[][](all_true_geno.length, n_markers);
+    double[][] beta = new double[][](all_true_geno.length, n_markers);
+    double[][] gamma = new double[][](all_true_geno.length, n_markers);
     double sum_gamma;
     foreach(it; 0..max_iterations) {
       foreach(ref rf; cur_rec_frac) {
@@ -65,16 +66,16 @@ double[] estmap(T)(Cross cross,
 	alpha = forwardEquations(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
 	beta = backwardEquations(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
 
-        // possible genotypes for this individual, indices to cross.all_true_geno
+        // possible genotypes for this individual, indices to all_true_geno
         auto possible_true_geno_index = crossPK.possible_geno_index(is_X_chr, is_female[ind], cross_direction[ind]);
 
 	foreach(j; 0..prev_rec_frac.length) {
 	  // calculate gamma = log Pr(v1, v2, O)
 	  auto sum_gamma_undef = true;
 	  foreach(il; possible_true_geno_index) {
-            left_gen = crossPK.all_true_geno[il];
+            left_gen = all_true_geno[il];
 	    foreach(ir; possible_true_geno_index) {
-              right_gen = crossPK.all_true_geno[ir];
+              right_gen = all_true_geno[ir];
               if(isPseudoMarker(marker_map[j+1]))
                 gamma[il][ir] = alpha[il][j] + beta[ir][j+1] +
                   crossPK.step(left_gen, right_gen, prev_rec_frac[j], is_X_chr, is_female[ind], cross_direction[ind]);
@@ -96,7 +97,7 @@ double[] estmap(T)(Cross cross,
 	  // update cur_rf
 	  foreach(il; possible_true_geno_index) {
 	    foreach(ir; possible_true_geno_index) {
-	      cur_rec_frac[j] += crossPK.nrec(crossPK.all_true_geno[il], crossPK.all_true_geno[ir]) * exp(gamma[il][ir] - sum_gamma);
+	      cur_rec_frac[j] += crossPK.nrec(all_true_geno[il], all_true_geno[ir]) * exp(gamma[il][ir] - sum_gamma);
 	    }
 	  }
 	} // loop over marker intervals

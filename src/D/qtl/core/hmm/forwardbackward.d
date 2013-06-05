@@ -31,7 +31,8 @@ in {
 body {
   size_t n_positions = marker_map.length;
 
-  // possible genotypes for this individual, indices to cross.all_true_geno
+  // possible genotypes for this chromosome and then for this individual
+  auto all_true_geno = cross.all_true_geno(is_X_chr);
   auto possible_true_geno_index = cross.possible_geno_index(is_X_chr, is_female, cross_direction);
   auto first = possible_true_geno_index[0];
 
@@ -39,14 +40,14 @@ body {
   auto alpha = new double[][](cross.all_true_geno.length, n_positions);
 
   // if not all genotypes possible, fill array with zeros
-  if(possible_true_geno_index.length < cross.all_true_geno.length)
+  if(possible_true_geno_index.length < all_true_geno.length)
     foreach(i, g; all_true_geno)
       foreach(p; 0..n_positions)
         alpha[i][p] = 0.0;
 
   // initialize alphas
   foreach(i; possible_true_geno_index) {
-    true_geno = cross.all_true_geno[i];
+    true_geno = all_true_geno[i];
     if(isPseudoMarker(marker_map[0]))
       alpha[i][0] = cross.init(true_geno, is_X_chr, is_female, cross_direction);
     else
@@ -56,12 +57,12 @@ body {
 
   foreach(pos; 1 .. n_positions) {
     foreach(ir; possible_true_geno_index) {
-      true_geno_right = cross.all_true_geno[ir];
+      true_geno_right = all_true_geno[ir];
       alpha[ir][pos] = alpha[first][pos-1] +
-        cross.step(cross.all_true_geno[first], true_geno_right, rec_frac[pos-1], is_X_chr, is_female, cross_direction);
+        cross.step(all_true_geno[first], true_geno_right, rec_frac[pos-1], is_X_chr, is_female, cross_direction);
 
       foreach(il; possible_true_geno_index[1..possible_true_geno_index.length]) {
-        auto true_geno_left = cross.all_true_geno[il];
+        auto true_geno_left = all_true_geno[il];
         alpha[ir][pos] = addlog(alpha[ir][pos],
                                 alpha[il][pos-1] +
                                 cross.step(true_geno_left, true_geno_right, rec_frac[pos-1], is_X_chr, is_female, cross_direction));
@@ -93,14 +94,15 @@ in {
 body {
   size_t n_positions = marker_map.length;
 
-  // possible genotypes for this individual, indices to cross.all_true_geno
+  // possible genotypes for this chromosome and then for this individual
+  auto all_true_geno = cross.all_true_geno(is_X_chr);
   auto possible_true_geno_index = cross.possible_geno_index(is_X_chr, is_female, cross_direction);
   auto first = possible_true_geno_index[0];
 
-  auto beta = new double[][](cross.all_true_geno.length,n_positions);
+  auto beta = new double[][](all_true_geno.length,n_positions);
 
   // if not all genotypes possible, fill array with zeros
-  if(possible_true_geno_index.length < cross.all_true_geno.length)
+  if(possible_true_geno_index.length < all_true_geno.length)
     foreach(i, g; all_true_geno)
       foreach(p; 0..n_positions)
         beta[i][p] = 0.0;
@@ -113,17 +115,17 @@ body {
   // backward equations
   for(int pos = cast(int)n_positions-2; pos >= 0; pos--) {
     foreach(il; possible_true_geno_index) {
-      true_geno_left = cross.all_true_geno[il];
+      true_geno_left = all_true_geno[il];
       if(isPseudoMarker(marker_map[pos+1]))
         beta[il][pos] = beta[first][pos+1] +
-          cross.step(true_geno_left, cross.all_true_geno[first], rec_frac[pos], is_X_chr, is_female, cross_direction);
+          cross.step(true_geno_left, all_true_geno[first], rec_frac[pos], is_X_chr, is_female, cross_direction);
       else
         beta[il][pos] = beta[first][pos+1] +
-          cross.step(true_geno_left, cross.all_true_geno[first], rec_frac[pos], is_X_chr, is_female, cross_direction) +
-          cross.emit(genotypes[marker_map[pos+1].id], cross.all_true_geno[first], error_prob, is_X_chr, is_female, cross_direction);
+          cross.step(true_geno_left, all_true_geno[first], rec_frac[pos], is_X_chr, is_female, cross_direction) +
+          cross.emit(genotypes[marker_map[pos+1].id], all_true_geno[first], error_prob, is_X_chr, is_female, cross_direction);
 
       foreach(ir; possible_true_geno_index[1 .. possible_true_geno_index.length]) {
-        auto true_geno_right = cross.all_true_geno[ir];
+        auto true_geno_right = all_true_geno[ir];
         if(isPseudoMarker(marker_map[pos+1]))
           beta[il][pos] = addlog(beta[il][pos],
                                  beta[ir][pos+1] +
