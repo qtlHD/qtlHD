@@ -43,11 +43,11 @@ bool isNA(T)(Phenotype!T phe) {
 
 // return boolean vector of size individuals indicating whether a 
 // phenotype is missing (true)
-bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] pheno)
+bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] pheno_matrix)
 {
-  auto ret = new bool[pheno.length];
+  auto ret = new bool[pheno_matrix.length];
   ret[] = false;
-  foreach(i, ind_ps; pheno) {
+  foreach(i, ind_ps; pheno_matrix) {
     // walk all individuals
     foreach(p; ind_ps) {
       if(isNA(p)) ret[i] = true;
