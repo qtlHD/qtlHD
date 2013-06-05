@@ -48,7 +48,6 @@ bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] pheno_matrix)
   auto ret = new bool[pheno_matrix.length];
   ret[] = false;
   foreach(i, ind_pheno; pheno_matrix) {
-    // walk all individuals
     foreach(p; ind_pheno) {
       if(isNA(p)) ret[i] = true;
       break;
