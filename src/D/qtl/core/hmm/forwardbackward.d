@@ -15,11 +15,14 @@ import qtl.core.hmm.util;
 import qtl.core.hmm.cross;
 
 // forward Equations
-double[][] forwardEquations(Cross cross,
-                            GenotypeCombinator[] genotypes,
-                            Marker[] marker_map,
-                            Probability[] rec_frac,
-                            Probability error_prob)
+double[][] forwardEquations(T)(Cross cross,
+                               GenotypeCombinator[] genotypes,
+                               Marker[] marker_map,
+                               bool is_X_chr,
+                               bool is_female,
+                               T cross_direction,
+                               Probability[] rec_frac,
+                               Probability error_prob)
 in {
   foreach(i, m; marker_map)
     assert(isPseudoMarker(m) || (m.id >= 0 && m.id < genotypes.length),
@@ -28,26 +31,40 @@ in {
 body {
   size_t n_positions = marker_map.length;
 
+  // possible genotypes for this individual, indices to cross.all_true_geno
+  auto possible_true_geno_index = cross.possible_geno_index(is_X_chr, is_female, cross_direction);
+  auto first = possible_true_geno_index[0];
+
+  // to contain ln Pr(G_i = g | marker data)
   auto alpha = new double[][](cross.all_true_geno.length, n_positions);
 
+  // if not all genotypes possible, fill array with zeros
+  if(possible_true_geno_index.length < cross.all_true_geno.length)
+    foreach(i, g; all_true_geno)
+      foreach(p; 0..n_positions)
+        alpha[i][p] = 0.0;
+
   // initialize alphas
-  foreach(i, true_geno; cross.all_true_geno) {
+  foreach(i; possible_true_geno_index) {
+    true_geno = cross.all_true_geno[i];
     if(isPseudoMarker(marker_map[0]))
-      alpha[i][0] = cross.init(true_geno);
+      alpha[i][0] = cross.init(true_geno, is_X_chr, is_female, cross_direction);
     else
-      alpha[i][0] = cross.init(true_geno) + cross.emit(genotypes[marker_map[0].id], true_geno, error_prob);
+      alpha[i][0] = cross.init(true_geno, is_X_chr, is_female, cross_direction) + 
+        cross.emit(genotypes[marker_map[0].id], true_geno, error_prob, is_X_chr, is_female, cross_direction);
   }
 
   foreach(pos; 1 .. n_positions) {
-    foreach(ir, true_geno_right; cross.all_true_geno) {
-      alpha[ir][pos] = alpha[0][pos-1] +
-        cross.step(cross.all_true_geno[0], true_geno_right, rec_frac[pos-1]);
+    foreach(ir; possible_true_geno_index) {
+      true_geno_right = cross.all_true_geno[ir];
+      alpha[ir][pos] = alpha[first][pos-1] +
+        cross.step(cross.all_true_geno[first], true_geno_right, rec_frac[pos-1], is_X_chr, is_female, cross_direction);
 
-      foreach(il; 1 .. cross.all_true_geno.length) {
+      foreach(il; possible_true_geno_index[1..possible_true_geno_index.length]) {
         auto true_geno_left = cross.all_true_geno[il];
         alpha[ir][pos] = addlog(alpha[ir][pos],
-                               alpha[il][pos-1] +
-                               cross.step(true_geno_left, true_geno_right, rec_frac[pos-1]));
+                                alpha[il][pos-1] +
+                                cross.step(true_geno_left, true_geno_right, rec_frac[pos-1], is_X_chr, is_female, cross_direction));
      }
      if(!isPseudoMarker(marker_map[pos]))
        alpha[ir][pos] += cross.emit(genotypes[marker_map[pos].id], true_geno_right, error_prob);
@@ -60,11 +77,14 @@ body {
 
 
 // backward Equations
-double[][] backwardEquations(Cross cross,
-                             GenotypeCombinator[] genotypes,
-                             Marker[] marker_map,
-                             Probability[] rec_frac,
-                             Probability error_prob)
+double[][] backwardEquations(T)(Cross cross,
+                                GenotypeCombinator[] genotypes,
+                                Marker[] marker_map,
+                                bool is_X_chr,
+                                bool is_female,
+                                T cross_direction,
+                                Probability[] rec_frac,
+                                Probability error_prob)
 in {
   foreach(i, m; marker_map)
     assert(isPseudoMarker(m) || (m.id >= 0 && m.id < genotypes.length),
@@ -73,35 +93,46 @@ in {
 body {
   size_t n_positions = marker_map.length;
 
+  // possible genotypes for this individual, indices to cross.all_true_geno
+  auto possible_true_geno_index = cross.possible_geno_index(is_X_chr, is_female, cross_direction);
+  auto first = possible_true_geno_index[0];
+
   auto beta = new double[][](cross.all_true_geno.length,n_positions);
 
+  // if not all genotypes possible, fill array with zeros
+  if(possible_true_geno_index.length < cross.all_true_geno.length)
+    foreach(i, g; all_true_geno)
+      foreach(p; 0..n_positions)
+        beta[i][p] = 0.0;
+
   // initialize beta
-  foreach(i, true_geno; cross.all_true_geno) {
+  foreach(i; possible_true_geno_index) {
     beta[i][n_positions-1] = 0.0;
   }
 
   // backward equations
   for(int pos = cast(int)n_positions-2; pos >= 0; pos--) {
-    foreach(il, true_geno_left; cross.all_true_geno) {
+    foreach(il; possible_true_geno_index) {
+      true_geno_left = cross.all_true_geno[il];
       if(isPseudoMarker(marker_map[pos+1]))
-        beta[il][pos] = beta[0][pos+1] +
-          cross.step(true_geno_left, cross.all_true_geno[0], rec_frac[pos]);
+        beta[il][pos] = beta[first][pos+1] +
+          cross.step(true_geno_left, cross.all_true_geno[first], rec_frac[pos], is_X_chr, is_female, cross_direction);
       else
-        beta[il][pos] = beta[0][pos+1] +
-          cross.step(true_geno_left, cross.all_true_geno[0], rec_frac[pos]) +
-          cross.emit(genotypes[marker_map[pos+1].id], cross.all_true_geno[0], error_prob);
+        beta[il][pos] = beta[first][pos+1] +
+          cross.step(true_geno_left, cross.all_true_geno[first], rec_frac[pos], is_X_chr, is_female, cross_direction) +
+          cross.emit(genotypes[marker_map[pos+1].id], cross.all_true_geno[first], error_prob, is_X_chr, is_female, cross_direction);
 
-      foreach(ir; 1 .. cross.all_true_geno.length) {
+      foreach(ir; possible_true_geno_index[1 .. possible_true_geno_index.length]) {
         auto true_geno_right = cross.all_true_geno[ir];
         if(isPseudoMarker(marker_map[pos+1]))
           beta[il][pos] = addlog(beta[il][pos],
-                                beta[ir][pos+1] +
-                                cross.step(true_geno_left, true_geno_right, rec_frac[pos]));
+                                 beta[ir][pos+1] +
+                                 cross.step(true_geno_left, true_geno_right, rec_frac[pos], is_X_chr, is_female, cross_direction));
         else
           beta[il][pos] = addlog(beta[il][pos],
-                                beta[ir][pos+1] +
-                                cross.step(true_geno_left, true_geno_right, rec_frac[pos])+
-                                cross.emit(genotypes[marker_map[pos+1].id], true_geno_right, error_prob));
+                                 beta[ir][pos+1] +
+                                 cross.step(true_geno_left, true_geno_right, rec_frac[pos]) +
+                                 cross.emit(genotypes[marker_map[pos+1].id], true_geno_right, error_prob, is_X_chr, is_female, cross_direction));
      }
     }
   }
