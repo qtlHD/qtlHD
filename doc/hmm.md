@@ -3,7 +3,7 @@
 ## Introduction
 
 A key issue in QTL analysis is the handling of missing genotype
-information: either to consider positions between markers
+information, either to consider positions between markers
 (&ldquo;interval mapping&rdquo;) or to handle less-than-fully
 informative markers.
 
