@@ -45,7 +45,6 @@ bool isNA(T)(Phenotype!T phe) {
 bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] phenotype_matrix)
 {
   auto ret = new bool[phenotype_matrix.length];
-  ret[] = false;
   bool test(Phenotype!T[] ps) {
     return reduce!( (a,b) => a+isNA(b) )(0,ps) > 0 ;
   }
