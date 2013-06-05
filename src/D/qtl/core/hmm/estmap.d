@@ -14,17 +14,17 @@ import qtl.core.hmm.forwardbackward;
 import qtl.core.hmm.cross;
 
 // re-estimate inter-marker recombination fractions
-double[] estmap(T)(Cross cross,
-                   GenotypeCombinator[][] genotypes,
-                   bool is_X_chr,
-                   bool[] is_female,
-                   T[] cross_direction,
-                   Marker[] marker_map,
-                   double[] rec_frac,
-                   double error_prob,
-                   uint max_iterations,
-                   double tol,
-                   bool verbose)
+double[] estmap_template(T)(Cross cross,
+                            GenotypeCombinator[][] genotypes,
+                            bool is_X_chr,
+                            bool[] is_female,
+                            T[] cross_direction,
+                            Marker[] marker_map,
+                            double[] rec_frac,
+                            double error_prob,
+                            uint max_iterations,
+                            double tol,
+                            bool verbose)
 {
     if(marker_map.length != rec_frac.length+1)
       throw new Exception("no. markers in marker map doesn't match rec_frac length");
@@ -63,8 +63,8 @@ double[] estmap(T)(Cross cross,
       foreach(ind; 0..n_individuals) {
 
 	// forward and backward equations
-	alpha = forwardEquations(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
-	beta = backwardEquations(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
+	alpha = forwardEquations!T(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
+	beta = backwardEquations!T(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
 
         // possible genotypes for this individual, indices to all_true_geno
         auto possible_true_geno_index = crossPK.possible_geno_index(is_X_chr, is_female[ind], cross_direction[ind]);
@@ -142,7 +142,7 @@ double[] estmap(T)(Cross cross,
     double curloglik;
     foreach(ind; 0..n_individuals) {
 
-      alpha = forwardEquations(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
+      alpha = forwardEquations!T(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
       auto possible_true_geno_index = crossPK.possible_geno_index(is_X_chr, is_female[ind], cross_direction[ind]);
 
       auto curloglik_undef = true;
@@ -178,8 +178,46 @@ double[] estmap(Cross cross,
   auto is_female  = new bool[](genotypes.length);
   auto cross_direction = new bool[](genotypes.length);
 
-  return(estmap(cross, genotypes,
-                false, is_female, cross_direction,
-                marker_map, rec_frac, error_prob,
-                max_iterations, tol, verbose));
+  return(estmap_template!bool(cross, genotypes,
+                              false, is_female, cross_direction,
+                              marker_map, rec_frac, error_prob,
+                              max_iterations, tol, verbose));
+}
+
+// version with boolean vector for cross direction
+double[] estmap(Cross cross,
+                GenotypeCombinator[][] genotypes,
+                bool is_X_chr,
+                bool[] is_female,
+                bool[] cross_direction,
+                Marker[] marker_map,
+                double[] rec_frac,
+                double error_prob,
+                uint max_iterations,
+                double tol,
+                bool verbose)
+{
+  return(estmap_template!bool(cross, genotypes,
+                              false, is_female, cross_direction,
+                              marker_map, rec_frac, error_prob,
+                              max_iterations, tol, verbose));
+}
+
+// version with int vector for cross direction
+double[] estmap(Cross cross,
+                GenotypeCombinator[][] genotypes,
+                bool is_X_chr,
+                bool[] is_female,
+                int[] cross_direction,
+                Marker[] marker_map,
+                double[] rec_frac,
+                double error_prob,
+                uint max_iterations,
+                double tol,
+                bool verbose)
+{
+  return(estmap_template!int(cross, genotypes,
+                             false, is_female, cross_direction,
+                             marker_map, rec_frac, error_prob,
+                             max_iterations, tol, verbose));
 }

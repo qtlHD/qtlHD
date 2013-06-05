@@ -14,14 +14,14 @@ import qtl.core.hmm.forwardbackward;
 import qtl.core.hmm.cross;
 
 // calculate QTL genotype probabilities
-double[][][] calc_geno_prob(T)(Cross cross,
-                               GenotypeCombinator[][] genotypes,
-                               bool is_X_chr,
-                               bool[] is_female,
-                               T[] cross_direction,
-                               Marker[] marker_map,
-                               double[] rec_frac,
-                               double error_prob)
+double[][][] calc_geno_prob_template(T)(Cross cross,
+                                        GenotypeCombinator[][] genotypes,
+                                        bool is_X_chr,
+                                        bool[] is_female,
+                                        T[] cross_direction,
+                                        Marker[] marker_map,
+                                        double[] rec_frac,
+                                        double error_prob)
 {
   if(marker_map.length != rec_frac.length+1) {
     throw new Exception("no. positions in marker map doesn't match rec_frac length");
@@ -40,15 +40,15 @@ double[][][] calc_geno_prob(T)(Cross cross,
   size_t n_individuals = genotypes.length;
   size_t n_positions = marker_map.length;
 
-  auto all_true_geno = cross.all_true.geno(is_X_chr);
+  auto all_true_geno = cross.all_true_geno(is_X_chr);
 
   auto alpha = new double[][](all_true_geno.length, n_positions);
   auto beta = new double[][](all_true_geno.length, n_positions);
   auto genoprobs = new double[][][](n_positions, n_individuals, all_true_geno.length);
 
   foreach(ind; 0..n_individuals) {
-    alpha = forwardEquations(cross, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, rec_frac, error_prob);
-    beta = backwardEquations(cross, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, rec_frac, error_prob);
+    alpha = forwardEquations!T(cross, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, rec_frac, error_prob);
+    beta = backwardEquations!T(cross, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, rec_frac, error_prob);
 
     // calculate genotype probabilities
     double sum_at_pos;
@@ -79,7 +79,37 @@ double[][][] calc_geno_prob(Cross cross,
   auto is_female  = new bool[](genotypes.length);
   auto cross_direction = new bool[](genotypes.length);
 
-  return(calc_geno_prob(cross, genotypes, 
-                        false, is_female, cross_direction,
-                        marker_map, rec_frac, error_prob));
+  return(calc_geno_prob_template!bool(cross, genotypes,
+                                      false, is_female, cross_direction,
+                                      marker_map, rec_frac, error_prob));
+}
+
+// version with bool vector for cross direction
+double[][][] calc_geno_prob(Cross cross,
+                            GenotypeCombinator[][] genotypes,
+                            bool is_X_chr,
+                            bool[] is_female,
+                            bool[] cross_direction,
+                            Marker[] marker_map,
+                            double[] rec_frac,
+                            double error_prob)
+{
+  return(calc_geno_prob_template!bool(cross, genotypes,
+                                      false, is_female, cross_direction,
+                                      marker_map, rec_frac, error_prob));
+}
+
+// version for int vector for cross direction
+double[][][] calc_geno_prob(Cross cross,
+                            GenotypeCombinator[][] genotypes,
+                            bool is_X_chr,
+                            bool[] is_female,
+                            int[] cross_direction,
+                            Marker[] marker_map,
+                            double[] rec_frac,
+                            double error_prob)
+{
+  return(calc_geno_prob_template!int(cross, genotypes,
+                                     false, is_female, cross_direction,
+                                     marker_map, rec_frac, error_prob));
 }
