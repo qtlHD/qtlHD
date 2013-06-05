@@ -142,7 +142,7 @@ mixin RealizePhenotypeMatrix!double;
 Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) 
   load_csv(string fn) {
   PhenotypeMatrix p;
-  // FIXME: we force an F2 here
+  // FIXME: note we currently force an F2 here
   auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
   // Convert individuals to string[]
   auto iter = new ListIter!Individuals(data.individuals);
