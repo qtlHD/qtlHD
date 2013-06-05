@@ -30,3 +30,19 @@ Phenotype!T set_phenotype(T)(in string s) {
 bool isNA(T)(Phenotype!T phe) { 
   return(phe.value == PHENOTYPE_NA);
 }
+
+// return boolean vector indicating whether any
+bool[] is_any_phenotype_missing(T)(Phenotype!T[][] pheno)
+{
+  auto ret = new bool[](pheno.length);
+  foreach(i; 0..pheno.length) {
+    ret[i] = false;
+    foreach(j; 0..pheno[i].length) {
+      if(isNA(pheno[i][j])) ret[i] = true;
+      break;
+    }
+  }
+  return ret;
+}
+
+

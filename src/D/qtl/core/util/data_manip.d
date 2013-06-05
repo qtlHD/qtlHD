@@ -13,20 +13,6 @@ import qtl.plugins.qtab.read_qtab;
 import std.typecons;
 import std.algorithm;
 
-// return boolean vector indicating whether any
-bool[] is_any_phenotype_missing(T)(Phenotype!T[][] pheno)
-{
-  auto ret = new bool[](pheno.length);
-  foreach(i; 0..pheno.length) {
-    ret[i] = false;
-    foreach(j; 0..pheno[i].length) {
-      if(isNA(pheno[i][j])) ret[i] = true;
-      break;
-    }
-  }
-  return ret;
-}
-
 // omit individuals from phenotype data
 Phenotype!T[][] omit_ind_from_phenotypes(T)(Phenotype!T[][] pheno, bool[] to_omit)
 {
