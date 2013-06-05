@@ -40,9 +40,9 @@ class Attribute {
 
 mixin template Identity()
 {
-  const uint id;            /// Unique identifier (maybe we don't need this as 
+  immutable uint id;        /// Unique identifier (maybe we don't need this as 
                             /// the memory address is also a unique number)
-  const string name;        /// Name
+  immutable string name;    /// Name
   this() { id = ID_UNKNOWN; name = NAME_UNKNOWN; }
   this(uint _id) { id = _id; name = to!string(_id); }
   this(string _name, uint _id = ID_UNKNOWN) { id = _id; name = _name; }
@@ -86,7 +86,19 @@ mixin template ActList(T) {
     list ~= item;
     return item;
   }
-}
+
+  /*
+  Individuals opOpAssign(string op)(string name) if (op == "~") {
+    list ~= new Individual(name);
+    return this;
+  }
+
+  Individuals opOpAssign(string op)(Individual ind) if (op == "~") {
+    // list ~= ind.dup;
+    return this;
+  }
+  */
+ }
 
 /**
  * Class for supporting Range iterators on classes that contain
@@ -117,6 +129,7 @@ class ListIter(T) {
     return cursor >= contained.list.length; 
   }
 }
+
 
 
 /** 

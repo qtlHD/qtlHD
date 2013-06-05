@@ -14,6 +14,7 @@ import std.string;
 import std.path;
 import std.typecons;
 import std.algorithm;
+import std.array;
 
 import qtl.core.primitives;
 import qtl.core.chromosome;
@@ -138,6 +139,7 @@ class ReadSimpleCSV(XType,ObservedXType) {
 
 mixin RealizePhenotypeMatrix!double;
 
+// template ToArray(T)() { }
 Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) load_csv(string fn) {
   Marker[] ms;
   PhenotypeMatrix p;
@@ -148,8 +150,9 @@ Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) l
   // P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
   // auto squares = map!(a => a * a)(chain(arr1, arr2));
   // Convert individuals to string[]
-  auto ilist = new ListIter!Individuals(data.individuals);
-  string[] i = std.array.array(map!(to!string)(map!(ind => ind.name)(ilist)));
+  auto iter = new ListIter!Individuals(data.individuals);
+  // string[] i = array(map!(to!string)(map!(ind => ind.name)(iter)));
+  string[] i = map!(ind => to!string(ind.name))(iter).array();
 
   // Turn the genotype matrix into a genotype combinator matrix
   auto gc = convert_to_combinator_matrix(g,observed);

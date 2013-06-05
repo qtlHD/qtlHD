@@ -13,22 +13,21 @@ import qtl.core.primitives;
 import std.algorithm; // to use sort()
 
 import std.stdio;
-// import std.contained;
 import std.typecons;
 
 class Individuals {
-  Individual[] list;
-  // mixin ActList!Individual;
+  mixin ActList!Individual;
+  /*
   Individuals opOpAssign(string op)(string name) if (op == "~") {
     list ~= new Individual(name);
     return this;
   }
+
   Individuals opOpAssign(string op)(Individual ind) if (op == "~") {
-    writeln(ind);
     // list ~= ind.dup;
     return this;
   }
- 
+  */
 }
 
 
