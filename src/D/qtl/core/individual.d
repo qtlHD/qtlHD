@@ -33,6 +33,7 @@ class Individuals {
   }
  
   @property auto front() {
+    writeln("Cursor",cursor);
     return list[cursor];
   }
  
@@ -40,7 +41,7 @@ class Individuals {
     cursor += 1;
   }
  
-  @property bool empty() { return false; }
+  @property bool empty() { return cursor >= list.length; }
 }
 
 
