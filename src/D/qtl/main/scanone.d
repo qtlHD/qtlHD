@@ -89,7 +89,7 @@ int main(string[] args) {
   Marker[] ms;
   Inds i;
   PhenotypeMatrix p; 
-  ObservedGenotypes o; 
+  ObservedGenotypes observed; 
   GenotypeMatrix g;
  
   switch(format) {
@@ -100,7 +100,7 @@ int main(string[] args) {
       ms = res[2];  // markers
       i  = res[3];  // individuals
       p  = res[4];  // phenotype matrix
-      o  = res[5];  // observed genotypes
+      observed  = res[5];  // observed genotypes
       g  = res[6];  // observed genotype matrix
       break;
     case "csv" : 
@@ -121,15 +121,16 @@ int main(string[] args) {
     writeln(format);
     writeln("* Symbol data");
     writeln(s);
-    writeln(o);
     writeln("* Individuals");
     writeln(i);
-    writeln("* Genotype data");
+    writeln("* Observed genotypes");
+    writeln(observed);
+    writeln("* Genotype data (partial)");
     writeln(g[0..3]);
-    writeln("* Phenotype data");
-    writeln(p);
-    writeln("* Marker data");
-    writeln(ms);
+    writeln("* Phenotype data (partial)");
+    writeln(p[0..3]);
+    writeln("* Marker data (partial)");
+    writeln(ms[0..3]);
   }
 
   // TODO: reduce missing phenotype data (not all individuals?)
