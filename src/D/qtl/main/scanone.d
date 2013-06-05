@@ -109,7 +109,7 @@ int main(string[] args) {
       ms = res[0];  // markers
       i  = res[1];  // individuals
       p  = res[2];  // phenotype matrix
-      auto g2 = res[3];
+      g  = res[4];
       break;
     default :
       throw new Exception("Unknown format "~format);
