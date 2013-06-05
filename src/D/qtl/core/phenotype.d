@@ -11,7 +11,6 @@ import std.string;
 import std.exception, std.path, std.file;
 import qtl.core.primitives;
 import qtl.core.phenotype;
-import qtl.core.genotype;
 
 import std.typecons;
 import std.algorithm : map;
@@ -64,23 +63,6 @@ Phenotype!T[][] omit_ind_from_phenotypes(T)(Phenotype!T[][] pheno, bool[] to_omi
   foreach(i; 0..to_omit.length) {
     if(!to_omit[i])
       ret ~= pheno[i];
-  }
-
-  return ret;
-}
-
-// omit individuals from genotype matrix
-GenotypeCombinator[][] omit_ind_from_genotypes(GenotypeCombinator[][] geno, bool[] to_omit)
-{
-  if(geno.length != to_omit.length)
-    throw new Exception("no. individuals in geno (" ~ to!string(geno.length) ~
-                        ") doesn't match length of to_omit (" ~ to!string(to_omit.length) ~ ")");
-
-  GenotypeCombinator[][] ret;
-
-  foreach(i; 0..to_omit.length) {
-    if(!to_omit[i])
-      ret ~= geno[i];
   }
 
   return ret;
