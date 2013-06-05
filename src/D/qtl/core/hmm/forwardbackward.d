@@ -33,7 +33,7 @@ body {
 
   // possible genotypes for this chromosome and then for this individual
   auto all_true_geno = cross.all_true_geno(is_X_chr);
-  auto possible_true_geno_index = cross.possible_geno_index(is_X_chr, is_female, cross_direction);
+  auto possible_true_geno_index = cross.possible_true_geno_index(is_X_chr, is_female, cross_direction);
   auto first = possible_true_geno_index[0];
 
   // to contain ln Pr(G_i = g | marker data)
@@ -47,7 +47,7 @@ body {
 
   // initialize alphas
   foreach(i; possible_true_geno_index) {
-    true_geno = all_true_geno[i];
+    auto true_geno = all_true_geno[i];
     if(isPseudoMarker(marker_map[0]))
       alpha[i][0] = cross.init(true_geno, is_X_chr, is_female, cross_direction);
     else
@@ -57,7 +57,7 @@ body {
 
   foreach(pos; 1 .. n_positions) {
     foreach(ir; possible_true_geno_index) {
-      true_geno_right = all_true_geno[ir];
+      auto true_geno_right = all_true_geno[ir];
       alpha[ir][pos] = alpha[first][pos-1] +
         cross.step(all_true_geno[first], true_geno_right, rec_frac[pos-1], is_X_chr, is_female, cross_direction);
 
@@ -96,7 +96,7 @@ body {
 
   // possible genotypes for this chromosome and then for this individual
   auto all_true_geno = cross.all_true_geno(is_X_chr);
-  auto possible_true_geno_index = cross.possible_geno_index(is_X_chr, is_female, cross_direction);
+  auto possible_true_geno_index = cross.possible_true_geno_index(is_X_chr, is_female, cross_direction);
   auto first = possible_true_geno_index[0];
 
   auto beta = new double[][](all_true_geno.length,n_positions);
@@ -115,7 +115,7 @@ body {
   // backward equations
   for(int pos = cast(int)n_positions-2; pos >= 0; pos--) {
     foreach(il; possible_true_geno_index) {
-      true_geno_left = all_true_geno[il];
+      auto true_geno_left = all_true_geno[il];
       if(isPseudoMarker(marker_map[pos+1]))
         beta[il][pos] = beta[first][pos+1] +
           cross.step(true_geno_left, all_true_geno[first], rec_frac[pos], is_X_chr, is_female, cross_direction);
