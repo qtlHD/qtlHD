@@ -47,7 +47,7 @@ bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] phenotype_matrix)
   bool test(Phenotype!T[] ps) {
     return reduce!( (a,b) => a+isNA(b) )(0,ps) > 0 ;
   }
-  return map!( ind_phenotypes => test(ind_phenotypes) )(phenotype_matrix).array();
+  return map!( ind_ps => test(ind_ps) )(phenotype_matrix).array();
 }
 
 // omit individuals from phenotype data
