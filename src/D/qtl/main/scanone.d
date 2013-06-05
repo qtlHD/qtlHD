@@ -89,7 +89,7 @@ int main(string[] args) {
   Marker[] ms;
   Inds i;
   PhenotypeMatrix p; 
-  ObservedGenotypes observed; 
+  ObservedGenotypes observed;  // unused
   GenotypeMatrix g;
  
   switch(format) {
