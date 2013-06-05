@@ -49,9 +49,8 @@ bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] pheno)
   ret[] = false;
   foreach(i; 0..pheno.length) {
     // walk all individuals
-    foreach(j, p_list; pheno[i]) {
-      // walk all phenotypes
-      if(isNA(pheno[i][j])) ret[i] = true;
+    foreach(p; pheno[i]) {
+      if(isNA(p)) ret[i] = true;
       break;
     }
   }
