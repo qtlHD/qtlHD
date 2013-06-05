@@ -165,7 +165,21 @@ double[] estmap(T)(Cross cross,
     return(cur_rec_frac);
 }
 
+// version for autosome with no cross direction information
+double[] estmap(Cross cross,
+                GenotypeCombinator[][] genotypes,
+                Marker[] marker_map,
+                double[] rec_frac,
+                double error_prob,
+                uint max_iterations,
+                double tol,
+                bool verbose)
+{
+  auto is_female  = new bool[](genotypes.length);
+  auto cross_direction = new bool[](genotypes.length);
 
-
-
-
+  return(estmap(cross, genotypes,
+                false, is_female, cross_direction,
+                marker_map, rec_frac, error_prob,
+                max_iterations, tol, verbose));
+}

@@ -68,3 +68,18 @@ double[][][] calc_geno_prob(T)(Cross cross,
   }
   return genoprobs;
 }
+
+// version for autosome with no cross direction information
+double[][][] calc_geno_prob(Cross cross,
+                            GenotypeCombinator[][] genotypes,
+                            Marker[] marker_map,
+                            double[] rec_frac,
+                            double error_prob)
+{
+  auto is_female  = new bool[](genotypes.length);
+  auto cross_direction = new bool[](genotypes.length);
+
+  return(calc_geno_prob(cross, genotypes, 
+                        false, is_female, cross_direction,
+                        marker_map, rec_frac, error_prob));
+}
