@@ -17,13 +17,13 @@ class Cross {
 
   TrueGenotype[] all_true_geno_A, all_true_geno_X;
 
-  abstract double init(T)(TrueGenotype truegen, bool is_X_chr, bool is_female, T cross_direction);
-  abstract double step(T)(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
-                          bool is_X_chr, bool is_female, T cross_direction);
-  abstract double emit(T)(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
-                          bool is_X_chr, bool is_female, T cross_direction);
-  abstract double nrec(T)(TrueGenotype truegen_left, TrueGenotype truegen_right,
-                          bool is_X_chr, bool is_female, T cross_direction);
+  abstract double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] cross_direction);
+  abstract double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+                          bool is_X_chr, bool is_female, int[] cross_direction);
+  abstract double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+                          bool is_X_chr, bool is_female, int[] cross_direction);
+  abstract double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
+                          bool is_X_chr, bool is_female, int[] cross_direction);
 
   TrueGenotype[] all_true_geno(bool is_X_chr)
   {
@@ -31,7 +31,7 @@ class Cross {
     else return all_true_geno_A;
   }
 
-  abstract size_t[] possible_true_geno_index(T)(bool is_X_chr, bool is_female, T cross_direction);
+  abstract size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, int[] cross_direction);
 }
 
 // the switch
@@ -80,7 +80,7 @@ class BC : Cross {
   }
 
   // indexes to possible true genotypes, by chromosome type and sex
-  size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, bool ignored_argument)
+  override size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, int[] ignored_argument)
   {
     if(is_X_chr) {
       if(is_female) return([0,1]);
@@ -94,7 +94,7 @@ class BC : Cross {
 
 
   // ln Pr(true genotype)
-  double init(TrueGenotype truegen, bool is_X_chr, bool is_female, bool ignored_argument)
+  override double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] ignored_argument)
   {
     if(is_X_chr) {
       if(is_female) return(initA(truegen));
@@ -126,8 +126,8 @@ class BC : Cross {
 
 
   // ln Pr(genotype at right marker | genotype at left marker)
-  double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
-              bool is_X_chr, bool is_female, bool ignored_argument)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+                       bool is_X_chr, bool is_female, int[] ignored_argument)
   {
     if(is_X_chr) {
       if(is_female) return(stepA(truegen_left, truegen_right, rec_frac));
@@ -183,8 +183,8 @@ class BC : Cross {
 
 
   // ln Pr(observed genotype | true genotype)
-  double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
-              bool is_X_chr, bool is_female, bool ignored_argument) // don't actually use X chr or sex here
+  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+                       bool is_X_chr, bool is_female, int[] ignored_argument) // don't actually use X chr or sex here
   {
     if(obsgen.list.length==0) // missing value
       return(0.0); // log(1.0)
@@ -198,15 +198,15 @@ class BC : Cross {
 
 
   // No. recombination events
-  double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
-              bool is_X_chr, bool is_female, bool ignored_argument)
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
+                       bool is_X_chr, bool is_female, int[] ignored_argument)
   {
     if(is_X_chr) {
       if(is_female) return(nrecA(truegen_left, truegen_right));
       else return(nrecXmale(truegen_left, truegen_right));
     }
     else {
-      return(nrecA(truegen_left, truegen_right, rec_frac));
+      return(nrecA(truegen_left, truegen_right));
     }
   }
 
@@ -270,8 +270,10 @@ class F2 : Cross {
   }
 
   // indexes to possible true genotypes, by chromosome type and sex
-  size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, bool is_forward_cross)
+  override size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, int[] cross_direction)
   {
+    bool is_forward_cross = (cross_direction[0] == 1);
+
     if(is_X_chr) {
       if(is_female) {
         if(is_forward_cross) return([0,1]);
@@ -285,8 +287,10 @@ class F2 : Cross {
   }
 
   // ln Pr(true genotype)
-  double init(TrueGenotype truegen, bool is_X_chr, bool is_female, bool is_forward_cross)
+  override double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] cross_direction)
   {
+    bool is_forward_cross = (cross_direction[0] == 1);
+
     if(is_X_chr) {
       if(is_female)
         return(initXfemale(truegen, is_forward_cross));
@@ -331,9 +335,11 @@ class F2 : Cross {
   }
 
   // ln Pr(genotype at right marker | genotype at left marker)
-  double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
-              bool is_X_chr, bool is_female, bool is_forward_cross)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+              bool is_X_chr, bool is_female, int[] cross_direction)
   {
+    bool is_forward_cross = (cross_direction[0] == 1);
+
     if(is_X_chr) {
       if(is_female) {
         if(is_forward_cross) return(stepXfemaleforw(truegen_left, truegen_right, rec_frac));
@@ -342,37 +348,6 @@ class F2 : Cross {
       else return(stepXmale(truegen_left, truegen_right, rec_frac));
     }
     else return(stepA(truegen_left, truegen_right, rec_frac));
-  }
-
-  double stepA(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
-  {
-    alias all_true_geno_A atg;
-
-    if(truegen_left==atg[0]) {
-      if(truegen_right==atg[0]) // A -> A
-        return(2.0*log(1.0-rec_frac));
-      if(truegen_right==atg[1]) // A -> H
-        return(LN2 + log(1.0-rec_frac) + log(rec_frac));
-      if(truegen_right==atg[2]) // A -> B
-        return(2.0*log(rec_frac));
-    }
-    else if(truegen_left == atg[1]) {
-      if(truegen_right==atg[0] || // H -> A
-         truegen_right==atg[2]) // H -> B
-        return(log(rec_frac) + log(1.0-rec_frac));
-      if(truegen_right==atg[1]) // H -> H
-        return(log((1.0-rec_frac)^^2 + rec_frac^^2));
-    }
-    else if(truegen_left == atg[2]) {
-      if(truegen_right==atg[0]) // B -> A
-        return(2.0*log(rec_frac));
-      if(truegen_right==atg[1]) // B -> H
-        return(LN2 + log(1.0-rec_frac) + log(rec_frac));
-      if(truegen_right==atg[2]) // B -> B
-        return(2.0*log(1.0-rec_frac));
-    }
-
-    throw new Exception("inputs not among the possible true genotypes");
   }
 
   double stepA(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
@@ -467,9 +442,10 @@ class F2 : Cross {
   }
 
   // ln Pr(observed genotype | true genotype)
-  double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
-              bool is_X_chr, bool is_female, bool is_forward_cross)
+  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+              bool is_X_chr, bool is_female, int[] cross_direction)
   {
+    bool is_forward_cross = (cross_direction[0] == 1);
     auto n_obsgen = obsgen.list.length;
 
     if(n_obsgen==0) // missing value
@@ -490,8 +466,8 @@ class F2 : Cross {
   }
 
   // proportion of recombination events
-  double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
-              bool is_X_chr, bool is_female, bool forw_direction)
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
+              bool is_X_chr, bool is_female, int[] cross_direction)
   {
     throw new Exception("nrec undefined for cross type F2");
   }
@@ -510,8 +486,10 @@ class F2_phaseknown : F2 {
   }
 
   // indexes to possible true genotypes, by chromosome type and sex
-  override size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, bool is_forward_cross)
+  override size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, int[] cross_direction)
   {
+    bool is_forward_cross = (cross_direction[0] == 1);
+
     if(is_X_chr) {
       if(is_female) {
         if(is_forward_cross) return([0,1]);
@@ -525,8 +503,9 @@ class F2_phaseknown : F2 {
   }
 
   // ln Pr(true genotype)
-  override double init(TrueGenotype truegen, bool is_X_chr, bool is_female, bool is_forward_cross)
+  override double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] cross_direction)
   {
+    bool is_forward_cross = (cross_direction[0] == 1);
     if(is_X_chr) {
       if(is_female)
         return(initXfemale(truegen, is_forward_cross));
@@ -570,8 +549,9 @@ class F2_phaseknown : F2 {
 
   // ln Pr(genotype at right marker | genotype at left marker)
   override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
-                       bool is_X_chr, bool is_female, bool is_forward_cross)
+                       bool is_X_chr, bool is_female, int[] cross_direction)
   {
+    bool is_forward_cross = (cross_direction[0] == 1);
     if(is_X_chr) {
       if(is_female) {
         if(is_forward_cross) return(stepXfemaleforw(truegen_left, truegen_right, rec_frac));
@@ -584,7 +564,7 @@ class F2_phaseknown : F2 {
 
   override double stepA(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
   {
-    alias all_true_geno atgpk;
+    alias all_true_geno_A atgpk;
 
     if(truegen_left==atgpk[0]) {
       if(truegen_right==atgpk[0]) // AA -> AA
@@ -687,8 +667,10 @@ class F2_phaseknown : F2 {
 
   // proportion of recombination events
   override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
-                       bool is_X_chr, bool is_female, bool is_forward_cross)
+                       bool is_X_chr, bool is_female, int[] cross_direction)
   {
+    bool is_forward_cross = (cross_direction[0] == 1);
+
     if(is_X_chr) {
       if(is_female) {
         if(is_forward_cross) return(nrecXfemaleforw(truegen_left, truegen_right));
