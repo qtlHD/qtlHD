@@ -1,5 +1,7 @@
 /**
  * Phenotype module
+ *
+ * PhenotypeMatrix holds phenotypes (cols) against individuals (rows)
  */
 
 module qtl.core.phenotype;
@@ -14,6 +16,7 @@ import qtl.core.phenotype;
 
 import std.typecons;
 import std.algorithm : map;
+
 
 Phenotype!T set_phenotype(T)(in string s) {
   // writeln(s);
@@ -37,13 +40,16 @@ bool isNA(T)(Phenotype!T phe) {
   return(phe.value == PHENOTYPE_NA);
 }
 
-// return boolean vector indicating whether any
-bool[] is_any_phenotype_missing(T)(Phenotype!T[][] pheno)
+// return boolean vector of size individuals indicating whether a 
+// phenotype is missing (true)
+bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] pheno)
 {
   auto ret = new bool[](pheno.length);
   foreach(i; 0..pheno.length) {
+    // walk all individuals
     ret[i] = false;
     foreach(j; 0..pheno[i].length) {
+      // walk all columns
       if(isNA(pheno[i][j])) ret[i] = true;
       break;
     }

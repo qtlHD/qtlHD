@@ -132,7 +132,7 @@ int main(string[] args) {
   }
 
   // TODO: reduce missing phenotype data (not all individuals?)
-  auto ind_to_omit = is_any_phenotype_missing(p);
+  auto ind_to_omit = individuals_missing_a_phenotype(p);
   auto n_to_omit = count(ind_to_omit, true);
   writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
   auto pheno = omit_ind_from_phenotypes(p, ind_to_omit);
