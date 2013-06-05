@@ -33,9 +33,9 @@ double[][][] calc_geno_prob(T)(Cross cross,
       throw new Exception("rec_frac must be >= 0 and <= 0.5");
   }
   if(is_female.length != genotypes.length)
-    throw new Exception("is_female should be same length as genotypes")
+    throw new Exception("is_female should be same length as genotypes");
   if(cross_direction.length != genotypes.length)
-    throw new Exception("cross_direction should be same length as genotypes")
+    throw new Exception("cross_direction should be same length as genotypes");
 
   size_t n_individuals = genotypes.length;
   size_t n_positions = marker_map.length;

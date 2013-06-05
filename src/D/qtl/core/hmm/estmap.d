@@ -39,9 +39,9 @@ double[] estmap(T)(Cross cross,
     if(tol < 0)
       throw new Exception("tol >= 0");
     if(is_female.length != genotypes.length)
-      throw new Exception("is_female should be same length as genotypes")
-        if(cross_direction.length != genotypes.length)
-          throw new Exception("cross_direction should be same length as genotypes")
+      throw new Exception("is_female should be same length as genotypes");
+    if(cross_direction.length != genotypes.length)
+      throw new Exception("cross_direction should be same length as genotypes");
 
     auto crossPK = form_cross_phaseknown(cross);
 
