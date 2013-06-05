@@ -26,7 +26,6 @@ import qtl.core.hmm.cross;
 import qtl.core.hmm.calcgenoprob;
 import qtl.core.scanone.scanone_hk;
 import qtl.core.scanone.util;
-import qtl.core.util.data_manip;
 
 
 unittest {

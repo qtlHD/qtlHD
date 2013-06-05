@@ -16,7 +16,6 @@ import std.variant;
 import qtl.plugins.csv.read_csv;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.chromosome;
-import qtl.core.util.data_manip;
 import qtl.core.primitives;
 import qtl.core.marker;
 import qtl.core.genotype;
@@ -30,7 +29,6 @@ import qtl.core.hmm.cross;
 import qtl.core.hmm.calcgenoprob;
 import qtl.core.scanone.scanone_hk;
 import qtl.core.scanone.util;
-import qtl.core.util.data_manip;
 
 static string ver = import("VERSION");
 
