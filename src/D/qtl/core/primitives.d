@@ -88,6 +88,37 @@ mixin template ActList(T) {
   }
 }
 
+/**
+ * Class for supporting Range iterators on classes that contain
+ * a list (e.g. for using map!)
+ */
+
+class ListIter(T) {
+
+  uint cursor = 0;
+  T contained;
+
+  this (T container) {
+    contained = container;
+  }
+
+  @property auto front() {
+    // writeln("Access ",cursor);
+    return contained.list[cursor];
+  }
+ 
+  void popFront() {
+    // writeln("Cursor ",cursor);
+    cursor += 1;
+  }
+ 
+  @property bool empty() { 
+    // writeln("Cursor,len ",cursor,",",contained.list.length);
+    return cursor >= contained.list.length; 
+  }
+}
+
+
 /** 
  * The Marker struct is the most primitive representation of a marker, i.e.
  * the marker ID, the position, a reference to the marker name, and a reference

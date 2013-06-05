@@ -13,13 +13,10 @@ import qtl.core.primitives;
 import std.algorithm; // to use sort()
 
 import std.stdio;
-// import std.container;
+// import std.contained;
 import std.typecons;
 
-// FIXME: move cursor out of class
-
 class Individuals {
-  uint cursor = 0;
   Individual[] list;
   // mixin ActList!Individual;
   Individuals opOpAssign(string op)(string name) if (op == "~") {
@@ -32,16 +29,6 @@ class Individuals {
     return this;
   }
  
-  @property auto front() {
-    writeln("Cursor",cursor);
-    return list[cursor];
-  }
- 
-  void popFront() {
-    cursor += 1;
-  }
- 
-  @property bool empty() { return cursor >= list.length; }
 }
 
 

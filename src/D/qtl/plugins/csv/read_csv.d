@@ -148,7 +148,8 @@ Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) l
   // P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
   // auto squares = map!(a => a * a)(chain(arr1, arr2));
   // Convert individuals to string[]
-  string[] i = std.array.array(map!(to!string)(map!(ind => ind.name)(data.individuals)));
+  auto ilist = new ListIter!Individuals(data.individuals);
+  string[] i = std.array.array(map!(to!string)(map!(ind => ind.name)(ilist)));
 
   // Turn the genotype matrix into a genotype combinator matrix
   auto gc = convert_to_combinator_matrix(g,observed);
