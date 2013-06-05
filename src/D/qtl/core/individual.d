@@ -17,17 +17,6 @@ import std.typecons;
 
 class Individuals {
   mixin ActList!Individual;
-  /*
-  Individuals opOpAssign(string op)(string name) if (op == "~") {
-    list ~= new Individual(name);
-    return this;
-  }
-
-  Individuals opOpAssign(string op)(Individual ind) if (op == "~") {
-    // list ~= ind.dup;
-    return this;
-  }
-  */
 }
 
 
