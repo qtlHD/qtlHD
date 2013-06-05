@@ -16,7 +16,7 @@ import qtl.core.primitives;
 import qtl.core.phenotype;
 
 import std.typecons;
-import std.algorithm : map, reduce;
+import std.algorithm;
 
 Phenotype!T set_phenotype(T)(in string s) {
   // writeln(s);
@@ -24,7 +24,7 @@ Phenotype!T set_phenotype(T)(in string s) {
   if(s == "NA" || s == "-"){
     p.value = to!T(PHENOTYPE_NA);
   }else{
-    if(s.indexOf(".") != -1){  // FIXME: this should only be for floats
+    if(s.countUntil(".") != -1){  // FIXME: this should only be for floats
       p.value = to!T(s);
     }else{
       p.value = to!T(s~".0");
@@ -47,7 +47,7 @@ bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] phenotype_matrix)
   bool test(Phenotype!T[] ps) {
     return reduce!( (a,b) => a+isNA(b) )(0,ps) > 0 ;
   }
-  return map!( ind_ps => test(ind_ps) )(phenotype_matrix).array();
+  return map!( (a) { return test(a); } )(phenotype_matrix).array();
 }
 
 // omit individuals from phenotype data
