@@ -553,9 +553,6 @@ unittest {
  * containers.
  */
 
-// alias string[string] Location;
-alias string[] Inds;
-
 Tuple!(SymbolSettings, Founders, Marker[], Inds, PhenotypeMatrix, ObservedGenotypes, GenotypeMatrix) load_qtab(string[] fns) {
   SymbolSettings s;
   Founders f;

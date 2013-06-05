@@ -4,7 +4,9 @@ This is a somewhat gentle (we hope) introduction to data structures and
 programming qtlHD.  If you are a C coder, we believe the largest problem is
 templates (aka generics). The second largest problem is, probably, concepts of
 functional programming. As we tend to minimize OOP, we do not think we get into
-problems there.
+problems there. D is not an easy language, mostly because it is strictly typed.
+The strict typing adds initial work, and sometimes complexity, but helps to
+prevent mistakes later.
 
 First, we will run through some concepts by reading and writing qtab files. See
 also the 
@@ -48,14 +50,14 @@ assert(pheno[0][0].value == 118.317);
 ```
 
 please check this code. Is it clear what happens? read_qtab uses a
-Phenotype!double type (I grant the exclamation mark is a bit strange syntax).
+Phenotype!double type (the exclamation mark is D syntax for template expansion).
 Later we may implement a call with Phenotype!int, for example. That is the
 concept of generics/templates. The read_qtab!type function gets defined, where
 we set the parameter *type* at compile time. The exclamation type combination
 makes the implementation generic for a type. This is called 'generics', where
 Phenotype is a template, and double is the type. JAVA, Scala, C++ all have
 these types of templates. The only difference is that D uses an exclamation
-mark to pass the template parameter(s).
+mark as syntax to pass the template parameter(s).
 
 In the function read_qtab you can see Phenotype!double is used as a
 matrix of values (`P[][]`). The phenotypes get parsed in the data file section
@@ -267,7 +269,7 @@ At this stage you should know how to use the phenotype and genotype matrices.
 The final piece of the QTL mapping puzzle is the marker map. An example can be found
 [here](https://github.com/pjotrp/qtlHD/blob/master/test/data/regression/test_marker_map.qtab). This
 a marker consists of a name, a chromosome name, and a position on that chromosome. A 
-marker info is defined in primitives.d (unsurprisingly) as 
+marker info is defined in primitives.d
 
 ```D
 mixin template MarkerInfo() {
@@ -352,4 +354,4 @@ the parsers. It maybe we reduce the code repetition later (DRY).
 
 More to follow...
 
-Copyright (C) 2012 Pjotr Prins <pjotr.prins@thebird.nl> 
+Copyright (C) 2012-2013 Pjotr Prins <pjotr.prins@thebird.nl> 

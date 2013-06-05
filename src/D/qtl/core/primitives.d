@@ -40,9 +40,9 @@ class Attribute {
 
 mixin template Identity()
 {
-  const uint id;            /// Unique identifier (maybe we don't need this as 
+  immutable uint id;        /// Unique identifier (maybe we don't need this as 
                             /// the memory address is also a unique number)
-  const string name;        /// Name
+  immutable string name;    /// Name
   this() { id = ID_UNKNOWN; name = NAME_UNKNOWN; }
   this(uint _id) { id = _id; name = to!string(_id); }
   this(string _name, uint _id = ID_UNKNOWN) { id = _id; name = _name; }
@@ -66,7 +66,7 @@ mixin template MarkerInfo() {
 
 /**
  * Mixing in ActList will create a list of T, and turn the class into an
- * iterator
+ * iterator for foreach
  */
 
 mixin template ActList(T) {
@@ -81,11 +81,56 @@ mixin template ActList(T) {
     }
     return 0;
   }
+
   T add(T item) { 
     list ~= item;
     return item;
   }
+
+  /*
+  Individuals opOpAssign(string op)(string name) if (op == "~") {
+    list ~= new Individual(name);
+    return this;
+  }
+
+  Individuals opOpAssign(string op)(Individual ind) if (op == "~") {
+    // list ~= ind.dup;
+    return this;
+  }
+  */
+ }
+
+/**
+ * Class for supporting Range iterators on classes that contain
+ * a list (e.g. for using map!)
+ */
+
+class ListIter(T) {
+
+  uint cursor = 0;
+  T contained;
+
+  this (T container) {
+    contained = container;
+  }
+
+  @property auto front() {
+    // writeln("Access ",cursor);
+    return contained.list[cursor];
+  }
+ 
+  void popFront() {
+    // writeln("Cursor ",cursor);
+    cursor += 1;
+  }
+ 
+  @property bool empty() { 
+    // writeln("Cursor,len ",cursor,",",contained.list.length);
+    return cursor >= contained.list.length; 
+  }
 }
+
+
 
 /** 
  * The Marker struct is the most primitive representation of a marker, i.e.
@@ -311,6 +356,7 @@ class Individual {
   /// See also Markers!M and chromosome.d to 
 }
 
+alias string[] Inds;
 
 @property M[] list(M)(M[] ms) { return ms; };
 
@@ -354,3 +400,4 @@ unittest {
   m2.attrib_list = new Attribute[1];
   PseudoMarker pm1 = new PseudoMarker(4.7,"pm1",3);
 }
+

@@ -11,10 +11,11 @@ import std.algorithm;
 import std.math;
 import std.container;
 import std.typecons;
+import std.variant;
 
+import qtl.plugins.csv.read_csv;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.chromosome;
-import qtl.core.util.data_manip;
 import qtl.core.primitives;
 import qtl.core.marker;
 import qtl.core.genotype;
@@ -28,26 +29,33 @@ import qtl.core.hmm.cross;
 import qtl.core.hmm.calcgenoprob;
 import qtl.core.scanone.scanone_hk;
 import qtl.core.scanone.util;
-import qtl.core.util.data_manip;
-
-
 
 static string ver = import("VERSION");
 
-string copyright = "; qtlHD project (c) 2012";
+string credits = "Karl W. Broman, Pjotr Prins and Danny Arends";
+string copyright = "; qtlHD project (c) 2012-2013";
 string usage = "
   usage: scanone [options] inputfile(s)
 
   options:
 
+    --format          qtab|csv (default qtab)
+
+  other options:
+
     -v --verbosity    Set verbosity level (default 1)
     -d --debug        Set debug message level (default 0)
+    --credits         Show list of contributors
 
   examples:
 
-    Execute scanone with the listeria dataset
+    Execute scanone with the listeria dataset, the csv version
 
-      ./scanone -v 1 -d 3 ../../test/data/input/listeria_qtab/listeria_symbol.qtab ../../test/data/input/listeria_qtab/listeria_founder.qtab ../../test/data/input/listeria_qtab/listeria_marker_map.qtab ../../test/data/input/listeria_qtab/listeria_genotype.qtab ../../test/data/input/listeria_qtab/listeria_phenotype.qtab
+      ./scanone --format csv ../../test/data/input/listeria.csv
+
+    the qtab version
+
+      ./scanone --format qtab ../../test/data/input/listeria_qtab/listeria_symbol.qtab ../../test/data/input/listeria_qtab/listeria_founder.qtab ../../test/data/input/listeria_qtab/listeria_marker_map.qtab ../../test/data/input/listeria_qtab/listeria_genotype.qtab ../../test/data/input/listeria_qtab/listeria_phenotype.qtab
 ";
 
 int main(string[] args) {
@@ -56,38 +64,71 @@ int main(string[] args) {
     writeln(usage);
     return 0;
   }
-  writeln(args);
   uint verbosity = 1;
   uint debug_level = 0;
+  bool contributors = false;
+  string format = "qtab";
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
-               "d|debug", (string o, string d) { debug_level = to!int(d); }
+               "d|debug", (string o, string d) { debug_level = to!int(d); },
+               "format", (string o, string s) { format = s; },
+               "credits", (string o) { contributors = true; }
   );
 
+  if (debug_level > 0) writeln(args);
+  if (contributors) {
+    writeln("  by ",credits);
+    return 1;
+  }
   writeln("Verbosity: ",verbosity);
   writeln("Debug level: ",debug_level);
-  // Load all information into data structures, basically following
-  // test/scanone/test_scanone_f2.d
-  auto res = load_qtab(args[1..$]);
-  auto s  = res[0];
-  auto f  = res[1];
-  auto ms = res[2];
-  auto i  = res[3];
-  auto p  = res[4];
-  auto o  = res[5];
-  auto g  = res[6]; // genotype combinator matrix
+
+  SymbolSettings s;
+  Founders f;
+  Marker[] ms;
+  Inds i;
+  PhenotypeMatrix p; 
+  ObservedGenotypes observed;  // unused
+  GenotypeMatrix g;
+ 
+  switch(format) {
+    case "qtab" :
+      auto res = load_qtab(args[1..$]);
+      s  = res[0];  // symbols
+      f  = res[1];  // founder format (contains Cross information)
+      ms = res[2];  // markers
+      i  = res[3];  // individuals
+      p  = res[4];  // phenotype matrix
+      observed  = res[5];  // observed genotypes
+      g  = res[6];  // observed genotype matrix
+      break;
+    case "csv" : 
+      auto res = load_csv(args[1]);
+      f["Cross"] = "F2";
+      ms = res[0];  // markers
+      i  = res[1];  // individuals
+      p  = res[2];  // phenotype matrix
+      g  = res[4];
+      break;
+    default :
+      throw new Exception("Unknown format "~format);
+  }
+  
 
   if (debug_level > 2) {
+    writeln("* Format");
+    writeln(format);
     writeln("* Symbol data");
     writeln(s);
-    writeln(o);
     writeln("* Individuals");
     writeln(i);
-    writeln("* Genotype data");
+    writeln("* Observed genotypes");
+    writeln(observed);
+    writeln("* Genotype data (partial)");
     writeln(g[0..3]);
-    writeln("* Phenotype data");
-    writeln(p);
-    writeln("* Marker data");
-    writeln(ms);
+    writeln("* Phenotype data (partial)");
+    writeln(p[0..3]);
+    writeln("* Marker data (partial)");
+    writeln(ms[0..3]);
   }
 
   // TODO: reduce missing phenotype data (not all individuals?)

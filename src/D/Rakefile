@@ -55,6 +55,7 @@ if windows? then
 lapack_dfiles += Dir.glob("./arch/*.d") + Dir.glob("./qtl/plugins/renv/*.d")
 end
 csv_dfiles = Dir.glob("./qtl/plugins/csv/*.d")
+test_csv_dfiles = Dir.glob("./test/qtl/plugins/csv/*.d")
 csvr_dfiles = Dir.glob("./qtl/plugins/csvr/*.d") + [ './qtl/core/mqm/matrix.d' ]
 qtab_read_dfiles = ["./qtl/plugins/qtab/read_qtab.d"]
 qtab_write_dfiles = ["./qtl/plugins/qtab/write_qtab.d"]
@@ -63,6 +64,7 @@ xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d") + csv_dfiles
 renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d")
 scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
 test_scanone_dfiles = Dir.glob("./test/scanone/*.d")
+test_core_dfiles = Dir.glob("./test/qtl/core/*.d")
 test_hmm_dfiles = Dir.glob("./test/hmm/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
 example_dfiles = Dir.glob("./example/*.d")
@@ -72,11 +74,15 @@ main_dfile = ["test/main.d"]
 test_simulate_dfiles = Dir.glob("./test/simulate/*.d")
 
 all_core_dfiles = core_dfiles + map_dfiles + hmm_dfiles + util_dfiles + qtab_read_dfiles 
-all_dfiles = all_core_dfiles +
+all_dfiles = (all_core_dfiles +
              csv_dfiles + csvr_dfiles + qtab_dfiles + xgap_dfiles +
-             deprecated_dfiles
+             deprecated_dfiles).uniq
+
+# for testing
+all_test_dfiles = all_dfiles + test_core_dfiles
+
 # for bin and lib builds:
-all_scanone_dfiles = all_core_dfiles + scanone_dfiles + simulate_dfiles + distributions_dfiles + lapack_dfiles
+all_scanone_dfiles = all_core_dfiles + scanone_dfiles + csv_dfiles + simulate_dfiles + distributions_dfiles + lapack_dfiles + example_dfiles
 
 def shlib_suffix
   if windows? then
@@ -124,7 +130,7 @@ lib_list = {
 }
 
 exe_list = {
-  'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles + example_dfiles + main_dfile },
+  'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles + example_dfiles + main_dfile + test_csv_dfiles },
   'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + example_dfiles + main_dfile },
   'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_read_dfiles + main_dfile },
   'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_write_dfiles + csv_dfiles + example_dfiles + main_dfile },
@@ -215,7 +221,7 @@ task :build => BINARIES
 desc "Create tags (exurberant tags)"
 task :tags => [] do
   print "Creating tags!"
-  list = all_dfiles
+  list = all_core_dfiles
   sh "dmd -c -Xftags.json #{list.join(' ')}"
   sh "rdmd ../../scripts/d2tags . > tags"
 end
@@ -234,8 +240,12 @@ end
 
 # ---- Unit tests
 
+desc "Test core"
+task :test_core => test_core_dfiles
+
 desc "Test XGAP"
 task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do
+
   sh "./write_xgapbin"
   sh "./read_xgapbin"
 end
@@ -254,5 +264,5 @@ task :test_csvr => [ :read_csvr ]
 
 desc "Test all"
 
-task :test_all => [:clean, :test_csv, :test_csvr, :test_qtab, :test_hmm, :test_lapack, :test_rlib, :test_scanone, :test_simulate]
+task :test_all => [:clean, :test_core, :test_csv, :test_csvr, :test_qtab, :test_hmm, :test_lapack, :test_rlib, :test_scanone, :test_simulate]
 
