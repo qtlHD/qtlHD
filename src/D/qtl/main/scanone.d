@@ -96,7 +96,7 @@ int main(string[] args) {
     case "qtab" :
       auto res = load_qtab(args[1..$]);
       s  = res[0];  // symbols
-      f  = res[1];  // founder (contains Cross information)
+      f  = res[1];  // founder format (contains Cross information)
       ms = res[2];  // markers
       i  = res[3];  // individuals
       p  = res[4];  // phenotype matrix
@@ -105,6 +105,11 @@ int main(string[] args) {
       break;
     case "csv" : 
       auto res = load_csv(args[1]);
+      f["Cross"] = "F2";
+      ms = res[0];  // markers
+      i  = res[1];  // individuals
+      p  = res[2];  // phenotype matrix
+      auto g2 = res[3];
       break;
     default :
       throw new Exception("Unknown format "~format);
