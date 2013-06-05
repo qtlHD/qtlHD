@@ -47,13 +47,7 @@ bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] phenotype_matrix)
   auto ret = new bool[phenotype_matrix.length];
   ret[] = false;
   foreach(i, ind_phenotypes; phenotype_matrix) {
-    auto num = reduce!( (a,b) => a+isNA(b) )(0,ind_phenotypes);
-    ret[i] = num > 0;
-    // writeln( reduce!( p => isNA(p) )(ind_phenotypes).array() );
-    // foreach(p; ind_pheno) {
-    //   if(isNA(p)) ret[i] = true;
-    //  break;
-    // }
+    ret[i] = reduce!( (a,b) => a+isNA(b) )(0,ind_phenotypes) > 0;
   }
   return ret;
 }
