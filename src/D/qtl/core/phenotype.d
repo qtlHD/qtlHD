@@ -9,6 +9,7 @@ module qtl.core.phenotype;
 import std.conv;
 import std.stdio;
 import std.string;
+import std.array;
 
 import std.exception, std.path, std.file;
 import qtl.core.primitives;
@@ -48,7 +49,7 @@ bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] pheno)
   ret[] = false;
   foreach(i; 0..pheno.length) {
     // walk all individuals
-    foreach(j; 0..pheno[i].length) {
+    foreach(j, p_list; pheno[i]) {
       // walk all phenotypes
       if(isNA(pheno[i][j])) ret[i] = true;
       break;
