@@ -17,8 +17,6 @@ class Cross {
 
   TrueGenotype[] all_true_geno_A, all_true_geno_X;
 
-  abstract TrueGenotype[] all_true_geno(bool is_X_chr);
-
   abstract double init(T)(TrueGenotype truegen, bool is_X_chr, bool is_female, T cross_direction);
   abstract double step(T)(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
                           bool is_X_chr, bool is_female, T cross_direction);
@@ -512,7 +510,7 @@ class F2_phaseknown : F2 {
   }
 
   // indexes to possible true genotypes, by chromosome type and sex
-  size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, bool is_forward_cross)
+  override size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, bool is_forward_cross)
   {
     if(is_X_chr) {
       if(is_female) {
@@ -527,7 +525,7 @@ class F2_phaseknown : F2 {
   }
 
   // ln Pr(true genotype)
-  double init(TrueGenotype truegen, bool is_X_chr, bool is_female, bool is_forward_cross)
+  override double init(TrueGenotype truegen, bool is_X_chr, bool is_female, bool is_forward_cross)
   {
     if(is_X_chr) {
       if(is_female)
@@ -538,7 +536,7 @@ class F2_phaseknown : F2 {
     else return(initA(truegen));
   }
 
-  double initA(TrueGenotype truegen)
+  override double initA(TrueGenotype truegen)
   {
     alias all_true_geno_A atg;
 
@@ -549,7 +547,7 @@ class F2_phaseknown : F2 {
     throw new Exception("truegen not among possible true genotypes");
   }
 
-  double initXmale(TrueGenotype truegen)
+  override double initXmale(TrueGenotype truegen)
   {
     alias all_true_geno_X atg;
 
@@ -559,7 +557,7 @@ class F2_phaseknown : F2 {
     throw new Exception("truegen not among possible true genotypes");
   }
 
-  double initXfemale(TrueGenotype truegen, bool is_forward_cross)
+  override double initXfemale(TrueGenotype truegen, bool is_forward_cross)
   {
     alias all_true_geno_X atg;
 
@@ -571,8 +569,8 @@ class F2_phaseknown : F2 {
   }
 
   // ln Pr(genotype at right marker | genotype at left marker)
-  double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
-              bool is_X_chr, bool is_female, bool is_forward_cross)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+                       bool is_X_chr, bool is_female, bool is_forward_cross)
   {
     if(is_X_chr) {
       if(is_female) {
@@ -584,7 +582,7 @@ class F2_phaseknown : F2 {
     else return(stepA(truegen_left, truegen_right, rec_frac));
   }
 
-  double stepA(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  override double stepA(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
   {
     alias all_true_geno atgpk;
 
@@ -627,7 +625,7 @@ class F2_phaseknown : F2 {
     throw new Exception("inputs not among the possible true genotypes");
   }
 
-  double stepXmale(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  override double stepXmale(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
   {
     alias all_true_geno_X atg;
 
@@ -647,7 +645,7 @@ class F2_phaseknown : F2 {
     throw new Exception("inputs not among the possible true genotypes");
   }
 
-  double stepXfemaleforw(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  override double stepXfemaleforw(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
   {
     alias all_true_geno_X atg;
 
@@ -667,7 +665,7 @@ class F2_phaseknown : F2 {
     throw new Exception("inputs not among the possible true genotypes");
   }
 
-  double stepXfemalerev(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  override double stepXfemalerev(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
   {
     alias all_true_geno_X atg;
 
@@ -688,8 +686,8 @@ class F2_phaseknown : F2 {
   }
 
   // proportion of recombination events
-  double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
-              bool is_X_chr, bool is_female, bool is_forward_cross)
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
+                       bool is_X_chr, bool is_female, bool is_forward_cross)
   {
     if(is_X_chr) {
       if(is_female) {
