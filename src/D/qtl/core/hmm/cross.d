@@ -272,7 +272,7 @@ class F2 : Cross {
   // indexes to possible true genotypes, by chromosome type and sex
   override size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    bool is_forward_cross = (cross_direction[0] == 1);
+    bool is_forward_cross = (cross_direction[0] == 0);
 
     if(is_X_chr) {
       if(is_female) {
@@ -289,7 +289,7 @@ class F2 : Cross {
   // ln Pr(true genotype)
   override double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    bool is_forward_cross = (cross_direction[0] == 1);
+    bool is_forward_cross = (cross_direction[0] == 0);
 
     if(is_X_chr) {
       if(is_female)
@@ -338,7 +338,7 @@ class F2 : Cross {
   override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
               bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    bool is_forward_cross = (cross_direction[0] == 1);
+    bool is_forward_cross = (cross_direction[0] == 0);
 
     if(is_X_chr) {
       if(is_female) {
@@ -445,7 +445,7 @@ class F2 : Cross {
   override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
                        bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    bool is_forward_cross = (cross_direction[0] == 1);
+    bool is_forward_cross = (cross_direction[0] == 0);
 
     if(is_X_chr) return(emitX(obsgen, truegen, error_prob));
     else return(emitA(obsgen, truegen, error_prob));
@@ -510,7 +510,7 @@ class F2_phaseknown : F2 {
   // indexes to possible true genotypes, by chromosome type and sex
   override size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    bool is_forward_cross = (cross_direction[0] == 1);
+    bool is_forward_cross = (cross_direction[0] == 0);
 
     if(is_X_chr) {
       if(is_female) {
@@ -527,7 +527,7 @@ class F2_phaseknown : F2 {
   // ln Pr(true genotype)
   override double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    bool is_forward_cross = (cross_direction[0] == 1);
+    bool is_forward_cross = (cross_direction[0] == 0);
     if(is_X_chr) {
       if(is_female)
         return(initXfemale(truegen, is_forward_cross));
@@ -573,7 +573,7 @@ class F2_phaseknown : F2 {
   override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
                        bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    bool is_forward_cross = (cross_direction[0] == 1);
+    bool is_forward_cross = (cross_direction[0] == 0);
     if(is_X_chr) {
       if(is_female) {
         if(is_forward_cross) return(stepXfemaleforw(truegen_left, truegen_right, rec_frac));
@@ -691,7 +691,7 @@ class F2_phaseknown : F2 {
   override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
                        bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    bool is_forward_cross = (cross_direction[0] == 1);
+    bool is_forward_cross = (cross_direction[0] == 0);
 
     if(is_X_chr) {
       if(is_female) {
