@@ -228,7 +228,7 @@ unittest {
   // Additive allele model
 
   // collapse genotype probabilities to allele probabilities
-  auto chr5_allele_probs = collapse_geno_prob_to_allele_prob(chr5probs, f2.all_true_geno);
+  auto chr5_allele_probs = collapse_geno_prob_to_allele_prob(chr5probs, f2.all_true_geno_A);
 
   // run scanone and calculate LOD scores
   rss = scanone_hk(chr5_allele_probs, pheno, addcovar, intcovar, weights);
@@ -242,7 +242,7 @@ unittest {
   }
 
   // collapse genotype probabilities to allele probabilities
-  auto chr13_allele_probs = collapse_geno_prob_to_allele_prob(chr13probs, f2.all_true_geno);
+  auto chr13_allele_probs = collapse_geno_prob_to_allele_prob(chr13probs, f2.all_true_geno_A);
 
   // run scanone and calculate LOD scores
   rss = scanone_hk(chr13_allele_probs, pheno, addcovar, intcovar, weights);
