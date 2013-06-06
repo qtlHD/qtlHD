@@ -70,6 +70,146 @@ unittest {
 
 
 unittest {
+  writeln("Unit test " ~ __FILE__ ~ " BC X chr female");
+
+  // unit test all_true_geno for BC, X chr, female
+  auto bc = form_cross("BC");
+  auto atg = bc.all_true_geno_X;
+  assert(atg.length == 3);
+  assert(atg[0] == new TrueGenotype(0,0));
+  assert(atg[1] == new TrueGenotype(1,0));
+  assert(atg[2] == new TrueGenotype(1,1));
+
+  // female X chr
+  auto is_X_chr = true;
+  auto is_female = true;
+  auto cross_direction = new int[](1);
+
+  // index to possible genotype
+  auto ptgi = bc.possible_true_geno_index(is_X_chr, is_female, cross_direction);
+  auto ptg = new TrueGenotype[](ptgi.length);
+  foreach(i, ptgival; ptgi)
+    ptg[i] = atg[ptgival];
+  assert(ptgi.length == 2);
+  assert(ptgi[0] == 0);
+  assert(ptgi[1] == 1);
+  assert(ptg.length == 2);
+  assert(ptg[0] == new TrueGenotype(0,0));
+  assert(ptg[1] == new TrueGenotype(1,0));
+
+  // unit test init for BC X chr female
+  foreach(gv; ptg)
+    assert(to!string(bc.init(gv, is_X_chr, is_female, cross_direction)) == to!string(log(0.5)));
+
+  // unit test step for BC X chr female
+  double rf = 0.01;
+
+  assert( to!string( bc.step(ptg[0], ptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log((1-rf)) ));
+  assert( to!string( bc.step(ptg[0], ptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(rf) ));
+
+  assert( to!string( bc.step(ptg[1], ptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(rf) ));
+  assert( to!string( bc.step(ptg[1], ptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log((1-rf)) ));
+
+  // unit test emit for BC X chr female
+  auto NA = new GenotypeCombinator("-");
+  auto A = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto H = new GenotypeCombinator("H");
+  H ~= new TrueGenotype(1,0);
+
+  double error_prob = 0.01;
+
+  assert(bc.emit(NA, ptg[0], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(bc.emit(NA, ptg[1], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(to!string(bc.emit(A, ptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(bc.emit(A, ptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+  assert(to!string(bc.emit(H, ptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(bc.emit(H, ptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+
+  // unit test nrec for BC X chr female
+  assert(bc.nrec(ptg[0], ptg[0], is_X_chr, is_female, cross_direction) == 0.0);
+  assert(bc.nrec(ptg[0], ptg[1], is_X_chr, is_female, cross_direction) == 1.0);
+
+  assert(bc.nrec(ptg[1], ptg[0], is_X_chr, is_female, cross_direction) == 1.0);
+  assert(bc.nrec(ptg[1], ptg[1], is_X_chr, is_female, cross_direction) == 0.0);
+}
+
+
+unittest {
+  writeln("Unit test " ~ __FILE__ ~ " BC X chr male");
+
+  // unit test all_true_geno for BC, X chr, male
+  auto bc = form_cross("BC");
+  auto atg = bc.all_true_geno_X;
+  assert(atg.length == 3);
+  assert(atg[0] == new TrueGenotype(0,0));
+  assert(atg[1] == new TrueGenotype(1,0));
+  assert(atg[2] == new TrueGenotype(1,1));
+
+  // male X chr
+  auto is_X_chr = true;
+  auto is_female = false;
+  auto cross_direction = new int[](1);
+
+  // index to possible genotype
+  auto ptgi = bc.possible_true_geno_index(is_X_chr, is_female, cross_direction);
+  auto ptg = new TrueGenotype[](ptgi.length);
+  foreach(i, ptgival; ptgi)
+    ptg[i] = atg[ptgival];
+  assert(ptgi.length == 2);
+  assert(ptgi[0] == 0);
+  assert(ptgi[1] == 2);
+  assert(ptg.length == 2);
+  assert(ptg[0] == new TrueGenotype(0,0));
+  assert(ptg[1] == new TrueGenotype(1,1));
+
+  // unit test init for BC X chr male
+  foreach(gv; ptg)
+    assert(to!string(bc.init(gv, is_X_chr, is_female, cross_direction)) == to!string(log(0.5)));
+
+  // unit test step for BC X chr male
+  double rf = 0.01;
+
+  assert( to!string( bc.step(ptg[0], ptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log((1-rf)) ));
+  assert( to!string( bc.step(ptg[0], ptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(rf) ));
+
+  assert( to!string( bc.step(ptg[1], ptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(rf) ));
+  assert( to!string( bc.step(ptg[1], ptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log((1-rf)) ));
+
+  // unit test emit for BC X chr male
+  auto NA = new GenotypeCombinator("-");
+  auto A = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto B = new GenotypeCombinator("B");
+  B ~= new TrueGenotype(1,1);
+
+  double error_prob = 0.01;
+
+  assert(bc.emit(NA, ptg[0], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(bc.emit(NA, ptg[1], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(to!string(bc.emit(A, ptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(bc.emit(A, ptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+  assert(to!string(bc.emit(B, ptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(bc.emit(B, ptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+
+  // unit test nrec for BC X chr male
+  assert(bc.nrec(ptg[0], ptg[0], is_X_chr, is_female, cross_direction) == 0.0);
+  assert(bc.nrec(ptg[0], ptg[1], is_X_chr, is_female, cross_direction) == 1.0);
+
+  assert(bc.nrec(ptg[1], ptg[0], is_X_chr, is_female, cross_direction) == 1.0);
+  assert(bc.nrec(ptg[1], ptg[1], is_X_chr, is_female, cross_direction) == 0.0);
+}
+
+
+unittest {
   writeln("Unit test " ~ __FILE__ ~ " F2");
 
   // unit test allTrueGeno for F2
