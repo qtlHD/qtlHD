@@ -806,3 +806,280 @@ class F2_phaseknown : F2 {
     throw new Exception("inputs not among the possible true genotypes");
   }
 }
+
+
+// RISIB (recombinant inbred lines by sibling mating)
+class RISIB : Cross {
+  this() {
+    cross_type = "RISIB";
+
+    // vector of true genotypes
+    auto g1 = new TrueGenotype(0,0);
+    auto g2 = new TrueGenotype(1,1);
+    all_true_geno_X = all_true_geno_A = [g1, g2];
+
+    phase_known_class_name = "RISIB";
+  }
+
+  // indexes to possible true genotypes, by chromosome type and sex
+  override size_t[] possible_true_geno_index(bool is_X_chr, bool ignored_argument, int[] cross_direction)
+  {
+    return([0, 1]);
+  }
+
+
+
+  // ln Pr(true genotype)
+  override double init(TrueGenotype truegen, bool is_X_chr, bool ignored_argument, int[] cross_direction)
+  {
+    if(is_X_chr) return(initX(truegen, cross_direction));
+    else return(initA(truegen));
+  }
+
+  double initA(TrueGenotype truegen)
+  {
+    if(truegen != all_true_geno_A[0] &&
+       truegen != all_true_geno_A[1])
+      throw new Exception("truegen must be 0,0 or 1,0");
+
+    return(-LN2);
+  }
+
+  double initX(TrueGenotype truegen, int[] cross_direction)
+  {
+    immutable bool forward_direction = (cross_direction[0] == 0); // AA female x BB male
+    immutable double LN3 = log(3.0);
+
+    if(forward_direction) { // original cross was AA female x BB male
+      if(truegen == all_true_geno_X[0]) { 
+        return(LN2 - LN3);
+      }
+      if(truegen == all_true_geno_X[1]) {
+        return(-LN3);
+      }
+    }
+    else { // original cross was AA female x BB male
+      if(truegen == all_true_geno_X[0]) { 
+        return(-LN3);
+      }
+      if(truegen == all_true_geno_X[1]) {
+        return(LN2 - LN3);
+      }
+    }
+
+    throw new Exception("truegen must be 0,0 or 1,1");
+  }
+
+
+
+
+  // ln Pr(genotype at right marker | genotype at left marker)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+                       bool is_X_chr, bool ignored_argument, int[] cross_direction)
+  {
+    if(is_X_chr) return(stepX(truegen_left, truegen_right, rec_frac, cross_direction));
+    else return(stepA(truegen_left, truegen_right, rec_frac));
+  }
+
+  double stepA(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_A atg;
+    immutable double R = 4.0*rec_frac/(1+6.0*rec_frac);
+    
+    if(truegen_left == atg[0]) {
+      if(truegen_right == atg[0]) // A -> A
+        return(log(1.0-R));
+      if(truegen_right == atg[1]) // A -> B
+        return(log(R));
+    }
+
+    if(truegen_left == atg[1]) {
+      if(truegen_right == atg[1]) // B -> B
+        return(log(1.0-R));
+      if(truegen_right == atg[0]) // B -> A
+        return(log(R));
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+  double stepX(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+               int[] cross_direction)
+  {
+    alias all_true_geno_X atg;
+    immutable bool forward_direction = (cross_direction[0] == 0); // AA female x BB male
+
+    if(forward_direction) {
+      if(truegen_left == atg[0]) {
+        if(truegen_right == atg[0]) // A -> A
+          return(log(1.0 + 2.0*rec_frac) - log(1.0 + 4.0*rec_frac));
+        if(truegen_right == atg[2]) // A -> B
+          return(log(2.0*rec_frac) - log(1.0 + 4.0*rec_frac));
+      }
+
+      if(truegen_left == atg[2]) {
+        if(truegen_right == atg[2]) // B -> B
+          return(-log(1.0 + 4.0*rec_frac));
+        if(truegen_right == atg[0]) // B -> A
+          return(log(4.0*rec_frac) - log(1.0 + 4.0*rec_frac));
+      }
+    }
+    else {
+      if(truegen_left == atg[0]) {
+        if(truegen_right == atg[0]) // A -> A
+          return(-log(1.0 + 4.0*rec_frac));
+        if(truegen_right == atg[2]) // A -> B
+          return(log(4.0*rec_frac) - log(1.0 + 4.0*rec_frac));
+      }
+
+      if(truegen_left == atg[2]) {
+        if(truegen_right == atg[2]) // B -> B
+          return(log(1.0 + 2.0*rec_frac) - log(1.0 + 4.0*rec_frac));
+        if(truegen_right == atg[0]) // B -> A
+          return(log(2.0*rec_frac) - log(1.0 + 4.0*rec_frac));
+      }
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+
+
+  // ln Pr(observed genotype | true genotype)
+  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+                       bool is_X_chr, bool ignored_argument, int[] cross_direction) // don't actually use X chr or direction here
+  {
+    if(obsgen.list.length==0) // missing value
+      return(0.0); // log(1.0)
+
+    if(obsgen.match(truegen)) // compatible with truegen?
+      return(log(1.0-error_prob));
+    else
+      return(log(error_prob));
+  }
+
+
+
+  // No. recombination events
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
+                       bool is_X_chr, bool ignored_argument, int[] cross_direction)
+  {
+    alias all_true_geno_A atg;
+
+    if(truegen_left == atg[0]) {
+      if(truegen_right == atg[0]) // A -> A
+        return(0.0);
+      if(truegen_right == atg[1]) // A -> B
+        return(1.0);
+    }
+
+    if(truegen_left == atg[1]) {
+      if(truegen_right == atg[1]) // B -> B
+        return(0.0);
+      if(truegen_right == atg[0]) // B -> A
+        return(1.0);
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+}
+
+
+
+// RISELF (recombinant inbred lines by selfing)
+class RISELF : Cross {
+  this() {
+    cross_type = "RISELF";
+
+    // vector of true genotypes
+    auto g1 = new TrueGenotype(0,0);
+    auto g2 = new TrueGenotype(1,1);
+    all_true_geno_X = all_true_geno_A = [g1, g2];
+
+    phase_known_class_name = "RISELF";
+  }
+
+  // indexes to possible true genotypes, by chromosome type and sex
+  override size_t[] possible_true_geno_index(bool ignored_arg1, bool ignored_arg2, int[] ignored_arg3)
+  {
+    return([0, 1]);
+  }
+
+
+
+  // ln Pr(true genotype)
+  override double init(TrueGenotype truegen, bool ignored_arg1, bool ignored_arg2, int[] ignored_arg3)
+  {
+    if(truegen != all_true_geno_A[0] &&
+       truegen != all_true_geno_A[1])
+      throw new Exception("truegen must be 0,0 or 1,0");
+
+    return(-LN2);
+  }
+
+
+
+  // ln Pr(genotype at right marker | genotype at left marker)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+                       bool ignored_arg1, bool ignored_arg2, int[] ignored_arg3)
+  {
+    alias all_true_geno_A atg;
+    immutable double R = 2.0*rec_frac/(1+2.0*rec_frac);
+    
+    if(truegen_left == atg[0]) {
+      if(truegen_right == atg[0]) // A -> A
+        return(log(1.0-R));
+      if(truegen_right == atg[1]) // A -> B
+        return(log(R));
+    }
+
+    if(truegen_left == atg[1]) {
+      if(truegen_right == atg[1]) // B -> B
+        return(log(1.0-R));
+      if(truegen_right == atg[0]) // B -> A
+        return(log(R));
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+  // ln Pr(observed genotype | true genotype)
+  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+                       bool ignored_arg1, bool ignored_arg2, int[] ignored_arg3)
+  {
+    if(obsgen.list.length==0) // missing value
+      return(0.0); // log(1.0)
+
+    if(obsgen.match(truegen)) // compatible with truegen?
+      return(log(1.0-error_prob));
+    else
+      return(log(error_prob));
+  }
+
+
+
+  // No. recombination events
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
+                       bool ignored_arg1, bool ignored_arg2, int[] ignored_arg3)
+  {
+    alias all_true_geno_A atg;
+
+    if(truegen_left == atg[0]) {
+      if(truegen_right == atg[0]) // A -> A
+        return(0.0);
+      if(truegen_right == atg[1]) // A -> B
+        return(1.0);
+    }
+
+    if(truegen_left == atg[1]) {
+      if(truegen_right == atg[1]) // B -> B
+        return(0.0);
+      if(truegen_right == atg[0]) // B -> A
+        return(1.0);
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+}
