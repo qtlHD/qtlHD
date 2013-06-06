@@ -87,8 +87,8 @@ unittest {
   // reading phenotypes
   auto pheno_fn = to!string(buildPath(dir,"hyper_noX_phenotype.qtab"));
   writeln("reading ",pheno_fn);
-  auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
-  Phenotype!double[][] pheno = p_res[0];
+  auto p_res = read_phenotype_qtab!(Phenotype)(pheno_fn);
+  Phenotype[][] pheno = p_res[0];
 
   assert(pheno.length == 250);
   foreach(p; pheno) assert(p.length == 2);

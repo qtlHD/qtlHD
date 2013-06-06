@@ -18,7 +18,7 @@ import qtl.core.phenotype;
 import std.typecons;
 import std.algorithm;
 
-immutable PHENOTYPE_NA = VALUE_NAN; 
+immutable PHENOTYPE_NA = double.max; 
 
 /**
  * AnyPhenotype is the most primitive representation of a phenotype. The type

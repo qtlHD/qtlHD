@@ -26,6 +26,7 @@ unittest {
   Phenotype[][] pheno = p_res[0];
 
   // find individuals with missing phenotypes
+  writeln(PHENOTYPE_NA,pheno);
   auto has_missing = individuals_missing_a_phenotype(pheno);
 
   // count them
