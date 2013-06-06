@@ -138,10 +138,11 @@ class ReadSimpleCSV(XType,CrossType) {
 }
 
 Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) 
-  load_csv(string fn) {
+  load_csv(string fn, ObservedGenotypes observed_genotypes) {
   PhenotypeMatrix p;
   // FIXME: note we currently force an F2 here
-  auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
+  // auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
+  auto data = new ReadSimpleCSV!(F2,ObservedGenotypes)(fn,observed_genotypes);
   // Convert individuals to string[]
   auto iter = new ListIter!Individuals(data.individuals);
   string[] inds = map!(ind => to!string(ind.name))(iter).array();

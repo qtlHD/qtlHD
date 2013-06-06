@@ -41,6 +41,12 @@ string usage = "
 
     --format          qtab|csv (default qtab)
 
+  options for CSV files 
+
+    --cross           f2|ril|bc (default f2)
+    --genotypes       identifiers (default for BC is 'A H')
+    --na              missing data identifiers (default '- NA')
+
   other options:
 
     -v --verbosity    Set verbosity level (default 1)
@@ -68,9 +74,16 @@ int main(string[] args) {
   uint debug_level = 0;
   bool contributors = false;
   string format = "qtab";
+  string cross = "F2";
+  string genotype_ids = "A H B D C";
+  string na_ids = "- NA";
+
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
                "d|debug", (string o, string d) { debug_level = to!int(d); },
+               "cross", (string o, string s) { cross = s.toUpper; },
                "format", (string o, string s) { format = s; },
+               "na", (string o, string s) { na_ids = s; },
+               "genotypes", (string o, string s) { genotype_ids = s; },
                "credits", (string o) { contributors = true; }
   );
 
@@ -102,12 +115,15 @@ int main(string[] args) {
       g  = res[6];  // observed genotype matrix
       break;
     case "csv" : 
-      auto res = load_csv(args[1]);
-      f["Cross"] = "F2";
+      auto observed_genotypes = parse_genotype_ids(cross,genotype_ids,na_ids);
+      writeln("Observed ",observed_genotypes.toEncodingString(),observed_genotypes);
+      auto res = load_csv(args[1], observed_genotypes);
+      f["Cross"] = cross;
       ms = res[0];  // markers
       i  = res[1];  // individuals
       p  = res[2];  // phenotype matrix
       g  = res[4];
+      observed = observed_genotypes;  // unused
       break;
     default :
       throw new Exception("Unknown format "~format);
