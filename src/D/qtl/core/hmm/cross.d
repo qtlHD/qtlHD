@@ -913,12 +913,12 @@ class RISIB : Cross {
       if(truegen_left == atg[0]) {
         if(truegen_right == atg[0]) // A -> A
           return(log(1.0 + 2.0*rec_frac) - log(1.0 + 4.0*rec_frac));
-        if(truegen_right == atg[2]) // A -> B
+        if(truegen_right == atg[1]) // A -> B
           return(log(2.0*rec_frac) - log(1.0 + 4.0*rec_frac));
       }
 
-      if(truegen_left == atg[2]) {
-        if(truegen_right == atg[2]) // B -> B
+      if(truegen_left == atg[1]) {
+        if(truegen_right == atg[1]) // B -> B
           return(-log(1.0 + 4.0*rec_frac));
         if(truegen_right == atg[0]) // B -> A
           return(log(4.0*rec_frac) - log(1.0 + 4.0*rec_frac));
@@ -928,12 +928,12 @@ class RISIB : Cross {
       if(truegen_left == atg[0]) {
         if(truegen_right == atg[0]) // A -> A
           return(-log(1.0 + 4.0*rec_frac));
-        if(truegen_right == atg[2]) // A -> B
+        if(truegen_right == atg[1]) // A -> B
           return(log(4.0*rec_frac) - log(1.0 + 4.0*rec_frac));
       }
 
-      if(truegen_left == atg[2]) {
-        if(truegen_right == atg[2]) // B -> B
+      if(truegen_left == atg[1]) {
+        if(truegen_right == atg[1]) // B -> B
           return(log(1.0 + 2.0*rec_frac) - log(1.0 + 4.0*rec_frac));
         if(truegen_right == atg[0]) // B -> A
           return(log(2.0*rec_frac) - log(1.0 + 4.0*rec_frac));
