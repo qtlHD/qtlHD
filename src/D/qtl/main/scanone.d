@@ -116,6 +116,7 @@ int main(string[] args) {
       break;
     case "csv" : 
       auto observed_genotypes = parse_genotype_ids(cross,genotype_ids,na_ids);
+      writeln("Observed ",observed_genotypes.toEncodingString(),observed_genotypes);
       auto res = load_csv(args[1], observed_genotypes);
       f["Cross"] = cross;
       ms = res[0];  // markers

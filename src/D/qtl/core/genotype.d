@@ -10,6 +10,7 @@ import std.string;
 import std.typecons;
 import std.exception;
 import std.algorithm;
+import std.array;
 import qtl.core.primitives;
 
 alias GenotypeCombinator[][] GenotypeMatrix; // = new double[][][](n_markers,n_ind);
@@ -183,10 +184,12 @@ class GenotypeCombinator {
   }
   this(string name, TrueGenotype g) {
     this.name = name;
+    add_encoding(name);
     add(g);
   }
   this(string name, TrueGenotype gs[]) {
     this.name = name;
+    add_encoding(name);
     foreach(g ; gs) {
       add(g);
     }
@@ -322,6 +325,10 @@ class ObservedGenotypes {
   }
   auto length() { return list.length; }
   override const string toString() { return to!string(list); }
+  const string toEncodingString() { 
+    auto a = map!"a.toEncodingString"(list).array();
+    return a.join("~") ~ toString();
+  }
 }
 
 /**
@@ -481,6 +488,7 @@ ObservedGenotypes parse_genotype_ids(string cross,string genotype_ids,string na_
     auto na_ids2 = split(na_ids," ");
     auto NA = new GenotypeCombinator(na_ids2,null);
     auto ids = split(genotype_ids," ");
+    writeln("IDS",ids);
     auto A  = new GenotypeCombinator(ids[0],aa);
     auto H  = new GenotypeCombinator(ids[1],[ab,ba]);
     auto B  = new GenotypeCombinator(ids[2],bb);
