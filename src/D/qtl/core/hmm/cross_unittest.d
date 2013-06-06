@@ -518,3 +518,117 @@ unittest {
   assert( f2PK.nrec(PKptg[1], PKptg[0], is_X_chr, is_female, cross_direction) == 1.0 );
   assert( f2PK.nrec(PKptg[1], PKptg[1], is_X_chr, is_female, cross_direction) == 0.0 );
 }
+
+unittest {
+  writeln("Unit test " ~ __FILE__ ~ " F2 X chr female forw");
+
+  // unit test allTrueGeno for F2 X chr female forw
+  auto f2 = form_cross("F2");
+  auto f2PK = form_cross_phaseknown(f2);
+  auto g = f2.all_true_geno_X;
+  auto gPK = f2PK.all_true_geno_X;
+
+  assert(g.length == 3);
+  assert(g[0] == new TrueGenotype(0,0));
+  assert(g[1] == new TrueGenotype(1,0));
+  assert(g[2] == new TrueGenotype(1,1));
+
+  // unit test allTrueGeno for F2 X chr female forw (phase-known)
+  assert(gPK.length == 4);
+  assert(gPK[0] == new TrueGenotype(0,0));
+  assert(gPK[1] == new TrueGenotype(1,0));
+  assert(gPK[2] == new TrueGenotype(0,1));
+  assert(gPK[3] == new TrueGenotype(1,1));
+
+  // X chr male
+  auto is_X_chr = true;
+  auto is_female = true;
+  auto cross_direction = [0];
+
+  // index to possible genotype
+  auto ptgi = f2.possible_true_geno_index(is_X_chr, is_female, cross_direction);
+  auto ptg = new TrueGenotype[](ptgi.length);
+  foreach(i, ptgival; ptgi)
+    ptg[i] = g[ptgival];
+  assert(ptgi.length == 2);
+  assert(ptgi[0] == 0);
+  assert(ptgi[1] == 1);
+  assert(ptg.length == 2);
+  assert(ptg[0] == new TrueGenotype(0,0));
+  assert(ptg[1] == new TrueGenotype(1,0));
+
+  auto PKptgi = f2PK.possible_true_geno_index(is_X_chr, is_female, cross_direction);
+  auto PKptg = new TrueGenotype[](PKptgi.length);
+  foreach(i, PKptgival; PKptgi)
+    PKptg[i] = gPK[PKptgival];
+  assert(PKptgi.length == 2);
+  assert(PKptgi[0] == 0);
+  assert(PKptgi[1] == 1);
+  assert(PKptg.length == 2);
+  assert(PKptg[0] == new TrueGenotype(0,0));
+  assert(PKptg[1] == new TrueGenotype(1,0));
+
+  // unit test init for F2 X chr female forw
+  foreach(i, gv; ptg)
+    assert(to!string(f2.init(gv, is_X_chr, is_female, cross_direction)) == to!string(log(0.5)));
+
+  // unit test init for F2 X chr female forw (phase-known)
+  foreach(gv; PKptg)
+    assert(to!string(f2PK.init(gv, is_X_chr, is_female, cross_direction)) == to!string(log(0.5)));
+
+  //  unit test step for F2 X chr female forw
+  double rf = 0.01;
+
+  assert( to!string( f2.step(ptg[0], ptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(1-rf) ));
+  assert( to!string( f2.step(ptg[0], ptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(rf) ));
+
+  assert( to!string( f2.step(ptg[1], ptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(rf) ));
+  assert( to!string( f2.step(ptg[1], ptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(1-rf) ));
+
+  // unit test step for F2 X chr female forw (phase-known)
+  assert( to!string( f2PK.step(PKptg[0], PKptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(1-rf) ));
+  assert( to!string( f2PK.step(PKptg[0], PKptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(rf) ));
+
+  assert( to!string( f2PK.step(PKptg[1], PKptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(rf) ));
+  assert( to!string( f2PK.step(PKptg[1], PKptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(1-rf) ));
+
+  // unit test emit for F2 X chr female forw
+  auto NA = new GenotypeCombinator("-");
+  auto A = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto H = new GenotypeCombinator("H");
+  H ~= new TrueGenotype(1,0);
+
+  double error_prob = 0.01;
+
+  assert(f2.emit(NA, ptg[0], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(f2.emit(NA, ptg[1], error_prob, is_X_chr, is_female, cross_direction) == 0);
+
+  assert(to!string(f2.emit(A, ptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(f2.emit(A, ptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+  assert(to!string(f2.emit(H, ptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+  assert(to!string(f2.emit(H, ptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+
+  assert(f2PK.emit(NA, PKptg[0], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(f2PK.emit(NA, PKptg[1], error_prob, is_X_chr, is_female, cross_direction) == 0);
+
+  assert(to!string(f2PK.emit(A, PKptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(f2PK.emit(A, PKptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+
+  assert(to!string(f2PK.emit(H, PKptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(f2PK.emit(H, PKptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+
+  // unit test nrec for F2 X chr female forw (phase-known)
+  assert( f2PK.nrec(PKptg[0], PKptg[0], is_X_chr, is_female, cross_direction) == 0.0 );
+  assert( f2PK.nrec(PKptg[0], PKptg[1], is_X_chr, is_female, cross_direction) == 1.0 );
+  assert( f2PK.nrec(PKptg[1], PKptg[0], is_X_chr, is_female, cross_direction) == 1.0 );
+  assert( f2PK.nrec(PKptg[1], PKptg[1], is_X_chr, is_female, cross_direction) == 0.0 );
+}
