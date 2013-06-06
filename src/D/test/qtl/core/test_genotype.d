@@ -1,4 +1,9 @@
 import std.typecons;
+import std.stdio;
+import std.string;
+import std.exception;
+import std.conv;
+import qtl.core.genotype;
 
 /**
  * Unit tests for TrueGenotype and GenotypeCombinators
