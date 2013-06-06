@@ -443,9 +443,16 @@ class F2 : Cross {
 
   // ln Pr(observed genotype | true genotype)
   override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
-              bool is_X_chr, bool is_female, int[] cross_direction)
+                       bool is_X_chr, bool is_female, int[] cross_direction)
   {
     bool is_forward_cross = (cross_direction[0] == 1);
+
+    if(is_X_chr) return(emitX(obsgen, truegen, error_prob));
+    else return(emitA(obsgen, truegen, error_prob));
+  }
+
+  double emitA(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+  {
     auto n_obsgen = obsgen.list.length;
 
     if(n_obsgen==0) // missing value
@@ -462,6 +469,21 @@ class F2 : Cross {
         return(log(error_prob));
       else // A, H, B cases
         return(log(error_prob/2.0));
+    }
+  }
+
+  double emitX(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+  {
+    auto n_obsgen = obsgen.list.length;
+
+    if(n_obsgen==0) // missing value
+      return(0.0); // log(1.0)
+
+    if(obsgen.match(truegen)) { // compatible with truegen
+      return(log(1.0-error_prob));
+    }
+    else {
+      return(log(error_prob));
     }
   }
 
