@@ -22,8 +22,8 @@ unittest {
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
   auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
   writeln("reading ",pheno_fn);
-  auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
-  Phenotype!double[][] pheno = p_res[0];
+  auto p_res = read_phenotype_qtab!(Phenotype)(pheno_fn);
+  Phenotype[][] pheno = p_res[0];
 
   // find individuals with missing phenotypes
   auto has_missing = individuals_missing_a_phenotype(pheno);
@@ -70,7 +70,7 @@ unittest {
 unittest {
   writeln("Test create_phenotype_batches");
 
-  Phenotype!double pheno[][];
+  Phenotype pheno[][];
   auto pdbl = [ ["0.0", "0.0", "0.0", "0.0", "0.0"],
                 ["0.0", "0.0", "0.0", "0.0", "0.0"],
                 [  "-", "0.0", "0.0",   "-", "0.0"],
@@ -86,7 +86,7 @@ unittest {
                 ["0.0", "0.0", "0.0", "0.0", "0.0"]];
 
   foreach(line; pdbl) {
-      Phenotype!double[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(line));
+      Phenotype[] ps = std.array.array(map!((a) {return set_phenotype(a);})(line));
       pheno ~= ps;
   }
 
