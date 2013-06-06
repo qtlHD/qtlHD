@@ -2,7 +2,7 @@
  * Unittests for cross.d
  **/
 
-module qtl.core.hmm.cross_unittest;
+module test.hmm.cross_unittest;
 
 import std.math, std.stdio, std.path;
 import std.exception;

@@ -222,7 +222,7 @@ task :build => BINARIES
 desc "Create tags (exurberant tags)"
 task :tags => [] do
   print "Creating tags!"
-  list = all_core_dfiles
+  list = all_core_dfiles + csv_dfiles 
   sh "dmd -c -Xftags.json #{list.join(' ')}"
   sh "rdmd ../../scripts/d2tags . > tags"
 end
