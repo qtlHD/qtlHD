@@ -137,8 +137,6 @@ class ReadSimpleCSV(XType,CrossType) {
   }
 }
 
-mixin RealizePhenotypeMatrix!double;
-
 Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) 
   load_csv(string fn) {
   PhenotypeMatrix p;
