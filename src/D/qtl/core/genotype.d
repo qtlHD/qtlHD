@@ -181,6 +181,16 @@ class GenotypeCombinator {
     if (code) add_encoding(code);
     this.phase_known = phase_known;
   }
+  this(string name, TrueGenotype g) {
+    this.name = name;
+    add(g);
+  }
+  this(string name, TrueGenotype gs[]) {
+    this.name = name;
+    foreach(g ; gs) {
+      add(g);
+    }
+  }
   // initialize a combinator with lists
   this(string names[], TrueGenotype gs[]) {
     this.name = names[0];
@@ -452,8 +462,37 @@ GenotypeCombinator[][] omit_ind_from_genotypes(GenotypeCombinator[][] geno, bool
   return ret;
 }
 
+/**
+ * Parse the genotype_id string and turn it into a combinator
+ *
+ *   F2  : "A H B D C" where D is HorB and C is HorA
+ *   BC  : "A H"
+ *   RIL : "A B"
+ *   NA  : "- NA"
+ */
 
 ObservedGenotypes parse_genotype_ids(string cross,string genotype_ids,string na_ids) {
-  return null;
+  auto symbols = new ObservedGenotypes();
+  if (cross == "F2") {
+    auto aa = new TrueGenotype(0,0);
+    auto bb = new TrueGenotype(1,1);
+    auto ab = new TrueGenotype(0,1);
+    auto ba = new TrueGenotype(1,0);
+    auto na_ids2 = split(na_ids," ");
+    auto NA = new GenotypeCombinator(na_ids2,null);
+    auto ids = split(genotype_ids," ");
+    auto A  = new GenotypeCombinator(ids[0],aa);
+    auto H  = new GenotypeCombinator(ids[1],[ab,ba]);
+    auto B  = new GenotypeCombinator(ids[2],bb);
+    auto D  = new GenotypeCombinator(ids[3],[ab,aa]);
+    auto C  = new GenotypeCombinator(ids[4],[ab,bb]);
+    symbols ~= NA;
+    symbols ~= A;
+    symbols ~= B;
+    symbols ~= H;
+    symbols ~= D;
+    symbols ~= C;
+  }
+  return symbols;
 }
 

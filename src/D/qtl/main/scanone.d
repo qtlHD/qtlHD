@@ -74,7 +74,7 @@ int main(string[] args) {
   uint debug_level = 0;
   bool contributors = false;
   string format = "qtab";
-  string cross = "f2";
+  string cross = "F2";
   string genotype_ids = "A H B D C";
   string na_ids = "- NA";
 
