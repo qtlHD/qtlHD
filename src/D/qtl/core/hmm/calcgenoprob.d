@@ -56,7 +56,7 @@ double[][][] calc_geno_prob(Cross cross,
     auto first = possible_true_geno_index[0];
     foreach(pos; 0..n_positions) {
       sum_at_pos = genoprobs[pos][ind][0] = alpha[first][pos] + beta[first][pos];
-      foreach(i; possible_true_geno_index[1 .. possible_true_geno_index.length]) {
+      foreach(i; possible_true_geno_index[1..$]) {
         auto true_geno = all_true_geno[i];
         genoprobs[pos][ind][i] = alpha[i][pos] + beta[i][pos];
         sum_at_pos = addlog(sum_at_pos, genoprobs[pos][ind][i]);

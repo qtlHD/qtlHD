@@ -61,7 +61,7 @@ body {
       alpha[ir][pos] = alpha[first][pos-1] +
         cross.step(all_true_geno[first], true_geno_right, rec_frac[pos-1], is_X_chr, is_female, cross_direction);
 
-      foreach(il; possible_true_geno_index[1..possible_true_geno_index.length]) {
+      foreach(il; possible_true_geno_index[1..$]) {
         auto true_geno_left = all_true_geno[il];
         alpha[ir][pos] = addlog(alpha[ir][pos],
                                 alpha[il][pos-1] +
@@ -124,7 +124,7 @@ body {
           cross.step(true_geno_left, all_true_geno[first], rec_frac[pos], is_X_chr, is_female, cross_direction) +
           cross.emit(genotypes[marker_map[pos+1].id], all_true_geno[first], error_prob, is_X_chr, is_female, cross_direction);
 
-      foreach(ir; possible_true_geno_index[1 .. possible_true_geno_index.length]) {
+      foreach(ir; possible_true_geno_index[1..$]) {
         auto true_geno_right = all_true_geno[ir];
         if(isPseudoMarker(marker_map[pos+1]))
           beta[il][pos] = addlog(beta[il][pos],
