@@ -57,7 +57,7 @@ unittest {
   auto cross_class = form_cross(founder_info["Cross"]);
 
   // omit individuals with missing phenotype
-  auto ind_to_omit = is_any_phenotype_missing(pheno);
+  auto ind_to_omit = individuals_missing_a_phenotype(pheno);
   auto n_to_omit = count(ind_to_omit, true);
   writeln(" --Omitting ", n_to_omit, " individuals with missing phenotype");
   genotype_matrix = omit_ind_from_genotypes(genotype_matrix, ind_to_omit);

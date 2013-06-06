@@ -321,7 +321,7 @@ struct Covariate(T) {
 
 /**
  * Chromosome is the most primitive representation of a chromosome.  Autosome
- * and sex chromosomes are known via their type. Since these chromosomes are
+ * and X chromosomes are known via their type. Since these chromosomes are
  * 'shared', or referenced, between markers, we use them by reference 
  * (i.e. a D class).
  *
@@ -332,14 +332,14 @@ struct Covariate(T) {
 class Chromosome {
   mixin Identity;
 
-  /// functions, such as is_sex, are defined in chromosome.d
+  /// functions, such as is_X_chr, are defined in chromosome.d
 }
 
 class Autosome : Chromosome {
   this(string _name, uint _id) { super(_name,_id); }
 }
 
-class SexChromosome : Chromosome {
+class Xchromosome : Chromosome {
   this(string _name, uint _id=ID_UNKNOWN) { super(_name,_id); };
 }
 

@@ -16,6 +16,9 @@ import qtl.core.hmm.cross;
 // calculate QTL genotype probabilities
 double[][][] calc_geno_prob(Cross cross,
                             GenotypeCombinator[][] genotypes,
+                            bool is_X_chr,
+                            bool[] is_female,
+                            int[][] cross_direction,
                             Marker[] marker_map,
                             double[] rec_frac,
                             double error_prob)
@@ -29,31 +32,54 @@ double[][][] calc_geno_prob(Cross cross,
     if(rf < 0 || rf > 0.5)
       throw new Exception("rec_frac must be >= 0 and <= 0.5");
   }
+  if(is_female.length != genotypes.length)
+    throw new Exception("is_female should be same length as genotypes");
+  if(cross_direction.length != genotypes.length)
+    throw new Exception("cross_direction should be same length as genotypes");
 
   size_t n_individuals = genotypes.length;
   size_t n_positions = marker_map.length;
 
-  auto alpha = new double[][](cross.all_true_geno.length, n_positions);
-  auto beta = new double[][](cross.all_true_geno.length, n_positions);
-  auto genoprobs = new double[][][](n_positions, n_individuals, cross.all_true_geno.length);
+  auto all_true_geno = cross.all_true_geno(is_X_chr);
+
+  auto alpha = new double[][](all_true_geno.length, n_positions);
+  auto beta = new double[][](all_true_geno.length, n_positions);
+  auto genoprobs = new double[][][](n_positions, n_individuals, all_true_geno.length);
 
   foreach(ind; 0..n_individuals) {
-    alpha = forwardEquations(cross, genotypes[ind], marker_map, rec_frac, error_prob);
-    beta = backwardEquations(cross, genotypes[ind], marker_map, rec_frac, error_prob);
+    alpha = forwardEquations(cross, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, rec_frac, error_prob);
+    beta = backwardEquations(cross, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, rec_frac, error_prob);
 
     // calculate genotype probabilities
     double sum_at_pos;
+    auto possible_true_geno_index = cross.possible_true_geno_index(is_X_chr, is_female[ind], cross_direction[ind]);
+    auto first = possible_true_geno_index[0];
     foreach(pos; 0..n_positions) {
-      sum_at_pos = genoprobs[pos][ind][0] = alpha[0][pos] + beta[0][pos];
-      foreach(i; 1 .. cross.all_true_geno.length) {
-        auto true_geno = cross.all_true_geno[i];
+      sum_at_pos = genoprobs[pos][ind][0] = alpha[first][pos] + beta[first][pos];
+      foreach(i; possible_true_geno_index[1..$]) {
+        auto true_geno = all_true_geno[i];
         genoprobs[pos][ind][i] = alpha[i][pos] + beta[i][pos];
         sum_at_pos = addlog(sum_at_pos, genoprobs[pos][ind][i]);
       }
-      foreach(i, true_geno; cross.all_true_geno) {
+      foreach(i; possible_true_geno_index) {
         genoprobs[pos][ind][i] = exp(genoprobs[pos][ind][i] - sum_at_pos);
       }
     }
   }
   return genoprobs;
+}
+
+// version for autosome with no cross direction information
+double[][][] calc_geno_prob(Cross cross,
+                            GenotypeCombinator[][] genotypes,
+                            Marker[] marker_map,
+                            double[] rec_frac,
+                            double error_prob)
+{
+  auto is_female  = new bool[](genotypes.length);
+  auto cross_direction = new int[][](genotypes.length, 1);
+
+  return(calc_geno_prob(cross, genotypes,
+                        false, is_female, cross_direction,
+                        marker_map, rec_frac, error_prob));
 }
