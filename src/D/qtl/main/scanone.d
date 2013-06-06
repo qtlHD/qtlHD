@@ -122,7 +122,7 @@ int main(string[] args) {
       i  = res[1];  // individuals
       p  = res[2];  // phenotype matrix
       g  = res[4];
-      o  = observed_genotypes;  // unused
+      observed = observed_genotypes;  // unused
       break;
     default :
       throw new Exception("Unknown format "~format);
