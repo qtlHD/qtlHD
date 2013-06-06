@@ -1,5 +1,7 @@
 /**
  * Phenotype module
+ *
+ * PhenotypeMatrix holds phenotypes (cols) against individuals (rows)
  */
 
 module qtl.core.phenotype;
@@ -7,14 +9,14 @@ module qtl.core.phenotype;
 import std.conv;
 import std.stdio;
 import std.string;
+import std.array;
 
 import std.exception, std.path, std.file;
 import qtl.core.primitives;
 import qtl.core.phenotype;
-import qtl.core.genotype;
 
 import std.typecons;
-import std.algorithm : map;
+import std.algorithm;
 
 Phenotype!T set_phenotype(T)(in string s) {
   // writeln(s);
@@ -22,7 +24,7 @@ Phenotype!T set_phenotype(T)(in string s) {
   if(s == "NA" || s == "-"){
     p.value = to!T(PHENOTYPE_NA);
   }else{
-    if(s.indexOf(".") != -1){  // FIXME: this should only be for floats
+    if(s.countUntil(".") != -1){  // FIXME: this should only be for floats
       p.value = to!T(s);
     }else{
       p.value = to!T(s~".0");
@@ -38,18 +40,11 @@ bool isNA(T)(Phenotype!T phe) {
   return(phe.value == PHENOTYPE_NA);
 }
 
-// return boolean vector indicating whether any
-bool[] is_any_phenotype_missing(T)(Phenotype!T[][] pheno)
+// return boolean vector of size individuals indicating whether a 
+// phenotype is missing (true)
+bool[] individuals_missing_a_phenotype(T)(Phenotype!T[][] phenotype_matrix)
 {
-  auto ret = new bool[](pheno.length);
-  foreach(i; 0..pheno.length) {
-    ret[i] = false;
-    foreach(j; 0..pheno[i].length) {
-      if(isNA(pheno[i][j])) ret[i] = true;
-      break;
-    }
-  }
-  return ret;
+  return map!( (ind_p) { return reduce!( (count,p) => count+isNA(p) )(0,ind_p) > 0 ; } )(phenotype_matrix).array();
 }
 
 // omit individuals from phenotype data
@@ -64,23 +59,6 @@ Phenotype!T[][] omit_ind_from_phenotypes(T)(Phenotype!T[][] pheno, bool[] to_omi
   foreach(i; 0..to_omit.length) {
     if(!to_omit[i])
       ret ~= pheno[i];
-  }
-
-  return ret;
-}
-
-// omit individuals from genotype matrix
-GenotypeCombinator[][] omit_ind_from_genotypes(GenotypeCombinator[][] geno, bool[] to_omit)
-{
-  if(geno.length != to_omit.length)
-    throw new Exception("no. individuals in geno (" ~ to!string(geno.length) ~
-                        ") doesn't match length of to_omit (" ~ to!string(to_omit.length) ~ ")");
-
-  GenotypeCombinator[][] ret;
-
-  foreach(i; 0..to_omit.length) {
-    if(!to_omit[i])
-      ret ~= geno[i];
   }
 
   return ret;

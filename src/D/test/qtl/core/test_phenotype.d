@@ -19,14 +19,14 @@ unittest {
 
   // Phenotype reader
   alias std.path.buildPath buildPath;
-  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","test","data"));
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
   auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
   writeln("reading ",pheno_fn);
   auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
   Phenotype!double[][] pheno = p_res[0];
 
   // find individuals with missing phenotypes
-  auto has_missing = is_any_phenotype_missing(pheno);
+  auto has_missing = individuals_missing_a_phenotype(pheno);
 
   // count them
   auto n_missing = count(has_missing, true);
@@ -44,7 +44,7 @@ unittest {
   // omit individuals with missing phenotypes
   auto pheno_rev = omit_ind_from_phenotypes(pheno, has_missing);
   assert(pheno_rev.length == 116);
-  auto has_missing_rev = is_any_phenotype_missing(pheno_rev);
+  auto has_missing_rev = individuals_missing_a_phenotype(pheno_rev);
   assert(count(has_missing_rev, true) == 0);
 
   // First read symbol information (the GenotypeCombinators)

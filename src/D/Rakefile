@@ -79,7 +79,7 @@ all_dfiles = (all_core_dfiles +
              deprecated_dfiles).uniq
 
 # for testing
-all_test_dfiles = all_dfiles + test_core_dfiles
+all_test_dfiles = all_core_dfiles + test_core_dfiles
 
 # for bin and lib builds:
 all_scanone_dfiles = all_core_dfiles + scanone_dfiles + csv_dfiles + simulate_dfiles + distributions_dfiles + lapack_dfiles + example_dfiles
@@ -136,6 +136,7 @@ exe_list = {
   'write_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_write_dfiles + csv_dfiles + example_dfiles + main_dfile },
   'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + main_dfile },
   'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + main_dfile },
+  'test_core' => { :path => './test/qtl/core', :list => all_test_dfiles + main_dfile  },
   'test_scanone' => { :path => './test/scanone', :list => test_scanone_dfiles + all_core_dfiles + scanone_dfiles + main_dfile + lapack_dfiles + util_dfiles + simulate_dfiles + distributions_dfiles },
   'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] + renv_dfiles + arch_dfiles },
   'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + arch_dfiles },
@@ -241,7 +242,9 @@ end
 # ---- Unit tests
 
 desc "Test core"
-task :test_core => test_core_dfiles
+task :test_qtlhd_core => [ 'test_core' ] do
+  sh "./test_core"
+end
 
 desc "Test XGAP"
 task :test_xgap => [ 'write_xgapbin', 'read_xgapbin' ] do
@@ -264,5 +267,5 @@ task :test_csvr => [ :read_csvr ]
 
 desc "Test all"
 
-task :test_all => [:clean, :test_core, :test_csv, :test_csvr, :test_qtab, :test_hmm, :test_lapack, :test_rlib, :test_scanone, :test_simulate]
+task :test_all => [:clean, :test_qtlhd_core, :test_csv, :test_csvr, :test_qtab, :test_hmm, :test_lapack, :test_rlib, :test_scanone, :test_simulate]
 
