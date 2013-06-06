@@ -20,30 +20,14 @@ import std.algorithm;
 
 immutable PHENOTYPE_NA = VALUE_NAN; 
 
-/*
-
-import std.conv;
-import std.stdio;
-import std.string;
-import std.array;
-
-import std.exception, std.path, std.file;
-import qtl.core.primitives;
-import qtl.core.phenotype;
-
-import std.typecons;
-import std.algorithm;
-
-immutable PHENOTYPE_NA = VALUE_NAN; 
-
-*/
-
 /**
- * Phenotype is the most primitive representation of a phenotype. The type
+ * AnyPhenotype is the most primitive representation of a phenotype. The type
  * can be any type T (normally a double, but can potentially be any Object).
  *
  * Note the primitive should be small as small as possible, there may be many
  * phenotypes! Therefore it is a struct.
+ *
+ * Note we do not use this facility other than outputting 'NA' when missing.
  */
 
 struct AnyPhenotype(T) {

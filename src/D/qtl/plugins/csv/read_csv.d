@@ -44,7 +44,7 @@ class ReadSimpleCSV(XType,CrossType) {
   Marker[] markers;
   Individuals individuals;
   Chromosome[string] chromosomes;
-  Phenotype!double[][] phenotypes;
+  Phenotype[][] phenotypes;
   GenotypeCombinator[][] genotypecombinator;
   size_t n_phenotypes;
 
@@ -117,10 +117,10 @@ class ReadSimpleCSV(XType,CrossType) {
       n_individual++;
       auto fields = split(buf,",");
       if (fields.length != n_columns) throw new Exception("Field # out of range in ", buf);
-      Phenotype!double[] ps;
+      Phenotype[] ps;
       ps.reserve(n_columns);
       foreach(field; fields[0..n_phenotypes]) {
-        ps ~= set_phenotype!double(field);
+        ps ~= set_phenotype(field);
       }
       phenotypes ~= ps;
       // set genotype
