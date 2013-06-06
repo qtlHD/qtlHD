@@ -67,7 +67,7 @@ alias GenotypeCombinator[][] GenotypeMatrix; // = new double[][][](n_markers,n_i
   For this we define ObservedGenotypes, which maintains this list. The symbols
   can be used for a full dataset, or for each marker individually.
 
-  Sex should be queried at the chromosome level.
+  X chromosome (vs autosome) should be queried at the chromosome level.
 
   Note that outbreeding can be supported by creating artificial founders
   consisting of singular genotypes (similar to a RIL), with one maternal and

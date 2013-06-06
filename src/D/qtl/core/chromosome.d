@@ -18,7 +18,7 @@ import std.typecons;
 
 /**
  * Create a new Chromosome object, basing the id on the content of name.
- * Currently string 'X' returns a SexChromosome.
+ * Currently string 'X' returns an Xchromosome.
  * (this may change)
  */
 
@@ -30,23 +30,23 @@ Chromosome get_chromosome_with_id(string name) {
 }
 
 /**
- * Create new Chromosome object. Currently, if is_sex is true it
- * returns a SexChromosome, otherwise an Autosome.
+ * Create new Chromosome object. Currently, if is_X_chr is true it
+ * returns a Xchromosome, otherwise an Autosome.
  */
 
-Chromosome get_chromosome(string name, uint id, bool is_sex=false) {
-  if (is_sex)
-    return new SexChromosome(name);
+Chromosome get_chromosome(string name, uint id, bool is_X_chr=false) {
+  if (is_X_chr)
+    return new Xchromosome(name);
   else
     return new Autosome(name,id);
 }
 
 /**
- * Test for chromosome sex - based on object type
+ * Test for chromosome X - based on object type
  */
 
-static bool is_sex(Chromosome chromosome) {
-  return (typeid(chromosome) == typeid(SexChromosome));
+static bool is_X_chr(Chromosome chromosome) {
+  return (typeid(chromosome) == typeid(Xchromosome));
 }
 
 /**
@@ -96,9 +96,9 @@ unittest {
   assert(cx.id == ID_UNKNOWN);
   assert(cx.name == "X");
 
-  // test for sex
-  assert(is_sex(cx),typeof(cx).stringof ~ to!string(cx.id) ~ to!string(is_sex(cx)));
-  assert(!is_sex(c1));
+  // test for X chromosome
+  assert(is_X_chr(cx),typeof(cx).stringof ~ to!string(cx.id) ~ to!string(is_X_chr(cx)));
+  assert(!is_X_chr(c1));
 
   /*
   auto markers = new Markers!Marker();
