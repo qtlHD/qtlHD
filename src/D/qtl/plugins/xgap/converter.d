@@ -34,12 +34,12 @@ class XbinConverter{
     return all_genotypes;
   }
   
-  Phenotype!T[][] toPhenotype(T)(XgapMatrix m){
-    Phenotype!T[][] all_phenotypes;
+  Phenotype[][] toPhenotype(T)(XgapMatrix m){
+    Phenotype[][] all_phenotypes;
     for(int r=0;r<m.header.nrow;r++){
-      Phenotype!T[] phenotype;
+      Phenotype[] phenotype;
       for(int c=0;c<m.header.ncol;c++){
-        phenotype ~= set_phenotype!T(to!string((cast(DoubleMatrix)(m.data)).data[r][c]));
+        phenotype ~= set_phenotype(to!string((cast(DoubleMatrix)(m.data)).data[r][c]));
       }
       all_phenotypes ~= phenotype;
     }
@@ -68,7 +68,7 @@ unittest{
   auto outfn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin"));
   auto data = new XbinReader(outfn);
   auto convertor = new XbinConverter();
-  auto phenotypes = convertor.toPhenotype!double(data.load(0));
+  auto phenotypes = convertor.toPhenotype(data.load(0));
   auto genotypes = convertor.toGenotypes!ObservedRIL(data.load(1));
   auto markers = convertor.asMarkers(data.load(2));
 }

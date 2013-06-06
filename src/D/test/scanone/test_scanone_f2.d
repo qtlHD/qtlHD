@@ -58,8 +58,8 @@ unittest {
   // reading phenotypes
   auto pheno_fn = to!string(buildPath(dir,"listeria_phenotype.qtab"));
   writeln("reading ",pheno_fn);
-  auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
-  Phenotype!double[][] pheno = p_res[0];
+  auto p_res = read_phenotype_qtab!Phenotype(pheno_fn);
+  Phenotype[][] pheno = p_res[0];
 
   auto ind_to_omit = individuals_missing_a_phenotype(pheno);
   auto n_to_omit = count(ind_to_omit, true);

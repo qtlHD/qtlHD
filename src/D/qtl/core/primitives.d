@@ -16,7 +16,8 @@ import std.string;
 import std.typecons; 
 
 // Default values for undefined types
-immutable MARKER_POSITION_UNKNOWN = double.nan;
+immutable VALUE_NAN = double.nan;
+immutable MARKER_POSITION_UNKNOWN = VALUE_NAN;
 immutable NAME_UNKNOWN = "unknown";
 immutable MARKER_NAME_UNKNOWN = "marker name unknown";
 immutable INDIVIDUAL_NAME_UNKNOWN = "individual name unknown";
@@ -268,39 +269,6 @@ struct GenoProb {
 
 alias GenoProb[][][] GenoProbs;  // = new double[][][](n_gen,n_ind,n_markers);
 
-immutable PHENOTYPE_NA = double.max; // FIXME: needs to be typed to T
-
-/**
- * Phenotype is the most primitive representation of a phenotype. The type
- * can be any type T (normally a double, but can potentially be any Object).
- *
- * Note the primitive should be small as small as possible, there may be many
- * phenotypes! Therefore it is a struct.
- */
-
-struct Phenotype(T) {
-  T value;
-  
-  /// String representation of phenotype.
-  const string toString(){
-    if(to!double(value) != PHENOTYPE_NA){
-      return to!string(value);
-    }else{
-      return "NA";
-    }
-  }
-}
-
-/**
- * PhenotypeMatrix holds phenotypes (cols) against individuals (rows)
- */
-
-mixin template RealizePhenotypeMatrix(T)
-{
-  alias Phenotype!T[][] PhenotypeMatrix; // = new double[][][](n_ind,n_phe);
-}
-
-
 /**
  * Covariate representation
  */
@@ -308,9 +276,8 @@ mixin template RealizePhenotypeMatrix(T)
 struct Covariate(T) {
   T value;
 
-  /// String representation of phenotype.
   string toString(){
-    if(value != PHENOTYPE_NA){
+    if(value != VALUE_NAN){
       return to!string(value);
     }else{
       return "NA";
@@ -360,44 +327,4 @@ alias string[] Inds;
 
 @property M[] list(M)(M[] ms) { return ms; };
 
-/******************************************************************************
- * Unit tests for primitives 
- */
-
-import std.stdio;
-
-unittest {
-  writeln("Unit test " ~ __FILE__);
-  // test marker
-  Marker m1 = new Marker(4.6,"m1",1);
-  assert(m1.id == 1);
-  assert(m1.attrib_list == null);
-  assert(m1.attrib_list.length == 0);
-  Marker m2 = new Marker(4.8);
-  m2.chromosome = new Autosome("1",1);
-  m2.attrib_list = new Attribute[1];
-  assert(m2.attrib_list.length == 1);
-  // create a list of markers
-  auto markers = [ m1 ];
-  markers ~= m2 ;
-  assert(markers.length == 2);
-
-  // Genotype
-  Genotype!char g1 = { value:'A' };
-  assert(g1.value == 'A');
-  assert(g1.value != 2);
-
-  // Phenotype
-  Phenotype!double p1 = { value:-7.809 };
-  assert(p1.value == -7.809);
-}
-
-unittest {
-  // Test list of markers and pseudomarkers
-  Marker m1 = new Marker(4.6,"m1",1);
-  Marker m2 = new Marker(4.8,"m2",2);
-  m2.chromosome = new Autosome("1",1);
-  m2.attrib_list = new Attribute[1];
-  PseudoMarker pm1 = new PseudoMarker(4.7,"pm1",3);
-}
 

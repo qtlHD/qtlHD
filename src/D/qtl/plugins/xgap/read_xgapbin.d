@@ -234,9 +234,9 @@ unittest{
   assert(data.header.nmatrices == 3);
   assert(data.header.fileversion == [0,0,1, 'A']);
   XgapMatrix m1 = data.load(0);
-  assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[0][1])) == indata.phenotypes[0][1]);
-  assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[5][10])) == indata.phenotypes[5][10]);
-  assert(set_phenotype!double(to!string((cast(DoubleMatrix)(m1.data)).data[10][5])) == indata.phenotypes[10][5]);
+  assert(set_phenotype(to!string((cast(DoubleMatrix)(m1.data)).data[0][1])) == indata.phenotypes[0][1]);
+  assert(set_phenotype(to!string((cast(DoubleMatrix)(m1.data)).data[5][10])) == indata.phenotypes[5][10]);
+  assert(set_phenotype(to!string((cast(DoubleMatrix)(m1.data)).data[10][5])) == indata.phenotypes[10][5]);
   writeln("   - Reloaded phenotypes from xgap binary");
   XgapMatrix m2 = data.load(1);
  // assert(ObservedRIL.decode((cast(StringMatrix)(m2.data)).data[3][1]) == indata.genotypes[3][1]);

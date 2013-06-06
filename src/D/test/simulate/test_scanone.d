@@ -10,6 +10,7 @@ import qtl.core.simulate.meiosis;
 import qtl.core.simulate.map;
 import qtl.core.genotype;
 import qtl.core.primitives;
+import qtl.core.phenotype;
 import qtl.core.chromosome;
 import qtl.core.genotype;
 import qtl.core.map.make_map;
@@ -40,7 +41,7 @@ unittest {
   size_t n_ind = 100;
   auto BCgen = simulate_backcross_autosome(marker_map, n_ind, [0, 1], 10, 0.0, gen);
 
-  auto phenotype = new Phenotype!double[](n_ind);
+  auto phenotype = new Phenotype[](n_ind);
 
   auto het = new TrueGenotype(1,0);
 
@@ -84,7 +85,7 @@ unittest {
   size_t n_ind = 100;
   auto F2gen = simulate_intercross_autosome(marker_map, n_ind, [0, 1], 10, 0.0, gen);
 
-  auto phenotype = new Phenotype!double[](n_ind);
+  auto phenotype = new Phenotype[](n_ind);
 
   auto het = new TrueGenotype(1,0);
   auto homB = new TrueGenotype(1,1);
