@@ -61,7 +61,7 @@ unittest {
   auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
   Phenotype!double[][] pheno = p_res[0];
 
-  auto ind_to_omit = is_any_phenotype_missing(pheno);
+  auto ind_to_omit = individuals_missing_a_phenotype(pheno);
   auto n_to_omit = count(ind_to_omit, true);
   writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
 
