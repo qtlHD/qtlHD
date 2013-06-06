@@ -2,7 +2,7 @@
  * Genotype module (deprecated)
  */
 
-module qtl.core.deprecate.mqm_types;
+module qtl.core.mqm.mqm_types;
 
 import std.conv;
 import std.stdio;
