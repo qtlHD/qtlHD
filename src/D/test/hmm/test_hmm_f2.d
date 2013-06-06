@@ -455,4 +455,12 @@ unittest {
   foreach(i; 0..rec_frac_rev.length) {
     assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-7);
   }
+
+  // X chromosome...
+  writeln("\nCheck for X chromosome:");
+  foreach(chr; markers_by_chr_sorted) {
+    writeln("chr ", chr[1][0].chromosome.name, " -- is X?:", is_X_chr(chr[1][0].chromosome));
+    writeln("typeid(chr[1][0].chromosome): ", typeid(chr[1][0].chromosome));
+  }
+  writeln();
 }
