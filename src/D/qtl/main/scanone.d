@@ -80,7 +80,7 @@ int main(string[] args) {
 
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
                "d|debug", (string o, string d) { debug_level = to!int(d); },
-               "cross", (string o, string s) { cross = s; },
+               "cross", (string o, string s) { cross = s.toUpper; },
                "format", (string o, string s) { format = s; },
                "na", (string o, string s) { na_ids = s; },
                "genotypes", (string o, string s) { genotype_ids = s; },
@@ -115,8 +115,9 @@ int main(string[] args) {
       g  = res[6];  // observed genotype matrix
       break;
     case "csv" : 
-      auto res = load_csv(args[1]);
-      f["Cross"] = cross.toUpper;
+      auto observed_genotypes = parse_genotype_ids(cross,genotype_ids,na_ids);
+      auto res = load_csv(args[1], observed_genotypes);
+      f["Cross"] = cross;
       ms = res[0];  // markers
       i  = res[1];  // individuals
       p  = res[2];  // phenotype matrix

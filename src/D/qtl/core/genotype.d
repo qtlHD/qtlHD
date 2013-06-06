@@ -580,3 +580,7 @@ GenotypeCombinator[][] omit_ind_from_genotypes(GenotypeCombinator[][] geno, bool
 }
 
 
+ObservedGenotypes parse_genotype_ids(string cross,string genotype_ids,string na_ids) {
+  return null;
+}
+
