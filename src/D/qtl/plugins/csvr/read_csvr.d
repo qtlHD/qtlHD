@@ -37,7 +37,7 @@ class CSVrReader(XType,ObservedXType) {
   Marker[] markers;
   Individuals individuals;
   Chromosome[string] chromosomes;
-  Phenotype!double[][] phenotypes;
+  Phenotype[][] phenotypes;
   GenotypeCombinator[][] genotypes;
   size_t n_phenotypes;
   
@@ -64,10 +64,10 @@ class CSVrReader(XType,ObservedXType) {
       if(is_phenotype(fields[1..3])){
         //Phenotype
         debug writeln("Phenotype: " ~ fields[0]);
-        Phenotype!double[] ps;
+        Phenotype[] ps;
         phenotypenames ~= fields[0];
         foreach (field; fields[3..$]) {
-          ps ~= set_phenotype!double(strip(field));
+          ps ~= set_phenotype(strip(field));
         }
         phenotypes ~= ps;
       }else{

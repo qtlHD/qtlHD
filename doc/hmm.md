@@ -13,9 +13,9 @@ The main task is to calculate probabilities for each possible true
 genotype at each position along the genome, given the observed marker
 genotypes.
 
-In the actual QTL analysis, we just deal with these probabilities for
-the true genotypes; the observed marker data provide no further
-information.
+In the actual QTL analysis, such as scanone, we just deal with these
+probabilities for the true genotypes; the observed marker data provide no
+further information.
 
 For a given type of cross, there is some fixed set of true genotypes,
 and then another set of possible observed marker genotypes.  The
@@ -37,8 +37,8 @@ subset of true genotypes:
 
 
 The HMM has three components: `init` concerns the probabilities for
-the true genotypes at any one position, `step` concerns the transition
-probabilities for the true genotypes from one position to the next,
+the true genotypes at any one (pseudo)marker position, `step` concerns the transition
+probabilities for the true genotypes from one marker position to the next,
 and `emit` concerns the relationship between the observed and true
 genotype at a given marker.  `init` and `step` concern only with the true
 genotypes.  `emit` is the only part that involves the

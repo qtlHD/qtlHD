@@ -16,7 +16,6 @@ import std.variant;
 import qtl.plugins.csv.read_csv;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.chromosome;
-import qtl.core.util.data_manip;
 import qtl.core.primitives;
 import qtl.core.marker;
 import qtl.core.genotype;
@@ -30,7 +29,6 @@ import qtl.core.hmm.cross;
 import qtl.core.hmm.calcgenoprob;
 import qtl.core.scanone.scanone_hk;
 import qtl.core.scanone.util;
-import qtl.core.util.data_manip;
 
 static string ver = import("VERSION");
 
@@ -42,6 +40,12 @@ string usage = "
   options:
 
     --format          qtab|csv (default qtab)
+
+  options for CSV files 
+
+    --cross           f2|ril|bc (default f2)
+    --genotypes       identifiers (default for BC is 'A H')
+    --na              missing data identifiers (default '- NA')
 
   other options:
 
@@ -70,9 +74,16 @@ int main(string[] args) {
   uint debug_level = 0;
   bool contributors = false;
   string format = "qtab";
+  string cross = "F2";
+  string genotype_ids = "A H B D C";
+  string na_ids = "- NA";
+
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
                "d|debug", (string o, string d) { debug_level = to!int(d); },
+               "cross", (string o, string s) { cross = s.toUpper; },
                "format", (string o, string s) { format = s; },
+               "na", (string o, string s) { na_ids = s; },
+               "genotypes", (string o, string s) { genotype_ids = s; },
                "credits", (string o) { contributors = true; }
   );
 
@@ -89,22 +100,30 @@ int main(string[] args) {
   Marker[] ms;
   Inds i;
   PhenotypeMatrix p; 
-  ObservedGenotypes o; 
+  ObservedGenotypes observed;  // unused
   GenotypeMatrix g;
  
   switch(format) {
     case "qtab" :
       auto res = load_qtab(args[1..$]);
       s  = res[0];  // symbols
-      f  = res[1];  // founder (contains Cross information)
+      f  = res[1];  // founder format (contains Cross information)
       ms = res[2];  // markers
       i  = res[3];  // individuals
       p  = res[4];  // phenotype matrix
-      o  = res[5];  // observed genotypes
+      observed  = res[5];  // observed genotypes
       g  = res[6];  // observed genotype matrix
       break;
     case "csv" : 
-      auto res = load_csv(args[1]);
+      auto observed_genotypes = parse_genotype_ids(cross,genotype_ids,na_ids);
+      writeln("Observed ",observed_genotypes.toEncodingString(),observed_genotypes);
+      auto res = load_csv(args[1], observed_genotypes);
+      f["Cross"] = cross;
+      ms = res[0];  // markers
+      i  = res[1];  // individuals
+      p  = res[2];  // phenotype matrix
+      g  = res[4];
+      observed = observed_genotypes;  // unused
       break;
     default :
       throw new Exception("Unknown format "~format);
@@ -116,19 +135,20 @@ int main(string[] args) {
     writeln(format);
     writeln("* Symbol data");
     writeln(s);
-    writeln(o);
     writeln("* Individuals");
     writeln(i);
-    writeln("* Genotype data");
+    writeln("* Observed genotypes");
+    writeln(observed);
+    writeln("* Genotype data (partial)");
     writeln(g[0..3]);
-    writeln("* Phenotype data");
-    writeln(p);
-    writeln("* Marker data");
-    writeln(ms);
+    writeln("* Phenotype data (partial)");
+    writeln(p[0..3]);
+    writeln("* Marker data (partial)");
+    writeln(ms[0..3]);
   }
 
   // TODO: reduce missing phenotype data (not all individuals?)
-  auto ind_to_omit = is_any_phenotype_missing(p);
+  auto ind_to_omit = individuals_missing_a_phenotype(p);
   auto n_to_omit = count(ind_to_omit, true);
   writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
   auto pheno = omit_ind_from_phenotypes(p, ind_to_omit);

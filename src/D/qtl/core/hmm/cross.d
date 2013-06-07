@@ -14,13 +14,24 @@ import qtl.core.genotype;
 // class to contain HMM-related functions
 class Cross {
   string cross_type, phase_known_class_name;
-  
-  TrueGenotype[] all_true_geno;
-  
-  abstract double init(TrueGenotype truegen);
-  abstract double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac);
-  abstract double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob);
-  abstract double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right);
+
+  TrueGenotype[] all_true_geno_A, all_true_geno_X;
+
+  abstract double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] cross_direction);
+  abstract double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+                          bool is_X_chr, bool is_female, int[] cross_direction);
+  abstract double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+                          bool is_X_chr, bool is_female, int[] cross_direction);
+  abstract double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
+                          bool is_X_chr, bool is_female, int[] cross_direction);
+
+  TrueGenotype[] all_true_geno(bool is_X_chr)
+  {
+    if(is_X_chr) return all_true_geno_X;
+    else return all_true_geno_A;
+  }
+
+  abstract size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, int[] cross_direction);
 }
 
 // the switch
@@ -61,25 +72,75 @@ class BC : Cross {
     // vector of true genotypes
     auto g1 = new TrueGenotype(0,0);
     auto g2 = new TrueGenotype(1,0);
-    all_true_geno = [g1, g2];
+    auto g3 = new TrueGenotype(1,1);
+    all_true_geno_A = [g1, g2];
+    all_true_geno_X = [g1, g2, g3];
 
     phase_known_class_name = "BC";
   }
 
-  // ln Pr(true genotype)
-  override double init(TrueGenotype truegen)
+  // indexes to possible true genotypes, by chromosome type and sex
+  override size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, int[] ignored_argument)
   {
-    if(truegen != all_true_geno[0] &&
-       truegen != all_true_geno[1])
+    if(is_X_chr) {
+      if(is_female) return([0,1]);
+      else return([0,2]);
+    }
+    else {
+      return([0, 1]);
+    }
+  }
+
+
+
+  // ln Pr(true genotype)
+  override double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] ignored_argument)
+  {
+    if(is_X_chr) {
+      if(is_female) return(initA(truegen));
+      else return(initXmale(truegen));
+    }
+    else {
+      return initA(truegen);
+    }
+  }
+
+  double initA(TrueGenotype truegen)
+  {
+    if(truegen != all_true_geno_A[0] &&
+       truegen != all_true_geno_A[1])
       throw new Exception("truegen must be 0,0 or 1,0");
-    
+
     return(-LN2);
   }
 
-  // ln Pr(genotype at right marker | genotype at left marker)
-  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  double initXmale(TrueGenotype truegen)
   {
-    alias all_true_geno atg;
+    if(truegen != all_true_geno_X[0] &&
+       truegen != all_true_geno_X[2])
+      throw new Exception("Male on X: truegen must be 0,0 or 1,1");
+
+    return(-LN2);
+  }
+
+
+
+  // ln Pr(genotype at right marker | genotype at left marker)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+                       bool is_X_chr, bool is_female, int[] ignored_argument)
+  {
+    if(is_X_chr) {
+      if(is_female) return(stepA(truegen_left, truegen_right, rec_frac));
+      else return(stepXmale(truegen_left, truegen_right, rec_frac));
+    }
+    else {
+      return(stepA(truegen_left, truegen_right, rec_frac));
+    }
+  }
+
+  double stepA(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_A atg;
 
     if(truegen_left == atg[0]) {
       if(truegen_right == atg[0]) // A -> A
@@ -98,8 +159,32 @@ class BC : Cross {
     throw new Exception("inputs not among the possible true genotypes");
   }
 
+  double stepXmale(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_X atg;
+
+    if(truegen_left == atg[0]) {
+      if(truegen_right == atg[0]) // A -> A
+        return(log(1.0-rec_frac));
+      if(truegen_right == atg[2]) // A -> B
+        return(log(rec_frac));
+    }
+
+    if(truegen_left == atg[2]) {
+      if(truegen_right == atg[2]) // B -> B
+        return(log(1.0-rec_frac));
+      if(truegen_right == atg[0]) // B -> A
+        return(log(rec_frac));
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+
+
   // ln Pr(observed genotype | true genotype)
-  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+                       bool is_X_chr, bool is_female, int[] ignored_argument) // don't actually use X chr or sex here
   {
     if(obsgen.list.length==0) // missing value
       return(0.0); // log(1.0)
@@ -110,10 +195,24 @@ class BC : Cross {
       return(log(error_prob));
   }
 
+
+
   // No. recombination events
-  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
+                       bool is_X_chr, bool is_female, int[] ignored_argument)
   {
-    alias all_true_geno atg;
+    if(is_X_chr) {
+      if(is_female) return(nrecA(truegen_left, truegen_right));
+      else return(nrecXmale(truegen_left, truegen_right));
+    }
+    else {
+      return(nrecA(truegen_left, truegen_right));
+    }
+  }
+
+  double nrecA(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  {
+    alias all_true_geno_A atg;
 
     if(truegen_left == atg[0]) {
       if(truegen_right == atg[0]) // A -> A
@@ -131,58 +230,29 @@ class BC : Cross {
 
     throw new Exception("inputs not among the possible true genotypes");
   }
+
+  double nrecXmale(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  {
+    alias all_true_geno_X atg;
+
+    if(truegen_left == atg[0]) {
+      if(truegen_right == atg[0]) // A -> A
+        return(0.0);
+      if(truegen_right == atg[2]) // A -> B
+        return(1.0);
+    }
+
+    if(truegen_left == atg[2]) {
+      if(truegen_right == atg[2]) // B -> B
+        return(0.0);
+      if(truegen_right == atg[0]) // B -> A
+        return(1.0);
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
 }
 
-unittest {
-  writeln("Unit test " ~ __FILE__ ~ " BC");
-
-  // unit test all_true_geno for BC
-  auto bc = form_cross("BC");
-  auto atg = bc.all_true_geno;
-  assert(atg.length == 2);
-  assert(atg[0] == new TrueGenotype(0,0));
-  assert(atg[1] == new TrueGenotype(1,0));
-
-  // unit test init for BC
-  foreach(gv; atg)
-    assert(to!string(bc.init(gv)) == to!string(log(0.5)));
-
-  // unit test step for BC
-  double rf = 0.01;
-
-  assert( to!string( bc.step(atg[0], atg[0], rf) ) ==
-          to!string( log((1-rf)) ));
-  assert( to!string( bc.step(atg[0], atg[1], rf) ) ==
-          to!string( log(rf) ));
-
-  assert( to!string( bc.step(atg[1], atg[0], rf) ) ==
-          to!string( log(rf) ));
-  assert( to!string( bc.step(atg[1], atg[1], rf) ) ==
-          to!string( log((1-rf)) ));
-
-  // unit test emit for BC
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
-  A ~= new TrueGenotype(0,0);
-  auto H = new GenotypeCombinator("H");
-  H ~= new TrueGenotype(1,0);
-
-  double error_prob = 0.01;
-
-  assert(bc.emit(NA, atg[0], error_prob) == 0);
-  assert(bc.emit(NA, atg[1], error_prob) == 0);
-  assert(to!string(bc.emit(A, atg[0], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(bc.emit(A, atg[1], error_prob)) == to!string(log(error_prob)));
-  assert(to!string(bc.emit(H, atg[1], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(bc.emit(H, atg[0], error_prob)) == to!string(log(error_prob)));
-
-  // unit test nrec for BC
-  assert(bc.nrec(atg[0], atg[0]) == 0.0);
-  assert(bc.nrec(atg[0], atg[1]) == 1.0);
-
-  assert(bc.nrec(atg[1], atg[0]) == 1.0);
-  assert(bc.nrec(atg[1], atg[1]) == 0.0);
-}
 
 
 // F2 (intercross) [ used in calc_geno_prob]
@@ -194,15 +264,45 @@ class F2 : Cross {
     auto g1 = new TrueGenotype(0,0);
     auto g2 = new TrueGenotype(1,0);
     auto g3 = new TrueGenotype(1,1);
-    all_true_geno = [g1, g2, g3];
+    all_true_geno_X = all_true_geno_A = [g1, g2, g3];
 
     phase_known_class_name = "F2_phaseknown";
   }
 
-  // ln Pr(true genotype)
-  override double init(TrueGenotype truegen)
+  // indexes to possible true genotypes, by chromosome type and sex
+  override size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    alias all_true_geno atg;
+    bool is_forward_cross = (cross_direction[0] == 0);
+
+    if(is_X_chr) {
+      if(is_female) {
+        if(is_forward_cross) return([0,1]);
+        else return([1,2]);
+      }
+      else return([0,2]);
+    }
+    else {
+      return([0,1,2]);
+    }
+  }
+
+  // ln Pr(true genotype)
+  override double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] cross_direction)
+  {
+    bool is_forward_cross = (cross_direction[0] == 0);
+
+    if(is_X_chr) {
+      if(is_female)
+        return(initXfemale(truegen, is_forward_cross));
+      else
+        return(initXmale(truegen));
+    }
+    else return(initA(truegen));
+  }
+
+  double initA(TrueGenotype truegen)
+  {
+    alias all_true_geno_A atg;
 
     if(truegen==atg[0] || truegen==atg[2]) // AA or BB
       return(-2.0*LN2);
@@ -213,10 +313,46 @@ class F2 : Cross {
     throw new Exception("truegen not among possible true genotypes");
   }
 
-  // ln Pr(genotype at right marker | genotype at left marker)
-  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  double initXmale(TrueGenotype truegen)
   {
-    alias all_true_geno atg;
+    alias all_true_geno_X atg;
+
+    if(truegen==atg[0] || truegen==atg[2]) // A- or B-
+      return(-LN2);
+
+    throw new Exception("truegen not among possible true genotypes");
+  }
+
+  double initXfemale(TrueGenotype truegen, bool is_forward_cross)
+  {
+    alias all_true_geno_X atg;
+
+    if((is_forward_cross && (truegen==atg[0] || truegen==atg[1])) ||
+       (!is_forward_cross && (truegen==atg[1] || truegen==atg[2])))
+      return(-LN2);
+
+    throw new Exception("truegen not among possible true genotypes");
+  }
+
+  // ln Pr(genotype at right marker | genotype at left marker)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+              bool is_X_chr, bool is_female, int[] cross_direction)
+  {
+    bool is_forward_cross = (cross_direction[0] == 0);
+
+    if(is_X_chr) {
+      if(is_female) {
+        if(is_forward_cross) return(stepXfemaleforw(truegen_left, truegen_right, rec_frac));
+        else return(stepXfemalerev(truegen_left, truegen_right, rec_frac));
+      }
+      else return(stepXmale(truegen_left, truegen_right, rec_frac));
+    }
+    else return(stepA(truegen_left, truegen_right, rec_frac));
+  }
+
+  double stepA(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_A atg;
 
     if(truegen_left==atg[0]) {
       if(truegen_right==atg[0]) // A -> A
@@ -241,12 +377,81 @@ class F2 : Cross {
       if(truegen_right==atg[2]) // B -> B
         return(2.0*log(1.0-rec_frac));
     }
-    
+
     throw new Exception("inputs not among the possible true genotypes");
   }
-  
+
+  double stepXmale(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_X atg;
+
+    if(truegen_left==atg[0]) {
+      if(truegen_right==atg[0]) // AA -> AA
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[2]) // AA -> BB
+        return(log(rec_frac));
+    }
+    else if(truegen_left == atg[2]) {
+      if(truegen_right==atg[2]) // BB -> BB
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[0]) // BB -> AA
+        return(log(rec_frac));
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+  double stepXfemaleforw(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_X atg;
+
+    if(truegen_left==atg[0]) {
+      if(truegen_right==atg[0]) // AA -> AA
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[1]) // AA -> AB
+        return(log(rec_frac));
+    }
+    else if(truegen_left == atg[1]) {
+      if(truegen_right==atg[1]) // AB -> AB
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[0]) // AB -> AA
+        return(log(rec_frac));
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+  double stepXfemalerev(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_X atg;
+
+    if(truegen_left==atg[1]) {
+      if(truegen_right==atg[1]) // AB -> AB
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[2]) // AB -> BB
+        return(log(rec_frac));
+    }
+    else if(truegen_left == atg[2]) {
+      if(truegen_right==atg[2]) // BB -> BB
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[1]) // BB -> AB
+        return(log(rec_frac));
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
   // ln Pr(observed genotype | true genotype)
-  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+                       bool is_X_chr, bool is_female, int[] cross_direction)
+  {
+    bool is_forward_cross = (cross_direction[0] == 0);
+
+    if(is_X_chr) return(emitX(obsgen, truegen, error_prob));
+    else return(emitA(obsgen, truegen, error_prob));
+  }
+
+  double emitA(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
   {
     auto n_obsgen = obsgen.list.length;
 
@@ -267,8 +472,24 @@ class F2 : Cross {
     }
   }
 
+  double emitX(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+  {
+    auto n_obsgen = obsgen.list.length;
+
+    if(n_obsgen==0) // missing value
+      return(0.0); // log(1.0)
+
+    if(obsgen.match(truegen)) { // compatible with truegen
+      return(log(1.0-error_prob));
+    }
+    else {
+      return(log(error_prob));
+    }
+  }
+
   // proportion of recombination events
-  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
+              bool is_X_chr, bool is_female, int[] cross_direction)
   {
     throw new Exception("nrec undefined for cross type F2");
   }
@@ -283,13 +504,42 @@ class F2_phaseknown : F2 {
     auto g2 = new TrueGenotype(1,0);
     auto g3 = new TrueGenotype(0,1);
     auto g4 = new TrueGenotype(1,1);
-    all_true_geno = [g1, g2, g3, g4];
+    all_true_geno_X = all_true_geno_A = [g1, g2, g3, g4];
+  }
+
+  // indexes to possible true genotypes, by chromosome type and sex
+  override size_t[] possible_true_geno_index(bool is_X_chr, bool is_female, int[] cross_direction)
+  {
+    bool is_forward_cross = (cross_direction[0] == 0);
+
+    if(is_X_chr) {
+      if(is_female) {
+        if(is_forward_cross) return([0,1]);
+        else return([2,3]);
+      }
+      else return([0,3]);
+    }
+    else {
+      return([0,1,2,3]);
+    }
   }
 
   // ln Pr(true genotype)
-  override double init(TrueGenotype truegen)
+  override double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    alias all_true_geno atg;
+    bool is_forward_cross = (cross_direction[0] == 0);
+    if(is_X_chr) {
+      if(is_female)
+        return(initXfemale(truegen, is_forward_cross));
+      else
+        return(initXmale(truegen));
+    }
+    else return(initA(truegen));
+  }
+
+  override double initA(TrueGenotype truegen)
+  {
+    alias all_true_geno_A atg;
 
     if(truegen==atg[0] || truegen==atg[1] ||
        truegen==atg[2] || truegen==atg[3])
@@ -298,10 +548,45 @@ class F2_phaseknown : F2 {
     throw new Exception("truegen not among possible true genotypes");
   }
 
-  // ln Pr(genotype at right marker | genotype at left marker)
-  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  override double initXmale(TrueGenotype truegen)
   {
-    alias all_true_geno atgpk;
+    alias all_true_geno_X atg;
+
+    if(truegen==atg[0] || truegen==atg[3]) // A- or B-
+      return(-LN2);
+
+    throw new Exception("truegen not among possible true genotypes");
+  }
+
+  override double initXfemale(TrueGenotype truegen, bool is_forward_cross)
+  {
+    alias all_true_geno_X atg;
+
+    if((is_forward_cross && (truegen==atg[0] || truegen==atg[1])) ||
+       (!is_forward_cross && (truegen==atg[2] || truegen==atg[3])))
+      return(-LN2);
+
+    throw new Exception("truegen not among possible true genotypes");
+  }
+
+  // ln Pr(genotype at right marker | genotype at left marker)
+  override double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
+                       bool is_X_chr, bool is_female, int[] cross_direction)
+  {
+    bool is_forward_cross = (cross_direction[0] == 0);
+    if(is_X_chr) {
+      if(is_female) {
+        if(is_forward_cross) return(stepXfemaleforw(truegen_left, truegen_right, rec_frac));
+        else return(stepXfemalerev(truegen_left, truegen_right, rec_frac));
+      }
+      else return(stepXmale(truegen_left, truegen_right, rec_frac));
+    }
+    else return(stepA(truegen_left, truegen_right, rec_frac));
+  }
+
+  override double stepA(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_A atgpk;
 
     if(truegen_left==atgpk[0]) {
       if(truegen_right==atgpk[0]) // AA -> AA
@@ -338,14 +623,89 @@ class F2_phaseknown : F2 {
       if(truegen_right==atgpk[3]) // BB -> BB
         return(2.0*log(1.0-rec_frac));
     }
-    
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+  override double stepXmale(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_X atg;
+
+    if(truegen_left==atg[0]) {
+      if(truegen_right==atg[0]) // AA -> AA
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[3]) // AA -> BB
+        return(log(rec_frac));
+    }
+    else if(truegen_left == atg[3]) {
+      if(truegen_right==atg[3]) // BB -> BB
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[0]) // BB -> AA
+        return(log(rec_frac));
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+  override double stepXfemaleforw(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_X atg;
+
+    if(truegen_left==atg[0]) {
+      if(truegen_right==atg[0]) // AA -> AA
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[1]) // AA -> AB
+        return(log(rec_frac));
+    }
+    else if(truegen_left == atg[1]) {
+      if(truegen_right==atg[1]) // AB -> AB
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[0]) // AB -> AA
+        return(log(rec_frac));
+    }
+
+    throw new Exception("inputs not among the possible true genotypes");
+  }
+
+  override double stepXfemalerev(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac)
+  {
+    alias all_true_geno_X atg;
+
+    if(truegen_left==atg[2]) {
+      if(truegen_right==atg[2]) // AB -> AB
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[3]) // AB -> BB
+        return(log(rec_frac));
+    }
+    else if(truegen_left == atg[3]) {
+      if(truegen_right==atg[3]) // BB -> BB
+        return(log(1.0-rec_frac));
+      if(truegen_right==atg[2]) // BB -> AB
+        return(log(rec_frac));
+    }
+
     throw new Exception("inputs not among the possible true genotypes");
   }
 
   // proportion of recombination events
-  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  override double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
+                       bool is_X_chr, bool is_female, int[] cross_direction)
   {
-    alias all_true_geno atgpk;
+    bool is_forward_cross = (cross_direction[0] == 0);
+
+    if(is_X_chr) {
+      if(is_female) {
+        if(is_forward_cross) return(nrecXfemaleforw(truegen_left, truegen_right));
+        else return(nrecXfemalerev(truegen_left, truegen_right));
+      }
+      else return(nrecXmale(truegen_left, truegen_right));
+    }
+    else return(nrecA(truegen_left, truegen_right));
+  }
+
+  double nrecA(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  {
+    alias all_true_geno_A atgpk;
 
     if(truegen_left==atgpk[0]) {
       if(truegen_right==atgpk[0]) // AA -> AA
@@ -382,199 +742,67 @@ class F2_phaseknown : F2 {
       if(truegen_right==atgpk[3]) // BB -> BB
         return(0.0);
     }
-    
+
     throw new Exception("inputs not among the possible true genotypes");
   }
 
-}
+  double nrecXmale(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  {
+    alias all_true_geno_X atg;
 
+    if(truegen_left==atg[0]) {
+      if(truegen_right==atg[0]) // AA -> AA
+        return(0.0);
+      if(truegen_right==atg[3]) // AA -> BB
+        return(1.0);
+    }
+    else if(truegen_left == atg[3]) {
+      if(truegen_right==atg[3]) // BB -> BB
+        return(0.0);
+      if(truegen_right==atg[0]) // BB -> AA
+        return(1.0);
+    }
 
+    throw new Exception("inputs not among the possible true genotypes");
+  }
 
-unittest {
-  writeln("Unit test " ~ __FILE__ ~ " F2");
+  double nrecXfemaleforw(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  {
+    alias all_true_geno_X atg;
 
-  // unit test allTrueGeno for F2
-  auto f2 = form_cross("F2");
-  auto f2PK = form_cross_phaseknown(f2);
-  auto g = f2.all_true_geno;
-  auto gPK = f2PK.all_true_geno;
+    if(truegen_left==atg[0]) {
+      if(truegen_right==atg[0]) // AA -> AA
+        return(0.0);
+      if(truegen_right==atg[1]) // AA -> AB
+        return(1.0);
+    }
+    else if(truegen_left == atg[1]) {
+      if(truegen_right==atg[1]) // AB -> AB
+        return(0.0);
+      if(truegen_right==atg[0]) // AB -> AA
+        return(1.0);
+    }
 
-  assert(g.length == 3);
-  assert(g[0] == new TrueGenotype(0,0));
-  assert(g[1] == new TrueGenotype(1,0));
-  assert(g[2] == new TrueGenotype(1,1));
+    throw new Exception("inputs not among the possible true genotypes");
+  }
 
-  // unit test allTrueGeno for F2 (phase-known)
-  assert(gPK.length == 4);
-  assert(gPK[0] == new TrueGenotype(0,0));
-  assert(gPK[1] == new TrueGenotype(1,0));
-  assert(gPK[2] == new TrueGenotype(0,1));
-  assert(gPK[3] == new TrueGenotype(1,1));
+  double nrecXfemalerev(TrueGenotype truegen_left, TrueGenotype truegen_right)
+  {
+    alias all_true_geno_X atg;
 
-  // unit test init for F2
-  double val[] = [log(0.25), log(0.5), log(0.25)];
+    if(truegen_left==atg[2]) {
+      if(truegen_right==atg[2]) // AB -> AB
+        return(0.0);
+      if(truegen_right==atg[3]) // AB -> BB
+        return(1.0);
+    }
+    else if(truegen_left == atg[3]) {
+      if(truegen_right==atg[3]) // BB -> BB
+        return(0.0);
+      if(truegen_right==atg[2]) // BB -> AB
+        return(1.0);
+    }
 
-  foreach(i, gv; g)
-    assert(to!string(f2.init(gv)) == to!string(val[i]));
-
-  // unit test init for F2 (phase-known)
-  foreach(gv; gPK)
-    assert(to!string(f2PK.init(gv)) == to!string(val[0]));
-
-  //  unit test step for F2
-  double rf = 0.01;
-
-  assert( to!string( f2.step(g[0], g[0], rf) ) ==
-          to!string( log((1-rf)^^2) ));
-  assert( to!string( f2.step(g[0], g[1], rf) ) ==
-          to!string( log(2.0*rf*(1-rf)) ));
-  assert( to!string( f2.step(g[0], g[2], rf) ) ==
-          to!string( log(rf^^2) ));
-
-  assert( to!string( f2.step(g[1], g[0], rf) ) ==
-          to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2.step(g[1], g[1], rf) ) ==
-          to!string( log(rf^^2 + (1-rf)^^2) ));
-  assert( to!string( f2.step(g[1], g[2], rf) ) ==
-          to!string( log(rf*(1-rf)) ));
-
-  assert( to!string( f2.step(g[2], g[0], rf) ) ==
-          to!string( log(rf^^2) ));
-  assert( to!string( f2.step(g[2], g[1], rf) ) ==
-          to!string( log(2.0*rf*(1-rf)) ));
-  assert( to!string( f2.step(g[2], g[2], rf) ) ==
-          to!string( log((1-rf)^^2) ));
-
-
-  // unit test step for F2 (phase-known)
-  assert( to!string( f2PK.step(gPK[0], gPK[0], rf) ) ==
-          to!string( log((1-rf)^^2) ));
-  assert( to!string( f2PK.step(gPK[0], gPK[1], rf) ) ==
-          to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2PK.step(gPK[0], gPK[2], rf) ) ==
-          to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2PK.step(gPK[0], gPK[3], rf) ) ==
-          to!string( log(rf^^2) ));
-
-  assert( to!string( f2PK.step(gPK[1], gPK[0], rf) ) ==
-          to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2PK.step(gPK[1], gPK[1], rf) ) ==
-          to!string( log((1-rf)^^2) ));
-  assert( to!string( f2PK.step(gPK[1], gPK[2], rf) ) ==
-          to!string( log(rf^^2) ));
-  assert( to!string( f2PK.step(gPK[1], gPK[3], rf) ) ==
-          to!string( log(rf*(1.0-rf)) ));
-
-  assert( to!string( f2PK.step(gPK[2], gPK[0], rf) ) ==
-          to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2PK.step(gPK[2], gPK[2], rf) ) ==
-          to!string( log((1-rf)^^2) ));
-  assert( to!string( f2PK.step(gPK[2], gPK[1], rf) ) ==
-          to!string( log(rf^^2) ));
-  assert( to!string( f2PK.step(gPK[2], gPK[3], rf) ) ==
-          to!string( log(rf*(1.0-rf)) ));
-
-  assert( to!string( f2PK.step(gPK[3], gPK[3], rf) ) ==
-          to!string( log((1-rf)^^2) ));
-  assert( to!string( f2PK.step(gPK[3], gPK[1], rf) ) ==
-          to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2PK.step(gPK[3], gPK[2], rf) ) ==
-          to!string( log(rf*(1-rf)) ));
-  assert( to!string( f2PK.step(gPK[3], gPK[0], rf) ) ==
-          to!string( log(rf^^2) ));
-
-  // unit test emit for F2
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
-  A ~= new TrueGenotype(0,0);
-  auto H = new GenotypeCombinator("H");
-  H ~= new TrueGenotype(1,0);
-  H ~= new TrueGenotype(0,1);
-  auto B = new GenotypeCombinator("B");
-  B ~= new TrueGenotype(1,1);
-  auto AorH = new GenotypeCombinator("AorH");
-  AorH ~= new TrueGenotype(0,0);
-  AorH ~= new TrueGenotype(1,0);
-  AorH ~= new TrueGenotype(0,1);
-  auto HorB = new GenotypeCombinator("HorB");
-  HorB ~= new TrueGenotype(1,0);
-  HorB ~= new TrueGenotype(0,1);
-  HorB ~= new TrueGenotype(1,1);
-
-  double error_prob = 0.01;
-
-  assert(f2.emit(NA, g[0], error_prob) == 0);
-  assert(f2.emit(NA, g[1], error_prob) == 0);
-  assert(f2.emit(NA, g[2], error_prob) == 0);
-
-  assert(to!string(f2.emit(A, g[0], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2.emit(A, g[1], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2.emit(A, g[2], error_prob)) == to!string(log(error_prob/2.0)));
-
-  assert(to!string(f2.emit(H, g[1], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2.emit(H, g[0], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2.emit(H, g[2], error_prob)) == to!string(log(error_prob/2.0)));
-
-  assert(to!string(f2.emit(B, g[2], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2.emit(B, g[0], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2.emit(B, g[1], error_prob)) == to!string(log(error_prob/2.0)));
-
-  assert(to!string(f2.emit(AorH, g[0], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2.emit(AorH, g[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2.emit(AorH, g[2], error_prob)) == to!string(log(error_prob)));
-
-  assert(to!string(f2.emit(HorB, g[0], error_prob)) == to!string(log(error_prob)));
-  assert(to!string(f2.emit(HorB, g[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2.emit(HorB, g[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-
-  assert(f2PK.emit(NA, gPK[0], error_prob) == 0);
-  assert(f2PK.emit(NA, gPK[1], error_prob) == 0);
-  assert(f2PK.emit(NA, gPK[2], error_prob) == 0);
-  assert(f2PK.emit(NA, gPK[3], error_prob) == 0);
-
-  assert(to!string(f2PK.emit(A, gPK[0], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2PK.emit(A, gPK[1], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2PK.emit(A, gPK[2], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2PK.emit(A, gPK[3], error_prob)) == to!string(log(error_prob/2.0)));
-
-  assert(to!string(f2PK.emit(H, gPK[1], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2PK.emit(H, gPK[2], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2PK.emit(H, gPK[0], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2PK.emit(H, gPK[3], error_prob)) == to!string(log(error_prob/2.0)));
-
-  assert(to!string(f2PK.emit(B, gPK[3], error_prob)) == to!string(log(1.0-error_prob)));
-  assert(to!string(f2PK.emit(B, gPK[0], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2PK.emit(B, gPK[1], error_prob)) == to!string(log(error_prob/2.0)));
-  assert(to!string(f2PK.emit(B, gPK[2], error_prob)) == to!string(log(error_prob/2.0)));
-
-  assert(to!string(f2PK.emit(AorH, gPK[0], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2PK.emit(AorH, gPK[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2PK.emit(AorH, gPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2PK.emit(AorH, gPK[3], error_prob)) == to!string(log(error_prob)));
-
-  assert(to!string(f2PK.emit(HorB, gPK[0], error_prob)) == to!string(log(error_prob)));
-  assert(to!string(f2PK.emit(HorB, gPK[1], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2PK.emit(HorB, gPK[2], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-  assert(to!string(f2PK.emit(HorB, gPK[3], error_prob)) == to!string(log(1.0-error_prob/2.0)));
-
-  // unit test nrec for F2 (phase-known)
-  assert( f2PK.nrec(gPK[0], gPK[0]) == 0.0 );
-  assert( f2PK.nrec(gPK[0], gPK[1]) == 0.5 );
-  assert( f2PK.nrec(gPK[0], gPK[2]) == 0.5 );
-  assert( f2PK.nrec(gPK[0], gPK[3]) == 1.0 );
-
-  assert( f2PK.nrec(gPK[1], gPK[0]) == 0.5 );
-  assert( f2PK.nrec(gPK[1], gPK[1]) == 0.0 );
-  assert( f2PK.nrec(gPK[1], gPK[2]) == 1.0 );
-  assert( f2PK.nrec(gPK[1], gPK[3]) == 0.5 );
-
-  assert( f2PK.nrec(gPK[2], gPK[0]) == 0.5 );
-  assert( f2PK.nrec(gPK[2], gPK[2]) == 0.0 );
-  assert( f2PK.nrec(gPK[2], gPK[1]) == 1.0 );
-  assert( f2PK.nrec(gPK[2], gPK[3]) == 0.5 );
-
-  assert( f2PK.nrec(gPK[3], gPK[3]) == 0.0 );
-  assert( f2PK.nrec(gPK[3], gPK[1]) == 0.5 );
-  assert( f2PK.nrec(gPK[3], gPK[2]) == 0.5 );
-  assert( f2PK.nrec(gPK[3], gPK[0]) == 1.0 );
+    throw new Exception("inputs not among the possible true genotypes");
+  }
 }

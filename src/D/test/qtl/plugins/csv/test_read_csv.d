@@ -49,11 +49,11 @@ unittest {
   assert(data.phenotypes[29][0].value == PHENOTYPE_NA, to!string(data.phenotypes[29][0].value));
   assert(data.phenotypes[30][0].value == 74.417);
   // Check genotype (hard coded)
-  assert(data.genotypes[1][0] == F2.NA);
-  assert(data.genotypes[1][1] == F2.B);
+  assert(data.genotypecombinator[1][0] == F2.NA);
+  assert(data.genotypecombinator[1][1] == F2.B);
   // This should also work
-  assert(data.genotypes[1][0] == data.symbols.decode("NA"));
-  assert(data.genotypes[1][1] == data.symbols.decode("B"));
+  assert(data.genotypecombinator[1][0] == data.symbols.decode("NA"));
+  assert(data.genotypecombinator[1][1] == data.symbols.decode("B"));
   assert(data.individuals.length == 120);
 
   // foreach(name; data.chromosomes.keys.sort) {
@@ -82,10 +82,10 @@ unittest {
   assert(data.phenotypes[30][1].value == 1);
   // Check genotype
   auto F2 = data.crosstype;
-  assert(data.genotypes[1][0] == F2.H);
-  assert(data.genotypes[1][1] == F2.H);
-  assert(data.genotypes[2][3] == F2.NA);
-  assert(data.genotypes[2][4] == F2.B);
+  assert(data.genotypecombinator[1][0] == F2.H);
+  assert(data.genotypecombinator[1][1] == F2.H);
+  assert(data.genotypecombinator[2][3] == F2.NA);
+  assert(data.genotypecombinator[2][4] == F2.B);
 }
 
 unittest {
@@ -109,10 +109,10 @@ unittest {
   assert(data.phenotypes[30][1].value == 1);
   // Check genotype
   auto BC = data.crosstype;
-  assert(data.genotypes[1][0] == BC.H);
-  assert(data.genotypes[1][1] == BC.H);
-  assert(data.genotypes[2][3] == BC.NA);
-  assert(data.genotypes[2][4] == BC.A);
+  assert(data.genotypecombinator[1][0] == BC.H);
+  assert(data.genotypecombinator[1][1] == BC.H);
+  assert(data.genotypecombinator[2][3] == BC.NA);
+  assert(data.genotypecombinator[2][4] == BC.A);
 }
 
 /**
@@ -158,8 +158,8 @@ GENOTYPE D as 1,1 0,1";
   assert(data.phenotypes[29][0].value == PHENOTYPE_NA, to!string(data.phenotypes[29][0].value));
   assert(data.phenotypes[30][0].value == 74.417);
   // Check genotype
-  assert(data.genotypes[1][0] == data.symbols.decode("NA"));
-  assert(data.genotypes[1][1] == data.symbols.decode("B"));
+  assert(data.genotypecombinator[1][0] == data.symbols.decode("NA"));
+  assert(data.genotypecombinator[1][1] == data.symbols.decode("B"));
   assert(data.individuals.length == 120);
 }
 

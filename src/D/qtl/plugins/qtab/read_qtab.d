@@ -23,9 +23,9 @@ import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.individual;
 
-mixin RealizePhenotypeMatrix!double;
+// mixin RealizePhenotypeMatrix!double;
 
-// alias Phenotype!double[][] PhenotypeMatrix;
+// alias Phenotype[][] PhenotypeMatrix;
 
 /**
  * Low level parsers, str_splits a tab delimited line into fields,
@@ -206,7 +206,7 @@ Tuple!(P[][]) read_phenotype_qtab(P)(string fn) {
       auto res = parse_line_key_values(line);
       auto ind = res[0];
       auto fields  = res[1];
-      P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
+      P[] ps = std.array.array(map!((a) {return set_phenotype(a);})(fields));
       ret_phenotypes ~= ps;
     }
   );
@@ -219,8 +219,8 @@ unittest {
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
   auto pheno_fn = to!string(buildPath(dir,"regression","test_phenotype.qtab"));
   writeln("reading ",pheno_fn);
-  auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
-  Phenotype!double[][] pheno = p_res[0];
+  auto p_res = read_phenotype_qtab!(Phenotype)(pheno_fn);
+  Phenotype[][] pheno = p_res[0];
   // 1st ind, 1st phenotype
   assert(pheno[0][0].value == 118.317);
   // 3rd ind, 1st phenotype
@@ -413,10 +413,10 @@ Tuple!(string[],PhenotypeMatrix) get_phenotype_matrix(string fn) {
   each_section_key_values(fn,"Data Phenotype", 
     (key, values) {
       phenotypenames ~= key;
-      Phenotype!double[] ps;
+      Phenotype[] ps;
       ps.reserve(values.length);
       foreach (j, v ; values) {
-        ps ~= set_phenotype!double(v);
+        ps ~= set_phenotype(v);
       }
       i++;
       p ~= ps;

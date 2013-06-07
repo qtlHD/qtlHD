@@ -133,7 +133,7 @@ unittest {
   // write the genotype file 
   auto geno_fn = to!string(buildPath(dir,"regression","test_genotype.qtab.new"));
   f = File(geno_fn,"w");
-  write_genotype_qtab(f, "Test", data.individuals, data.markers, data.genotypes);
+  write_genotype_qtab(f, "Test", data.individuals, data.markers, data.genotypecombinator);
   f.close();
   writeln("Wrote ", geno_fn);
   // write the symbol file 

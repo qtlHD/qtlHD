@@ -36,7 +36,7 @@ Of course we do not know the true genotypes at the pseudo marker locations, but
 we can infer that PM11 for individual 1 is likely to be 1 or 2. To calculate
 the probabilities of the inferred genotypes we create a 3D matrix with the
 probabilities on the z-axis. The (inferred) genotype probabilities are
-calculated using an HMM.
+calculated using an HMM, see also ./doc/hmm.md
 
 ### Scanone routine
 
@@ -68,5 +68,6 @@ the marker locations on the chromosomes. The rest of the file consists
 of individuals, each row containing a name, the phenotype (a double) followed by
 the genotypes at every marker location, in this case A, B, H and - for missing
 data.
+
 
 

@@ -16,6 +16,9 @@ import qtl.core.hmm.cross;
 // re-estimate inter-marker recombination fractions
 double[] estmap(Cross cross,
                 GenotypeCombinator[][] genotypes,
+                bool is_X_chr,
+                bool[] is_female,
+                int[][] cross_direction,
                 Marker[] marker_map,
                 double[] rec_frac,
                 double error_prob,
@@ -35,6 +38,10 @@ double[] estmap(Cross cross,
       throw new Exception("max_iterations should be >= 0");
     if(tol < 0)
       throw new Exception("tol >= 0");
+    if(is_female.length != genotypes.length)
+      throw new Exception("is_female should be same length as genotypes");
+    if(cross_direction.length != genotypes.length)
+      throw new Exception("cross_direction should be same length as genotypes");
 
     auto crossPK = form_cross_phaseknown(cross);
 
@@ -43,9 +50,10 @@ double[] estmap(Cross cross,
 
     auto cur_rec_frac = rec_frac.dup;
     auto prev_rec_frac = rec_frac.dup;
-    double[][] alpha = new double[][](crossPK.all_true_geno.length, n_markers);
-    double[][] beta = new double[][](crossPK.all_true_geno.length, n_markers);
-    double[][] gamma = new double[][](crossPK.all_true_geno.length, n_markers);
+    auto all_true_geno = crossPK.all_true_geno(is_X_chr);
+    double[][] alpha = new double[][](all_true_geno.length, n_markers);
+    double[][] beta = new double[][](all_true_geno.length, n_markers);
+    double[][] gamma = new double[][](all_true_geno.length, n_markers);
     double sum_gamma;
     foreach(it; 0..max_iterations) {
       foreach(ref rf; cur_rec_frac) {
@@ -55,21 +63,26 @@ double[] estmap(Cross cross,
       foreach(ind; 0..n_individuals) {
 
 	// forward and backward equations
-	alpha = forwardEquations(crossPK, genotypes[ind], marker_map, prev_rec_frac, error_prob);
-	beta = backwardEquations(crossPK, genotypes[ind], marker_map, prev_rec_frac, error_prob);
+	alpha = forwardEquations(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
+	beta = backwardEquations(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
+
+        // possible genotypes for this individual, indices to all_true_geno
+        auto possible_true_geno_index = crossPK.possible_true_geno_index(is_X_chr, is_female[ind], cross_direction[ind]);
 
 	foreach(j; 0..prev_rec_frac.length) {
 	  // calculate gamma = log Pr(v1, v2, O)
 	  auto sum_gamma_undef = true;
-	  foreach(il, left_gen; crossPK.all_true_geno) {
-	    foreach(ir, right_gen; crossPK.all_true_geno) {
+	  foreach(il; possible_true_geno_index) {
+            auto left_gen = all_true_geno[il];
+	    foreach(ir; possible_true_geno_index) {
+              auto right_gen = all_true_geno[ir];
               if(isPseudoMarker(marker_map[j+1]))
                 gamma[il][ir] = alpha[il][j] + beta[ir][j+1] +
-                  crossPK.step(left_gen, right_gen, prev_rec_frac[j]);
+                  crossPK.step(left_gen, right_gen, prev_rec_frac[j], is_X_chr, is_female[ind], cross_direction[ind]);
               else
                 gamma[il][ir] = alpha[il][j] + beta[ir][j+1] +
-                  crossPK.emit(genotypes[ind][marker_map[j+1].id], right_gen, error_prob) +
-                  crossPK.step(left_gen, right_gen, prev_rec_frac[j]);
+                  crossPK.emit(genotypes[ind][marker_map[j+1].id], right_gen, error_prob, is_X_chr, is_female[ind], cross_direction[ind]) +
+                  crossPK.step(left_gen, right_gen, prev_rec_frac[j], is_X_chr, is_female[ind], cross_direction[ind]);
 
 	      if(sum_gamma_undef) {
 		sum_gamma_undef = false;
@@ -82,9 +95,9 @@ double[] estmap(Cross cross,
 	  }
 
 	  // update cur_rf
-	  foreach(il, left_gen; crossPK.all_true_geno) {
-	    foreach(ir, right_gen; crossPK.all_true_geno) {
-	      cur_rec_frac[j] += crossPK.nrec(left_gen, right_gen) * exp(gamma[il][ir] - sum_gamma);
+	  foreach(il; possible_true_geno_index) {
+	    foreach(ir; possible_true_geno_index) {
+	      cur_rec_frac[j] += crossPK.nrec(all_true_geno[il], all_true_geno[ir], is_X_chr, is_female[ind], cross_direction[ind]) * exp(gamma[il][ir] - sum_gamma);
 	    }
 	  }
 	} // loop over marker intervals
@@ -129,10 +142,11 @@ double[] estmap(Cross cross,
     double curloglik;
     foreach(ind; 0..n_individuals) {
 
-      alpha = forwardEquations(crossPK, genotypes[ind], marker_map, prev_rec_frac, error_prob);
+      alpha = forwardEquations(crossPK, genotypes[ind], is_X_chr, is_female[ind], cross_direction[ind], marker_map, prev_rec_frac, error_prob);
+      auto possible_true_geno_index = crossPK.possible_true_geno_index(is_X_chr, is_female[ind], cross_direction[ind]);
 
       auto curloglik_undef = true;
-      foreach(g_index, gen; crossPK.all_true_geno) {
+      foreach(g_index; possible_true_geno_index) {
 	if(curloglik_undef) {
 	  curloglik_undef = false;
 	  curloglik = alpha[g_index][prev_rec_frac.length-1];
@@ -151,7 +165,21 @@ double[] estmap(Cross cross,
     return(cur_rec_frac);
 }
 
+// version for autosome with no cross direction information
+double[] estmap(Cross cross,
+                GenotypeCombinator[][] genotypes,
+                Marker[] marker_map,
+                double[] rec_frac,
+                double error_prob,
+                uint max_iterations,
+                double tol,
+                bool verbose)
+{
+  auto is_female  = new bool[](genotypes.length);
+  auto cross_direction = new int[][](genotypes.length, 1);
 
-
-
-
+  return(estmap(cross, genotypes,
+                false, is_female, cross_direction,
+                marker_map, rec_frac, error_prob,
+                max_iterations, tol, verbose));
+}

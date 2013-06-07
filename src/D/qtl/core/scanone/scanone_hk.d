@@ -6,6 +6,7 @@ module qtl.core.scanone.scanone_hk;
 
 import qtl.core.scanone.util;
 import qtl.core.primitives;
+import qtl.core.phenotype;
 import math.lapack.linreg;
 
 import std.container;
@@ -19,7 +20,7 @@ import std.exception;
 
 // scanone, one position
 //    returns vector of residual sums of squares
-double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype!(double)[][] pheno,
+double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype[][] pheno,
                              in double[][] addcovar, in double[][] intcovar,
                              in double[] weights, in double tol=1e-8)
 {
@@ -63,7 +64,7 @@ double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype!(double)
 
 // scanone, many positions
 //    returns matrix of residual sums of squares [position][phenotype]
-double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] pheno,
+double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype[][] pheno,
                       in double[][] addcovar, in double[][] intcovar,
                       in double[] weights, in double tol=1e-8)
 {
@@ -101,11 +102,11 @@ double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[][] 
 
 
 // one phenotype version
-double[] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[] pheno,
+double[] scanone_hk(in Probability[][][] genoprobs, in Phenotype[] pheno,
                     in double[][] addcovar, in double[][] intcovar,
                     in double[] weights, in double tol=1e-8)
 {
-  auto pheno_2d = new Phenotype!double[][](pheno.length, 1);
+  auto pheno_2d = new Phenotype[][](pheno.length, 1);
   foreach(i; 0..pheno.length)
     pheno_2d[i][0].value = pheno[i].value;
 
@@ -119,7 +120,7 @@ double[] scanone_hk(in Probability[][][] genoprobs, in Phenotype!(double)[] phen
 
 
 // scanone for null model
-double[] scanone_hk_null(in Phenotype!(double)[][] pheno, in double[][] addcovar,
+double[] scanone_hk_null(in Phenotype[][] pheno, in double[][] addcovar,
                          in double[] weights, in double tol=1e-8)
 {
   if(weights.length > 0 && pheno.length != weights.length)
@@ -148,10 +149,10 @@ double[] scanone_hk_null(in Phenotype!(double)[][] pheno, in double[][] addcovar
 }
 
 // one phenotype version
-double scanone_hk_null(in Phenotype!(double)[] pheno, in double[][] addcovar, 
+double scanone_hk_null(in Phenotype[] pheno, in double[][] addcovar, 
                        in double[] weights, in double tol=1e-8)
 {
-  auto pheno_2d = new Phenotype!double[][](pheno.length, 1);
+  auto pheno_2d = new Phenotype[][](pheno.length, 1);
   foreach(i; 0..pheno.length)
     pheno_2d[i][0].value = pheno[i].value;
 

@@ -104,8 +104,8 @@ unittest {
   // reading phenotypes
   auto pheno_fn = to!string(buildPath(dir,"listeria_phenotype.qtab"));
   writeln("reading ",pheno_fn);
-  auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
-  Phenotype!double[][] pheno = p_res[0];
+  auto p_res = read_phenotype_qtab!(Phenotype)(pheno_fn);
+  Phenotype[][] pheno = p_res[0];
 
   assert(pheno.length == 120);
   foreach(p; pheno) assert(p.length == 1);
@@ -455,4 +455,12 @@ unittest {
   foreach(i; 0..rec_frac_rev.length) {
     assert(abs(rec_frac_rev[i] - rec_frac_rev_rqtl[i]) < 1e-7);
   }
+
+  // X chromosome...
+  writeln("\nCheck for X chromosome:");
+  foreach(chr; markers_by_chr_sorted) {
+    writeln("chr ", chr[1][0].chromosome.name, " -- is X?:", is_X_chr(chr[1][0].chromosome));
+    writeln("typeid(chr[1][0].chromosome): ", typeid(chr[1][0].chromosome));
+  }
+  writeln();
 }

@@ -28,35 +28,35 @@ import example.genotype_examples;
  * phenotype and genotype - such as the listeria.csv file used in R/qtl.
  *
  * The cross type is injected as XType. An XType works as long as it is a known
- * Genotype class (e.g. BC, F2, RIL, Flex). Observed genotypes are handled as
+ * Genotype class (e.g. BC, F2, RIL, Flex). Observed genotypecombinator are handled as
  * 'fixed' in this implementation. That is, we already know the observed types
  * before reading the genotype data file. The symbols hands back matching
- * (observed) genotypes.
+ * (observed) genotypecombinator.
  *
  * The file is parsed once on class instantiation. Elements can be queried.
  */
 
-class ReadSimpleCSV(XType,ObservedXType) {
+class ReadSimpleCSV(XType,CrossType) {
   private File f;
   XType crosstype;
-  ObservedXType symbols;
+  CrossType symbols;
   string[] phenotypenames;
   Marker[] markers;
   Individuals individuals;
   Chromosome[string] chromosomes;
-  Phenotype!double[][] phenotypes;
-  GenotypeCombinator[][] genotypes;
+  Phenotype[][] phenotypes;
+  GenotypeCombinator[][] genotypecombinator;
   size_t n_phenotypes;
 
-  this(in string fn, ObservedXType observed = null) {
+  this(in string fn, CrossType observed = null) {
     f = File(fn,"r");
     scope(exit) f.close();
     if (observed is null)
-      symbols = new ObservedXType;
+      symbols = new CrossType;
     else
       symbols = observed;
     writeln(symbols);
-    // symbols = new ObservedXType; // this may become a parameter
+    // symbols = new CrossType; // this may become a parameter
     individuals = new Individuals();
     // read markers
     Marker[] ms;
@@ -78,7 +78,7 @@ class ReadSimpleCSV(XType,ObservedXType) {
       }
     }
 
-    // create Marker objects; have m.id be column within phenotypes or within genotypes
+    // create Marker objects; have m.id be column within phenotypes or within genotypecombinator
     foreach (i, mname; header)
     {
       Marker m = new Marker(MARKER_POSITION_UNKNOWN, mname, cast(uint)(i-n_phenotypes));
@@ -117,10 +117,10 @@ class ReadSimpleCSV(XType,ObservedXType) {
       n_individual++;
       auto fields = split(buf,",");
       if (fields.length != n_columns) throw new Exception("Field # out of range in ", buf);
-      Phenotype!double[] ps;
+      Phenotype[] ps;
       ps.reserve(n_columns);
       foreach(field; fields[0..n_phenotypes]) {
-        ps ~= set_phenotype!double(field);
+        ps ~= set_phenotype(field);
       }
       phenotypes ~= ps;
       // set genotype
@@ -131,32 +131,26 @@ class ReadSimpleCSV(XType,ObservedXType) {
       foreach (field; fields[n_phenotypes..$]) {
         gs ~= symbols.decode(strip(field));
       }
-      genotypes ~= gs;
+      genotypecombinator ~= gs;
       individuals.list ~= new Individual(n_individual);
     }
   }
 }
 
-mixin RealizePhenotypeMatrix!double;
-
-// template ToArray(T)() { }
-Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) load_csv(string fn) {
-  Marker[] ms;
+Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) 
+  load_csv(string fn, ObservedGenotypes observed_genotypes) {
   PhenotypeMatrix p;
-  string[][] g;
-  ObservedGenotypes observed;
-  auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
-  auto F2 = data.crosstype;
-  // P[] ps = std.array.array(map!((a) {return set_phenotype!double(a);})(fields));
-  // auto squares = map!(a => a * a)(chain(arr1, arr2));
+  // FIXME: note we currently force an F2 here
+  // auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
+  auto data = new ReadSimpleCSV!(F2,ObservedGenotypes)(fn,observed_genotypes);
   // Convert individuals to string[]
   auto iter = new ListIter!Individuals(data.individuals);
-  // string[] i = array(map!(to!string)(map!(ind => ind.name)(iter)));
-  string[] i = map!(ind => to!string(ind.name))(iter).array();
-
+  string[] inds = map!(ind => to!string(ind.name))(iter).array();
   // Turn the genotype matrix into a genotype combinator matrix
-  auto gc = convert_to_combinator_matrix(g,observed);
-  return tuple(data.markers,i,p,observed,gc);
+  ObservedGenotypes observed;
+  // auto gc = convert_to_combinator_matrix(g,observed);
+
+  return tuple(data.markers,inds,data.phenotypes,observed,data.genotypecombinator);
 }
 
 

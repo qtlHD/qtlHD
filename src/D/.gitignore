@@ -11,3 +11,5 @@ tags
 *.lib
 .RData
 TODO
+*.sh
+test_*

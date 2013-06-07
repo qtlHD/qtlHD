@@ -26,7 +26,6 @@ import qtl.core.hmm.cross;
 import qtl.core.hmm.calcgenoprob;
 import qtl.core.scanone.scanone_hk;
 import qtl.core.scanone.util;
-import qtl.core.util.data_manip;
 
 
 unittest {
@@ -59,10 +58,10 @@ unittest {
   // reading phenotypes
   auto pheno_fn = to!string(buildPath(dir,"listeria_phenotype.qtab"));
   writeln("reading ",pheno_fn);
-  auto p_res = read_phenotype_qtab!(Phenotype!double)(pheno_fn);
-  Phenotype!double[][] pheno = p_res[0];
+  auto p_res = read_phenotype_qtab!Phenotype(pheno_fn);
+  Phenotype[][] pheno = p_res[0];
 
-  auto ind_to_omit = is_any_phenotype_missing(pheno);
+  auto ind_to_omit = individuals_missing_a_phenotype(pheno);
   auto n_to_omit = count(ind_to_omit, true);
   writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
 
@@ -229,7 +228,7 @@ unittest {
   // Additive allele model
 
   // collapse genotype probabilities to allele probabilities
-  auto chr5_allele_probs = collapse_geno_prob_to_allele_prob(chr5probs, f2.all_true_geno);
+  auto chr5_allele_probs = collapse_geno_prob_to_allele_prob(chr5probs, f2.all_true_geno_A);
 
   // run scanone and calculate LOD scores
   rss = scanone_hk(chr5_allele_probs, pheno, addcovar, intcovar, weights);
@@ -243,7 +242,7 @@ unittest {
   }
 
   // collapse genotype probabilities to allele probabilities
-  auto chr13_allele_probs = collapse_geno_prob_to_allele_prob(chr13probs, f2.all_true_geno);
+  auto chr13_allele_probs = collapse_geno_prob_to_allele_prob(chr13probs, f2.all_true_geno_A);
 
   // run scanone and calculate LOD scores
   rss = scanone_hk(chr13_allele_probs, pheno, addcovar, intcovar, weights);
