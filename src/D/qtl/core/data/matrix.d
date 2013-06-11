@@ -12,6 +12,20 @@ import std.typecons;
 import std.algorithm;
 
 /**
+ * Return the rows matching the test function on row elements
+ */
+
+T[] filter_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+  return map!( (row) { 
+    foreach(item; row) {
+      if (!test(item))
+        return null;
+    }
+    return row;
+  })(matrix).array();
+}
+
+/**
  * Return a list of booleans for rows matching the test function for every item in the row
  */
 
