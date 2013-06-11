@@ -62,6 +62,17 @@ string usage = "
     the qtab version
 
       ./scanone --format qtab ../../test/data/input/listeria_qtab/listeria_symbol.qtab ../../test/data/input/listeria_qtab/listeria_founder.qtab ../../test/data/input/listeria_qtab/listeria_marker_map.qtab ../../test/data/input/listeria_qtab/listeria_genotype.qtab ../../test/data/input/listeria_qtab/listeria_phenotype.qtab
+
+    should display:
+
+       --Peaks with LOD > 2:
+       ----Chr 1  : peak for phenotype 0: max lod =    2.10 at pos =   81.40
+       ----Chr 5  : peak for phenotype 0: max lod =    6.68 at pos =   27.30
+       ----Chr 6  : peak for phenotype 0: max lod =    3.33 at pos =   59.37
+       ----Chr 12 : peak for phenotype 0: max lod =    2.16 at pos =   43.60
+       ----Chr 13 : peak for phenotype 0: max lod =    5.90 at pos =   26.16
+       ----Chr 15 : peak for phenotype 0: max lod =    3.18 at pos =   22.40
+
 ";
 
 int main(string[] args) {
