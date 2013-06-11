@@ -80,7 +80,6 @@ bool isNA(Phenotype p) {
 bool[] individuals_missing_a_phenotype(Phenotype[][] phenotype_matrix)
 {
   return filter_matrix_by_row_2bool!Phenotype(phenotype_matrix, (p) => isNA(p));
-  // return map!( (ind_p) { return reduce!( (count,p) => count+isNA(p) )(0,ind_p) > 0 ; } )(phenotype_matrix).array();
 }
 
 // omit individuals from phenotype data

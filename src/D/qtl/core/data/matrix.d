@@ -12,7 +12,7 @@ import std.typecons;
 import std.algorithm;
 
 /**
- * Return a row of the matrix based on the test function. 
+ * Return a list of booleans for rows matching the test function for every item in the row
  */
 
 bool[] filter_matrix_by_row_2bool(T)(T[][] matrix, bool delegate (T) test ) {
