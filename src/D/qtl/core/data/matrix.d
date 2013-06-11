@@ -16,6 +16,6 @@ import std.algorithm;
  */
 
 bool[] filter_matrix_by_row_2bool(T)(T[][] matrix, bool delegate (T) test ) {
-  return map!( (ind_p) { return reduce!( (count,p) => count+test(p) )(0,ind_p) > 0 ; } )(matrix).array();
+  return map!( (row) { return reduce!( (count,item) => count+test(item) )(0,row) > 0 ; } )(matrix).array();
 
 }
