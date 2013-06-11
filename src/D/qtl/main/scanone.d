@@ -81,6 +81,7 @@ int main(string[] args) {
     writeln(usage);
     return 0;
   }
+  bool show_help = false;
   uint verbosity = 1;
   uint debug_level = 0;
   bool contributors = false;
@@ -91,6 +92,7 @@ int main(string[] args) {
 
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
                "d|debug", (string o, string d) { debug_level = to!int(d); },
+               "h|help", (string o) { show_help = true; },
                "cross", (string o, string s) { cross = s.toUpper; },
                "format", (string o, string s) { format = s; },
                "na", (string o, string s) { na_ids = s; },
@@ -98,6 +100,10 @@ int main(string[] args) {
                "credits", (string o) { contributors = true; }
   );
 
+  if (show_help) {
+    writeln(usage);
+    return 0;
+  }
   if (debug_level > 0) writeln(args);
   if (contributors) {
     writeln("  by ",credits);
