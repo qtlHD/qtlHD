@@ -15,7 +15,7 @@ import std.algorithm;
  * Return a list of booleans for rows matching the test function for every item in the row
  */
 
-bool[] filter_matrix_by_row_2bool(T)(T[][] matrix, bool delegate (T) test ) {
+bool[] filter_matrix_by_row_2bool(T)(T[][] matrix, bool function (T) test ) {
   return map!( (row) { return reduce!( (count,item) => count+test(item) )(0,row) > 0 ; } )(matrix).array();
 
 }
