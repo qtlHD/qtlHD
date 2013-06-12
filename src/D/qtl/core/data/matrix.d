@@ -13,7 +13,6 @@ import std.algorithm;
 
 /**
  * Return those rows with index that match the test function on row elements (non-lazy)
- * FIXME: write test and use line operator
  */
 
 Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
@@ -29,7 +28,6 @@ Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool functi
 
 /**
  * Return the rows matching the test function on row elements (non-lazy)
- * FIXME: write test and use line operator
  */
 
 auto filter_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
@@ -57,8 +55,19 @@ unittest {
  */
 
 bool[] filter_matrix_by_row_2bool(T)(T[][] matrix, bool function (T) test ) {
-  return map!( (row) { return reduce!( (count,item) => count+test(item) )(0,row) > 0 ; } )(matrix).array();
+  return map!( (row) {
+    return reduce!( (count,item) => count+test(item) )(0,row) == row.length ; 
+  } )(matrix).array();
+}
 
+unittest {
+  auto matrix = new double[][](3,3);
+  matrix.length = 3;
+  matrix[0] = [1.0,1.0,1.0];  
+  matrix[1] = [1.0,0.0,1.0];  
+  matrix[2] = [1.0,1.0,1.0];  
+  auto rows = filter_matrix_by_row_2bool!double(matrix, item => item==1.0);
+  assert(rows == [true,false,true],to!string(rows));
 }
 
 
