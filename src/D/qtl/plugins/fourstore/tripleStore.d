@@ -1,3 +1,5 @@
+module qtl.plugins.fourstore.TripleStore;
+
 import std.stdio, std.math, std.conv, std.socket, std.string;
 
 /** Triple store class object */
