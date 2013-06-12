@@ -16,15 +16,15 @@ import std.algorithm;
  * FIXME: write test and use line operator
  */
 
-auto filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
+Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
   uint i=0;
-  return map!( (row) { 
+  return remove!"a[1]==[]"(map!( (row) { 
     foreach(item; row) { 
-      if (!test(item)) return null; 
+      if (!test(item)) return tuple(i,cast(double[])null); 
       i += 1;
     }
     return tuple(i,row);
-  })(matrix).remove(null).array();
+  })(matrix).array());
 }
 
 /**
@@ -47,6 +47,8 @@ unittest {
   matrix[2] = [1.0,1.0,1.0];  
   auto rows = filter_matrix_by_row!double(matrix, (item) => item==1.0);
   assert(rows.length == 2,to!string(rows.length));
+  auto tuples = filter_matrix_by_row_with_index!double(matrix, (item) => item==1.0);
+  assert(tuples.length == 2,to!string(tuples.length));
 }
 
 /**
