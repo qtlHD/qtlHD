@@ -748,3 +748,199 @@ unittest {
   assert( f2PK.nrec(PKptg[1], PKptg[0], is_X_chr, is_female, cross_direction) == 1.0 );
   assert( f2PK.nrec(PKptg[1], PKptg[1], is_X_chr, is_female, cross_direction) == 0.0 );
 }
+
+unittest {
+  writeln("Unit test " ~ __FILE__ ~ " RISIB autosome");
+
+  // unit test all_true_geno for RISIB, autosome
+  auto ril = form_cross("RISIB");
+  auto atg = ril.all_true_geno_A;
+  assert(atg.length == 2);
+  assert(atg[0] == new TrueGenotype(0,0));
+  assert(atg[1] == new TrueGenotype(1,1));
+
+  // blank stuff for autosome
+  auto is_X_chr = false;
+  auto is_female = false;
+  auto cross_direction = new int[](1);
+
+  // unit test init for RISIB autosome
+  foreach(gv; atg)
+    assert(to!string(ril.init(gv, is_X_chr, is_female, cross_direction)) == to!string(log(0.5)));
+
+  // unit test step for RISIB autosome
+  double rf = 0.01, R = 4.0*rf/(1.0+6.0*rf);
+
+  assert( to!string( ril.step(atg[0], atg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log((1-R)) ));
+  assert( to!string( ril.step(atg[0], atg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(R) ));
+
+  assert( to!string( ril.step(atg[1], atg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(R) ));
+  assert( to!string( ril.step(atg[1], atg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log((1-R)) ));
+
+  // unit test emit for RISIB autosome
+  auto NA = new GenotypeCombinator("-");
+  auto A = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto B = new GenotypeCombinator("B");
+  B ~= new TrueGenotype(1,1);
+
+  double error_prob = 0.01;
+
+  assert(ril.emit(NA, atg[0], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(ril.emit(NA, atg[1], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(to!string(ril.emit(A, atg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(ril.emit(A, atg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+  assert(to!string(ril.emit(B, atg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(ril.emit(B, atg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+
+  // unit test nrec for RISIB autosome
+  assert(ril.nrec(atg[0], atg[0], is_X_chr, is_female, cross_direction) == 0.0);
+  assert(ril.nrec(atg[0], atg[1], is_X_chr, is_female, cross_direction) == 1.0);
+
+  assert(ril.nrec(atg[1], atg[0], is_X_chr, is_female, cross_direction) == 1.0);
+  assert(ril.nrec(atg[1], atg[1], is_X_chr, is_female, cross_direction) == 0.0);
+}
+
+unittest {
+  writeln("Unit test " ~ __FILE__ ~ " RISIB X chr forward");
+
+  // unit test all_true_geno for RISIB, X chr, forward
+  auto ril = form_cross("RISIB");
+  auto atg = ril.all_true_geno_X;
+  assert(atg.length == 2);
+  assert(atg[0] == new TrueGenotype(0,0));
+  assert(atg[1] == new TrueGenotype(1,1));
+
+  // X chr forward
+  auto is_X_chr = true;
+  auto is_female = false;
+  auto cross_direction = [0];
+
+  // index to possible genotype
+  auto ptgi = ril.possible_true_geno_index(is_X_chr, is_female, cross_direction);
+  auto ptg = new TrueGenotype[](ptgi.length);
+  foreach(i, ptgival; ptgi)
+    ptg[i] = atg[ptgival];
+  assert(ptgi.length == 2);
+  assert(ptgi[0] == 0);
+  assert(ptgi[1] == 1);
+  assert(ptg.length == 2);
+  assert(ptg[0] == new TrueGenotype(0,0));
+  assert(ptg[1] == new TrueGenotype(1,1));
+
+  // unit test init for RISIB X chr, forward
+  assert(to!string(ril.init(ptg[0], is_X_chr, is_female, cross_direction)) == to!string(log(2.0/3.0)));
+  assert(to!string(ril.init(ptg[1], is_X_chr, is_female, cross_direction)) == to!string(log(1.0/3.0)));
+
+  // unit test step for RISIB X chr, forward
+  double rf = 0.01;
+  double P00 = (1.0+2.0*rf)/(1.0+4.0*rf), P01 = 2.0*rf/(1.0+4.0*rf),
+    P10 = 4.0*rf/(1.0+4.0*rf), P11 = 1.0/(1.0+4.0*rf);
+
+  assert( to!string( ril.step(ptg[0], ptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(P00) ));
+  assert( to!string( ril.step(ptg[0], ptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(P01) ));
+
+  assert( to!string( ril.step(ptg[1], ptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(P10) ));
+  assert( to!string( ril.step(ptg[1], ptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(P11) ));
+
+  // unit test emit for RISIB X chr, forward
+  auto NA = new GenotypeCombinator("-");
+  auto A = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto B = new GenotypeCombinator("B");
+  B ~= new TrueGenotype(1,1);
+
+  double error_prob = 0.01;
+
+  assert(ril.emit(NA, ptg[0], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(ril.emit(NA, ptg[1], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(to!string(ril.emit(A, ptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(ril.emit(A, ptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+  assert(to!string(ril.emit(B, ptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(ril.emit(B, ptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+
+  // unit test nrec for RISIB X chr, forward
+  assert(ril.nrec(ptg[0], ptg[0], is_X_chr, is_female, cross_direction) == 0.0);
+  assert(ril.nrec(ptg[0], ptg[1], is_X_chr, is_female, cross_direction) == 1.0);
+
+  assert(ril.nrec(ptg[1], ptg[0], is_X_chr, is_female, cross_direction) == 1.0);
+  assert(ril.nrec(ptg[1], ptg[1], is_X_chr, is_female, cross_direction) == 0.0);
+}
+
+unittest {
+  writeln("Unit test " ~ __FILE__ ~ " RISIB X chr reverse");
+
+  // unit test all_true_geno for RISIB, X chr, reverse
+  auto ril = form_cross("RISIB");
+  auto atg = ril.all_true_geno_X;
+  assert(atg.length == 2);
+  assert(atg[0] == new TrueGenotype(0,0));
+  assert(atg[1] == new TrueGenotype(1,1));
+
+  // X chr reverse
+  auto is_X_chr = true;
+  auto is_female = false;
+  auto cross_direction = [1];
+
+  // index to possible genotype
+  auto ptgi = ril.possible_true_geno_index(is_X_chr, is_female, cross_direction);
+  auto ptg = new TrueGenotype[](ptgi.length);
+  foreach(i, ptgival; ptgi)
+    ptg[i] = atg[ptgival];
+  assert(ptgi.length == 2);
+  assert(ptgi[0] == 0);
+  assert(ptgi[1] == 1);
+  assert(ptg.length == 2);
+  assert(ptg[0] == new TrueGenotype(0,0));
+  assert(ptg[1] == new TrueGenotype(1,1));
+
+  // unit test init for RISIB X chr, reverse
+  assert(to!string(ril.init(ptg[0], is_X_chr, is_female, cross_direction)) == to!string(log(1.0/3.0)));
+  assert(to!string(ril.init(ptg[1], is_X_chr, is_female, cross_direction)) == to!string(log(2.0/3.0)));
+
+  // unit test step for RISIB X chr, reverse
+  double rf = 0.01;
+  double P11 = (1.0+2.0*rf)/(1.0+4.0*rf), P10 = 2.0*rf/(1.0+4.0*rf),
+    P01 = 4.0*rf/(1.0+4.0*rf), P00 = 1.0/(1.0+4.0*rf);
+
+  assert( to!string( ril.step(ptg[0], ptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(P00) ));
+  assert( to!string( ril.step(ptg[0], ptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(P01) ));
+
+  assert( to!string( ril.step(ptg[1], ptg[0], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(P10) ));
+  assert( to!string( ril.step(ptg[1], ptg[1], rf, is_X_chr, is_female, cross_direction) ) ==
+          to!string( log(P11) ));
+
+  // unit test emit for RISIB X chr, reverse
+  auto NA = new GenotypeCombinator("-");
+  auto A = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto B = new GenotypeCombinator("B");
+  B ~= new TrueGenotype(1,1);
+
+  double error_prob = 0.01;
+
+  assert(ril.emit(NA, ptg[0], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(ril.emit(NA, ptg[1], error_prob, is_X_chr, is_female, cross_direction) == 0);
+  assert(to!string(ril.emit(A, ptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(ril.emit(A, ptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+  assert(to!string(ril.emit(B, ptg[1], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(1.0-error_prob)));
+  assert(to!string(ril.emit(B, ptg[0], error_prob, is_X_chr, is_female, cross_direction)) == to!string(log(error_prob)));
+
+  // unit test nrec for RISIB X chr, reverse
+  assert(ril.nrec(ptg[0], ptg[0], is_X_chr, is_female, cross_direction) == 0.0);
+  assert(ril.nrec(ptg[0], ptg[1], is_X_chr, is_female, cross_direction) == 1.0);
+
+  assert(ril.nrec(ptg[1], ptg[0], is_X_chr, is_female, cross_direction) == 1.0);
+  assert(ril.nrec(ptg[1], ptg[1], is_X_chr, is_female, cross_direction) == 0.0);
+}
