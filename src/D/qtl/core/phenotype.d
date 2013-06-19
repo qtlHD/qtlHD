@@ -10,13 +10,15 @@ import std.conv;
 import std.stdio;
 import std.string;
 import std.array;
-
-import std.exception, std.path, std.file;
-import qtl.core.primitives;
-import qtl.core.phenotype;
-
 import std.typecons;
 import std.algorithm;
+import std.exception;
+import std.path;
+import std.file;
+
+import qtl.core.primitives;
+import qtl.core.phenotype;
+import qtl.core.data.matrix;
 
 immutable PHENOTYPE_NA = double.max; 
 
@@ -77,7 +79,7 @@ bool isNA(Phenotype p) {
 // phenotype is missing (true)
 bool[] individuals_missing_a_phenotype(Phenotype[][] phenotype_matrix)
 {
-  return map!( (ind_p) { return reduce!( (count,p) => count+isNA(p) )(0,ind_p) > 0 ; } )(phenotype_matrix).array();
+  return filter_matrix_by_row_2bool!Phenotype(phenotype_matrix, (p) => isNA(p));
 }
 
 // omit individuals from phenotype data

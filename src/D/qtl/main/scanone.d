@@ -62,6 +62,17 @@ string usage = "
     the qtab version
 
       ./scanone --format qtab ../../test/data/input/listeria_qtab/listeria_symbol.qtab ../../test/data/input/listeria_qtab/listeria_founder.qtab ../../test/data/input/listeria_qtab/listeria_marker_map.qtab ../../test/data/input/listeria_qtab/listeria_genotype.qtab ../../test/data/input/listeria_qtab/listeria_phenotype.qtab
+
+    should display:
+
+       --Peaks with LOD > 2:
+       ----Chr 1  : peak for phenotype 0: max lod =    2.10 at pos =   81.40
+       ----Chr 5  : peak for phenotype 0: max lod =    6.68 at pos =   27.30
+       ----Chr 6  : peak for phenotype 0: max lod =    3.33 at pos =   59.37
+       ----Chr 12 : peak for phenotype 0: max lod =    2.16 at pos =   43.60
+       ----Chr 13 : peak for phenotype 0: max lod =    5.90 at pos =   26.16
+       ----Chr 15 : peak for phenotype 0: max lod =    3.18 at pos =   22.40
+
 ";
 
 int main(string[] args) {
@@ -70,6 +81,7 @@ int main(string[] args) {
     writeln(usage);
     return 0;
   }
+  bool show_help = false;
   uint verbosity = 1;
   uint debug_level = 0;
   bool contributors = false;
@@ -80,6 +92,7 @@ int main(string[] args) {
 
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
                "d|debug", (string o, string d) { debug_level = to!int(d); },
+               "h|help", (string o) { show_help = true; },
                "cross", (string o, string s) { cross = s.toUpper; },
                "format", (string o, string s) { format = s; },
                "na", (string o, string s) { na_ids = s; },
@@ -87,6 +100,10 @@ int main(string[] args) {
                "credits", (string o) { contributors = true; }
   );
 
+  if (show_help) {
+    writeln(usage);
+    return 0;
+  }
   if (debug_level > 0) writeln(args);
   if (contributors) {
     writeln("  by ",credits);

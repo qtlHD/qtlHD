@@ -44,7 +44,7 @@ if ARGV.index("RELEASE=TRUE")
 end
 
 arch_dfiles = Dir.glob("./arch/*.d")
-core_dfiles = Dir.glob("./qtl/core/*.d")
+core_dfiles = Dir.glob("./qtl/core/*.d") + Dir.glob("./qtl/core/data/*.d")
 map_dfiles  = Dir.glob("./qtl/core/map/*.d")
 hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d")
 util_dfiles = Dir.glob("./qtl/core/util/*.d")
