@@ -90,6 +90,9 @@ int main(string[] args) {
   string genotype_ids = "A H B D C";
   string na_ids = "- NA";
 
+  auto args_orig = args.dup; // save command-line arguments for second pass
+
+  // parse arguments to grab cross type
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
                "d|debug", (string o, string d) { debug_level = to!int(d); },
                "h|help", (string o) { show_help = true; },
@@ -98,7 +101,26 @@ int main(string[] args) {
                "na", (string o, string s) { na_ids = s; },
                "genotypes", (string o, string s) { genotype_ids = s; },
                "credits", (string o) { contributors = true; }
-  );
+         );
+
+  // different default genotypes for other crosses
+  if(cross == "BC") {
+    genotype_ids = "A H B";
+  }
+  else if(cross == "RISIB" || cross == "RISELF") {
+    genotype_ids = "A B";
+  }
+
+  // parse arguments again
+  getopt(args_orig, "v|verbose", (string o, string v) { verbosity = to!int(v); },
+               "d|debug", (string o, string d) { debug_level = to!int(d); },
+               "h|help", (string o) { show_help = true; },
+               "cross", (string o, string s) { cross = s.toUpper; },
+               "format", (string o, string s) { format = s; },
+               "na", (string o, string s) { na_ids = s; },
+               "genotypes", (string o, string s) { genotype_ids = s; },
+               "credits", (string o) { contributors = true; }
+         );
 
   if (show_help) {
     writeln(usage);
@@ -132,8 +154,9 @@ int main(string[] args) {
       g  = res[6];  // observed genotype matrix
       break;
     case "csv" : 
+      writeln("genotype_ids: ", genotype_ids);
       auto observed_genotypes = parse_genotype_ids(cross,genotype_ids,na_ids);
-      writeln("Observed ",observed_genotypes.toEncodingString(),observed_genotypes);
+      writeln("Observed ", observed_genotypes.toEncodingString(), " ", observed_genotypes);
       auto res = load_csv(args[1], observed_genotypes);
       f["Cross"] = cross;
       ms = res[0];  // markers
@@ -176,7 +199,7 @@ int main(string[] args) {
 
   // cross type
   auto cross_class = form_cross(f["Cross"]);
-  writeln("formed cross class");
+  writeln("formed cross class, ", f["Cross"]);
 
   auto markers_by_chr = sort_chromosomes_by_marker_id(get_markers_by_chromosome(ms));
 
