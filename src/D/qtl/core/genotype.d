@@ -481,6 +481,9 @@ GenotypeCombinator[][] omit_ind_from_genotypes(GenotypeCombinator[][] geno, bool
 ObservedGenotypes parse_genotype_ids(string cross,string genotype_ids,string na_ids) {
   auto symbols = new ObservedGenotypes();
   if (cross == "F2") {
+    if(genotype_ids.length < 5)
+      throw new Exception("Need to provide 5 genotype symbols (eg, 'A H B D C').");
+
     auto aa = new TrueGenotype(0,0);
     auto bb = new TrueGenotype(1,1);
     auto ab = new TrueGenotype(0,1);
@@ -502,19 +505,28 @@ ObservedGenotypes parse_genotype_ids(string cross,string genotype_ids,string na_
     symbols ~= C;
   }
   else if (cross == "BC") {
+    if(genotype_ids.length < 3)
+      throw new Exception("Need to provide 3 genotype symbols (eg, 'A H B').");
+
     auto aa = new TrueGenotype(0,0);
     auto ab = new TrueGenotype(1,0);
+    auto bb = new TrueGenotype(1,1);
     auto na_ids_split = split(na_ids," ");
     auto NA = new GenotypeCombinator(na_ids_split,null);
     auto ids = split(genotype_ids," ");
     writeln("IDS",ids);
     auto A  = new GenotypeCombinator(ids[0],aa);
     auto H  = new GenotypeCombinator(ids[1],ab);
+    auto B  = new GenotypeCombinator(ids[2],bb);
     symbols ~= NA;
     symbols ~= A;
     symbols ~= H;
+    symbols ~= B;
   }
   else if (cross == "RISELF" || cross == "RISIB") {
+    if(genotype_ids.length < 2)
+      throw new Exception("Need to provide 2 genotype symbols (eg, 'A B').");
+
     auto aa = new TrueGenotype(0,0);
     auto bb = new TrueGenotype(1,1);
     auto na_ids_split = split(na_ids," ");
