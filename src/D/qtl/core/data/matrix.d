@@ -1,9 +1,10 @@
 /**
  * Generic matrix functions 
  *
- * These functions are considered standard algorithms for D and many of them
+ * These functions are considered standard algorithms for D and many of them (soon all?)
  * return lazy ranges. For laziness in D see http://ddili.org/ders/d.en/ranges.html
- * and Andrei's http://www.informit.com/articles/printerfriendly.aspx?p=1407357
+ * and Andrei's http://www.informit.com/articles/printerfriendly.aspx?p=1407357 
+ * and https://www.semitwist.com/articles/article/view/combine-coroutines-and-input-ranges-for-dead-simple-d-iteration
  */
 
 module qtl.core.data.matrix;
@@ -21,7 +22,7 @@ import std.algorithm;
  * to almost all situations.
  */
 
-auto test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+Result test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
   uint i=0;
   return map!( (row) { 
     foreach(col; row) { 
