@@ -43,9 +43,7 @@ auto test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
 
 Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
   // filter on all elements that returned false
-  auto range = filter!"a[0]"(
-    test_matrix_by_row!double(matrix,test)
-  );
+  auto range = filter!"a[0]"( test_matrix_by_row!double(matrix,test) );
   return map!( result => tuple(result[1],result[2]) )(range).array();
 }
 
@@ -53,9 +51,11 @@ Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool functi
  * Return the rows matching the test function on row elements (non-lazy)
  */
 
-T[] filter_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+T[][] filter_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
   // the first element of each tuple is the bool
-  return filter!"a[0]"( test_matrix_by_row(matrix,test)).array();
+  auto range = filter!"a[0]"( test_matrix_by_row(matrix,test) );
+  // the third element is the row
+  return map!( result => result[2] )(range).array();
 }
 
 unittest {
@@ -71,8 +71,10 @@ unittest {
   assert(rows1[2][0] == true,to!string(rows1[0][0]));
   auto rows = filter_matrix_by_row!double(matrix, (item) => item==1.0);
   assert(rows.length == 2,to!string(rows.length));
+  assert(rows[1] == [1.0,1.0,1.0]);
   auto tuples = filter_matrix_by_row_with_index!double(matrix, (item) => item==1.0);
   assert(tuples.length == 2,to!string(tuples.length));
+  assert(tuples[1][1] == [1.0,1.0,1.0]);
 }
 
 /**
