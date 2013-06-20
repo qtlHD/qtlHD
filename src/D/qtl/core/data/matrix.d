@@ -1,10 +1,11 @@
 /**
  * Generic matrix functions 
  *
- * These functions are considered standard algorithms for D and many of them (soon all?)
- * return lazy ranges. For laziness in D see http://ddili.org/ders/d.en/ranges.html
- * and Andrei's http://www.informit.com/articles/printerfriendly.aspx?p=1407357 
- * and https://www.semitwist.com/articles/article/view/combine-coroutines-and-input-ranges-for-dead-simple-d-iteration
+ * These functions are considered standard algorithms for qtlHD and many of them
+ * (soon all?) return lazy ranges. For laziness in D see
+ * http://ddili.org/ders/d.en/ranges.html and Andrei's
+ * http://www.informit.com/articles/printerfriendly.aspx?p=1407357 and
+ * https://www.semitwist.com/articles/article/view/combine-coroutines-and-input-ranges-for-dead-simple-d-iteration
  */
 
 module qtl.core.data.matrix;
@@ -15,7 +16,6 @@ import std.string;
 import std.array;
 import std.typecons;
 import std.algorithm;
-// import std.container;
 
 /** 
  * Test each row of a matrix and return the test result, the index and the row
