@@ -41,10 +41,18 @@ auto test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
  * the row array.
  */
 
-Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
+auto lazy_filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
   // filter on all elements that returned false
   auto range = filter!"a[0]"( test_matrix_by_row!double(matrix,test) );
-  return map!( result => tuple(result[1],result[2]) )(range).array();
+  return map!( result => tuple(result[1],result[2]) )(range);
+}
+
+/** 
+ * Non-lazy version
+ */
+
+Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
+  return array(lazy_filter_matrix_by_row_with_index!T(matrix,test));
 }
 
 /**
