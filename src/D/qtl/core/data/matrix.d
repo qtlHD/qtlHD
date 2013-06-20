@@ -11,6 +11,23 @@ import std.array;
 import std.typecons;
 import std.algorithm;
 
+/** 
+ * Test each row of a matrix and return the test result, the index and the row
+ * element in a tuple. This is the full implementation that is lazy and can apply 
+ * to almost all situations.
+ */
+
+Tuple!(bool, uint, T[])[] test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+  uint i=0;
+  return (map!( (row) { 
+    foreach(col; row) { 
+      if (!test(col)) return tuple(false,i,row); 
+      i += 1;
+    }
+    return tuple(true,i,row);
+  })(matrix).array());
+}
+
 /**
  * Return those rows with index that match the test function on row elements (non-lazy). 
  *
@@ -46,6 +63,8 @@ unittest {
   matrix[0] = [1.0,1.0,1.0];  
   matrix[1] = [1.0,0.0,1.0];  
   matrix[2] = [1.0,1.0,1.0];  
+  auto rows1 = test_matrix_by_row!double(matrix, (item) => item==1.0);
+  assert(rows1.length == 3,to!string(rows1.length));
   auto rows = filter_matrix_by_row!double(matrix, (item) => item==1.0);
   assert(rows.length == 2,to!string(rows.length));
   auto tuples = filter_matrix_by_row_with_index!double(matrix, (item) => item==1.0);
