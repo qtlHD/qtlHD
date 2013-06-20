@@ -15,7 +15,7 @@ unittest {
   FounderIndex[] founder = [ 1, 2, 3, 4, 5 ];
   // create a few genotypes (at a marker location)
   auto g1  = new TrueGenotype(founder[0],founder[2]);
-  auto g2  = new TrueGenotype(founder[1],founder[1]); // could be a RIL
+  auto g2  = new TrueGenotype(founder[1],founder[1]); // could be a RISELF
   auto g2a = new TrueGenotype(founder[1],founder[1]); // duplicate
   auto g3  = new TrueGenotype(founder[2],founder[3]);
   auto g4  = new TrueGenotype(founder[4],founder[3]);

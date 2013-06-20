@@ -23,8 +23,8 @@ import std.file;
 void print_help(){
     writeln("Usage: cvs2xgap type infile outfile");
     writeln("  infile: CSV (.csv), CSVr (.csvr)");
-    writeln("  type:   RIL, F2, BC");
-    writeln("  e.g. csv2xgap RIL ../../test/data/input/multitrait.csvr multitrait.xbin");
+    writeln("  type:   RISIB, RISELF, F2, BC");
+    writeln("  e.g. csv2xgap RISELF ../../test/data/input/multitrait.csvr multitrait.xbin");
     writeln("       csv2xgap F2 ../../test/data/input/hyper.csv hyper.xbin");
 }
 
@@ -52,7 +52,8 @@ void main(string[] args){
   if(args.length != 4){
     print_help();
   }else{
-    if(args[1] == "RIL") read_type!RIL(args[2],args[3]);
+    if(args[1] == "RISIB") read_type!RISIB(args[2],args[3]);
+    if(args[1] == "RISELF") read_type!RISELF(args[2],args[3]);
     if(args[1] == "F2") read_type!F2(args[2],args[3]);
     if(args[1] == "BC") read_type!F2(args[2],args[3]);
   }

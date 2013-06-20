@@ -20,8 +20,8 @@ import std.file;
 void print_help(){
   writeln("Usage: readxgap type infile");
   writeln("  infile: XGAP binary (.xbin)");
-  writeln("  type:   RIL, F2, BC");
-  writeln("  e.g. readxgap RIL multitrait.xbin");
+  writeln("  type:   RISIB, RISELF, F2, BC");
+  writeln("  e.g. readxgap RISELF multitrait.xbin");
 }
 
 /*
@@ -36,7 +36,7 @@ void main(string[] args){
   if(args.length != 3){
     print_help();
   }else{
-    if(args[1] == "RIL") read_xgap!RIL(args[2]);
+    if(args[1] == "RISELF") read_xgap!RISELF(args[2]);
     if(args[1] == "F2")  read_xgap!F2(args[2]);
     if(args[1] == "BC")  read_xgap!F2(args[2]);
   }
