@@ -43,7 +43,7 @@ string usage = "
 
   options for CSV files 
 
-    --cross           f2|ril|bc (default f2)
+    --cross           F2|BC|RISELF|RISIB (default F2)
     --genotypes       identifiers (default for BC is 'A H')
     --na              missing data identifiers (default '- NA')
 

@@ -10,11 +10,11 @@ import std.exception;
 import qtl.core.genotype;
 
 /**
- * RIL set using Genotype combinator
- * RIL { NA, A, B };
+ * RISIB, RISELF set using Genotype combinator
+ * RISIB { NA, A, B };
  */
 
-class RIL {
+class RISIB {
   GenotypeCombinator NA, A, B;
   this() {
     NA = new GenotypeCombinator("NA");
@@ -28,16 +28,16 @@ class RIL {
   }
 }
 
-class ObservedRIL {
-  RIL crosstype;
+class ObservedRISIB {
+  RISIB crosstype;
   ObservedGenotypes symbols;
   this() {
-    auto ril = new RIL;
+    auto risib = new RISIB;
     symbols = new ObservedGenotypes();
-    symbols ~= ril.NA;
-    symbols ~= ril.A;
-    symbols ~= ril.B;
-    crosstype = ril;
+    symbols ~= risib.NA;
+    symbols ~= risib.A;
+    symbols ~= risib.B;
+    crosstype = risib;
   }
   /// Decode an input to an (observed) genotype
   auto decode(in string s) {
@@ -48,20 +48,20 @@ class ObservedRIL {
 }
 
 unittest {
-  auto ril = new RIL;
+  auto risib = new RISIB;
   auto symbols = new ObservedGenotypes();
-  symbols ~= ril.NA;
-  symbols ~= ril.A;
-  symbols ~= ril.B;
-  assert(symbols.decode("-") == ril.NA);
-  assert(symbols.decode("A") == ril.A);
-  assert(symbols.decode("AA") == ril.A);
-  assert(symbols.decode("0,0") == ril.A);
-  assert(symbols.decode("1,1") == ril.B);
+  symbols ~= risib.NA;
+  symbols ~= risib.A;
+  symbols ~= risib.B;
+  assert(symbols.decode("-") == risib.NA);
+  assert(symbols.decode("A") == risib.A);
+  assert(symbols.decode("AA") == risib.A);
+  assert(symbols.decode("0,0") == risib.A);
+  assert(symbols.decode("1,1") == risib.B);
 }
 
 unittest {
-  // We can also roll our own types (to create a RIL)
+  // We can also roll our own types (to create a RISIB)
   auto NA = new GenotypeCombinator("NA");
   auto A  = new GenotypeCombinator("A");
   A ~= new TrueGenotype(0,0);
@@ -73,20 +73,95 @@ unittest {
   symbols ~= NA;
   symbols ~= A;
   symbols ~= B;
-  GenotypeCombinator ril[];  // create a set of observed genotypes
+  GenotypeCombinator risib[];  // create a set of observed genotypes
   // now find them by name
   NA.add_encoding("-"); // also support dash inputs for NA
-  ril ~= symbols.decode("-");
-  ril ~= symbols.decode("NA");
-  ril ~= symbols.decode("A");
-  ril ~= symbols.decode("B");
-  // ril ~= symbols.decode("C"); // raises exception!
-  assert(ril[0].isNA);
-  assert(ril[1].isNA);
-  assert(ril[2].name == "A");
-  assert(to!string(ril[2]) == "[(0,0)]");
-  assert(ril[3].name == "B");
-  assert(to!string(ril[3]) == "[(1,1)]");
+  risib ~= symbols.decode("-");
+  risib ~= symbols.decode("NA");
+  risib ~= symbols.decode("A");
+  risib ~= symbols.decode("B");
+  // risib ~= symbols.decode("C"); // raises exception!
+  assert(risib[0].isNA);
+  assert(risib[1].isNA);
+  assert(risib[2].name == "A");
+  assert(to!string(risib[2]) == "[(0,0)]");
+  assert(risib[3].name == "B");
+  assert(to!string(risib[3]) == "[(1,1)]");
+}
+
+class RISELF {
+  GenotypeCombinator NA, A, B;
+  this() {
+    NA = new GenotypeCombinator("NA");
+    A  = new GenotypeCombinator("A");
+    A ~= new TrueGenotype(0,0);
+    B  = new GenotypeCombinator("B");
+    B ~= new TrueGenotype(1,1);
+    NA.add_encoding("-");
+    A.add_encoding("AA");
+    B.add_encoding("BB");
+  }
+}
+
+class ObservedRISELF {
+  RISELF crosstype;
+  ObservedGenotypes symbols;
+  this() {
+    auto riself = new RISELF;
+    symbols = new ObservedGenotypes();
+    symbols ~= riself.NA;
+    symbols ~= riself.A;
+    symbols ~= riself.B;
+    crosstype = riself;
+  }
+  /// Decode an input to an (observed) genotype
+  auto decode(in string s) {
+    return symbols.decode(s);
+  }
+  auto length() { return symbols.length; }
+  override string toString() { return to!string(symbols); }
+}
+
+unittest {
+  auto riself = new RISELF;
+  auto symbols = new ObservedGenotypes();
+  symbols ~= riself.NA;
+  symbols ~= riself.A;
+  symbols ~= riself.B;
+  assert(symbols.decode("-") == riself.NA);
+  assert(symbols.decode("A") == riself.A);
+  assert(symbols.decode("AA") == riself.A);
+  assert(symbols.decode("0,0") == riself.A);
+  assert(symbols.decode("1,1") == riself.B);
+}
+
+unittest {
+  // We can also roll our own types (to create a RISELF)
+  auto NA = new GenotypeCombinator("NA");
+  auto A  = new GenotypeCombinator("A");
+  A ~= new TrueGenotype(0,0);
+  auto B  = new GenotypeCombinator("B");
+  B ~= new TrueGenotype(1,1);
+  assert(NA.name == "NA");
+  assert(A.name == "A");
+  auto symbols = new ObservedGenotypes();
+  symbols ~= NA;
+  symbols ~= A;
+  symbols ~= B;
+  GenotypeCombinator riself[];  // create a set of observed genotypes
+  // now find them by name
+  NA.add_encoding("-"); // also support dash inputs for NA
+  riself ~= symbols.decode("-");
+  riself ~= symbols.decode("NA");
+  riself ~= symbols.decode("A");
+  riself ~= symbols.decode("B");
+  // riself ~= symbols.decode("C"); // raises exception!
+  assert(riself[0].isNA);
+  assert(riself[1].isNA);
+  assert(riself[2].name == "A");
+  assert(to!string(riself[2]) == "[(0,0)]");
+  assert(riself[3].name == "B");
+  assert(to!string(riself[3]) == "[(1,1)]");
 }
 
 
@@ -404,4 +479,4 @@ GENOTYPE AA as 0,0
 }
 
 // CrossType : allowable cross types we will handle
-enum CrossType { BC, F2, RILself, RILsib };
+enum CrossType { BC, F2, RISELF, RISIB };
