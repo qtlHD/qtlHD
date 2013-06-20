@@ -37,7 +37,7 @@ Tuple!(bool, uint, T[])[] test_matrix_by_row(T)(T[][] matrix, bool function (T) 
 
 Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
   auto list = test_matrix_by_row(matrix,test);
-  return map!( (result) { return tuple(result[1],result[2]); } )(remove!"a[0]==false"(list)).array();
+  return map!( result => tuple(result[1],result[2]) )(remove!"a[0]==false"(list)).array();
 }
 
 /**
