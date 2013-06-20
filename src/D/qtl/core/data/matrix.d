@@ -53,14 +53,9 @@ Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool functi
  * Return the rows matching the test function on row elements (non-lazy)
  */
 
-auto filter_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+T[] filter_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+  // the first element of each tuple is the bool
   return filter!"a[0]"( test_matrix_by_row(matrix,test)).array();
-  /*
-  return remove!"a==[]"(map!( (row) { 
-    foreach(item; row) { if (!test(item)) return null; }
-    return row;
-  })(matrix).array());
-  */
 }
 
 unittest {
