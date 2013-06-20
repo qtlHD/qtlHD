@@ -43,7 +43,7 @@ Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool functi
   auto range = filter!"a[0]"(
     test_matrix_by_row!double(matrix,test)
   );
-  return map!( result => tuple(result[1],result[2]) )(array(range)).array();
+  return map!( result => tuple(result[1],result[2]) )(range).array();
 }
 
 /**
