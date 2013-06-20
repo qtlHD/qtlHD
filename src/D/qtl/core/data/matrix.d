@@ -54,10 +54,13 @@ Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool functi
  */
 
 auto filter_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+  return filter!"a[0]"( test_matrix_by_row(matrix,test)).array();
+  /*
   return remove!"a==[]"(map!( (row) { 
     foreach(item; row) { if (!test(item)) return null; }
     return row;
   })(matrix).array());
+  */
 }
 
 unittest {
@@ -85,11 +88,6 @@ unittest {
 bool[] filter_matrix_by_row_2bool(T)(T[][] matrix, bool function (T) test ) {
   // the first element of each tuple is the bool
   return map!"a[0]"( test_matrix_by_row(matrix,test)).array();
-  /*
-  return map!( (row) {
-    return reduce!( (count,item) => count+test(item) )(0,row) == row.length ; 
-  } )(matrix).array();
-  */
 }
 
 unittest {
