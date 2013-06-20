@@ -40,9 +40,10 @@ auto test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
  */
 
 Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
-  auto range = test_matrix_by_row(matrix,test).array();
-  auto range1 =  remove!"!a[0]"(range).array();
-  return map!( result => tuple(result[1],result[2]) )(range1).array();
+  auto range = filter!"a[0]"(
+    test_matrix_by_row!double(matrix,test)
+  );
+  return map!( result => tuple(result[1],result[2]) )(array(range)).array();
 }
 
 /**
