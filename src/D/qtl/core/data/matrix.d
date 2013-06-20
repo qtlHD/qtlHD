@@ -12,7 +12,10 @@ import std.typecons;
 import std.algorithm;
 
 /**
- * Return those rows with index that match the test function on row elements (non-lazy)
+ * Return those rows with index that match the test function on row elements (non-lazy). 
+ *
+ * For each matching row a tuple is returned containing the row index, and a pointer to
+ * the row array.
  */
 
 Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
