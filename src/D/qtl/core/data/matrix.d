@@ -15,6 +15,7 @@ import std.string;
 import std.array;
 import std.typecons;
 import std.algorithm;
+// import std.container;
 
 /** 
  * Test each row of a matrix and return the test result, the index and the row
@@ -41,6 +42,7 @@ auto test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
  */
 
 Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
+  // filter on all elements that returned false
   auto range = filter!"a[0]"(
     test_matrix_by_row!double(matrix,test)
   );
@@ -81,9 +83,13 @@ unittest {
  */
 
 bool[] filter_matrix_by_row_2bool(T)(T[][] matrix, bool function (T) test ) {
+  // the first element of each tuple is the bool
+  return map!"a[0]"( test_matrix_by_row(matrix,test)).array();
+  /*
   return map!( (row) {
     return reduce!( (count,item) => count+test(item) )(0,row) == row.length ; 
   } )(matrix).array();
+  */
 }
 
 unittest {
