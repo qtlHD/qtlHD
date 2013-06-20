@@ -22,7 +22,7 @@ import std.algorithm;
  * to almost all situations.
  */
 
-Result test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+auto test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
   uint i=0;
   return map!( (row) { 
     foreach(col; row) { 
