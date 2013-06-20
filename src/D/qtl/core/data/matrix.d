@@ -1,5 +1,9 @@
 /**
  * Generic matrix functions 
+ *
+ * These functions are considered standard algorithms for D and many of them
+ * return lazy ranges. For laziness in D see http://ddili.org/ders/d.en/ranges.html
+ * and Andrei's http://www.informit.com/articles/printerfriendly.aspx?p=1407357
  */
 
 module qtl.core.data.matrix;
@@ -17,15 +21,15 @@ import std.algorithm;
  * to almost all situations.
  */
 
-Tuple!(bool, uint, T[])[] test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+auto test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
   uint i=0;
-  return (map!( (row) { 
+  return map!( (row) { 
     foreach(col; row) { 
       if (!test(col)) return tuple(false,i,row); 
       i += 1;
     }
     return tuple(true,i,row);
-  })(matrix).array());
+  })(matrix);
 }
 
 /**
@@ -36,8 +40,9 @@ Tuple!(bool, uint, T[])[] test_matrix_by_row(T)(T[][] matrix, bool function (T) 
  */
 
 Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
-  auto list = test_matrix_by_row(matrix,test);
-  return map!( result => tuple(result[1],result[2]) )(remove!"a[0]==false"(list)).array();
+  auto list = test_matrix_by_row(matrix,test).array();
+  return map!( result => tuple(result[1],result[2]) )(
+    remove!"a[0]==false"(list)).array();
 }
 
 /**
@@ -59,6 +64,9 @@ unittest {
   matrix[2] = [1.0,1.0,1.0];  
   auto rows1 = test_matrix_by_row!double(matrix, (item) => item==1.0);
   assert(rows1.length == 3,to!string(rows1.length));
+  assert(rows1[0][0] == true,to!string(rows1[0][0]));
+  assert(rows1[1][0] == false,to!string(rows1[1][0]));
+  assert(rows1[2][0] == true,to!string(rows1[0][0]));
   auto rows = filter_matrix_by_row!double(matrix, (item) => item==1.0);
   assert(rows.length == 2,to!string(rows.length));
   auto tuples = filter_matrix_by_row_with_index!double(matrix, (item) => item==1.0);
