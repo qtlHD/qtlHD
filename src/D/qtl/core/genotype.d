@@ -472,9 +472,9 @@ GenotypeCombinator[][] omit_ind_from_genotypes(GenotypeCombinator[][] geno, bool
 /**
  * Parse the genotype_id string and turn it into a combinator
  *
- *   F2  : "A H B D C" where D is HorB and C is HorA
+ *   F2  : "A H B D C" where D is HorA and C is HorB
  *   BC  : "A H"
- *   RIL : "A B"
+ *   RISIB/RISELF : "A B"
  *   NA  : "- NA"
  */
 
@@ -485,8 +485,8 @@ ObservedGenotypes parse_genotype_ids(string cross,string genotype_ids,string na_
     auto bb = new TrueGenotype(1,1);
     auto ab = new TrueGenotype(0,1);
     auto ba = new TrueGenotype(1,0);
-    auto na_ids2 = split(na_ids," ");
-    auto NA = new GenotypeCombinator(na_ids2,null);
+    auto na_ids_split = split(na_ids," ");
+    auto NA = new GenotypeCombinator(na_ids_split,null);
     auto ids = split(genotype_ids," ");
     writeln("IDS",ids);
     auto A  = new GenotypeCombinator(ids[0],aa);
@@ -500,6 +500,32 @@ ObservedGenotypes parse_genotype_ids(string cross,string genotype_ids,string na_
     symbols ~= H;
     symbols ~= D;
     symbols ~= C;
+  }
+  else if (cross == "BC") {
+    auto aa = new TrueGenotype(0,0);
+    auto ab = new TrueGenotype(1,0);
+    auto na_ids_split = split(na_ids," ");
+    auto NA = new GenotypeCombinator(na_ids_split,null);
+    auto ids = split(genotype_ids," ");
+    writeln("IDS",ids);
+    auto A  = new GenotypeCombinator(ids[0],aa);
+    auto H  = new GenotypeCombinator(ids[1],ab);
+    symbols ~= NA;
+    symbols ~= A;
+    symbols ~= H;
+  }
+  else if (cross == "RISELF" || cross == "RISIB") {
+    auto aa = new TrueGenotype(0,0);
+    auto bb = new TrueGenotype(1,1);
+    auto na_ids_split = split(na_ids," ");
+    auto NA = new GenotypeCombinator(na_ids_split,null);
+    auto ids = split(genotype_ids," ");
+    writeln("IDS",ids);
+    auto A  = new GenotypeCombinator(ids[0],aa);
+    auto B  = new GenotypeCombinator(ids[1],bb);
+    symbols ~= NA;
+    symbols ~= A;
+    symbols ~= B;
   }
   return symbols;
 }
