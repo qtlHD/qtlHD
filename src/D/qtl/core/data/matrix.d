@@ -48,11 +48,12 @@ auto test_matrix_by_row_element(T)(T[][] matrix, bool function (T) test_element 
   */
   uint i=0;
   return map!( (row) { 
-    foreach(col; row) { 
-      if (!test_element(col)) return tuple(false,i,row); 
-      i += 1;
+    i += 1;
+    foreach(element; row) { 
+      // breaks early when element test is false (no need to test the rest)
+      if (!test_element(element)) return tuple(false,i-1,row); 
     }
-    return tuple(true,i,row);
+    return tuple(true,i-1,row);
   })(matrix);
 }
 
@@ -90,12 +91,16 @@ unittest {
   matrix[0] = [1.0,1.0,1.0];  
   matrix[1] = [1.0,0.0,1.0];  
   matrix[2] = [1.0,1.0,1.0];  
+  // writeln(matrix);
   // Test the matrix by row element
-  auto rows1 = test_matrix_by_row_element!double(matrix, (item) => item==1.0);
+  auto rows1 = test_matrix_by_row_element!double(matrix, (item) => item==1.0).array();
   assert(rows1.length == 3,to!string(rows1.length));
+  writeln(rows1);
   assert(rows1[0][0] == true,to!string(rows1[0][0]));
+  assert(rows1[0][1] == 0,to!string(rows1[0][1]));
   assert(rows1[1][0] == false,to!string(rows1[1][0]));
-  assert(rows1[2][0] == true,to!string(rows1[0][0]));
+  assert(rows1[2][0] == true,to!string(rows1[2][0]));
+  assert(rows1[2][1] == 2,to!string(rows1[2][1]));
   auto rows = non_lazy_filter_matrix_by_row!double(matrix, (item) => item==1.0);
   assert(rows.length == 2,to!string(rows.length));
   assert(rows[1] == [1.0,1.0,1.0]);
@@ -107,11 +112,12 @@ unittest {
   assert(rows2.length == 3,to!string(rows2.length));
   auto rows3 = test_matrix_by_row!double(matrix, (r) { 
     return (reduce!"a+(b==1.0)"(0,r) == r.length); }
-  );
+  ).array();
   assert(rows3.length == 3,to!string(rows3.length));
   assert(rows3[0][0] == true,to!string(rows3[0][0]));
   assert(rows3[1][0] == false,to!string(rows3[1][0]));
-  assert(rows3[2][0] == true,to!string(rows3[0][0]));
+  assert(rows3[2][0] == true,to!string(rows3[2][0]));
+  assert(rows3[2][1] == 2,to!string(rows3[2][1]));
 }
 
 /**
