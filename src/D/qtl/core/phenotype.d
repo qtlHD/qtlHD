@@ -128,8 +128,8 @@ size_t[][] create_phenotype_batches(Phenotype[][] pheno)
 
   if(pheno[0].length == 1) return phenotype_batches;
 
-  foreach(i; 0..pheno.length) {
-    if(isNA(pheno[i][0]))
+  foreach(i, p; pheno) {
+    if(isNA(p[0]))
       first_pattern ~= i;
   }
   patterns ~= first_pattern;
@@ -137,14 +137,14 @@ size_t[][] create_phenotype_batches(Phenotype[][] pheno)
   foreach(j; 1..pheno[0].length) {
     size_t[] this_pattern = [];
 
-    foreach(i; 0..pheno.length) {
-      if(isNA(pheno[i][j]))
+    foreach(i, p; pheno) {
+      if(isNA(p[j]))
         this_pattern ~= i;
     }
 
     bool found = false;
-    foreach(i; 0..patterns.length) {
-      if(this_pattern == patterns[i]) {
+    foreach(i, pat; patterns) {
+      if(this_pattern == pat) {
         found = true;
         phenotype_batches[i] ~= j;
       }
