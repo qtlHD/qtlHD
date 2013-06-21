@@ -1,8 +1,12 @@
 /**
  * Generic matrix functions 
  *
- * These functions are considered standard algorithms for qtlHD and many of them
- * (soon all?) return lazy ranges. For laziness in D see
+ * These functions are considered standard algorithms for qtlHD and most of them
+ * return lazy ranges. Some come with non-lazy alternatives to make type checking a 
+ * little easier. 
+ *
+ * For laziness in D see
+ *
  * http://ddili.org/ders/d.en/ranges.html and Andrei's
  * http://www.informit.com/articles/printerfriendly.aspx?p=1407357 and
  * https://www.semitwist.com/articles/article/view/combine-coroutines-and-input-ranges-for-dead-simple-d-iteration
@@ -23,7 +27,7 @@ import std.algorithm;
  * to almost all situations.
  */
 
-auto test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+auto test_matrix_by_row_element(T)(T[][] matrix, bool function (T) test ) {
   uint i=0;
   return map!( (row) { 
     foreach(col; row) { 
@@ -31,6 +35,17 @@ auto test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
       i += 1;
     }
     return tuple(true,i,row);
+  })(matrix);
+}
+
+auto test_matrix_by_row(T)(T[][] matrix, bool function (T[]) test ) {
+  uint i=0;
+  return map!( (row) { 
+    if (!test(row)) 
+      return tuple(false,i,row); 
+    else 
+      return tuple(true,i,row);
+    i += 1;
   })(matrix);
 }
 
@@ -43,7 +58,7 @@ auto test_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
 
 auto lazy_filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
   // filter on all elements that returned false
-  auto range = filter!"a[0]"( test_matrix_by_row!double(matrix,test) );
+  auto range = filter!"a[0]"( test_matrix_by_row_element!double(matrix,test) );
   return map!( result => tuple(result[1],result[2]) )(range);
 }
 
@@ -61,7 +76,7 @@ Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool functi
 
 T[][] filter_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
   // the first element of each tuple is the bool
-  auto range = filter!"a[0]"( test_matrix_by_row(matrix,test) );
+  auto range = filter!"a[0]"( test_matrix_by_row_element(matrix,test) );
   // the third element is the row
   return map!( result => result[2] )(range).array();
 }
@@ -72,7 +87,8 @@ unittest {
   matrix[0] = [1.0,1.0,1.0];  
   matrix[1] = [1.0,0.0,1.0];  
   matrix[2] = [1.0,1.0,1.0];  
-  auto rows1 = test_matrix_by_row!double(matrix, (item) => item==1.0);
+  // Test the matrix by row element
+  auto rows1 = test_matrix_by_row_element!double(matrix, (item) => item==1.0);
   assert(rows1.length == 3,to!string(rows1.length));
   assert(rows1[0][0] == true,to!string(rows1[0][0]));
   assert(rows1[1][0] == false,to!string(rows1[1][0]));
@@ -83,6 +99,9 @@ unittest {
   auto tuples = filter_matrix_by_row_with_index!double(matrix, (item) => item==1.0);
   assert(tuples.length == 2,to!string(tuples.length));
   assert(tuples[1][1] == [1.0,1.0,1.0]);
+  // Test the matrix by row 
+  auto rows2 = test_matrix_by_row!double(matrix, r => true );
+  assert(rows2.length == 3,to!string(rows.length));
 }
 
 /**
@@ -92,7 +111,7 @@ unittest {
 
 bool[] filter_matrix_by_row_2bool(T)(T[][] matrix, bool function (T) test ) {
   // the first element of each tuple is the bool
-  return map!"a[0]"( test_matrix_by_row(matrix,test)).array();
+  return map!"a[0]"( test_matrix_by_row_element(matrix,test)).array();
 }
 
 unittest {
