@@ -69,10 +69,6 @@ auto filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
   return map!( result => tuple(result[1],result[2]) )(range);
 }
 
-/** 
- * Non-lazy version
- */
-
 Tuple!(uint, T[])[] non_lazy_filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
   return array(filter_matrix_by_row_with_index!T(matrix,test));
 }
