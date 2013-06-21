@@ -27,25 +27,32 @@ import std.algorithm;
  * to almost all situations.
  */
 
-auto test_matrix_by_row_element(T)(T[][] matrix, bool function (T) test ) {
+auto test_matrix_by_row(T)(T[][] matrix, bool function (T[]) test_row ) {
   uint i=0;
   return map!( (row) { 
-    foreach(col; row) { 
-      if (!test(col)) return tuple(false,i,row); 
-      i += 1;
-    }
-    return tuple(true,i,row);
+    i += 1;
+    return tuple(test_row(row),i-1,row); 
   })(matrix);
 }
 
-auto test_matrix_by_row(T)(T[][] matrix, bool function (T[]) test ) {
+auto test_matrix_by_row_element(T)(T[][] matrix, bool function (T) test_element ) {
+  // return test_matrix_by_row!T(matrix, row => true );
+  // return test_matrix_by_row!T(matrix, (row) { return true; } );
+  /* This should work, but does not
+  return test_matrix_by_row!T(matrix, (row) { 
+    foreach(element ; row) {
+      if (!test2(element)) return false;
+    }
+    return true;
+  });
+  */
   uint i=0;
   return map!( (row) { 
-    if (!test(row)) 
-      return tuple(false,i,row); 
-    else 
-      return tuple(true,i,row);
-    i += 1;
+    foreach(col; row) { 
+      if (!test_element(col)) return tuple(false,i,row); 
+      i += 1;
+    }
+    return tuple(true,i,row);
   })(matrix);
 }
 
@@ -101,7 +108,11 @@ unittest {
   assert(tuples[1][1] == [1.0,1.0,1.0]);
   // Test the matrix by row 
   auto rows2 = test_matrix_by_row!double(matrix, r => true );
-  assert(rows2.length == 3,to!string(rows.length));
+  assert(rows2.length == 3,to!string(rows2.length));
+  auto rows3 = test_matrix_by_row!double(matrix, (r) { 
+    return true; }
+  );
+  assert(rows3.length == 3,to!string(rows3.length));
 }
 
 /**
