@@ -110,9 +110,12 @@ unittest {
   auto rows2 = test_matrix_by_row!double(matrix, r => true );
   assert(rows2.length == 3,to!string(rows2.length));
   auto rows3 = test_matrix_by_row!double(matrix, (r) { 
-    return true; }
+    return (reduce!"a+(b==1.0)"(0,r) == r.length); }
   );
   assert(rows3.length == 3,to!string(rows3.length));
+  assert(rows3[0][0] == true,to!string(rows3[0][0]));
+  assert(rows3[1][0] == false,to!string(rows3[1][0]));
+  assert(rows3[2][0] == true,to!string(rows3[0][0]));
 }
 
 /**
