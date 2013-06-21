@@ -164,8 +164,8 @@ string create_missing_phenotype_pattern(Phenotype[][] pheno, size_t pheno_column
 {
   string pattern;
 
-  foreach(i; 0..pheno.length) {
-    if(isNA(pheno[i][pheno_column])) {
+  foreach(i, p; pheno) {
+    if(isNA(p[pheno_column])) {
       if(pattern == "") pattern = to!string(i);
       else pattern ~= "|" ~ to!string(i);
     }
