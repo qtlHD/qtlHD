@@ -63,7 +63,7 @@ auto test_matrix_by_row_element(T)(T[][] matrix, bool function (T) test_element 
  * the row array.
  */
 
-auto lazy_filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
+auto filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
   // filter on all elements that returned false
   auto range = filter!"a[0]"( test_matrix_by_row_element!double(matrix,test) );
   return map!( result => tuple(result[1],result[2]) )(range);
@@ -73,15 +73,15 @@ auto lazy_filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) tes
  * Non-lazy version
  */
 
-Tuple!(uint, T[])[] filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
-  return array(lazy_filter_matrix_by_row_with_index!T(matrix,test));
+Tuple!(uint, T[])[] non_lazy_filter_matrix_by_row_with_index(T)(T[][] matrix, bool function (T) test ) {
+  return array(filter_matrix_by_row_with_index!T(matrix,test));
 }
 
 /**
  * Return the rows matching the test function on row elements (non-lazy)
  */
 
-T[][] filter_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
+T[][] non_lazy_filter_matrix_by_row(T)(T[][] matrix, bool function (T) test ) {
   // the first element of each tuple is the bool
   auto range = filter!"a[0]"( test_matrix_by_row_element(matrix,test) );
   // the third element is the row
@@ -100,10 +100,10 @@ unittest {
   assert(rows1[0][0] == true,to!string(rows1[0][0]));
   assert(rows1[1][0] == false,to!string(rows1[1][0]));
   assert(rows1[2][0] == true,to!string(rows1[0][0]));
-  auto rows = filter_matrix_by_row!double(matrix, (item) => item==1.0);
+  auto rows = non_lazy_filter_matrix_by_row!double(matrix, (item) => item==1.0);
   assert(rows.length == 2,to!string(rows.length));
   assert(rows[1] == [1.0,1.0,1.0]);
-  auto tuples = filter_matrix_by_row_with_index!double(matrix, (item) => item==1.0);
+  auto tuples = non_lazy_filter_matrix_by_row_with_index!double(matrix, (item) => item==1.0);
   assert(tuples.length == 2,to!string(tuples.length));
   assert(tuples[1][1] == [1.0,1.0,1.0]);
   // Test the matrix by row 
