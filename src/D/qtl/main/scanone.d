@@ -40,12 +40,15 @@ string usage = "
   options:
 
     --format          qtab|csv (default qtab)
+    --phenocol        vector of numeric indices, of phenotypes to scan
 
   options for CSV files 
 
     --cross           F2|BC|RISELF|RISIB (default F2)
-    --genotypes       identifiers (default for BC is 'A H')
+    --genotypes       genotype codes (default for BC is 'A H')
     --na              missing data identifiers (default '- NA')
+    --sex             name of sex phenotype (default 'sex')
+    --crossdir        name of cross direction phenotype (default 'pgm')
 
   other options:
 
@@ -89,6 +92,9 @@ int main(string[] args) {
   string cross = "F2";
   string genotype_ids = "A H B D C";
   string na_ids = "- NA";
+  string sexcol = "sex";
+  string crossdircol = "pgm";
+  string phenocol = "";
 
   auto args_orig = args.dup; // save command-line arguments for second pass
 
@@ -100,7 +106,10 @@ int main(string[] args) {
                "format", (string o, string s) { format = s; },
                "na", (string o, string s) { na_ids = s; },
                "genotypes", (string o, string s) { genotype_ids = s; },
-               "credits", (string o) { contributors = true; }
+               "credits", (string o) { contributors = true; },
+               "phenocol", (string o, string s) { phenocol = s; },
+               "sex", (string o, string s) { sexcol = s; },
+               "crossdir", (string o, string s) { crossdircol = s; }
          );
 
   // different default genotypes for other crosses
@@ -119,7 +128,10 @@ int main(string[] args) {
                "format", (string o, string s) { format = s; },
                "na", (string o, string s) { na_ids = s; },
                "genotypes", (string o, string s) { genotype_ids = s; },
-               "credits", (string o) { contributors = true; }
+               "credits", (string o) { contributors = true; },
+               "phenocol", (string o, string s) { phenocol = s; },
+               "sex", (string o, string s) { sexcol = s; },
+               "crossdir", (string o, string s) { crossdircol = s; }
          );
 
   if (show_help) {
