@@ -20,6 +20,7 @@ import std.string;
 import std.array;
 import std.typecons;
 import std.algorithm;
+import std.range;
 
 /** 
  * Test each row of a matrix and return the test result, the index and the row
@@ -140,4 +141,70 @@ unittest {
   assert(rows == [true,false,true],to!string(rows));
 }
 
+/** 
+ * Test each column of a matrix and return the test result, the index and the column
+ * element in a tuple. This is the full implementation that is lazy and can apply 
+ * to almost all situations.
+ *
+ * To create a lazy return value we loop with map.
+ */
+
+auto gen_t_matrix(T)(T[][] matrix) {
+  // return zip(std.range.chunks(matrix,1));
+  assert(matrix.length > 0);
+  int i = 0;
+  return map!( (column) { i+=1; return transversal(matrix,i-1); } )(matrix[0]);
+}
+
+
+auto test_matrix_by_col(T)(T[][] matrix, bool function (T[]) test_col ) {
+  uint num_rows = matrix.length-1;
+  uint num_cols = matrix[0].length-1;
+
+  uint i = 0;
+  return map!( (col) { 
+    writeln("**",i,col);
+    i += 1;
+    return tuple(test_col(col.array()),i-1,col); 
+  })(gen_t_matrix(matrix));
+}
+
+
+unittest {
+  auto matrix = new double[][](3,3);
+  matrix.length = 3;
+  matrix[0] = [1.0,1.0,1.0];  
+  matrix[1] = [1.0,0.0,1.0];  
+  matrix[2] = [1.0,2.0,1.0];  
+  // writeln(matrix);
+  // Test the matrix by col element
+  /*
+  auto cols1 = test_matrix_by_col_element!double(matrix, (item) => item==1.0).array();
+  assert(cols1.length == 3,to!string(cols1.length));
+  writeln(cols1);
+  assert(cols1[0][0] == true,to!string(cols1[0][0]));
+  assert(cols1[0][1] == 0,to!string(cols1[0][1]));
+  assert(cols1[1][0] == false,to!string(cols1[1][0]));
+  assert(cols1[2][0] == true,to!string(cols1[2][0]));
+  assert(cols1[2][1] == 2,to!string(cols1[2][1]));
+  auto cols = non_lazy_filter_matrix_by_col!double(matrix, (item) => item==1.0);
+  assert(cols.length == 2,to!string(cols.length));
+  assert(cols[1] == [1.0,1.0,1.0]);
+  auto tuples = non_lazy_filter_matrix_by_col_with_index!double(matrix, (item) => item==1.0);
+  assert(tuples.length == 2,to!string(tuples.length));
+  assert(tuples[1][1] == [1.0,1.0,1.0]);
+  */
+  // Test the matrix by col 
+  auto cols2 = test_matrix_by_col!double(matrix, r => true ).array();
+  assert(cols2.length == 3,to!string(cols2.length));
+  auto cols3 = test_matrix_by_col!double(matrix, (r) { 
+    return (reduce!"a+(b==1.0)"(0,r) == r.length); }
+  ).array();
+  assert(cols3.length == 3,to!string(cols3.length));
+  writeln(cols3);
+  assert(cols3[0][0] == true,to!string(cols3[0][0]));
+  assert(cols3[1][0] == false,to!string(cols3[1][0]));
+  assert(cols3[2][0] == true,to!string(cols3[2][0]));
+  assert(cols3[2][1] == 2,to!string(cols3[2][1]));
+}
 
