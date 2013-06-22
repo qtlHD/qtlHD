@@ -152,8 +152,8 @@ unittest {
 auto gen_t_matrix(T)(T[][] matrix) {
   // return zip(std.range.chunks(matrix,1));
   assert(matrix.length > 0);
-  int i = 0;
-  return map!( (column) { i+=1; return transversal(matrix,i-1); } )(matrix[0]);
+  uint i = 0;
+  return map!( column => transversal(matrix,i++) )(matrix[0]);
 }
 
 
