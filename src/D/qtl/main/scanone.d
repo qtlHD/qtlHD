@@ -96,20 +96,10 @@ int main(string[] args) {
   string crossdircol = "pgm";
   string phenocol = "";
 
-  auto args_orig = args.dup; // save command-line arguments for second pass
-
   // parse arguments to grab cross type
-  getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
-               "d|debug", (string o, string d) { debug_level = to!int(d); },
-               "h|help", (string o) { show_help = true; },
-               "cross", (string o, string s) { cross = s.toUpper; },
-               "format", (string o, string s) { format = s; },
-               "na", (string o, string s) { na_ids = s; },
-               "genotypes", (string o, string s) { genotype_ids = s; },
-               "credits", (string o) { contributors = true; },
-               "phenocol", (string o, string s) { phenocol = s; },
-               "sex", (string o, string s) { sexcol = s; },
-               "crossdir", (string o, string s) { crossdircol = s; }
+  getopt(args,
+         std.getopt.config.passThrough,
+         "cross", (string o, string s) { cross = s.toUpper; },
          );
 
   // different default genotypes for other crosses
@@ -120,11 +110,10 @@ int main(string[] args) {
     genotype_ids = "A B";
   }
 
-  // parse arguments again
-  getopt(args_orig, "v|verbose", (string o, string v) { verbosity = to!int(v); },
+  // parse arguments again; 'cross' has been removed
+  getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
                "d|debug", (string o, string d) { debug_level = to!int(d); },
                "h|help", (string o) { show_help = true; },
-               "cross", (string o, string s) { cross = s.toUpper; },
                "format", (string o, string s) { format = s; },
                "na", (string o, string s) { na_ids = s; },
                "genotypes", (string o, string s) { genotype_ids = s; },
