@@ -31,8 +31,7 @@ import std.range;
 auto test_matrix_by_row(T)(T[][] matrix, bool function (T[]) test_row ) {
   uint i=0;
   return map!( (row) { 
-    i += 1;
-    return tuple(test_row(row),i-1,row); 
+    return tuple(test_row(row),i++,row); 
   })(matrix);
 }
 
@@ -146,54 +145,78 @@ unittest {
  * element in a tuple. This is the full implementation that is lazy and can apply 
  * to almost all situations.
  *
- * To create a lazy return value we loop with map.
+ * To create a lazy return value we loop with map. The column is returned as a 
+ * concrete array.
  */
 
 auto gen_t_matrix(T)(T[][] matrix) {
-  // return zip(std.range.chunks(matrix,1));
   assert(matrix.length > 0);
   uint i = 0;
-  return map!( column => transversal(matrix,i++) )(matrix[0]);
+  return map!( column => transversal(matrix,i++).array() )(matrix[0]);
 }
 
-
 auto test_matrix_by_col(T)(T[][] matrix, bool function (T[]) test_col ) {
-  uint num_rows = matrix.length-1;
-  uint num_cols = matrix[0].length-1;
-
   uint i = 0;
   return map!( (col) { 
-    writeln("**",i,col);
-    i += 1;
-    return tuple(test_col(col.array()),i-1,col); 
+    return tuple(test_col(col),i++,col); 
   })(gen_t_matrix(matrix));
+}
+
+auto test_matrix_by_col_element(T)(T[][] matrix, bool function (T) test_element ) {
+  uint i=0;
+  return map!( (col) { 
+    i += 1;
+    foreach(element; col) { 
+      // breaks early when element test is false (no need to test the rest)
+      if (!test_element(element)) return tuple(false,i-1,col); 
+    }
+    return tuple(true,i-1,col);
+  })(gen_t_matrix(matrix));
+}
+
+T[][] non_lazy_filter_matrix_by_col(T)(T[][] matrix, bool function (T) test ) {
+  // the first element of each tuple is the bool
+  auto range = filter!"a[0]"( test_matrix_by_col_element(matrix,test).array() );
+  // the third element is the col, and make concrete...
+  return map!( result => result[2] )(range).array();
+}
+
+auto filter_matrix_by_col_with_index(T)(T[][] matrix, bool function (T) test ) {
+  // filter on all elements that returned false
+  auto range = filter!"a[0]"( test_matrix_by_col_element!double(matrix,test).array() );
+  return map!( result => tuple(result[1],result[2]) )(range);
+}
+
+Tuple!(uint, T[])[] non_lazy_filter_matrix_by_col_with_index(T)(T[][] matrix, bool function (T) test ) {
+  return array(filter_matrix_by_col_with_index!T(matrix,test));
 }
 
 
 unittest {
+  writeln("Start column-wise");
   auto matrix = new double[][](3,3);
   matrix.length = 3;
   matrix[0] = [1.0,1.0,1.0];  
   matrix[1] = [1.0,0.0,1.0];  
   matrix[2] = [1.0,2.0,1.0];  
   // writeln(matrix);
-  // Test the matrix by col element
-  /*
+  // Test the matrix by col element (all items in column should be 1.0)
   auto cols1 = test_matrix_by_col_element!double(matrix, (item) => item==1.0).array();
+  // lazy version returns information on 3 columns
   assert(cols1.length == 3,to!string(cols1.length));
-  writeln(cols1);
   assert(cols1[0][0] == true,to!string(cols1[0][0]));
   assert(cols1[0][1] == 0,to!string(cols1[0][1]));
   assert(cols1[1][0] == false,to!string(cols1[1][0]));
   assert(cols1[2][0] == true,to!string(cols1[2][0]));
   assert(cols1[2][1] == 2,to!string(cols1[2][1]));
-  auto cols = non_lazy_filter_matrix_by_col!double(matrix, (item) => item==1.0);
+  // Now filter down to 2 columns
+  auto cols = non_lazy_filter_matrix_by_col!double(matrix, item => item==1.0);
+  writeln("##",cols);
   assert(cols.length == 2,to!string(cols.length));
   assert(cols[1] == [1.0,1.0,1.0]);
   auto tuples = non_lazy_filter_matrix_by_col_with_index!double(matrix, (item) => item==1.0);
   assert(tuples.length == 2,to!string(tuples.length));
   assert(tuples[1][1] == [1.0,1.0,1.0]);
-  */
   // Test the matrix by col 
   auto cols2 = test_matrix_by_col!double(matrix, r => true ).array();
   assert(cols2.length == 3,to!string(cols2.length));
