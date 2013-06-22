@@ -146,7 +146,7 @@ unittest {
  * to almost all situations.
  *
  * To create a lazy return value we loop with map. The column is returned as a 
- * concrete array.
+ * concrete array (if we make that lazy, it can get kinda crazy!)
  */
 
 auto gen_t_matrix(T)(T[][] matrix) {
@@ -175,9 +175,11 @@ auto test_matrix_by_col_element(T)(T[][] matrix, bool function (T) test_element 
 }
 
 T[][] non_lazy_filter_matrix_by_col(T)(T[][] matrix, bool function (T) test ) {
-  // the first element of each tuple is the bool
+  // the first element of each tuple is the bool - at this point the result 
+  // is concrete, so as to not invoke the lambdas again. Maybe this can be
+  // improved...
   auto range = filter!"a[0]"( test_matrix_by_col_element(matrix,test).array() );
-  // the third element is the col, and make concrete...
+  // the third element is the col, and now make concrete...
   return map!( result => result[2] )(range).array();
 }
 
