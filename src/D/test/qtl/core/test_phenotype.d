@@ -113,3 +113,36 @@ unittest {
   assert(batches_hash["6|10|11"] == [2]);
 }
 
+
+unittest {
+  writeln("Test subset phenotypes");
+
+  Phenotype pheno[][];
+  auto pdbl = [ ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                [  "-", "0.0", "0.0",   "-", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                [  "-",   "-",   "-",   "-",   "-"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                [  "-",   "-", "0.0",   "-",   "-"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0",   "-",   "-", "0.0",   "-"],
+                ["0.0",   "-",   "-", "0.0",   "-"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"]];
+
+  foreach(line; pdbl) {
+      Phenotype[] ps = std.array.array(map!((a) {return set_phenotype(a);})(line));
+      pheno ~= ps;
+  }
+
+  auto phenosub = subset_phenotype_columns(pheno, [1,3]);
+
+  assert(phenosub.length == pheno.length);
+  foreach(i, p; phenosub) {
+    assert(p.length == 2);
+    assert(p[0] == pheno[i][1]);
+    assert(p[1] == pheno[i][3]);
+  }
+}

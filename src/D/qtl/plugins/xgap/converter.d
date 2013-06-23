@@ -69,6 +69,6 @@ unittest{
   auto data = new XbinReader(outfn);
   auto convertor = new XbinConverter();
   auto phenotypes = convertor.toPhenotype(data.load(0));
-  auto genotypes = convertor.toGenotypes!ObservedRIL(data.load(1));
+  auto genotypes = convertor.toGenotypes!ObservedRISELF(data.load(1));
   auto markers = convertor.asMarkers(data.load(2));
 }

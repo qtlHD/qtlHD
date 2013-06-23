@@ -99,6 +99,25 @@ Phenotype[][] omit_ind_from_phenotypes(Phenotype[][] pheno, bool[] to_omit)
   return ret;
 }
 
+// select a subset of phenotype columns
+Phenotype[][] subset_phenotype_columns(Phenotype[][] pheno, size_t[] pheno_columns)
+{
+  foreach(col; pheno_columns)
+    if(col < 0 || col >= pheno[0].length)
+      throw new Exception("pheno_columns outside of allowable range");
+
+  Phenotype[][] ret;
+
+  foreach(pherow; pheno) {
+    Phenotype[] thisrow;
+    foreach(col; pheno_columns)
+      thisrow ~= pherow[col];
+    ret ~= thisrow;
+  }
+
+  return ret;
+}
+
 // batches of phenotypes with common missing data patterns
 size_t[][] create_phenotype_batches(Phenotype[][] pheno)
 {
@@ -109,8 +128,8 @@ size_t[][] create_phenotype_batches(Phenotype[][] pheno)
 
   if(pheno[0].length == 1) return phenotype_batches;
 
-  foreach(i; 0..pheno.length) {
-    if(isNA(pheno[i][0]))
+  foreach(i, p; pheno) {
+    if(isNA(p[0]))
       first_pattern ~= i;
   }
   patterns ~= first_pattern;
@@ -118,14 +137,14 @@ size_t[][] create_phenotype_batches(Phenotype[][] pheno)
   foreach(j; 1..pheno[0].length) {
     size_t[] this_pattern = [];
 
-    foreach(i; 0..pheno.length) {
-      if(isNA(pheno[i][j]))
+    foreach(i, p; pheno) {
+      if(isNA(p[j]))
         this_pattern ~= i;
     }
 
     bool found = false;
-    foreach(i; 0..patterns.length) {
-      if(this_pattern == patterns[i]) {
+    foreach(i, pat; patterns) {
+      if(this_pattern == pat) {
         found = true;
         phenotype_batches[i] ~= j;
       }
@@ -145,8 +164,8 @@ string create_missing_phenotype_pattern(Phenotype[][] pheno, size_t pheno_column
 {
   string pattern;
 
-  foreach(i; 0..pheno.length) {
-    if(isNA(pheno[i][pheno_column])) {
+  foreach(i, p; pheno) {
+    if(isNA(p[pheno_column])) {
       if(pattern == "") pattern = to!string(i);
       else pattern ~= "|" ~ to!string(i);
     }

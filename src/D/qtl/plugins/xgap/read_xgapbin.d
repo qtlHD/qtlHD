@@ -224,8 +224,8 @@ unittest{
   auto infn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr"));
   auto outfn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin"));
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
-  auto indata = new CSVrReader!(RIL,ObservedRIL)(infn);
-  auto result = new BinaryWriter!(CSVrReader!(RIL,ObservedRIL),RIL)(indata,outfn);
+  auto indata = new CSVrReader!(RISELF,ObservedRISELF)(infn);
+  auto result = new BinaryWriter!(CSVrReader!(RISELF,ObservedRISELF),RISELF)(indata,outfn);
   writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn), toKb(outfn));
   
   writeln("  - reading XBIN " ~ outfn);
@@ -239,9 +239,9 @@ unittest{
   assert(set_phenotype(to!string((cast(DoubleMatrix)(m1.data)).data[10][5])) == indata.phenotypes[10][5]);
   writeln("   - Reloaded phenotypes from xgap binary");
   XgapMatrix m2 = data.load(1);
- // assert(ObservedRIL.decode((cast(StringMatrix)(m2.data)).data[3][1]) == indata.genotypes[3][1]);
- // assert(ObservedRIL.decode((cast(StringMatrix)(m2.data)).data[7][15]) == indata.genotypes[7][15]);
- // assert(ObservedRIL.decode((cast(StringMatrix)(m2.data)).data[20][3]) == indata.genotypes[20][3]);
+ // assert(ObservedRISELF.decode((cast(StringMatrix)(m2.data)).data[3][1]) == indata.genotypes[3][1]);
+ // assert(ObservedRISELF.decode((cast(StringMatrix)(m2.data)).data[7][15]) == indata.genotypes[7][15]);
+ // assert(ObservedRISELF.decode((cast(StringMatrix)(m2.data)).data[20][3]) == indata.genotypes[20][3]);
   writeln("   - Reloaded genotypes from xgap binary");
   XgapMatrix m3 = data.load(2);
   assert((cast(StringMatrix)(m3.data)).data[1][0] == getMarkerInfoMatrix(indata.markers)[1][0]);

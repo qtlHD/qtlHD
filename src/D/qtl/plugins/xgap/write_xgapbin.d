@@ -135,8 +135,8 @@ unittest {
   auto infn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr"));
   auto outfn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.xbin"));
   writeln("  - reading CSVR " ~ infn ~" to " ~ outfn);
-  auto data = new CSVrReader!(RIL,ObservedRIL)(infn);
-  auto result = new BinaryWriter!(CSVrReader!(RIL,ObservedRIL),RIL)(data,outfn);
+  auto data = new CSVrReader!(RISELF,ObservedRISELF)(infn);
+  auto result = new BinaryWriter!(CSVrReader!(RISELF,ObservedRISELF),RISELF)(data,outfn);
   writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn), toKb(outfn));
   
   auto infn1 = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv"));

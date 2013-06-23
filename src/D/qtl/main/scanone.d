@@ -40,12 +40,15 @@ string usage = "
   options:
 
     --format          qtab|csv (default qtab)
+    --phenocol        vector of numeric indices, of phenotypes to scan
 
   options for CSV files 
 
-    --cross           f2|ril|bc (default f2)
-    --genotypes       identifiers (default for BC is 'A H')
+    --cross           F2|BC|RISELF|RISIB (default F2)
+    --genotypes       genotype codes (default for BC is 'A H')
     --na              missing data identifiers (default '- NA')
+    --sex             name of sex phenotype (default 'sex')
+    --crossdir        name of cross direction phenotype (default 'pgm')
 
   other options:
 
@@ -89,16 +92,36 @@ int main(string[] args) {
   string cross = "F2";
   string genotype_ids = "A H B D C";
   string na_ids = "- NA";
+  string sexcol = "sex";
+  string crossdircol = "pgm";
+  string phenocol = "";
 
+  // parse arguments to grab cross type
+  getopt(args,
+         std.getopt.config.passThrough,
+         "cross", (string o, string s) { cross = s.toUpper; },
+         );
+
+  // different default genotypes for other crosses
+  if(cross == "BC") {
+    genotype_ids = "A H B";
+  }
+  else if(cross == "RISIB" || cross == "RISELF") {
+    genotype_ids = "A B";
+  }
+
+  // parse arguments again; 'cross' has been removed
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
                "d|debug", (string o, string d) { debug_level = to!int(d); },
                "h|help", (string o) { show_help = true; },
-               "cross", (string o, string s) { cross = s.toUpper; },
                "format", (string o, string s) { format = s; },
                "na", (string o, string s) { na_ids = s; },
                "genotypes", (string o, string s) { genotype_ids = s; },
-               "credits", (string o) { contributors = true; }
-  );
+               "credits", (string o) { contributors = true; },
+               "phenocol", (string o, string s) { phenocol = s; },
+               "sex", (string o, string s) { sexcol = s; },
+               "crossdir", (string o, string s) { crossdircol = s; }
+         );
 
   if (show_help) {
     writeln(usage);
@@ -132,8 +155,9 @@ int main(string[] args) {
       g  = res[6];  // observed genotype matrix
       break;
     case "csv" : 
+      writeln("genotype_ids: ", genotype_ids);
       auto observed_genotypes = parse_genotype_ids(cross,genotype_ids,na_ids);
-      writeln("Observed ",observed_genotypes.toEncodingString(),observed_genotypes);
+      writeln("Observed ", observed_genotypes.toEncodingString(), " ", observed_genotypes);
       auto res = load_csv(args[1], observed_genotypes);
       f["Cross"] = cross;
       ms = res[0];  // markers
@@ -176,7 +200,7 @@ int main(string[] args) {
 
   // cross type
   auto cross_class = form_cross(f["Cross"]);
-  writeln("formed cross class");
+  writeln("formed cross class, ", f["Cross"]);
 
   auto markers_by_chr = sort_chromosomes_by_marker_id(get_markers_by_chromosome(ms));
 

@@ -28,7 +28,7 @@ import example.genotype_examples;
  * phenotype and genotype - such as the listeria.csv file used in R/qtl.
  *
  * The cross type is injected as XType. An XType works as long as it is a known
- * Genotype class (e.g. BC, F2, RIL, Flex). Observed genotypecombinator are handled as
+ * Genotype class (e.g. BC, F2, RISELF, RISIB, Flex). Observed genotypecombinator are handled as
  * 'fixed' in this implementation. That is, we already know the observed types
  * before reading the genotype data file. The symbols hands back matching
  * (observed) genotypecombinator.
