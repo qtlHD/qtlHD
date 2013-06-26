@@ -11,4 +11,5 @@ import std.algorithm;
 import std.math;
 import std.string;
 import qtl.plugins.csv.read_csv;
+import qtl.core.mqm.regression;
 import qtl.core.mqm.mqmutils; //Load the R-bindings

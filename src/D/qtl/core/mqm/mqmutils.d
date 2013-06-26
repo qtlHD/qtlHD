@@ -19,7 +19,7 @@ extern (C) double Rf_qf(double, double, double, int, int);
 
 
 double LogNormal(double residual, double variance){
-  return Rf_dnorm4(residual,0,sqrt(variance),0);
+  return exp(-pow(residual/sqrt(variance),2.0) / 2.0 - log(sqrt(2.0*acos(-1.0)*variance)));
 }
 
 double InverseF(int df1, int df2, double alfa){
