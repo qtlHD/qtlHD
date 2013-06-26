@@ -12,6 +12,8 @@ import std.math;
 import std.container;
 import std.typecons;
 import std.variant;
+import std.array;
+import std.range;
 
 import qtl.plugins.csv.read_csv;
 import qtl.plugins.qtab.read_qtab;
@@ -23,6 +25,7 @@ import qtl.core.phenotype;
 import qtl.plugins.qtab.read_qtab;
 import qtl.core.map.map;
 import qtl.core.map.make_map;
+import qtl.core.data.matrix;
 
 import qtl.core.map.genetic_map_functions;
 import qtl.core.hmm.cross;
@@ -188,14 +191,18 @@ int main(string[] args) {
     writeln(ms[0..3]);
   }
 
-  // TODO: reduce missing phenotype data (not all individuals?)
-  auto ind_to_omit = individuals_missing_a_phenotype(p);
-  auto n_to_omit = count(ind_to_omit, true);
-  writeln("Omitting ", n_to_omit, " individuals with missing phenotype");
-  auto pheno = omit_ind_from_phenotypes(p, ind_to_omit);
+  // auto ind_to_omit = individuals_missing_a_phenotype(p);
+  auto ind_missing_a_phenotype = 
+    test_matrix_by_row_element!Phenotype(p, element => isNA(element)).array();
+  writeln("Omitting ", count!"a[0]==true"(ind_missing_a_phenotype), " individuals with missing phenotype");
+  if (g.length != p.length) 
+    throw new Exception("Genotype individuals does not match phenotype individuals");
+  auto ind_to_include = map!"a[1]"( filter!"a[0]==false"(ind_missing_a_phenotype) ).array();
+  auto pheno = indexed(p,ind_to_include).array();
   writeln("done omitting from phenotypes");
 
-  auto genotype_matrix = omit_ind_from_genotypes(g, ind_to_omit);
+  auto genotype_matrix = indexed(g,ind_to_include).array();
+  assert(genotype_matrix.length == pheno.length);
   writeln("done omitting from genotypes");
 
   // cross type
