@@ -21,15 +21,15 @@ alias GenotypeCombinator[][] GenotypeMatrix; // = new double[][][](n_markers,n_i
 
   The number of possible true, or real, genotypes at a marker location is
   limited, as they depend on the number of founders (K^2 types). Unfortunately,
-  due to the scoring technology, there are a lot more 'observed' genotypes -
-  i.e.  combinations of possible true genotypes,
+  due to the scoring technologies, there may be a lot more 'observed' genotypes -
+  i.e. observed combinations of possible true genotypes,
 
-  Inside each dataset, however, there is a limited number of stored
-  combinations. So, rather than setting all types in advance we only create the
-  actual types used in the dataset. The genotype matrix contains pointers to a
-  bit array. The bit array references combinations of supported types.
+  Inside each dataset, we create a limited number of stored combinations. So,
+  rather than setting all types in advance we only create the actual types used
+  in each dataset. The genotype matrix can be viewed as pointers to a 'bit'
+  array. The bit array references combinations of supported true genotypes.
   Supported types are Tuples of 'alleles', where alleles are numbers referring
-  to the founders. I.e.
+  to the founders.  I.e.
 
   founders:       [1]   [2]   [3]   [4]
 
@@ -277,8 +277,8 @@ alias GenotypeCombinator Gref;  // short name for referencing a combinator
 
 /**
  * ObservedGenotypes tracks all the observed genotypes in a dataset, for the
- * full set, or at a marker position.  This symbol tracker is a convenience
- * class, mostly.
+ * full set, or at an individual marker position (whichever is useful).  This
+ * symbol tracker is a convenience class for data parsers, mostly. 
  */
 
 class ObservedGenotypes {
