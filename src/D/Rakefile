@@ -50,7 +50,7 @@ hmm_dfiles  = Dir.glob("./qtl/core/hmm/*.d")
 util_dfiles = Dir.glob("./qtl/core/util/*.d")
 simulate_dfiles = Dir.glob("./qtl/core/simulate/*.d")
 distributions_dfiles = Dir.glob("./math/distributions/*.d")
-lapack_dfiles = Dir.glob("./math/lapack/*.d")
+lapack_dfiles = Dir.glob("./math/lapack/*.d")+ Dir.glob("./qtl/plugins/renv/*.d")
 if windows? then
 lapack_dfiles += Dir.glob("./arch/*.d") + Dir.glob("./qtl/plugins/renv/*.d")
 end
@@ -61,15 +61,14 @@ qtab_read_dfiles = ["./qtl/plugins/qtab/read_qtab.d"]
 qtab_write_dfiles = ["./qtl/plugins/qtab/write_qtab.d"]
 qtab_dfiles = qtab_read_dfiles + qtab_write_dfiles
 xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d") + csv_dfiles
-renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d")
+renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d") + Dir.glob("./qtl/plugins/renv/broken/*.d")
 scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
 test_scanone_dfiles = Dir.glob("./test/scanone/*.d")
 test_core_dfiles = Dir.glob("./test/qtl/core/*.d")
 test_hmm_dfiles = Dir.glob("./test/hmm/*.d")
 mqm_dfiles = Dir.glob("./qtl/core/mqm/*.d")
 example_dfiles = Dir.glob("./example/*.d")
-deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") +
-  Dir.glob("./qtl/plugins/deprecate/*.d")
+deprecated_dfiles = Dir.glob("./qtl/core/deprecate/*.d") + Dir.glob("./qtl/plugins/deprecate/*.d")
 main_dfile = ["test/main.d"]
 test_simulate_dfiles = Dir.glob("./test/simulate/*.d")
 
@@ -140,7 +139,7 @@ exe_list = {
   'test_scanone' => { :path => './test/scanone', :list => test_scanone_dfiles + all_core_dfiles + scanone_dfiles + main_dfile + lapack_dfiles + util_dfiles + simulate_dfiles + distributions_dfiles },
   'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] + renv_dfiles + arch_dfiles },
   'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + arch_dfiles },
-  'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + renv_dfiles + main_dfile},
+  'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + main_dfile + csv_dfiles + example_dfiles + map_dfiles },
   'test_hmm' => { :path => './test/hmm', :list => test_hmm_dfiles + all_core_dfiles + qtab_read_dfiles + main_dfile },
   'test_simulate' => { :path => './test/simulate', :list => test_simulate_dfiles + simulate_dfiles + distributions_dfiles + main_dfile + all_core_dfiles + scanone_dfiles + lapack_dfiles },
 }
