@@ -983,49 +983,9 @@ class RISIB : Cross {
     throw new Exception("inputs not among the possible true genotypes");
   }
 
-  double nrecXmale(TrueGenotype truegen_left, TrueGenotype truegen_right)
-  {
-    alias all_true_geno_X atg;
+}
 
-    if(truegen_left==atg[0]) {
-      if(truegen_right==atg[0]) // AA -> AA
-        return(0.0);
-      if(truegen_right==atg[3]) // AA -> BB
-        return(1.0);
-    }
-    else if(truegen_left == atg[3]) {
-      if(truegen_right==atg[3]) // BB -> BB
-        return(0.0);
-      if(truegen_right==atg[0]) // BB -> AA
-        return(1.0);
-    }
 
-    throw new Exception("inputs not among the possible true genotypes");
-  }
-
-  double nrecXfemaleforw(TrueGenotype truegen_left, TrueGenotype truegen_right)
-  {
-    alias all_true_geno_X atg;
-
-    if(truegen_left==atg[0]) {
-      if(truegen_right==atg[0]) // AA -> AA
-        return(0.0);
-      if(truegen_right==atg[1]) // AA -> AB
-        return(1.0);
-    }
-    else if(truegen_left == atg[1]) {
-      if(truegen_right==atg[1]) // AB -> AB
-        return(0.0);
-      if(truegen_right==atg[0]) // AB -> AA
-        return(1.0);
-    }
-
-    throw new Exception("inputs not among the possible true genotypes");
-  }
-
-  double nrecXfemalerev(TrueGenotype truegen_left, TrueGenotype truegen_right)
-  {
-    alias all_true_geno_X atg;
 
 // RISELF (recombinant inbred lines by selfing)
 class RISELF : Cross {

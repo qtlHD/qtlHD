@@ -43,9 +43,7 @@ class TripleStore{
       if(isAlive()){ handle.close; delete handle; }
     }
 
-    void addPrefix(string prefix, string uri){
-      prefixes[prefix] = uri;
-    }
+    void addPrefix(string prefix, string uri){ prefixes[prefix] = uri; }
 
     bool isPrefix(string prefix){
       if(prefix[($-1)] == ':'){
