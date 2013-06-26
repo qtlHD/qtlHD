@@ -1,70 +1,56 @@
-/** 
- * Danny's matrix functions
- */
+/**
+ * matrix functions for multiple QTL modelling and scanning
+ **/
 
 module qtl.core.mqm.matrix;
 
-//import core.memory;
 import std.c.stdlib;
 import std.stdio;
 import std.conv;
 
 /*
- * Produces an array with start,start+1,start+2 .. start+length-1
+ * Produces a N-dim vector
  */
-pure int[] doRange(int start,int length){
-  int array[];
-  for(int i = 0; i < (length-1); i++){
-   array ~= start+i;
-  }
-  return array;
+pure T[] newvector(T)(size_t length, T value = T.init){
+  T[] x;
+  x.length = length;
+  for(size_t j=0; j < length; j++){ x ~= value; }
+  return x;
 }
 
 /*
- * Produces an array of size length, filled with value
+ * Create a copy of a vector
  */
-pure T[] doArray(T)(int length,T value){
-  T array[];
-  for(int i = 0; i < (length-1); i++){
-   array ~= value;
+pure T[] copyvector(T)(in T[] c){
+  T[] x;
+  x.length = c.length;
+  for(size_t j=0; j < c.length;j++){
+    x[j]=c[j];
   }
-  return array;
+  return x;
 }
 
 /*
  * Produces a R*C-dim matrix
  */
-T** newmatrix(T)(size_t rows, size_t cols) {
-  T** m;
-  m = cast(T**)calloc(rows, (T*).sizeof);
-  if(m is null){
-    writeln("Not enough memory for new matrix");
+pure T[][] newmatrix(T)(size_t nrow, size_t ncol, T init = T.init){
+  T[][] x;
+  x.length=nrow;
+  for(size_t i=0;i < nrow;i++){
+    x[i] = newvector!T(ncol,init);
   }
-  for(size_t i=0; i<rows; i++) {
-    m[i]= newvector!T(cols);
+  return x;
+}
+
+pure T[][] translate(T)(in T[][] i){
+  if(i.length == 0) throw new Exception("Matrix needs to be at least of dim 1,1");
+  T[][] m = newmatrix!T(i[0].length, i.length);
+  for(size_t r=0;r<i.length;r++){
+    for(size_t c=0;c<i[0].length;c++){
+      m[c][r] = i[r][c];
+    }
   }
   return m;
 }
 
-/*
- * Prints a matrix to stdout
- */
-void printmatrix(T)(T** m, int rows, int cols) {
-  for (int r=0; r<rows; r++) {
-    for (int c=0; c<cols; c++) {
-      writeln("%s",to!string(m[r][c]));
-    }
-  }
-}
 
-/*
- * Produces a N-dim vector
- */
-T* newvector(T)(size_t dim) {
-  T* v;
-  v = cast(T*)calloc(dim, T.sizeof);
-  if(v is null){
-    writeln("Not enough memory for new vector of dimension %d",(dim+1));
-  }
-  return v;
-}
