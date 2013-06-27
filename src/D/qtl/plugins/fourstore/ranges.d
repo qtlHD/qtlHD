@@ -68,7 +68,7 @@ unittest {
   writeln("Unit test " ~ __FILE__, " : plugins.fourstore.ranges");
   string file = "../../test/data/input/hyper.csv";
 
-  LazyCsvReader r = new LazyCsvReader(file, ",");
+  LazyCsvReader r = LazyCsvReader(file, ",");
   writeln(r);  // Print some information
 
   foreach(col; r.byColumn()){

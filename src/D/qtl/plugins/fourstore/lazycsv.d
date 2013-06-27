@@ -13,7 +13,7 @@ void error(in string s, int exitcode = -1){
 }
 
 /* Parse a CSV text file into elemidx and rowidx buffers, then use lazy ranges to access the elements, rows and columns  */
-class LazyCsvReader{
+struct LazyCsvReader{
   this(string filename, string sep = "\t", string newline = "\n"){           // Index the file, using sep and newlines
     this.filename = filename;
     this.sep      = sep;
@@ -40,8 +40,6 @@ class LazyCsvReader{
     if(elemidx[($-1)] != filesize) elemidx ~= filesize;                      // Add trailing ends
     if(rowidx[($-1)] != filesize) rowidx ~= (elemidx.length-1);              // Add trailing ends
   }
-
-  ~this(){ close(); }
 
   // Get an element from the file by element index
   string getElement(size_t l){
@@ -85,7 +83,7 @@ class LazyCsvReader{
     return col;
   }
 
-  override string toString(){
+  string toString(){
     return format("'%s': %d Elements, %d Rows used %d Buffers", filename, elemidx.length, rowidx.length, bcnt);
   }
 
