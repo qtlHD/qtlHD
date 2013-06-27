@@ -1,6 +1,9 @@
 module qtl.plugins.fourstore.TripleStore;
 
 import std.stdio, std.math, std.conv, std.socket, std.string;
+import std.file : write, tempDir, remove, exists;
+import qtl.plugins.fourstore.ranges;
+import qtl.plugins.fourstore.lazycsv;
 
 /** Triple store class object */
 struct TripleStore{
@@ -61,8 +64,8 @@ struct TripleStore{
 
     string readOutput(uint buffersize = 1024){ // Read the output from the server  
       if(!isAlive()) return null;
-      string response;
       char[] buf = new char[buffersize];
+      string response;
       size_t ret;
       while((ret = handle.receive(buf)) > 0){
         response ~= to!string(buf[0 .. ret].dup);
@@ -87,10 +90,25 @@ void main(string[] args){
   store.addPrefix("location:","<http://www.rqtl.org/ns/location#>");
   store.addPrefix("phenotype:","<http://www.rqtl.org/ns/phenotype#>");
 
+  string tmpFN = tempDir() ~ "/tmp.tab";
   store.connect();
-  writefln("--------------------------------------");
-  writefln("%s", store.query("SELECT * WHERE {?s location:chr ?o} LIMIT 50", "text"));
-  writefln("--------------------------------------");
+
+  write(tmpFN, store.query("SELECT * WHERE {individual:2 ?p ?o} LIMIT 100000", "text"));
+  scope(exit){ if(exists(tmpFN)) remove(tmpFN); }
+
   store.disconnect();
+
+  LazyCsvReader r = LazyCsvReader(tmpFN);
+  writeln(r);  // Print some information
+
+  foreach(col; r.byColumn()){
+    writeln("Col: ", rangeToTypedArray!string(col, []).length);
+  }
+
+//  foreach(row; r.byRow()){
+//    writeln("Row: ", row.length);
+//  }
+
+  r.close();
 }
 
