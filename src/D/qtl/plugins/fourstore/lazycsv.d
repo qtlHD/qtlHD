@@ -14,7 +14,26 @@ struct LazyCsvReader{
     this.newline  = newline;
     filesize      = cast(uint) getSize(filename);
     fp            = new File(filename,"rb");
-    if(!exists(filename) || !filename.isFile) throw(new Exception("No such file: '" ~ filename ~ "'"));         // @t Pjotr: Should I: Error Assert Throw ?
+    if(!exists(filename) || !filename.isFile) throw(new Exception("No such file: '" ~ filename ~ "'"));
+    this.parseIndex();
+  }
+
+  string toString(){ return format("'%s': %d Elements, %d Rows used %d Buffers", filename, elemidx.length, rowidx.length, bcnt); }
+
+  size_t[] elemidx  = [0];   // Public because the ranges need access to the elements length
+  size_t[] rowidx   = [0];   // Public because the ranges need access to the row length
+  size_t   ncol     =  0;    // Public because the ranges need access to the number of columns
+
+  private:
+    string    filename, sep = "\t", newline = "\n";
+    size_t    bcnt     = 0, bsize    = 1_048_576;
+    size_t    filesize = 0;
+    ubyte[]   buffer;
+    File*     fp;
+}
+
+void parseIndex(ref LazyCsvReader reader){
+  with(reader){
     buffer    = new ubyte[](bsize);
     size_t colcnt = 0;                                                       // Current columns counted
     while(fp.rawRead(buffer)){
@@ -34,34 +53,49 @@ struct LazyCsvReader{
     if(elemidx[($-1)] != filesize) elemidx ~= filesize;                      // Add trailing ends
     if(rowidx[($-1)] != filesize) rowidx ~= (elemidx.length-1);              // Add trailing ends
   }
+}
 
-  // Get an element from the file by element index
-  string getElement(size_t l){
+// Get an element from the file by element index
+string getElement(ref LazyCsvReader reader, size_t l){
+  ubyte[] buf;
+  with(reader){
     if(l >= elemidx.length) throw(new Exception("No such element: " ~ to!string(l) ~ " (length: " ~ to!string(elemidx.length) ~ ")"));
     fp.seek(elemidx[l]);                                                    // Seek to the location of the element
-    ubyte[] buf = new ubyte[](elemidx[l+1]-elemidx[l]);
+    buf = new ubyte[](elemidx[l+1]-elemidx[l]);
     fp.rawRead(buf);
-    return chomp(cast(string)buf.dup);
   }
+  return chomp(cast(string)buf.dup);
+}
 
-  // Get a row by index
-  string[] getRow(size_t l){
+// Get a row by index
+string[] getRow(ref LazyCsvReader reader, size_t l){
+  ubyte[] buf;
+  string[] row;
+  with(reader){
     if(l >= (rowidx.length-1)) throw(new Exception("No such row: " ~ to!string(l) ~ " (length: " ~ to!string(rowidx.length - 1) ~ ")"));
     size_t start = elemidx[rowidx[l]];
     size_t next = elemidx[rowidx[l+1]];
     fp.seek(start);
-    ubyte[] buf;
     if(start != filesize && next-start > 0){
       buf = new ubyte[next-start];
       fp.rawRead(buf);
     }
-    string[] row = split(chomp(cast(string)buf.dup), sep);
-    return row;
-  }
 
-  // Get a column by index
-  string[] getCol(size_t l){
-    string[] col = new string[](rowidx.length-2);
+  row = split(chomp(cast(string)buf.dup), sep);
+  }
+  return row;
+}
+
+// Close the file pointer after we're done with the csv
+void close(ref LazyCsvReader reader){ 
+  reader.fp.close(); 
+}
+
+// Get a column by index
+string[] getCol(ref LazyCsvReader reader, size_t l){
+  string[] col;
+  with(reader){
+    col = new string[](rowidx.length-2);
     for(size_t x = 0; x < (rowidx.length-2); x++){                    // 2 dimensions less because we add 0 and  $
       ubyte[] buf;
       if(rowidx[x]+(l+1) < elemidx.length){                           // Next element SHOULD be there
@@ -76,23 +110,7 @@ struct LazyCsvReader{
       }
       col[x] = chomp(cast(string)buf.dup);
     }
-    return col;
   }
-
-  string toString(){
-    return format("'%s': %d Elements, %d Rows used %d Buffers", filename, elemidx.length, rowidx.length, bcnt);
-  }
-
-  void close(){ fp.close(); }
-
-  size_t[] elemidx  = [0];   // Public because the ranges need access to the elements length
-  size_t[] rowidx   = [0];   // Public because the ranges need access to the row length
-  size_t   ncol     =  0;    // Public because the ranges need access to the number of columns
-  private:
-    string    filename, sep = "\t", newline = "\n";
-    size_t    bcnt     = 0, bsize    = 1_048_576;
-    size_t    filesize = 0;
-    ubyte[]   buffer;
-    File*     fp;
+  return col;
 }
 
