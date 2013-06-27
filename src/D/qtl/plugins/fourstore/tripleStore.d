@@ -77,7 +77,7 @@ class TripleStore{
       if(!isAlive()) return null;
       string response;
       char[] buf = new char[buffersize];
-      int ret;
+      size_t ret;
       while((ret = handle.receive(buf)) > 0){
         response ~= to!string(buf[0 .. ret].dup);
       }
