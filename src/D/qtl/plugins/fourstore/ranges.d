@@ -1,6 +1,9 @@
 module qtl.plugins.fourstore.ranges;
 
 import std.stdio, std.file, std.array;
+import std.algorithm : find;
+import std.string;
+import std.traits;
 import qtl.plugins.fourstore.lazycsv;
 
 // A lazy forward range of Rows from a CSV file
@@ -39,6 +42,27 @@ struct rangeOfColumns{
 // Helper function to do lazy iteration by column
 rangeOfColumns byColumn(LazyCsvReader r){ return rangeOfColumns(r); }
 
+// Transform a range of string elements into a array of T, header allows to skip certain rows/columns
+T[] rangeToTypedArray(T)(string[] elements, size_t[] header = [], string[] missing = ["-","NA"]){
+  T[] result;
+  foreach(size_t idx, elem; elements){
+    if(find(header, idx) == []){ // Not a header
+      if(find(missing, elem) != []){                // Missing
+        result ~= T.init;
+      }else if(isNumeric!T && isNumeric(elem)){     // Convert to Numeric
+        result ~= to!T(elem);
+      }else if(isSomeChar!T && !isNumeric(elem)){   // Convert to character
+        if(elem.length > 0) result ~= to!T(elem[0]);
+      }else if(!isNumeric!T && !isNumeric(elem)){   // Convert to string
+        result ~= to!T(elem);
+      }else{                                        // Unknown make it missing
+        result ~= T.init;
+      }
+    }
+  }
+  return result;
+}
+
 //  Example should be turned into unit-test
 unittest {
   writeln("Unit test " ~ __FILE__, " : plugins.fourstore.ranges");
@@ -48,7 +72,7 @@ unittest {
   writeln(r);  // Print some information
 
   foreach(col; r.byColumn()){
-    writeln("Col: ", col[0..5]);
+    writeln("Col: ", rangeToTypedArray!string(col, [0]).length);
   }
 
   foreach(row; r.byRow()){
