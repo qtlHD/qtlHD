@@ -2,15 +2,8 @@ module qtl.plugins.fourstore.TripleStore;
 
 import std.stdio, std.math, std.conv, std.socket, std.string;
 
-bool has(T,U)(T[U] array, U key){
-  foreach(U k; array.byKey()){
-    if(k==key){ return(true); }
-  }
-  return false;
-}
-
 /** Triple store class object */
-class TripleStore{
+struct TripleStore{
   public:
     /** Constructor for the TripleStore object */
     this(string h = "localhost", ushort p = 9000){ 
@@ -45,13 +38,6 @@ class TripleStore{
 
     void addPrefix(string prefix, string uri){ prefixes[prefix] = uri; }
 
-    bool isPrefix(string prefix){
-      if(prefix[($-1)] == ':'){
-        return(has(prefixes, prefix));
-      }
-      return false;
-    }
-
   private:
 
     string addPrefixes(string query){
@@ -77,7 +63,7 @@ class TripleStore{
       if(!isAlive()) return null;
       string response;
       char[] buf = new char[buffersize];
-      int ret;
+      size_t ret;
       while((ret = handle.receive(buf)) > 0){
         response ~= to!string(buf[0 .. ret].dup);
       }
@@ -94,7 +80,7 @@ class TripleStore{
 }
 
 void main(string[] args){
-  TripleStore store = new TripleStore();
+  TripleStore store = TripleStore();
   store.addPrefix(":","<http://www.rqtl.org/ns/#>");
   store.addPrefix("individual:","<http://www.rqtl.org/ns/individual#>");
   store.addPrefix("marker:","<http://www.rqtl.org/ns/marker#>");
