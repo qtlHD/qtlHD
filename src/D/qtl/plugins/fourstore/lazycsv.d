@@ -32,7 +32,7 @@ struct LazyCsvReader{
     File*     fp;
 }
 
-void parseIndex(ref LazyCsvReader reader){
+void parseIndex(Reader)(ref Reader reader){
   with(reader){
     buffer    = new ubyte[](bsize);
     size_t colcnt = 0;                                                       // Current columns counted
@@ -56,7 +56,7 @@ void parseIndex(ref LazyCsvReader reader){
 }
 
 // Get an element from the file by element index
-string getElement(ref LazyCsvReader reader, size_t l){
+string getElement(Reader)(ref Reader reader, size_t l){
   ubyte[] buf;
   with(reader){
     if(l >= elemidx.length) throw(new Exception("No such element: " ~ to!string(l) ~ " (length: " ~ to!string(elemidx.length) ~ ")"));
@@ -68,7 +68,7 @@ string getElement(ref LazyCsvReader reader, size_t l){
 }
 
 // Get a row by index
-string[] getRow(ref LazyCsvReader reader, size_t l){
+string[] getRow(Reader)(ref Reader reader, size_t l){
   ubyte[] buf;
   string[] row;
   with(reader){
@@ -87,12 +87,12 @@ string[] getRow(ref LazyCsvReader reader, size_t l){
 }
 
 // Close the file pointer after we're done with the csv
-void close(ref LazyCsvReader reader){ 
+void close(Reader)(ref Reader reader){ 
   reader.fp.close(); 
 }
 
 // Get a column by index
-string[] getCol(ref LazyCsvReader reader, size_t l){
+string[] getCol(Reader)(ref Reader reader, size_t l){
   string[] col;
   with(reader){
     col = new string[](rowidx.length-2);
