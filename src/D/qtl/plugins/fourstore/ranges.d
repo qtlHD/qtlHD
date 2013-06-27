@@ -63,7 +63,6 @@ T[] rangeToTypedArray(T)(string[] elements, size_t[] header = [], string[] missi
   return result;
 }
 
-//  Example should be turned into unit-test
 unittest {
   writeln("Unit test " ~ __FILE__, " : plugins.fourstore.ranges");
   string file = "../../test/data/input/hyper.csv";

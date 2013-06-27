@@ -6,12 +6,6 @@ import std.c.stdlib    : exit;
 import std.array       : split;
 import std.string      : chomp, format;
 
-/* Abort with error code, default: -1 */
-void error(in string s, int exitcode = -1){
-  writeln(s);
-  exit(exitcode);
-}
-
 /* Parse a CSV text file into elemidx and rowidx buffers, then use lazy ranges to access the elements, rows and columns  */
 struct LazyCsvReader{
   this(string filename, string sep = "\t", string newline = "\n"){           // Index the file, using sep and newlines
@@ -20,7 +14,7 @@ struct LazyCsvReader{
     this.newline  = newline;
     filesize      = cast(uint) getSize(filename);
     fp            = new File(filename,"rb");
-    if(!exists(filename) || !filename.isFile) error("No such file");         // @t Pjotr: Should I: Error Assert Throw ?
+    if(!exists(filename) || !filename.isFile) throw(new Exception("No such file: '" ~ filename ~ "'"));         // @t Pjotr: Should I: Error Assert Throw ?
     buffer    = new ubyte[](bsize);
     size_t colcnt = 0;                                                       // Current columns counted
     while(fp.rawRead(buffer)){
@@ -43,6 +37,7 @@ struct LazyCsvReader{
 
   // Get an element from the file by element index
   string getElement(size_t l){
+    if(l >= elemidx.length) throw(new Exception("No such element: " ~ to!string(l) ~ " (length: " ~ to!string(elemidx.length) ~ ")"));
     fp.seek(elemidx[l]);                                                    // Seek to the location of the element
     ubyte[] buf = new ubyte[](elemidx[l+1]-elemidx[l]);
     fp.rawRead(buf);
@@ -51,6 +46,7 @@ struct LazyCsvReader{
 
   // Get a row by index
   string[] getRow(size_t l){
+    if(l >= (rowidx.length-1)) throw(new Exception("No such row: " ~ to!string(l) ~ " (length: " ~ to!string(rowidx.length - 1) ~ ")"));
     size_t start = elemidx[rowidx[l]];
     size_t next = elemidx[rowidx[l+1]];
     fp.seek(start);
