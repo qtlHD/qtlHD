@@ -76,7 +76,7 @@ Model likelihoodbyEM(in double[][] x, double[] w, in double[] y, bool verbose = 
   
   Model f;
   if(verbose) writefln("Starting EM:");
-  while((emcycle<maxemcycles) && (delta > 1.0e-10)){
+  while((emcycle < maxemcycles) && (delta > 1.0e-10)){
     f = multiVariateRegression(x, w, y);
 
     for(size_t s = 0; s < nsamples; s++){
