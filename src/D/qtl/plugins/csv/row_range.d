@@ -1,4 +1,4 @@
-module qtl.plugins.fourstore.ranges;
+module qtl.plugins.csv.row_range;
 
 import std.stdio, std.file, std.array;
 import std.algorithm : find;
