@@ -32,6 +32,7 @@ unittest{
   size_t cnt = 0;
   foreach(col; r.byColumn()){
     if(col.length > 5 && cnt < 5) writeln("Col: ", col[0..5]);
+    cnt++;
   }
   r.close();
 }

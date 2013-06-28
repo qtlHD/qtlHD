@@ -1,4 +1,4 @@
-module qtl.plugins.rdf.fourstore.triplestore;
+module qtl.plugins.rdf.rdf_4store.triplestore;
 
 import std.stdio, std.math, std.conv, std.socket, std.string;
 import qtl.plugins.csv.row_range;

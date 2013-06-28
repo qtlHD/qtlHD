@@ -54,6 +54,7 @@ unittest{
   size_t cnt = 0;
   foreach(row; r.byRow()){
     if(row.length > 5 && cnt < 5) writeln("Row: ", row[0..5]);
+    cnt++;
   }
   r.close();
 }

@@ -62,7 +62,7 @@ qtab_write_dfiles = ["./qtl/plugins/qtab/write_qtab.d"]
 qtab_dfiles = qtab_read_dfiles + qtab_write_dfiles
 xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d") + csv_dfiles
 renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d")
-fourstore_dfiles = Dir.glob("./qtl/plugins/rdf/fourstore/*.d")
+fourstore_dfiles = Dir.glob("./qtl/plugins/rdf/rdf_4store/*.d")
 scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
 test_scanone_dfiles = Dir.glob("./test/scanone/*.d")
 test_core_dfiles = Dir.glob("./test/qtl/core/*.d")
@@ -260,7 +260,7 @@ task :test_qtab => [ 'read_qtab', 'write_qtab' ] do
   sh "./read_qtab"
 end
 
-desc "Test fourstore RDF mapping and parsing"
+desc "Test RDF mapping and parsing"
 task :test_rdf => [ :test_triplestore ]
 
 desc "Test CSV"
