@@ -142,7 +142,7 @@ unittest {
   assert(phenosub.length == pheno.length);
   foreach(i, p; phenosub) {
     assert(p.length == 2);
-    // assert(p[0] == pheno[i][1]);  <--- nan does not allow comparison
-    // assert(p[1] == pheno[i][3]);
+    assert(isSame(p[0], pheno[i][1]));
+    assert(isSame(p[1], pheno[i][3]));
   }
 }

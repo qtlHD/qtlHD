@@ -76,6 +76,13 @@ bool isNA(Phenotype p) {
   return(isNaN(p.value));
 }
 
+// Comparison, including missingness
+bool isSame(Phenotype p1, Phenotype p2) {
+  if(isNaN(p1.value) && isNaN(p2.value)) return true;
+  if(!isNaN(p1.value) && !isNaN(p2.value) && p1.value == p2.value) return true;
+  return false;
+}
+
 // return boolean vector of size individuals indicating whether a 
 // phenotype is missing (true)
 bool[] individuals_missing_a_phenotype(Phenotype[][] phenotype_matrix)
