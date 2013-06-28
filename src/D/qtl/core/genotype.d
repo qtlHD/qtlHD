@@ -13,7 +13,9 @@ import std.algorithm;
 import std.array;
 import qtl.core.primitives;
 
+alias GenotypeSymbolMapper Genotype;
 alias GenotypeSymbolMapper[][] GenotypeMatrix; // = new double[][][](n_markers,n_ind);
+
 
 /**
 
