@@ -24,29 +24,11 @@ struct rangeOfRows{
 // Helper function to do lazy iteration by row
 rangeOfRows byRow(LazyCsvReader r){ return rangeOfRows(r); }
 
-// A lazy forward range of Columns from a CSV file
-struct rangeOfColumns{
-  LazyCsvReader r;
-  string[] fBuffer;
-  size_t i = 0;
-
-  void popFront(){ i++; }
-
-  @property ref string[] front(){
-    fBuffer = r.getCol(i);
-    return(fBuffer);
-  }
-
-  @property bool empty(){ return i==(r.ncol+1); }
-}
-// Helper function to do lazy iteration by column
-rangeOfColumns byColumn(LazyCsvReader r){ return rangeOfColumns(r); }
-
 // Transform a range of string elements into a array of T, header allows to skip certain rows/columns
-T[] rangeToTypedArray(T)(string[] elements, size_t[] header = [], string[] missing = ["-","NA"]){
+T[] rangeToTypeArray(T)(string[] elements, size_t[] header = [], string[] missing = ["-","NA"]){
   T[] result;
   foreach(size_t idx, elem; elements){
-    if(find(header, idx) == []){ // Not a header
+    if(find(header, idx) == []){                  // Not a header
       if(find(missing, elem) != []){                // Missing
         result ~= T.init;
       }else if(isNumeric!T && isNumeric(elem)){     // Convert to Numeric
@@ -64,20 +46,14 @@ T[] rangeToTypedArray(T)(string[] elements, size_t[] header = [], string[] missi
 }
 
 unittest{
-  writeln("Unit test " ~ __FILE__, " : plugins.fourstore.ranges");
+  writeln("Unit test " ~ __FILE__, " : plugins.csv.row_range");
   string file = "../../test/data/input/hyper.csv";
 
   LazyCsvReader r = LazyCsvReader(file, ",");
   writeln(r);  // Print some information
-
-  foreach(col; r.byColumn()){
-    writeln("Col: ", rangeToTypedArray!string(col, [0]).length);
-  }
-
   foreach(row; r.byRow()){
     if(row.length > 5) writeln("Row: ", row[0..5]);
   }
-
   r.close();
 }
 
