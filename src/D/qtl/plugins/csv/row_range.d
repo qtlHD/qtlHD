@@ -4,7 +4,7 @@ import std.stdio, std.file, std.array;
 import std.algorithm : find;
 import std.string;
 import std.traits;
-import qtl.plugins.fourstore.lazycsv;
+import qtl.plugins.csv.lazy_read_csv;
 
 // A lazy forward range of Rows from a CSV file
 struct rangeOfRows{

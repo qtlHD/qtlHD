@@ -1,4 +1,4 @@
-module qtl.plugins.rdf.4store.TripleStore;
+module qtl.plugins.rdf.4store.triplestore;
 
 import std.stdio, std.math, std.conv, std.socket, std.string;
 import std.file : write, tempDir, remove, exists;
