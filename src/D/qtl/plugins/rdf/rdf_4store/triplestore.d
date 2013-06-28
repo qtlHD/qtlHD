@@ -1,6 +1,8 @@
 module qtl.plugins.rdf.rdf_4store.triplestore;
 
 import std.stdio, std.math, std.conv, std.socket, std.string;
+import std.file : write, tempDir, remove, exists;
+
 import qtl.plugins.csv.row_range;
 import qtl.plugins.csv.col_range;
 import qtl.plugins.csv.lazy_read_csv;
@@ -80,5 +82,32 @@ struct TripleStore{
     string protocol = "HTTP/1.0";  // HTTP version we want to use
     ushort port     = 9000;        // Port to connect on
     Socket handle   = null;        // Socket to server (called handle)
+}
+
+
+unittest{
+  TripleStore store = TripleStore();
+  store.addPrefix(":","<http://www.rqtl.org/ns/#>");
+  store.addPrefix("individual:","<http://www.rqtl.org/ns/individual#>");
+  store.addPrefix("marker:","<http://www.rqtl.org/ns/marker#>");
+  store.addPrefix("location:","<http://www.rqtl.org/ns/location#>");
+  store.addPrefix("phenotype:","<http://www.rqtl.org/ns/phenotype#>");
+
+  string tmpFN = tempDir() ~ "/tmp.tab";
+  store.connect();
+
+  write(tmpFN, store.query("SELECT * WHERE {individual:2 ?p ?o} LIMIT 100000", "text"));
+  scope(exit){ if(exists(tmpFN)) remove(tmpFN); }
+
+  store.disconnect();
+
+  LazyCsvReader r = LazyCsvReader(tmpFN);
+  writeln(r);  // Print some information
+
+  foreach(col; r.byColumn()){
+    writeln("Col: ", rangeToTypeArray!string(col, []).length);
+  }
+
+  r.close();
 }
 
