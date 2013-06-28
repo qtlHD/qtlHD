@@ -213,7 +213,7 @@ bool isPseudoMarker(M)(in M a)
 immutable GENOTYPE_NA = -1; // don't use
 
 /**
- * Note: Genotype is deprecated - use GenotypeCombinator instead!
+ * Note: Genotype is deprecated - use GenotypeSymbolMapper instead!
  * (see genotype.d)
  *
  * Genotype is the most primitive representation of a genotype. The type

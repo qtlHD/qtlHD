@@ -35,7 +35,7 @@ unittest {
   assert(info["Cross"] == "BC");
 
 
-  // First read symbol information (the GenotypeCombinators)
+  // First read symbol information (the GenotypeSymbolMappers)
   auto symbol_fn = to!string(buildPath(dir,"hyper_noX_symbol.qtab"));
   writeln("reading ",symbol_fn);
   auto fs = File(symbol_fn,"r");

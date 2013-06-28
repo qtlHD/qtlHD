@@ -273,7 +273,7 @@ ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
       auto symbol_names = res[0];
       auto genotype_strs = res[1];
       writeln("Symbol: ",symbol_names,"\t",genotype_strs);
-      auto combinator = new GenotypeCombinator(symbol_names[0], null, phase_known);
+      auto combinator = new GenotypeSymbolMapper(symbol_names[0], null, phase_known);
       foreach (s ; symbol_names[1..$]) {
         combinator.add_encoding(s);
       }
@@ -365,7 +365,7 @@ unittest {
   assert(to!string(symbols1.decode("AB")) == "[(0,1)]");
   assert(to!string(symbols1.decode("BA")) == "[(1,0)]");
 
-  // First read symbol information (the GenotypeCombinators)
+  // First read symbol information (the GenotypeSymbolMappers)
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
   writeln("reading ",symbol_fn);
   auto f = File(symbol_fn,"r");
