@@ -129,6 +129,7 @@ lib_list = {
 }
 
 exe_list = {
+  'triplestore' => { :path => './qtl/plugins/rdf/rdf_4store', :list => core_dfiles + csv_dfiles + example_dfiles + main_dfile },
   'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles + example_dfiles + main_dfile + test_csv_dfiles },
   'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + example_dfiles + main_dfile },
   'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_read_dfiles + main_dfile },
@@ -258,6 +259,9 @@ task :test_qtab => [ 'read_qtab', 'write_qtab' ] do
   sh "./read_qtab"
 end
 
+desc "Test RDF mapping and parsing"
+task :test_rdf => [ :triplestore ]
+
 desc "Test CSV"
 task :test_csv => [ :read_csv ]
 
@@ -266,5 +270,5 @@ task :test_csvr => [ :read_csvr ]
 
 desc "Test all"
 
-task :test_all => [:clean, :test_qtlhd_core, :test_csv, :test_csvr, :test_qtab, :test_hmm, :test_lapack, :test_rlib, :test_scanone, :test_simulate, :scanone]
+task :test_all => [:clean, :test_qtlhd_core, :test_csv, :test_csvr, :test_qtab, :test_hmm, :test_lapack, :test_rlib, :test_rdf, :test_scanone, :test_simulate, :scanone]
 
