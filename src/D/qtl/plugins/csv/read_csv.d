@@ -45,7 +45,7 @@ class ReadSimpleCSV(XType,CrossType) {
   Individuals individuals;
   Chromosome[string] chromosomes;
   Phenotype[][] phenotypes;
-  GenotypeCombinator[][] genotypecombinator;
+  GenotypeSymbolMapper[][] genotypecombinator;
   size_t n_phenotypes;
 
   this(in string fn, CrossType observed = null) {
@@ -125,7 +125,7 @@ class ReadSimpleCSV(XType,CrossType) {
       phenotypes ~= ps;
       // set genotype
       crosstype = new XType;
-      GenotypeCombinator[] gs;
+      GenotypeSymbolMapper[] gs;
       // we use the predefined crosstype symbols
       gs.reserve(n_columns);  // pre-allocate memory (just good practise)
       foreach (field; fields[n_phenotypes..$]) {
@@ -137,7 +137,7 @@ class ReadSimpleCSV(XType,CrossType) {
   }
 }
 
-Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) 
+Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeSymbolMapper[][]) 
   load_csv(string fn, ObservedGenotypes observed_genotypes) {
   PhenotypeMatrix p;
   // FIXME: note we currently force an F2 here

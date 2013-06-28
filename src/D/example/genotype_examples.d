@@ -15,12 +15,12 @@ import qtl.core.genotype;
  */
 
 class RISIB {
-  GenotypeCombinator NA, A, B;
+  GenotypeSymbolMapper NA, A, B;
   this() {
-    NA = new GenotypeCombinator("NA");
-    A  = new GenotypeCombinator("A");
+    NA = new GenotypeSymbolMapper("NA");
+    A  = new GenotypeSymbolMapper("A");
     A ~= new TrueGenotype(0,0);
-    B  = new GenotypeCombinator("B");
+    B  = new GenotypeSymbolMapper("B");
     B ~= new TrueGenotype(1,1);
     NA.add_encoding("-");
     A.add_encoding("AA");
@@ -62,10 +62,10 @@ unittest {
 
 unittest {
   // We can also roll our own types (to create a RISIB)
-  auto NA = new GenotypeCombinator("NA");
-  auto A  = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("NA");
+  auto A  = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto B  = new GenotypeCombinator("B");
+  auto B  = new GenotypeSymbolMapper("B");
   B ~= new TrueGenotype(1,1);
   assert(NA.name == "NA");
   assert(A.name == "A");
@@ -73,7 +73,7 @@ unittest {
   symbols ~= NA;
   symbols ~= A;
   symbols ~= B;
-  GenotypeCombinator risib[];  // create a set of observed genotypes
+  GenotypeSymbolMapper risib[];  // create a set of observed genotypes
   // now find them by name
   NA.add_encoding("-"); // also support dash inputs for NA
   risib ~= symbols.decode("-");
@@ -90,12 +90,12 @@ unittest {
 }
 
 class RISELF {
-  GenotypeCombinator NA, A, B;
+  GenotypeSymbolMapper NA, A, B;
   this() {
-    NA = new GenotypeCombinator("NA");
-    A  = new GenotypeCombinator("A");
+    NA = new GenotypeSymbolMapper("NA");
+    A  = new GenotypeSymbolMapper("A");
     A ~= new TrueGenotype(0,0);
-    B  = new GenotypeCombinator("B");
+    B  = new GenotypeSymbolMapper("B");
     B ~= new TrueGenotype(1,1);
     NA.add_encoding("-");
     A.add_encoding("AA");
@@ -137,10 +137,10 @@ unittest {
 
 unittest {
   // We can also roll our own types (to create a RISELF)
-  auto NA = new GenotypeCombinator("NA");
-  auto A  = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("NA");
+  auto A  = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto B  = new GenotypeCombinator("B");
+  auto B  = new GenotypeSymbolMapper("B");
   B ~= new TrueGenotype(1,1);
   assert(NA.name == "NA");
   assert(A.name == "A");
@@ -148,7 +148,7 @@ unittest {
   symbols ~= NA;
   symbols ~= A;
   symbols ~= B;
-  GenotypeCombinator riself[];  // create a set of observed genotypes
+  GenotypeSymbolMapper riself[];  // create a set of observed genotypes
   // now find them by name
   NA.add_encoding("-"); // also support dash inputs for NA
   riself ~= symbols.decode("-");
@@ -171,12 +171,12 @@ unittest {
  */
 
 class BC {
-  GenotypeCombinator NA, A, H;
+  GenotypeSymbolMapper NA, A, H;
   this() {
-    NA = new GenotypeCombinator("NA");
-    A  = new GenotypeCombinator("A");
+    NA = new GenotypeSymbolMapper("NA");
+    A  = new GenotypeSymbolMapper("A");
     A ~= new TrueGenotype(0,0);
-    H  = new GenotypeCombinator("H");
+    H  = new GenotypeSymbolMapper("H");
     H ~= new TrueGenotype(1,0);
     NA.add_encoding("-");
   }
@@ -217,7 +217,7 @@ unittest {
  */
 
 class F2 {
-  GenotypeCombinator NA, A, B, H, HorB, HorA;
+  GenotypeSymbolMapper NA, A, B, H, HorB, HorA;
   alias HorB C;
   alias HorA D;
   this() {
@@ -225,18 +225,18 @@ class F2 {
     auto bb = new TrueGenotype(1,1);
     auto ab = new TrueGenotype(0,1);
     auto ba = new TrueGenotype(1,0);
-    NA = new GenotypeCombinator("NA");
-    A  = new GenotypeCombinator("A");
+    NA = new GenotypeSymbolMapper("NA");
+    A  = new GenotypeSymbolMapper("A");
     A ~= aa;
-    B  = new GenotypeCombinator("B");
+    B  = new GenotypeSymbolMapper("B");
     B ~= bb;
-    H  = new GenotypeCombinator("H");
+    H  = new GenotypeSymbolMapper("H");
     H ~= ab;
     H ~= ba;
-    HorB  = new GenotypeCombinator("HorB","C");
+    HorB  = new GenotypeSymbolMapper("HorB","C");
     HorB ~= ab;
     HorB ~= bb;
-    HorA  = new GenotypeCombinator("HorA","D");
+    HorA  = new GenotypeSymbolMapper("HorA","D");
     HorA ~= ab;
     HorA ~= aa;
     NA.add_encoding("-");
@@ -308,20 +308,20 @@ unittest {
  */
 
 unittest {
-  auto NA = new GenotypeCombinator("NA","-");
-  auto A = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("NA","-");
+  auto A = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto B  = new GenotypeCombinator("B");
+  auto B  = new GenotypeSymbolMapper("B");
   B ~= new TrueGenotype(1,1);
-  auto AB  = new GenotypeCombinator("AB");
+  auto AB  = new GenotypeSymbolMapper("AB");
   AB ~= new TrueGenotype(0,1);
-  auto BA  = new GenotypeCombinator("BA");
+  auto BA  = new GenotypeSymbolMapper("BA");
   BA ~= new TrueGenotype(1,0);
-  auto HorB  = new GenotypeCombinator("HorB","C");
+  auto HorB  = new GenotypeSymbolMapper("HorB","C");
   HorB ~= B;
   HorB ~= AB;
   HorB ~= BA;
-  auto HorA  = new GenotypeCombinator("HorA","D");
+  auto HorA  = new GenotypeSymbolMapper("HorA","D");
   HorA ~= A;
   HorA ~= AB;
   HorA ~= BA;
@@ -362,9 +362,9 @@ unittest {
  */
 
 class Flex {
-  GenotypeCombinator NA;
+  GenotypeSymbolMapper NA;
   this() {
-    NA = new GenotypeCombinator("NA");
+    NA = new GenotypeSymbolMapper("NA");
     NA.add_encoding("-");
   }
 }
@@ -395,7 +395,7 @@ class ObservedFlex {
  */
 
 class EncodedCross {
-  GenotypeCombinator combinator[string];
+  GenotypeSymbolMapper combinator[string];
   this(string list[]) {
     // parse list
     foreach(line ; list) {
@@ -411,7 +411,7 @@ class EncodedCross {
     if (n in combinator)
       throw new Exception("Duplicate " ~ line);
 
-    combinator[n] = new GenotypeCombinator(n);
+    combinator[n] = new GenotypeSymbolMapper(n);
     foreach (tt ; line_item.genotypes) {
        combinator[n] ~= tt;
     }

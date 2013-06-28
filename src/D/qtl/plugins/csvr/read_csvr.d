@@ -38,7 +38,7 @@ class CSVrReader(XType,ObservedXType) {
   Individuals individuals;
   Chromosome[string] chromosomes;
   Phenotype[][] phenotypes;
-  GenotypeCombinator[][] genotypes;
+  GenotypeSymbolMapper[][] genotypes;
   size_t n_phenotypes;
   
   bool is_phenotype(string[] location){ return(location == ["",""]); }
@@ -83,7 +83,7 @@ class CSVrReader(XType,ObservedXType) {
         markers ~= m;
 
         //Genotype
-        GenotypeCombinator[] gs;
+        GenotypeSymbolMapper[] gs;
         // we use the predefined crosstype symbols
         foreach (field; fields[3..$]) {
           gs ~= symbols.decode(strip(field));

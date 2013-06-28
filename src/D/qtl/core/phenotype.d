@@ -15,12 +15,13 @@ import std.algorithm;
 import std.exception;
 import std.path;
 import std.file;
+import std.math;
 
 import qtl.core.primitives;
 import qtl.core.phenotype;
 import qtl.core.data.matrix;
 
-immutable PHENOTYPE_NA = double.max; 
+immutable PHENOTYPE_NA = double.nan; 
 
 /**
  * AnyPhenotype is the most primitive representation of a phenotype. The type
@@ -59,7 +60,7 @@ Phenotype set_phenotype(in string s) {
   if(s == "NA" || s == "-"){
     p.value = PHENOTYPE_NA;
   }else{
-    if(s.countUntil(".") != -1){  // FIXME: this should only be for floats
+    if(s.countUntil(".") != -1){  // FIXME: this is only for float/double
       p.value = to!double(s);
     }else{
       p.value = to!double(s~".0");
@@ -72,7 +73,7 @@ Phenotype set_phenotype(in string s) {
  * Check whether a phenotype is missing
  */
 bool isNA(Phenotype p) { 
-  return(p.value == PHENOTYPE_NA);
+  return(isNaN(p.value));
 }
 
 // return boolean vector of size individuals indicating whether a 

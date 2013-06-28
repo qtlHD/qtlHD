@@ -42,7 +42,7 @@ unittest {
 
   // load symbols
   auto symbol_fn = to!string(buildPath(dir,"listeria_symbol.qtab"));
-  // First read symbol information (the GenotypeCombinators)
+  // First read symbol information (the GenotypeSymbolMappers)
   writeln("reading ",symbol_fn);
   auto fs = File(symbol_fn,"r");
   auto symbols = read_genotype_symbol_qtab(fs);

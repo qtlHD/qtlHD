@@ -250,6 +250,5 @@ int main(string[] args) {
                  peak[j][0], peak[j][1].get_position);
     }
   }
-
   return 0;
 }

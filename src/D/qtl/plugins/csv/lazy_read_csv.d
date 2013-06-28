@@ -1,4 +1,4 @@
-module qtl.plugins.fourstore.lazycsv;
+module qtl.plugins.csv.lazy_read_csv;
 
 import std.stdio, std.file;
 import std.conv        : to;
@@ -6,19 +6,24 @@ import std.c.stdlib    : exit;
 import std.array       : split;
 import std.string      : chomp, format;
 
-/* Parse a CSV text file into elemidx and rowidx buffers, then use lazy ranges to access the elements, rows and columns  */
+/* Parse a CSV text file into elemidx and rowidx buffers.
+   After constructing the reader, lazy ranges can be used to access: elements, rows and columns */
 struct LazyCsvReader{
-  this(string filename, string sep = "\t", string newline = "\n"){           // Index the file, using sep and newlines
+  this(string filename, string sep = "\t", string newline = "\n"){ // Index the file, using sep and newline
     this.filename = filename;
     this.sep      = sep;
     this.newline  = newline;
     filesize      = cast(uint) getSize(filename);
     fp            = new File(filename,"rb");
-    if(!exists(filename) || !filename.isFile) throw(new Exception("No such file: '" ~ filename ~ "'"));
-    this.parseIndex();
+    if(!exists(filename) || !filename.isFile) throw(new Exception(format("No such file: '%s'", filename)));
+    this.parseCsvIndex();
   }
 
-  string toString(){ return format("'%s': %d Elements, %d Rows used %d Buffers", filename, elemidx.length, rowidx.length, bcnt); }
+  string toString(){ 
+    size_t nelem = (elemidx.length-1);
+    size_t nrows = (rowidx.length-1);
+    return format("'%s': %d elements on %d rows, in %d buffer(s)", filename, nelem, nrows, bcnt);
+  }
 
   size_t[] elemidx  = [0];   // Public because the ranges need access to the elements length
   size_t[] rowidx   = [0];   // Public because the ranges need access to the row length
@@ -32,26 +37,26 @@ struct LazyCsvReader{
     File*     fp;
 }
 
-void parseIndex(Reader)(ref Reader reader){
+void parseCsvIndex(Reader)(ref Reader reader){
   with(reader){
     buffer    = new ubyte[](bsize);
-    size_t colcnt = 0;                                                       // Current columns counted
+    size_t colcnt = 0;                                                 // Current columns counted
     while(fp.rawRead(buffer)){
       foreach(size_t offset, byte b ; buffer){
         if(cast(char)b == sep[0]){
-          elemidx ~= bcnt*bsize + (offset+1);                                // Element offsets
+          elemidx ~= bcnt*bsize + (offset+1);                          // Element offsets
           colcnt++;
         }else if(cast(char)b == newline[0]){
           elemidx ~= bcnt*bsize + (offset+1);
-          rowidx ~= (elemidx.length-1);                                      // Row start pointers to element offset
-          if(colcnt > ncol) ncol = colcnt;                                   // Remember the maximum number of columns
+          rowidx ~= (elemidx.length-1);                                // Row start pointers to element offset
+          if(colcnt > ncol) ncol = colcnt;                             // Remember the maximum number of columns
           colcnt = 0;
         }
       }
       bcnt++;
     }
-    if(elemidx[($-1)] != filesize) elemidx ~= filesize;                      // Add trailing ends
-    if(rowidx[($-1)] != filesize) rowidx ~= (elemidx.length-1);              // Add trailing ends
+    if(elemidx[($-1)] != filesize) elemidx ~= filesize;                // Add trailing ends
+    if(rowidx[($-1)] != filesize) rowidx ~= (elemidx.length-1);        // Add trailing ends
   }
 }
 
@@ -59,8 +64,8 @@ void parseIndex(Reader)(ref Reader reader){
 string getElement(Reader)(ref Reader reader, size_t l){
   ubyte[] buf;
   with(reader){
-    if(l >= elemidx.length) throw(new Exception("No such element: " ~ to!string(l) ~ " (length: " ~ to!string(elemidx.length) ~ ")"));
-    fp.seek(elemidx[l]);                                                    // Seek to the location of the element
+    if(l >= elemidx.length) throw(new Exception(format("No such element: %d (length %d)", l, elemidx.length)));
+    fp.seek(elemidx[l]);                                               // Seek to the location of the element
     buf = new ubyte[](elemidx[l+1]-elemidx[l]);
     fp.rawRead(buf);
   }
@@ -72,7 +77,7 @@ string[] getRow(Reader)(ref Reader reader, size_t l){
   ubyte[] buf;
   string[] row;
   with(reader){
-    if(l >= (rowidx.length-1)) throw(new Exception("No such row: " ~ to!string(l) ~ " (length: " ~ to!string(rowidx.length - 1) ~ ")"));
+    if(l >= (rowidx.length-1)) throw(new Exception(format("No such row: %d (length %d)", l, rowidx.length - 1)));
     size_t start = elemidx[rowidx[l]];
     size_t next = elemidx[rowidx[l+1]];
     fp.seek(start);
@@ -80,8 +85,7 @@ string[] getRow(Reader)(ref Reader reader, size_t l){
       buf = new ubyte[next-start];
       fp.rawRead(buf);
     }
-
-  row = split(chomp(cast(string)buf.dup), sep);
+    row = split(chomp(cast(string)buf.dup), sep);
   }
   return row;
 }
@@ -91,14 +95,14 @@ void close(Reader)(ref Reader reader){
   reader.fp.close(); 
 }
 
-// Get a column by index
+// Get a column from Reader by index
 string[] getCol(Reader)(ref Reader reader, size_t l){
   string[] col;
   with(reader){
-    col = new string[](rowidx.length-2);
-    for(size_t x = 0; x < (rowidx.length-2); x++){                    // 2 dimensions less because we add 0 and  $
+    col = new string[](rowidx.length-1);
+    for(size_t x = 0; x < (rowidx.length-1); x++){                 // 2 dimensions less because we add 0 and  $
       ubyte[] buf;
-      if(rowidx[x]+(l+1) < elemidx.length){                           // Next element SHOULD be there
+      if(rowidx[x]+(l+1) < elemidx.length){                        // Next element SHOULD be there
         size_t start    = elemidx[rowidx[x] + l];
         size_t next     = elemidx[rowidx[x] + (l+1)];
         size_t nextrow  = elemidx[rowidx[x+1]];

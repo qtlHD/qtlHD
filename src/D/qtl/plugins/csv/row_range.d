@@ -1,10 +1,10 @@
-module qtl.plugins.fourstore.ranges;
+module qtl.plugins.csv.row_range;
 
 import std.stdio, std.file, std.array;
 import std.algorithm : find;
 import std.string;
 import std.traits;
-import qtl.plugins.fourstore.lazycsv;
+import qtl.plugins.csv.lazy_read_csv;
 
 // A lazy forward range of Rows from a CSV file
 struct rangeOfRows{
@@ -19,7 +19,7 @@ struct rangeOfRows{
     return(fBuffer);
   }
 
-  @property bool empty(){ return i==(r.rowidx.length-2); } // We have [0 and filesize]
+  @property bool empty(){ return i==(r.rowidx.length-1); } // We have [0 and filesize]
 }
 // Helper function to do lazy iteration by row
 rangeOfRows byRow(LazyCsvReader r){ return rangeOfRows(r); }
@@ -33,7 +33,7 @@ struct rangeOfColumns{
   void popFront(){ i++; }
 
   @property ref string[] front(){
-    fBuffer = r.getCol(i); 
+    fBuffer = r.getCol(i);
     return(fBuffer);
   }
 
@@ -63,7 +63,7 @@ T[] rangeToTypedArray(T)(string[] elements, size_t[] header = [], string[] missi
   return result;
 }
 
-unittest {
+unittest{
   writeln("Unit test " ~ __FILE__, " : plugins.fourstore.ranges");
   string file = "../../test/data/input/hyper.csv";
 
@@ -75,7 +75,7 @@ unittest {
   }
 
   foreach(row; r.byRow()){
-    writeln("Row: ", row[0..5]);
+    if(row.length > 5) writeln("Row: ", row[0..5]);
   }
 
   r.close();
