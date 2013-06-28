@@ -62,6 +62,7 @@ qtab_write_dfiles = ["./qtl/plugins/qtab/write_qtab.d"]
 qtab_dfiles = qtab_read_dfiles + qtab_write_dfiles
 xgap_dfiles = Dir.glob("./qtl/plugins/xgap/*.d") + csv_dfiles
 renv_dfiles = Dir.glob("./qtl/plugins/renv/*.d")
+fourstore_dfiles = Dir.glob("./qtl/plugins/rdf/fourstore/*.d")
 scanone_dfiles = Dir.glob("./qtl/core/scanone/*.d")
 test_scanone_dfiles = Dir.glob("./test/scanone/*.d")
 test_core_dfiles = Dir.glob("./test/qtl/core/*.d")
@@ -129,6 +130,7 @@ lib_list = {
 }
 
 exe_list = {
+  'test_triplestore' => { :path => './qtl/main', :list => core_dfiles + csv_dfiles + example_dfiles + fourstore_dfiles },
   'read_csv' => { :path => './qtl/plugins/csv', :list => core_dfiles + csv_dfiles + example_dfiles + main_dfile + test_csv_dfiles },
   'read_csvr' => { :path => './qtl/plugins/csvr', :list => all_core_dfiles + csvr_dfiles + example_dfiles + main_dfile },
   'read_qtab' => { :path => './qtl/plugins/qtab', :list => core_dfiles + qtab_read_dfiles + main_dfile },
@@ -258,6 +260,9 @@ task :test_qtab => [ 'read_qtab', 'write_qtab' ] do
   sh "./read_qtab"
 end
 
+desc "Test fourstore RDF mapping and parsing"
+task :test_rdf => [ :test_triplestore ]
+
 desc "Test CSV"
 task :test_csv => [ :read_csv ]
 
@@ -266,5 +271,5 @@ task :test_csvr => [ :read_csvr ]
 
 desc "Test all"
 
-task :test_all => [:clean, :test_qtlhd_core, :test_csv, :test_csvr, :test_qtab, :test_hmm, :test_lapack, :test_rlib, :test_scanone, :test_simulate, :scanone]
+task :test_all => [:clean, :test_qtlhd_core, :test_csv, :test_csvr, :test_qtab, :test_hmm, :test_lapack, :test_rlib, :test_rdf, :test_scanone, :test_simulate, :scanone]
 
