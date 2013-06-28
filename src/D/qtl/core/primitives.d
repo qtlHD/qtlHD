@@ -14,6 +14,7 @@ import std.range;
 import std.algorithm;
 import std.string;
 import std.typecons; 
+import std.math; 
 
 // Default values for undefined types
 immutable VALUE_NAN = double.nan;
@@ -220,7 +221,7 @@ struct Covariate(T) {
   T value;
 
   string toString(){
-    if(value != VALUE_NAN){
+    if(isNaN(value)){
       return to!string(value);
     }else{
       return "NA";

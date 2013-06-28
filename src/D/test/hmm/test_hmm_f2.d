@@ -114,7 +114,7 @@ unittest {
   assert(pheno[0][0].value == 118.317);
   // 3rd ind, 1st phenotype
   assert(pheno[2][0].value == 194.917);
-  assert(to!string(pheno[29][0]) == "NA"); // missing value
+  assert(isNA(pheno[29][0])); // missing value
 
   // Marker map reader
   auto marker_map_fn = to!string(buildPath(dir,"listeria_marker_map.qtab"));
