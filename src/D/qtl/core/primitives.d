@@ -14,6 +14,7 @@ import std.range;
 import std.algorithm;
 import std.string;
 import std.typecons; 
+import std.math; 
 
 // Default values for undefined types
 immutable VALUE_NAN = double.nan;
@@ -210,64 +211,7 @@ bool isPseudoMarker(M)(in M a)
   return(typeid(a) == typeid(PseudoMarker));
 }
 
-immutable GENOTYPE_NA = -1; // don't use
-
-/**
- * Note: Genotype is deprecated - use GenotypeSymbolMapper instead!
- * (see genotype.d)
- *
- * Genotype is the most primitive representation of a genotype. The type
- * can be any type T (normally char or uint, but other objects may be
- * possible).
- *
- * Note the primitive should be as small as possible, there may be many 
- * genotypes! Therefore it is a struct (where value may be an int index)
- */
-
-struct Genotype(T) {
-  // deprecated
-  T value;
-  
-  /// String representation of genotype.
-  string toString() {
-    static if (is(typeof(to!int(value)==0)==bool)) {
-      // ---- handling when T resolves to an int (or enum). There
-      //      is another way - by defining int.GENOTYPE_NA. But
-      //      this works, and delegates.
-      return to!int(value) == GENOTYPE_NA ? "-" : to!string(value);
-    } 
-    else {
-      // ---- otherwise delegate to genotype implementation
-      return to!string(value);
-    }
-  }
-}
-
 alias double Probability;
-
-
-/**
- * GenoProb keeps track of genotype probabilities
- */
-
-struct GenoProb {
-  double value;
-  /// String representation of genotype probability.
-  string toString(){
-    if(to!int(value) != GENOTYPE_NA){
-      return to!string(value);
-    }else{
-      return "-";
-    }
-  }
-}
-
-/**
- * GenoProbs is a three dimensional array holding markers (x-axis),
- * individuals (y-axis) and genotypes (z-axis)
- */
-
-alias GenoProb[][][] GenoProbs;  // = new double[][][](n_gen,n_ind,n_markers);
 
 /**
  * Covariate representation
@@ -277,7 +221,7 @@ struct Covariate(T) {
   T value;
 
   string toString(){
-    if(value != VALUE_NAN){
+    if(isNaN(value)){
       return to!string(value);
     }else{
       return "NA";

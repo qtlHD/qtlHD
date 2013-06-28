@@ -46,7 +46,7 @@ unittest {
   assert(data.chromosomes["7"].id == 7);
   assert(data.markers[2].position == 24.84773, "Marker position not matching");
   // Check phenotype
-  assert(data.phenotypes[29][0].value == PHENOTYPE_NA, to!string(data.phenotypes[29][0].value));
+  assert(isNA(data.phenotypes[29][0]), to!string(data.phenotypes[29][0].value));
   assert(data.phenotypes[30][0].value == 74.417);
   // Check genotype (hard coded)
   assert(data.genotypecombinator[1][0] == F2.NA);
@@ -155,7 +155,7 @@ GENOTYPE D as 1,1 0,1";
   assert(data.chromosomes["7"].id == 7);
   assert(data.markers[2].position == 24.84773, "Marker position not matching");
   // Check phenotype
-  assert(data.phenotypes[29][0].value == PHENOTYPE_NA, to!string(data.phenotypes[29][0].value));
+  assert(isNA(data.phenotypes[29][0]), to!string(data.phenotypes[29][0].value));
   assert(data.phenotypes[30][0].value == 74.417);
   // Check genotype
   assert(data.genotypecombinator[1][0] == data.symbols.decode("NA"));
