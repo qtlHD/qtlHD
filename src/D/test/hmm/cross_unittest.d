@@ -45,10 +45,10 @@ unittest {
           to!string( log((1-rf)) ));
 
   // unit test emit for BC
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("-");
+  auto A = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto H = new GenotypeCombinator("H");
+  auto H = new GenotypeSymbolMapper("H");
   H ~= new TrueGenotype(1,0);
 
   double error_prob = 0.01;
@@ -115,10 +115,10 @@ unittest {
           to!string( log((1-rf)) ));
 
   // unit test emit for BC X chr female
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("-");
+  auto A = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto H = new GenotypeCombinator("H");
+  auto H = new GenotypeSymbolMapper("H");
   H ~= new TrueGenotype(1,0);
 
   double error_prob = 0.01;
@@ -185,10 +185,10 @@ unittest {
           to!string( log((1-rf)) ));
 
   // unit test emit for BC X chr male
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("-");
+  auto A = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto B = new GenotypeCombinator("B");
+  auto B = new GenotypeSymbolMapper("B");
   B ~= new TrueGenotype(1,1);
 
   double error_prob = 0.01;
@@ -308,19 +308,19 @@ unittest {
           to!string( log(rf^^2) ));
 
   // unit test emit for F2
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("-");
+  auto A = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto H = new GenotypeCombinator("H");
+  auto H = new GenotypeSymbolMapper("H");
   H ~= new TrueGenotype(1,0);
   H ~= new TrueGenotype(0,1);
-  auto B = new GenotypeCombinator("B");
+  auto B = new GenotypeSymbolMapper("B");
   B ~= new TrueGenotype(1,1);
-  auto AorH = new GenotypeCombinator("AorH");
+  auto AorH = new GenotypeSymbolMapper("AorH");
   AorH ~= new TrueGenotype(0,0);
   AorH ~= new TrueGenotype(1,0);
   AorH ~= new TrueGenotype(0,1);
-  auto HorB = new GenotypeCombinator("HorB");
+  auto HorB = new GenotypeSymbolMapper("HorB");
   HorB ~= new TrueGenotype(1,0);
   HorB ~= new TrueGenotype(0,1);
   HorB ~= new TrueGenotype(1,1);
@@ -487,10 +487,10 @@ unittest {
           to!string( log(1-rf) ));
 
   // unit test emit for F2 X chr male
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("-");
+  auto A = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto B = new GenotypeCombinator("B");
+  auto B = new GenotypeSymbolMapper("B");
   B ~= new TrueGenotype(1,1);
 
   double error_prob = 0.01;
@@ -601,10 +601,10 @@ unittest {
           to!string( log(1-rf) ));
 
   // unit test emit for F2 X chr female forw
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("-");
+  auto A = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto H = new GenotypeCombinator("H");
+  auto H = new GenotypeSymbolMapper("H");
   H ~= new TrueGenotype(1,0);
   H ~= new TrueGenotype(0,1);
 
@@ -716,10 +716,10 @@ unittest {
           to!string( log(1-rf) ));
 
   // unit test emit for F2 X chr female backw
-  auto NA = new GenotypeCombinator("-");
-  auto B = new GenotypeCombinator("B");
+  auto NA = new GenotypeSymbolMapper("-");
+  auto B = new GenotypeSymbolMapper("B");
   B ~= new TrueGenotype(1,1);
-  auto H = new GenotypeCombinator("H");
+  auto H = new GenotypeSymbolMapper("H");
   H ~= new TrueGenotype(1,0);
   H ~= new TrueGenotype(0,1);
 
@@ -782,10 +782,10 @@ unittest {
           to!string( log((1-R)) ));
 
   // unit test emit for RISIB autosome
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("-");
+  auto A = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto B = new GenotypeCombinator("B");
+  auto B = new GenotypeSymbolMapper("B");
   B ~= new TrueGenotype(1,1);
 
   double error_prob = 0.01;
@@ -852,10 +852,10 @@ unittest {
           to!string( log(P11) ));
 
   // unit test emit for RISIB X chr, forward
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("-");
+  auto A = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto B = new GenotypeCombinator("B");
+  auto B = new GenotypeSymbolMapper("B");
   B ~= new TrueGenotype(1,1);
 
   double error_prob = 0.01;
@@ -922,10 +922,10 @@ unittest {
           to!string( log(P11) ));
 
   // unit test emit for RISIB X chr, reverse
-  auto NA = new GenotypeCombinator("-");
-  auto A = new GenotypeCombinator("A");
+  auto NA = new GenotypeSymbolMapper("-");
+  auto A = new GenotypeSymbolMapper("A");
   A ~= new TrueGenotype(0,0);
-  auto B = new GenotypeCombinator("B");
+  auto B = new GenotypeSymbolMapper("B");
   B ~= new TrueGenotype(1,1);
 
   double error_prob = 0.01;

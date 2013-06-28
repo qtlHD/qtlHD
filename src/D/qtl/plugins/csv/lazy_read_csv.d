@@ -1,4 +1,4 @@
-module qtl.plugins.fourstore.lazycsv;
+module qtl.plugins.csv.lazy_read_csv;
 
 import std.stdio, std.file;
 import std.conv        : to;

@@ -117,7 +117,7 @@ class BinaryWriter(Reader, XType) {
     XgapFileHeader h = XgapFileHeader(xgap_magicnumber,xgap_version,3);
     myWrite([h],f);
     write_matrix!(Phenotype)(data.phenotypes, f, MatrixType.DOUBLEMATRIX,MatrixClass.PHENOTYPE);
-    write_matrix!(GenotypeCombinator)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX,MatrixClass.GENOTYPE);
+    write_matrix!(GenotypeSymbolMapper)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX,MatrixClass.GENOTYPE);
     write_matrix!(string)(getMarkerInfoMatrix(data.markers),f, MatrixType.VARCHARMATRIX,MatrixClass.MAP);
     myWrite(xgap_magicnumber,f);
     f.close();

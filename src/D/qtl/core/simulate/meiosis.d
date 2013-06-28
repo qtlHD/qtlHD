@@ -169,14 +169,14 @@ body {
 }
 
 
-// convert true genotypes to GenotypeCombinator version
-GenotypeCombinator[] convert_truegenotype_to_genotypecombinator(TrueGenotype[] genotypes, in bool make_phase_unknown=true)
+// convert true genotypes to GenotypeSymbolMapper version
+GenotypeSymbolMapper[] convert_truegenotype_to_genotypecombinator(TrueGenotype[] genotypes, in bool make_phase_unknown=true)
 {
-  GenotypeCombinator[] obs_genotypes;
+  GenotypeSymbolMapper[] obs_genotypes;
   obs_genotypes.reserve(genotypes.length);
 
   foreach(g; genotypes) {
-    auto observed = new GenotypeCombinator("observed");
+    auto observed = new GenotypeSymbolMapper("observed");
     observed ~= g;
     if(make_phase_unknown && g.heterozygous()) {
       observed ~= g.reversed();

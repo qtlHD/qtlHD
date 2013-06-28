@@ -16,7 +16,7 @@ import qtl.core.hmm.cross;
 
 // forward Equations
 double[][] forwardEquations(Cross cross,
-                            GenotypeCombinator[] genotypes,
+                            GenotypeSymbolMapper[] genotypes,
                             bool is_X_chr,
                             bool is_female,
                             int[] cross_direction,
@@ -79,7 +79,7 @@ body {
 
 // backward Equations
 double[][] backwardEquations(Cross cross,
-                             GenotypeCombinator[] genotypes,
+                             GenotypeSymbolMapper[] genotypes,
                              bool is_X_chr,
                              bool is_female,
                              int[] cross_direction,

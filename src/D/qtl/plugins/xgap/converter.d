@@ -22,10 +22,10 @@ class XbinConverter{
   
   }
 
-  GenotypeCombinator[][] toGenotypes(T)(XgapMatrix m){
-    GenotypeCombinator[][] all_genotypes;
+  GenotypeSymbolMapper[][] toGenotypes(T)(XgapMatrix m){
+    GenotypeSymbolMapper[][] all_genotypes;
     for(int r=0;r<m.header.nrow;r++){
-      GenotypeCombinator[] genotype;
+      GenotypeSymbolMapper[] genotype;
       for(int c=0;c<m.header.ncol;c++){
         //genotype ~= T.decode((cast(StringMatrix)(m.data)).data[r][c]);
       }

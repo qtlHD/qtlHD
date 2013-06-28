@@ -15,7 +15,7 @@ import qtl.core.hmm.cross;
 
 // calculate QTL genotype probabilities
 double[][][] calc_geno_prob(Cross cross,
-                            GenotypeCombinator[][] genotypes,
+                            GenotypeSymbolMapper[][] genotypes,
                             bool is_X_chr,
                             bool[] is_female,
                             int[][] cross_direction,
@@ -71,7 +71,7 @@ double[][][] calc_geno_prob(Cross cross,
 
 // version for autosome with no cross direction information
 double[][][] calc_geno_prob(Cross cross,
-                            GenotypeCombinator[][] genotypes,
+                            GenotypeSymbolMapper[][] genotypes,
                             Marker[] marker_map,
                             double[] rec_frac,
                             double error_prob)

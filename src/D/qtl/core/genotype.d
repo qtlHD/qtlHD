@@ -13,7 +13,7 @@ import std.algorithm;
 import std.array;
 import qtl.core.primitives;
 
-alias GenotypeCombinator[][] GenotypeMatrix; // = new double[][][](n_markers,n_ind);
+alias GenotypeSymbolMapper[][] GenotypeMatrix; // = new double[][][](n_markers,n_ind);
 
 /**
 
@@ -21,28 +21,28 @@ alias GenotypeCombinator[][] GenotypeMatrix; // = new double[][][](n_markers,n_i
 
   The number of possible true, or real, genotypes at a marker location is
   limited, as they depend on the number of founders (K^2 types). Unfortunately,
-  due to the scoring technology, there are a lot more 'observed' genotypes -
-  i.e.  combinations of possible true genotypes,
+  due to the scoring technologies, there may be a lot more 'observed' genotypes -
+  i.e. observed combinations of possible true genotypes,
 
-  Inside each dataset, however, there is a limited number of stored
-  combinations. So, rather than setting all types in advance we only create the
-  actual types used in the dataset. The genotype matrix contains pointers to a
-  bit array. The bit array references combinations of supported types.
+  Inside each dataset, we create a limited number of stored combinations. So,
+  rather than setting all types in advance we only create the actual types used
+  in each dataset. The genotype matrix can be viewed as pointers to a 'bit'
+  array. The bit array references combinations of supported true genotypes.
   Supported types are Tuples of 'alleles', where alleles are numbers referring
-  to the founders. I.e.
+  to the founders.  I.e.
 
   founders:       [1]   [2]   [3]   [4]
 
   actual types:   [1,1] [1,2] [2,2] [2,3] [2,4] etc.  (TrueGenotype)
 
-  combinations: (GenotypeCombinator[])
+  combinations: (GenotypeSymbolMapper[])
 
    -1        ->   []                              i.e. NA
     0        ->   [ 1      0     0     0    0 ]   i.e. [1,1]
     1        ->   [ 0      1     1     0    0 ]   i.e. [1,2] or [2,2]
     2        ->   [ 0      0     1     0    0 ]   i.e. [2,2]
 
-  (GenotypeCombinatorIndex - the left column)
+  (GenotypeSymbolMapperIndex - the left column)
 
   Types are defined in primitives.d.
 
@@ -54,7 +54,7 @@ alias GenotypeCombinator[][] GenotypeMatrix; // = new double[][][](n_markers,n_i
   the bit vectors would get really wide with many true genotypes (K^2 sized).
   So in above example:
 
-   Index          GenotypeCombinator
+   Index          GenotypeSymbolMapper
    -1        ->   []       i.e. NA
     0        ->   [ 0 ]    i.e. [1,1]
     1        ->   [ 1,2 ]  i.e. [1,2] or [2,2]
@@ -62,7 +62,7 @@ alias GenotypeCombinator[][] GenotypeMatrix; // = new double[][][](n_markers,n_i
 
   Note that types are reused - i.e. there are no duplicates defined.
 
-  Each marker has a list of GenotypeCombinators. The actual GenotypeCombinators
+  Each marker has a list of GenotypeSymbolMappers. The actual GenotypeSymbolMappers
   are also maintained in a separate list - so as to share observed types, a
   symbol tracker named symbols, rather than duplicating them for each marker.
   For this we define ObservedGenotypes, which maintains this list. The symbols
@@ -150,7 +150,7 @@ class TrueGenotype {
 }
 
 /**
- * GenotypeCombinator points to TrueGenoTypes - we have a list
+ * GenotypeSymbolMapper points to TrueGenoTypes - we have a list
  * of these for each observed type - as it is defined in the
  * dataset. The list is filled with a combination of true
  * genotypes, while reading in the data(file). This means the
@@ -161,12 +161,12 @@ class TrueGenotype {
  * is added, the add function only stores new types, and returns
  * the existing one in the list.
  *
- * GenotypeCombinator may be parametrized in the future - i.e.
+ * GenotypeSymbolMapper may be parametrized in the future - i.e.
  * to support other underlying true genotypes, and the accepted
  * encoding.
  */
 
-class GenotypeCombinator {
+class GenotypeSymbolMapper {
   alias string Encoding;
 
   TrueGenotype[] list;
@@ -224,12 +224,12 @@ class GenotypeCombinator {
     return g;
   }
   // The ~ operator can add a true genotype to the list
-  GenotypeCombinator opOpAssign(string op)(TrueGenotype g) if (op == "~") {
+  GenotypeSymbolMapper opOpAssign(string op)(TrueGenotype g) if (op == "~") {
     add(g);
     return this;
   }
   // The ~ operator can add another combinator to the list
-  GenotypeCombinator opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
+  GenotypeSymbolMapper opOpAssign(string op)(GenotypeSymbolMapper c) if (op == "~") {
     foreach(g ; c.list ) { add(g); }
     return this;
   }
@@ -237,7 +237,7 @@ class GenotypeCombinator {
   const auto length() { return list.length; }
   // Test for equality of two combinators
   override bool opEquals(Object other) {
-    auto rhs = cast(GenotypeCombinator)other;
+    auto rhs = cast(GenotypeSymbolMapper)other;
     return (list.sort == rhs.list.sort); // probably not the fastest way ;)
   }
   /**
@@ -273,19 +273,19 @@ class GenotypeCombinator {
   auto value() { return this; }
 }
 
-alias GenotypeCombinator Gref;  // short name for referencing a combinator
+alias GenotypeSymbolMapper Gref;  // short name for referencing a combinator
 
 /**
  * ObservedGenotypes tracks all the observed genotypes in a dataset, for the
- * full set, or at a marker position.  This symbol tracker is a convenience
- * class, mostly.
+ * full set, or at an individual marker position (whichever is useful).  This
+ * symbol tracker is a convenience class for data parsers, mostly. 
  */
 
 class ObservedGenotypes {
-  GenotypeCombinator[] list;
+  GenotypeSymbolMapper[] list;
   /// Pass in a combination of genotypes, add if not already in list and
   /// return the actual match.
-  GenotypeCombinator add(GenotypeCombinator c) {
+  GenotypeSymbolMapper add(GenotypeSymbolMapper c) {
     foreach(m; list) { if (m == c) return m; }
     list ~= c;
     return c;
@@ -297,7 +297,7 @@ class ObservedGenotypes {
    *
    * returns NULL on NA.
    */
-  GenotypeCombinator decode(in string s) {
+  GenotypeSymbolMapper decode(in string s) {
     // try to decode by symbol name
     foreach(m; list) { if (m.match(s)) return m; }
     // try to decode by genotype - an empty should return NA
@@ -319,7 +319,7 @@ class ObservedGenotypes {
     throw new Exception("Failed to decode genotype \"" ~ s ~ "\"");
   }
   /// Define =~ to combine combinators
-  ObservedGenotypes opOpAssign(string op)(GenotypeCombinator c) if (op == "~") {
+  ObservedGenotypes opOpAssign(string op)(GenotypeSymbolMapper c) if (op == "~") {
     add(c);
     return this;
   }
@@ -427,10 +427,10 @@ class EncodedGenotype {
     names = tuple[0];
     genotypes = tuple[1];
   }
-  GenotypeCombinator combinator() {
+  GenotypeSymbolMapper combinator() {
     writeln(names);
     writeln(genotypes);
-    return new GenotypeCombinator(names,genotypes);
+    return new GenotypeSymbolMapper(names,genotypes);
   }
 }
 
@@ -442,7 +442,7 @@ class EncodedGenotype {
 GenotypeMatrix convert_to_combinator_matrix(string[][] g,ObservedGenotypes observed) {
   GenotypeMatrix gm;
   foreach(row ; g) {
-    auto nrow = new GenotypeCombinator[](row.length);
+    auto nrow = new GenotypeSymbolMapper[](row.length);
     foreach(i, symbolname; row) {
       nrow[i] = observed.decode(symbolname); 
     }
@@ -453,13 +453,13 @@ GenotypeMatrix convert_to_combinator_matrix(string[][] g,ObservedGenotypes obser
 }
 
 // omit individuals from genotype matrix
-GenotypeCombinator[][] omit_ind_from_genotypes(GenotypeCombinator[][] geno, bool[] to_omit)
+GenotypeSymbolMapper[][] omit_ind_from_genotypes(GenotypeSymbolMapper[][] geno, bool[] to_omit)
 {
   if(geno.length != to_omit.length)
     throw new Exception("no. individuals in geno (" ~ to!string(geno.length) ~
                         ") doesn't match length of to_omit (" ~ to!string(to_omit.length) ~ ")");
 
-  GenotypeCombinator[][] ret;
+  GenotypeSymbolMapper[][] ret;
 
   foreach(i; 0..to_omit.length) {
     if(!to_omit[i])
@@ -489,14 +489,14 @@ ObservedGenotypes parse_genotype_ids(string cross,string genotype_ids,string na_
     auto ab = new TrueGenotype(0,1);
     auto ba = new TrueGenotype(1,0);
     auto na_ids_split = split(na_ids," ");
-    auto NA = new GenotypeCombinator(na_ids_split,null);
+    auto NA = new GenotypeSymbolMapper(na_ids_split,null);
     auto ids = split(genotype_ids," ");
     writeln("IDS",ids);
-    auto A  = new GenotypeCombinator(ids[0],aa);
-    auto H  = new GenotypeCombinator(ids[1],[ab,ba]);
-    auto B  = new GenotypeCombinator(ids[2],bb);
-    auto D  = new GenotypeCombinator(ids[3],[ab,aa]);
-    auto C  = new GenotypeCombinator(ids[4],[ab,bb]);
+    auto A  = new GenotypeSymbolMapper(ids[0],aa);
+    auto H  = new GenotypeSymbolMapper(ids[1],[ab,ba]);
+    auto B  = new GenotypeSymbolMapper(ids[2],bb);
+    auto D  = new GenotypeSymbolMapper(ids[3],[ab,aa]);
+    auto C  = new GenotypeSymbolMapper(ids[4],[ab,bb]);
     symbols ~= NA;
     symbols ~= A;
     symbols ~= B;
@@ -512,12 +512,12 @@ ObservedGenotypes parse_genotype_ids(string cross,string genotype_ids,string na_
     auto ab = new TrueGenotype(1,0);
     auto bb = new TrueGenotype(1,1);
     auto na_ids_split = split(na_ids," ");
-    auto NA = new GenotypeCombinator(na_ids_split,null);
+    auto NA = new GenotypeSymbolMapper(na_ids_split,null);
     auto ids = split(genotype_ids," ");
     writeln("IDS",ids);
-    auto A  = new GenotypeCombinator(ids[0],aa);
-    auto H  = new GenotypeCombinator(ids[1],ab);
-    auto B  = new GenotypeCombinator(ids[2],bb);
+    auto A  = new GenotypeSymbolMapper(ids[0],aa);
+    auto H  = new GenotypeSymbolMapper(ids[1],ab);
+    auto B  = new GenotypeSymbolMapper(ids[2],bb);
     symbols ~= NA;
     symbols ~= A;
     symbols ~= H;
@@ -530,11 +530,11 @@ ObservedGenotypes parse_genotype_ids(string cross,string genotype_ids,string na_
     auto aa = new TrueGenotype(0,0);
     auto bb = new TrueGenotype(1,1);
     auto na_ids_split = split(na_ids," ");
-    auto NA = new GenotypeCombinator(na_ids_split,null);
+    auto NA = new GenotypeSymbolMapper(na_ids_split,null);
     auto ids = split(genotype_ids," ");
     writeln("IDS",ids);
-    auto A  = new GenotypeCombinator(ids[0],aa);
-    auto B  = new GenotypeCombinator(ids[1],bb);
+    auto A  = new GenotypeSymbolMapper(ids[0],aa);
+    auto B  = new GenotypeSymbolMapper(ids[1],bb);
     symbols ~= NA;
     symbols ~= A;
     symbols ~= B;
