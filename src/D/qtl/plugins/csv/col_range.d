@@ -29,8 +29,9 @@ unittest{
   string file = "../../test/data/input/hyper.csv";
   LazyCsvReader r = LazyCsvReader(file, ",");
   writeln(r);  // Print some information
+  size_t cnt = 0;
   foreach(col; r.byColumn()){
-    if(col.length > 5) writeln("Col: ", col[0..5]);
+    if(col.length > 5 && cnt < 5) writeln("Col: ", col[0..5]);
   }
   r.close();
 }

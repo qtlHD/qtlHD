@@ -51,8 +51,9 @@ unittest{
 
   LazyCsvReader r = LazyCsvReader(file, ",");
   writeln(r);  // Print some information
+  size_t cnt = 0;
   foreach(row; r.byRow()){
-    if(row.length > 5) writeln("Row: ", row[0..5]);
+    if(row.length > 5 && cnt < 5) writeln("Row: ", row[0..5]);
   }
   r.close();
 }
