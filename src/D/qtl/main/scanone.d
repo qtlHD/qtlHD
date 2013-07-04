@@ -92,25 +92,24 @@ int main(string[] args) {
   uint debug_level = 0;
   bool contributors = false;
   string format = "qtab";
-  string cross = "F2";
-  string genotype_ids = "A H B D C";
   string na_ids = "- NA";
   string sexcol = "sex";
   string crossdircol = "pgm";
   string phenocol = "";
 
-  // ---- parse arguments to grab cross type
+  // ---- parse CLI arguments to fetch cross type first so that genotype_ids
+  string cross = "F2";
   getopt(args,
          std.getopt.config.passThrough,
          "cross", (string o, string s) { cross = s.toUpper; },
          );
 
-  // ---- different default genotypes for other crosses
-  if(cross == "BC") {
-    genotype_ids = "A H B";
-  }
-  else if(cross == "RISIB" || cross == "RISELF") {
-    genotype_ids = "A B";
+  string genotype_ids = null;
+
+  switch(cross) {
+    case "BC":              genotype_ids = "A H B";
+    case "RISIB","RISELF":  genotype_ids = "A B";
+    default:                genotype_ids = "A H B D C";
   }
 
   // ---- parse arguments again; 'cross' has been removed
