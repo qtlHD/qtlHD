@@ -51,15 +51,14 @@ static bool is_X_chr(Chromosome chromosome) {
 
 /**
  * Take a full list of markers and return a Tuple list of
- * (chromosomes,Markers), i.e. Chromosomes with their markers attached.
+ * (chromosomes,Markers), i.e. Chromosomes with their markers (unsorted). 
  *
- * Note the cast does not affect derived types, such as PseudoMarker
+ * Note conversion does not affect derived types, such as PseudoMarker.
  */
 
 Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
   Ms[string] c_markers;   // store markers temporarily by chromosome
-  const ms = markers.list;
-  foreach(m ; ms) {
+  foreach(m ; markers.list) {
     c_markers[m.chromosome.name] ~= cast(Marker)m;
   }
   // ---- convert to ret type
