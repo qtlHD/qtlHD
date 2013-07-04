@@ -97,20 +97,8 @@ int main(string[] args) {
   string crossdircol = "pgm";
   string phenocol = "";
 
-  // ---- parse CLI arguments to fetch cross type first so that genotype_ids
   string cross = "F2";
-  getopt(args,
-         std.getopt.config.passThrough,
-         "cross", (string o, string s) { cross = s.toUpper; },
-         );
-
   string genotype_ids = null;
-
-  switch(cross) {
-    case "BC":              genotype_ids = "A H B";
-    case "RISIB","RISELF":  genotype_ids = "A B";
-    default:                genotype_ids = "A H B D C";
-  }
 
   // ---- parse arguments again; 'cross' has been removed
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
@@ -118,12 +106,20 @@ int main(string[] args) {
                "h|help", (string o) { show_help = true; },
                "format", (string o, string s) { format = s; },
                "na", (string o, string s) { na_ids = s; },
+               "cross", (string o, string s) { cross = s.toUpper; },
                "genotypes", (string o, string s) { genotype_ids = s; },
                "credits", (string o) { contributors = true; },
                "phenocol", (string o, string s) { phenocol = s; },
                "sex", (string o, string s) { sexcol = s; },
                "crossdir", (string o, string s) { crossdircol = s; }
          );
+
+  if (!genotype_ids)
+    switch(cross) {
+      case "BC":              genotype_ids = "A H B";
+      case "RISIB","RISELF":  genotype_ids = "A B";
+      default:                genotype_ids = "A H B D C";
+    };
 
   if (show_help) {
     writeln(usage);
@@ -157,6 +153,7 @@ int main(string[] args) {
       g  = res[6];  // observed genotype matrix
       break;
     case "csv" : 
+      writeln("cross: ", cross);
       writeln("genotype_ids: ", genotype_ids);
       auto observed_genotypes = parse_genotype_ids(cross,genotype_ids,na_ids);
       writeln("Observed ", observed_genotypes.toEncodingString(), " ", observed_genotypes);
