@@ -99,13 +99,13 @@ int main(string[] args) {
   string crossdircol = "pgm";
   string phenocol = "";
 
-  // parse arguments to grab cross type
+  // ---- parse arguments to grab cross type
   getopt(args,
          std.getopt.config.passThrough,
          "cross", (string o, string s) { cross = s.toUpper; },
          );
 
-  // different default genotypes for other crosses
+  // ---- different default genotypes for other crosses
   if(cross == "BC") {
     genotype_ids = "A H B";
   }
@@ -113,7 +113,7 @@ int main(string[] args) {
     genotype_ids = "A B";
   }
 
-  // parse arguments again; 'cross' has been removed
+  // ---- parse arguments again; 'cross' has been removed
   getopt(args, "v|verbose", (string o, string v) { verbosity = to!int(v); },
                "d|debug", (string o, string d) { debug_level = to!int(d); },
                "h|help", (string o) { show_help = true; },
@@ -191,45 +191,48 @@ int main(string[] args) {
     writeln(ms[0..3]);
   }
 
-  // auto ind_to_omit = individuals_missing_a_phenotype(p);
+  // ---- Find individuals missing phenotype
   auto ind_missing_a_phenotype = 
     test_matrix_by_row_element!Phenotype(p, element => isNA(element)).array();
   writeln("Omitting ", count!"a[0]==true"(ind_missing_a_phenotype), " individuals with missing phenotype");
   if (g.length != p.length) 
     throw new Exception("Genotype individuals does not match phenotype individuals");
+
+  // ---- drop individuals missing phenotype from phenotype list
   auto ind_to_include = map!"a[1]"( filter!"a[0]==false"(ind_missing_a_phenotype) ).array();
   auto pheno = indexed(p,ind_to_include).array();
   writeln("done omitting from phenotypes");
 
+  //      and do the same for genotype list
   auto genotype_matrix = indexed(g,ind_to_include).array();
   assert(genotype_matrix.length == pheno.length);
   writeln("done omitting from genotypes");
 
-  // cross type
+  // ---- set the cross type
   auto cross_class = form_cross(f["Cross"]);
   writeln("formed cross class, ", f["Cross"]);
 
   auto markers_by_chr = sort_chromosomes_by_marker_id(get_markers_by_chromosome(ms));
 
-  // add pseudomarkers at 2.0 cM spacing
+  // ---- add pseudomarkers at 2.0 cM spacing
   auto pmar_by_chr = add_minimal_markers(markers_by_chr, 2.0);
 
-  // inter-marker recombination fractions
+  // ---- inter-marker recombination fractions
   auto rec_frac = recombination_fractions(pmar_by_chr, GeneticMapFunc.Haldane);
 
-  // empty covariate matrices
+  // ---- empty covariate matrices
   auto addcovar = new double[][](0, 0);
   auto intcovar = new double[][](0, 0);
   auto weights = new double[](0);
 
-  // null model
+  // ---- null model
   auto rss0 = scanone_hk_null(pheno, addcovar, weights);
 
-  // to store LOD curves and peaks for all chromosomes
+  // ---- storage for LOD curves and peaks for all chromosomes
   double[][] lod;
   Tuple!(double, Marker)[][] peaks;
 
- // calc genoprob for each chromosome, then scanone
+  // ---- calc genoprob for each chromosome, followed by scanone
   foreach(j, chr; pmar_by_chr) {
     auto genoprobs = calc_geno_prob(cross_class, genotype_matrix, chr[1], rec_frac[j][0], 0.002);
     auto rss = scanone_hk(genoprobs, pheno, addcovar, intcovar, weights);
@@ -240,7 +243,7 @@ int main(string[] args) {
     peaks ~= peak_this_chr;
   }
 
-  // print peaks
+  // ---- print peaks
   double threshold = 2;
   writeln(" --Peaks with LOD > ", threshold, ":");
   foreach(peak; peaks) {
