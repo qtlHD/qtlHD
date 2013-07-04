@@ -10,6 +10,7 @@ import std.variant;
 import std.random;
 import qtl.core.primitives;
 import std.algorithm; // to use sort()
+import std.array;
 
 import std.stdio;
 // import std.container;
@@ -61,12 +62,7 @@ Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
   foreach(m ; markers.list) {
     c_markers[m.chromosome.name] ~= cast(Marker)m;
   }
-  // ---- convert to ret type
-  Tuple!(Chromosome, Ms)[] list;
-  foreach( unused, ms ; c_markers) {
-    list ~= tuple(ms[0].chromosome,ms);
-  }
-  return list;
+  return map!"tuple(a[0].chromosome,a)"( c_markers.values ).array();
 }
 
 static auto VERBOSE = false;
