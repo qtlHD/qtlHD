@@ -57,13 +57,13 @@ static bool is_X_chr(Chromosome chromosome) {
  */
 
 Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
-  Ms[Chromosome] c_markers;   // store markers temporarily by chromosome
+  Ms[string] c_markers;   // store markers temporarily by chromosome
   foreach(m ; markers.list) {
-    c_markers[m.chromosome] ~= cast(Marker)m;
+    c_markers[m.chromosome.name] ~= cast(Marker)m;
   }
   // ---- convert to ret type
   Tuple!(Chromosome, Ms)[] list;
-  foreach( cname, ms ; c_markers) {
+  foreach( unused, ms ; c_markers) {
     list ~= tuple(ms[0].chromosome,ms);
   }
   return list;
