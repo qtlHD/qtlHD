@@ -134,7 +134,7 @@ int main(string[] args) {
   writeln("Debug level: ",debug_level);
 
   SymbolSettings s;
-  Founders f;
+  Founders founders;
   Marker[] ms;
   Inds i;
   PhenotypeMatrix p; 
@@ -145,7 +145,7 @@ int main(string[] args) {
     case "qtab" :
       auto res = load_qtab(args[1..$]);
       s  = res[0];  // symbols
-      f  = res[1];  // founder format (contains Cross information)
+      founders  = res[1];  // founder format (contains Cross information)
       ms = res[2];  // markers
       i  = res[3];  // individuals
       p  = res[4];  // phenotype matrix
@@ -158,7 +158,7 @@ int main(string[] args) {
       auto observed_genotypes = parse_genotype_ids(cross,genotype_ids,na_ids);
       writeln("Observed ", observed_genotypes.toEncodingString(), " ", observed_genotypes);
       auto res = load_csv(args[1], observed_genotypes);
-      f["Cross"] = cross;
+      founders["Cross"] = cross;
       ms = res[0];  // markers
       i  = res[1];  // individuals
       p  = res[2];  // phenotype matrix
@@ -205,8 +205,8 @@ int main(string[] args) {
   writeln("done omitting from genotypes");
 
   // ---- set the cross type
-  auto cross_class = form_cross(f["Cross"]);
-  writeln("formed cross class, ", f["Cross"]);
+  auto cross_class = form_cross(founders["Cross"]);
+  writeln("formed cross class, ", founders["Cross"]);
 
   auto markers_by_chr = sort_chromosomes_by_marker_id(get_markers_by_chromosome(ms));
 
