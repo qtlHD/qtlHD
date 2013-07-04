@@ -60,16 +60,7 @@ Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
   Ms[string] c_markers;   // store markers temporarily by chromosome
   const ms = markers.list;
   foreach(m ; ms) {
-    const c_name = m.chromosome.name;
-    // static if depends on Ms having a contained list or not
-    static if (is(Ms : Object)) {
-      if ((m.chromosome.name) !in c_markers)
-        c_markers[c_name] = new Ms();
-      c_markers[c_name].list ~= cast(Marker)m;
-    }
-    else {
-      c_markers[c_name] ~= cast(Marker)m;
-    }
+    c_markers[m.chromosome.name] ~= cast(Marker)m;
   }
   // ---- convert to ret type
   Tuple!(Chromosome, Ms)[] list;
