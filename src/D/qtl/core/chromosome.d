@@ -54,24 +54,23 @@ static bool is_X_chr(Chromosome chromosome) {
  * (chromosomes,Markers), i.e. Chromosomes with their markers attached.
  */
 
-
 Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
-  Ms[string] hash_cs;   // store chromosomes temporarily in associative array hash_cs
+  Ms[string] c_markers;   // store chromosomes temporarily in c_markers
   auto ms = markers.list;
   foreach(m ; ms) {
     // note the cast does not affect derived types, such as PseudoMarker
     static if (is(Ms : Object)) {
-      if ((m.chromosome.name) !in hash_cs)
-        hash_cs[m.chromosome.name] = new Ms();
-      hash_cs[m.chromosome.name].list ~= cast(Marker)m;
+      if ((m.chromosome.name) !in c_markers)
+        c_markers[m.chromosome.name] = new Ms();
+      c_markers[m.chromosome.name].list ~= cast(Marker)m;
     }
     else {
-      hash_cs[m.chromosome.name] ~= cast(Marker)m;
+      c_markers[m.chromosome.name] ~= cast(Marker)m;
     }
   }
   // convert to ret type
   Tuple!(Chromosome, Ms)[] list;
-  foreach( cname, ms ; hash_cs) {
+  foreach( cname, ms ; c_markers) {
     list ~= Tuple!(Chromosome, Ms)(ms[0].chromosome,ms);
   }
   return list;
