@@ -145,7 +145,7 @@ int main(string[] args) {
     case "qtab" :
       auto res = load_qtab(args[1..$]);
       s  = res[0];  // symbols
-      founders  = res[1];  // founder format (contains Cross information)
+      founders = res[1];  // founder format (contains Cross information)
       ms = res[2];  // markers
       i  = res[3];  // individuals
       p  = res[4];  // phenotype matrix
@@ -169,7 +169,6 @@ int main(string[] args) {
       throw new Exception("Unknown format "~format);
   }
   
-
   if (debug_level > 2) {
     writeln("* Format");
     writeln(format);
