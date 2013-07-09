@@ -137,7 +137,7 @@ class ReadSimpleCSV(XType,CrossType) {
   }
 }
 
-Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeSymbolMapper[][]) 
+Tuple!(Marker[],Inds,PhenotypeMatrix,string[],ObservedGenotypes,GenotypeSymbolMapper[][])
   load_csv(string fn, ObservedGenotypes observed_genotypes) {
   PhenotypeMatrix p;
   // FIXME: note we currently force an F2 here
@@ -150,7 +150,7 @@ Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeSymbolMapper[][])
   ObservedGenotypes observed;
   // auto gc = convert_to_combinator_matrix(g,observed);
 
-  return tuple(data.markers,inds,data.phenotypes,observed,data.genotypecombinator);
+  return tuple(data.markers,inds,data.phenotypes,data.phenotypenames,observed,data.genotypecombinator);
 }
 
 

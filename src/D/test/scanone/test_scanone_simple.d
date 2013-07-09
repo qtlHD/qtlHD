@@ -52,7 +52,7 @@ unittest {
   auto founder_info = all_data[1];
   auto markers = all_data[2];
   auto pheno = all_data[4];
-  auto genotype_matrix = all_data[6];
+  auto genotype_matrix = all_data[7];
 
   auto cross_class = form_cross(founder_info["Cross"]);
 

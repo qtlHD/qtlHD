@@ -138,6 +138,7 @@ int main(string[] args) {
   Marker[] ms;
   Inds i;
   PhenotypeMatrix p; 
+  string[] phenotype_names;
   // ObservedGenotypes observed;  // unused
   GenotypeMatrix g;
  
@@ -149,8 +150,9 @@ int main(string[] args) {
       ms = res[2];  // markers
       i  = res[3];  // individuals
       p  = res[4];  // phenotype matrix
-      // observed  = res[5];  // observed genotypes
-      g  = res[6];  // observed genotype matrix
+      phenotype_names = res[5]; // phenotype names
+      // observed  = res[6];  // observed genotypes
+      g  = res[7];  // observed genotype matrix
       break;
     case "csv" : 
       writeln("cross: ", cross);
@@ -162,8 +164,8 @@ int main(string[] args) {
       ms = res[0];  // markers
       i  = res[1];  // individuals
       p  = res[2];  // phenotype matrix
-      g  = res[4];
-      // observed = observed_genotypes;  // unused
+      phenotype_names = res[3]; // phenotype names
+      g  = res[5];
       break;
     default :
       throw new Exception("Unknown format "~format);
