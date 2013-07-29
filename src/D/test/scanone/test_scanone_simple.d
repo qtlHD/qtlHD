@@ -52,7 +52,7 @@ unittest {
   auto founder_info = all_data[1];
   auto markers = all_data[2];
   auto pheno = all_data[4];
-  auto genotype_matrix = all_data[6];
+  auto genotype_matrix = all_data[7];
 
   auto cross_class = form_cross(founder_info["Cross"]);
 
@@ -101,11 +101,17 @@ unittest {
   // print peaks
   double threshold = 2;
   writeln(" --Peaks with LOD > ", threshold, ":");
-  foreach(peak; peaks) {
+  foreach(i, peak; peaks) {
     foreach(j; 0..peak.length) {
       if(peak[j][0] > threshold)
-        writefln(" ----Chr %-2s : peak for phenotype %d: max lod = %7.2f at pos = %7.2f", peak[j][1].chromosome.name, j,
+        writefln(" ----Chr %-2s : peak %d for phenotype %d: max lod = %7.2f at pos = %7.2f", peak[j][1].chromosome.name, i, j,
                  peak[j][0], peak[j][1].get_position);
     }
   }
+  writeln(peaks[0][0]);
+  assert(to!int(peaks[0][0][0]) == 2,to!string(to!int(peaks[0][0][0])));
+  writeln(peaks[4][0]);
+  assert(to!int(peaks[4][0][0]) == 6,to!string(to!int(peaks[4][0][0])));
+  writeln(peaks[14][0]);
+  assert(to!int(peaks[14][0][0]) == 3,to!string(to!int(peaks[14][0][0])));
 }

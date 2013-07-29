@@ -25,11 +25,6 @@ unittest {
   markers ~= m2 ;
   assert(markers.length == 2);
 
-  // Genotype
-  Genotype!char g1 = { value:'A' };
-  assert(g1.value == 'A');
-  assert(g1.value != 2);
-
   // Phenotype
   Phenotype p1 = { value:-7.809 };
   assert(p1.value == -7.809);

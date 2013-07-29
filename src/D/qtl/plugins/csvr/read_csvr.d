@@ -38,7 +38,7 @@ class CSVrReader(XType,ObservedXType) {
   Individuals individuals;
   Chromosome[string] chromosomes;
   Phenotype[][] phenotypes;
-  GenotypeCombinator[][] genotypes;
+  GenotypeSymbolMapper[][] genotypes;
   size_t n_phenotypes;
   
   bool is_phenotype(string[] location){ return(location == ["",""]); }
@@ -83,7 +83,7 @@ class CSVrReader(XType,ObservedXType) {
         markers ~= m;
 
         //Genotype
-        GenotypeCombinator[] gs;
+        GenotypeSymbolMapper[] gs;
         // we use the predefined crosstype symbols
         foreach (field; fields[3..$]) {
           gs ~= symbols.decode(strip(field));
@@ -102,7 +102,7 @@ unittest{
   alias std.path.buildPath buildPath;
   auto infn = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","multitrait.csvr"));
   writeln("  - reading CSVR " ~ infn);
-  auto data = new CSVrReader!(RIL,ObservedRIL)(infn);
+  auto data = new CSVrReader!(RISELF,ObservedRISELF)(infn);
   assert(data.phenotypes.length == 24, to!string(data.phenotypes.length));
   assert(data.markers.length == 117, to!string(data.markers.length));
   assert(data.phenotypes[0].length == 162, to!string(data.phenotypes[0].length));

@@ -10,6 +10,7 @@ import std.variant;
 import std.random;
 import qtl.core.primitives;
 import std.algorithm; // to use sort()
+import std.array;
 
 import std.stdio;
 // import std.container;
@@ -51,30 +52,17 @@ static bool is_X_chr(Chromosome chromosome) {
 
 /**
  * Take a full list of markers and return a Tuple list of
- * (chromosomes,Markers), i.e. Chromosomes with their markers attached.
+ * (chromosomes,Markers), i.e. Chromosomes with their markers (unsorted). 
+ *
+ * Note conversion does not affect derived types, such as PseudoMarker.
  */
 
-
 Tuple!(Chromosome,Ms)[] get_markers_by_chromosome(Ms)(in Ms markers) {
-  Ms[string] hash_cs;   // store chromosomes temporarily in associative array hash_cs
-  auto ms = markers.list;
-  foreach(m ; ms) {
-    // note the cast does not affect derived types, such as PseudoMarker
-    static if (is(Ms : Object)) {
-      if ((m.chromosome.name) !in hash_cs)
-        hash_cs[m.chromosome.name] = new Ms();
-      hash_cs[m.chromosome.name].list ~= cast(Marker)m;
-    }
-    else {
-      hash_cs[m.chromosome.name] ~= cast(Marker)m;
-    }
+  Ms[string] c_markers;   // store markers temporarily by chromosome
+  foreach(m ; markers.list) {
+    c_markers[m.chromosome.name] ~= cast(Marker)m;
   }
-  // convert to ret type
-  Tuple!(Chromosome, Ms)[] list;
-  foreach( cname, ms ; hash_cs) {
-    list ~= Tuple!(Chromosome, Ms)(ms[0].chromosome,ms);
-  }
-  return list;
+  return map!"tuple(a[0].chromosome,a)"( c_markers.values ).array();
 }
 
 static auto VERBOSE = false;

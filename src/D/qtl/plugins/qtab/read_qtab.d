@@ -273,7 +273,7 @@ ObservedGenotypes read_genotype_symbol_qtab(File f, bool phase_known = true) {
       auto symbol_names = res[0];
       auto genotype_strs = res[1];
       writeln("Symbol: ",symbol_names,"\t",genotype_strs);
-      auto combinator = new GenotypeCombinator(symbol_names[0], null, phase_known);
+      auto combinator = new GenotypeSymbolMapper(symbol_names[0], null, phase_known);
       foreach (s ; symbol_names[1..$]) {
         combinator.add_encoding(s);
       }
@@ -365,7 +365,7 @@ unittest {
   assert(to!string(symbols1.decode("AB")) == "[(0,1)]");
   assert(to!string(symbols1.decode("BA")) == "[(1,0)]");
 
-  // First read symbol information (the GenotypeCombinators)
+  // First read symbol information (the GenotypeSymbolMappers)
   auto symbol_fn = to!string(buildPath(dir,"regression","test_symbol.qtab"));
   writeln("reading ",symbol_fn);
   auto f = File(symbol_fn,"r");
@@ -405,14 +405,17 @@ unittest {
  * supported. Multiple data types will be stored as multiple tables.
  */
 
-Tuple!(string[],PhenotypeMatrix) get_phenotype_matrix(string fn) {
+Tuple!(string[],string[],PhenotypeMatrix) get_phenotype_matrix(string fn) {
   PhenotypeMatrix p;
-  string[] phenotypenames;
-  auto type = get_section_key_values(fn,"Type Phenotype");
+  string[] phenotype_names;
+  string[] individual_names;
+  each_section_key_values(fn,"Type Phenotype",
+                          (key, values) { phenotype_names ~= key; });
+
   uint i = 0;
   each_section_key_values(fn,"Data Phenotype", 
     (key, values) {
-      phenotypenames ~= key;
+      individual_names ~= key;
       Phenotype[] ps;
       ps.reserve(values.length);
       foreach (j, v ; values) {
@@ -422,7 +425,7 @@ Tuple!(string[],PhenotypeMatrix) get_phenotype_matrix(string fn) {
       p ~= ps;
     }
   );
-  return tuple(phenotypenames,p);
+  return tuple(phenotype_names, individual_names, p);
 }
 
 /**
@@ -514,7 +517,7 @@ Variant[] load_qtab(string fn) {
         return variantArray(t,res[0],res[1]);
       case phenotype: 
         auto res = get_phenotype_matrix(fn);
-        return variantArray(t,res[0],res[1]);
+        return variantArray(t,res[0],res[1],res[2]);
       case location: 
         auto ms = read_marker_map_qtab!Marker(fn);
         return variantArray(t,ms);
@@ -524,7 +527,7 @@ Variant[] load_qtab(string fn) {
 }
 
 unittest {
-  writeln("automatic data loading");
+  writeln("automatic data loading with listeria qtabs");
   alias std.path.buildPath buildPath;
   auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
 
@@ -539,8 +542,10 @@ unittest {
   auto phenotypes = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_phenotype.qtab")));
   assert(phenotypes[0]==QtabFileType.phenotype);
   auto pnames = phenotypes[1];
-  assert(to!string(pnames[0]) == "1",to!string(pnames[0]));
-  auto pmatrix = phenotypes[2];
+  assert(to!string(pnames[0]) == "T264", to!string(pnames[0]));
+  auto indnames = phenotypes[2];
+  assert(to!string(indnames[0]) == "1", to!string(indnames[0]));
+  auto pmatrix = phenotypes[3];
   assert(to!string(pmatrix[0][0]) == "118.317",to!string(pmatrix[0][0]));
   auto markermap = load_qtab(to!string(buildPath(dir,"input","listeria_qtab","listeria_marker_map.qtab")));
   assert(markermap[0]==QtabFileType.location);
@@ -548,17 +553,40 @@ unittest {
   // assert(markers["D15M34"]=="15");
 }
 
+unittest {
+  writeln("automatic data loading with hyper_noX qtabs");
+  alias std.path.buildPath buildPath;
+  auto dir = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data"));
+
+  auto founders = load_qtab(to!string(buildPath(dir,"input","hyper_noX_qtab","hyper_noX_founder.qtab")));
+  assert(founders[0]==QtabFileType.founder);
+  auto genotypes = load_qtab(to!string(buildPath(dir,"input","hyper_noX_qtab","hyper_noX_genotype.qtab")));
+  assert(genotypes[0]==QtabFileType.genotype);
+  auto phenotypes = load_qtab(to!string(buildPath(dir,"input","hyper_noX_qtab","hyper_noX_phenotype.qtab")));
+  assert(phenotypes[0]==QtabFileType.phenotype);
+  auto pnames = phenotypes[1];
+  assert(to!string(pnames[0]) == "bp", to!string(pnames[0]));
+  assert(to!string(pnames[1]) == "sex", to!string(pnames[1]));
+  auto indnames = phenotypes[2];
+  assert(to!string(indnames[0]) == "1", to!string(indnames[0]));
+  auto pmatrix = phenotypes[3];
+  assert(to!string(pmatrix[0][0]) == "109.6",to!string(pmatrix[0][0]));
+  auto markermap = load_qtab(to!string(buildPath(dir,"input","hyper_noX_qtab","hyper_noX_marker_map.qtab")));
+  assert(markermap[0]==QtabFileType.location);
+}
+
 /**
  * Main qtab file parser - should load all sections and return the data in the proper
  * containers.
  */
 
-Tuple!(SymbolSettings, Founders, Marker[], Inds, PhenotypeMatrix, ObservedGenotypes, GenotypeMatrix) load_qtab(string[] fns) {
+Tuple!(SymbolSettings, Founders, Marker[], Inds, PhenotypeMatrix, string[], ObservedGenotypes, GenotypeMatrix) load_qtab(string[] fns) {
   SymbolSettings s;
   Founders f;
   Marker[] ms;
   Inds i;
   PhenotypeMatrix p;
+  string[] pnames;
   string[][] g;
   ObservedGenotypes observed;
   foreach (fn ; fns) {
@@ -581,15 +609,15 @@ Tuple!(SymbolSettings, Founders, Marker[], Inds, PhenotypeMatrix, ObservedGenoty
           g = res[2].get!(string[][]);
           break;
         case phenotype: 
-          // auto pids = d; ignored, for now
-          p = res[2].get!PhenotypeMatrix; break;
+          pnames = d.get!(string[]);
+          p = res[3].get!PhenotypeMatrix; break;
         default: throw new Exception("Unsupported file type for " ~ fn);
       }
     }
   }
   // Turn the genotype matrix into a genotype combinator matrix
   auto gc = convert_to_combinator_matrix(g,observed);
-  return tuple(s,f,ms,i,p,observed,gc);
+  return tuple(s,f,ms,i,p,pnames,observed,gc);
 }
 
 unittest {

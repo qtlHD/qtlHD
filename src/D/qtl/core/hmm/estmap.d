@@ -15,7 +15,7 @@ import qtl.core.hmm.cross;
 
 // re-estimate inter-marker recombination fractions
 double[] estmap(Cross cross,
-                GenotypeCombinator[][] genotypes,
+                GenotypeSymbolMapper[][] genotypes,
                 bool is_X_chr,
                 bool[] is_female,
                 int[][] cross_direction,
@@ -167,7 +167,7 @@ double[] estmap(Cross cross,
 
 // version for autosome with no cross direction information
 double[] estmap(Cross cross,
-                GenotypeCombinator[][] genotypes,
+                GenotypeSymbolMapper[][] genotypes,
                 Marker[] marker_map,
                 double[] rec_frac,
                 double error_prob,

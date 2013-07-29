@@ -28,7 +28,7 @@ import example.genotype_examples;
  * phenotype and genotype - such as the listeria.csv file used in R/qtl.
  *
  * The cross type is injected as XType. An XType works as long as it is a known
- * Genotype class (e.g. BC, F2, RIL, Flex). Observed genotypecombinator are handled as
+ * Genotype class (e.g. BC, F2, RISELF, RISIB, Flex). Observed genotypecombinator are handled as
  * 'fixed' in this implementation. That is, we already know the observed types
  * before reading the genotype data file. The symbols hands back matching
  * (observed) genotypecombinator.
@@ -45,7 +45,7 @@ class ReadSimpleCSV(XType,CrossType) {
   Individuals individuals;
   Chromosome[string] chromosomes;
   Phenotype[][] phenotypes;
-  GenotypeCombinator[][] genotypecombinator;
+  GenotypeSymbolMapper[][] genotypecombinator;
   size_t n_phenotypes;
 
   this(in string fn, CrossType observed = null) {
@@ -125,7 +125,7 @@ class ReadSimpleCSV(XType,CrossType) {
       phenotypes ~= ps;
       // set genotype
       crosstype = new XType;
-      GenotypeCombinator[] gs;
+      GenotypeSymbolMapper[] gs;
       // we use the predefined crosstype symbols
       gs.reserve(n_columns);  // pre-allocate memory (just good practise)
       foreach (field; fields[n_phenotypes..$]) {
@@ -137,7 +137,7 @@ class ReadSimpleCSV(XType,CrossType) {
   }
 }
 
-Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][]) 
+Tuple!(Marker[],Inds,PhenotypeMatrix,string[],ObservedGenotypes,GenotypeSymbolMapper[][])
   load_csv(string fn, ObservedGenotypes observed_genotypes) {
   PhenotypeMatrix p;
   // FIXME: note we currently force an F2 here
@@ -150,7 +150,7 @@ Tuple!(Marker[],Inds,PhenotypeMatrix,ObservedGenotypes,GenotypeCombinator[][])
   ObservedGenotypes observed;
   // auto gc = convert_to_combinator_matrix(g,observed);
 
-  return tuple(data.markers,inds,data.phenotypes,observed,data.genotypecombinator);
+  return tuple(data.markers,inds,data.phenotypes,data.phenotypenames,observed,data.genotypecombinator);
 }
 
 

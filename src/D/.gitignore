@@ -13,3 +13,4 @@ tags
 TODO
 *.sh
 test_*
+triplestore

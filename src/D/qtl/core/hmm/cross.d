@@ -20,7 +20,7 @@ class Cross {
   abstract double init(TrueGenotype truegen, bool is_X_chr, bool is_female, int[] cross_direction);
   abstract double step(TrueGenotype truegen_left, TrueGenotype truegen_right, double rec_frac,
                           bool is_X_chr, bool is_female, int[] cross_direction);
-  abstract double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+  abstract double emit(GenotypeSymbolMapper obsgen, TrueGenotype truegen, double error_prob,
                           bool is_X_chr, bool is_female, int[] cross_direction);
   abstract double nrec(TrueGenotype truegen_left, TrueGenotype truegen_right,
                           bool is_X_chr, bool is_female, int[] cross_direction);
@@ -183,7 +183,7 @@ class BC : Cross {
 
 
   // ln Pr(observed genotype | true genotype)
-  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+  override double emit(GenotypeSymbolMapper obsgen, TrueGenotype truegen, double error_prob,
                        bool is_X_chr, bool is_female, int[] ignored_argument) // don't actually use X chr or sex here
   {
     if(obsgen.list.length==0) // missing value
@@ -442,7 +442,7 @@ class F2 : Cross {
   }
 
   // ln Pr(observed genotype | true genotype)
-  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+  override double emit(GenotypeSymbolMapper obsgen, TrueGenotype truegen, double error_prob,
                        bool is_X_chr, bool is_female, int[] cross_direction)
   {
     bool is_forward_cross = (cross_direction[0] == 0);
@@ -451,7 +451,7 @@ class F2 : Cross {
     else return(emitA(obsgen, truegen, error_prob));
   }
 
-  double emitA(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+  double emitA(GenotypeSymbolMapper obsgen, TrueGenotype truegen, double error_prob)
   {
     auto n_obsgen = obsgen.list.length;
 
@@ -472,7 +472,7 @@ class F2 : Cross {
     }
   }
 
-  double emitX(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob)
+  double emitX(GenotypeSymbolMapper obsgen, TrueGenotype truegen, double error_prob)
   {
     auto n_obsgen = obsgen.list.length;
 
@@ -946,7 +946,7 @@ class RISIB : Cross {
 
 
   // ln Pr(observed genotype | true genotype)
-  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+  override double emit(GenotypeSymbolMapper obsgen, TrueGenotype truegen, double error_prob,
                        bool is_X_chr, bool ignored_argument, int[] cross_direction) // don't actually use X chr or direction here
   {
     if(obsgen.list.length==0) // missing value
@@ -1045,7 +1045,7 @@ class RISELF : Cross {
   }
 
   // ln Pr(observed genotype | true genotype)
-  override double emit(GenotypeCombinator obsgen, TrueGenotype truegen, double error_prob,
+  override double emit(GenotypeSymbolMapper obsgen, TrueGenotype truegen, double error_prob,
                        bool ignored_arg1, bool ignored_arg2, int[] ignored_arg3)
   {
     if(obsgen.list.length==0) // missing value

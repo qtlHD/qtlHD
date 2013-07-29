@@ -6,7 +6,7 @@ import std.conv;
 import qtl.core.genotype;
 
 /**
- * Unit tests for TrueGenotype and GenotypeCombinators
+ * Unit tests for TrueGenotype and GenotypeSymbolMappers
  */
 
 unittest {
@@ -15,7 +15,7 @@ unittest {
   FounderIndex[] founder = [ 1, 2, 3, 4, 5 ];
   // create a few genotypes (at a marker location)
   auto g1  = new TrueGenotype(founder[0],founder[2]);
-  auto g2  = new TrueGenotype(founder[1],founder[1]); // could be a RIL
+  auto g2  = new TrueGenotype(founder[1],founder[1]); // could be a RISELF
   auto g2a = new TrueGenotype(founder[1],founder[1]); // duplicate
   auto g3  = new TrueGenotype(founder[2],founder[3]);
   auto g4  = new TrueGenotype(founder[4],founder[3]);
@@ -28,7 +28,7 @@ unittest {
   assert(new TrueGenotype("1,2") == new TrueGenotype(1,2));
 
   // observed genotypes can be any combination of true genotypes
-  auto observed1 = new GenotypeCombinator("OBSERVE1");
+  auto observed1 = new GenotypeSymbolMapper("OBSERVE1");
   observed1 ~= g1;
   observed1 ~= g2;
   observed1 ~= g2; // tests also for duplicate add
@@ -40,12 +40,12 @@ unittest {
   auto testg = observed1.add(g2a); // we want the return type
   assert(testg == g2);
   assert(observed1.list.length == 2);
-  auto observed2 = new GenotypeCombinator("OBSERVE2");
+  auto observed2 = new GenotypeSymbolMapper("OBSERVE2");
   observed2.list ~= g2;
   assert(observed2.list.length == 1);
   assert(observed2 == observed2);
   assert(observed1 != observed2);
-  auto observed1a = new GenotypeCombinator("OBSERVE1A");
+  auto observed1a = new GenotypeSymbolMapper("OBSERVE1A");
   observed1a ~= g2a;
   observed1a ~= g1;
   assert(observed1 == observed1a);
@@ -53,9 +53,9 @@ unittest {
   // to store the observed genotypes with the marker. The marker/genotype
   // matrix stores references to observedX by reference. Say
   // we have a marker column, and 2 individuals (2 observed genotypes):
-  auto observed = new GenotypeCombinator[](2);
-  observed[0] = new GenotypeCombinator("0");
-  observed[1] = new GenotypeCombinator("1");
+  auto observed = new GenotypeSymbolMapper[](2);
+  observed[0] = new GenotypeSymbolMapper("0");
+  observed[1] = new GenotypeSymbolMapper("1");
   // currently there is no content:
   assert(to!string(observed[0]) == "[NA]", to!string(observed[0]));
   observed[1] ~= g1;

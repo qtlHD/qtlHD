@@ -18,7 +18,7 @@ import std.random;
 import std.math;
 
 // simulate a backcross
-GenotypeCombinator[][] simulate_backcross_autosome(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
+GenotypeSymbolMapper[][] simulate_backcross_autosome(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
                                                    in uint m, in double p, ref Random gen)
 in {
   assert(founders.length == 2, "founders must have length 2");
@@ -27,7 +27,7 @@ in {
   assert(p >= 0.0 && p <= 1.0, "p must be in [0,1]");
 }
 body {
-  GenotypeCombinator[][] genotypes;
+  GenotypeSymbolMapper[][] genotypes;
   genotypes.reserve(marker_map.length*n_individuals);
 
   // parents
@@ -63,7 +63,7 @@ unittest {
 }
 
 // simulate an intercross
-GenotypeCombinator[][] simulate_intercross_autosome(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
+GenotypeSymbolMapper[][] simulate_intercross_autosome(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
                                                     in uint m, in double p, ref Random gen)
 in {
   assert(founders.length == 2, "founders must have length 2");
@@ -72,7 +72,7 @@ in {
   assert(p >= 0.0 && p <= 1.0, "p must be in [0,1]");
 }
 body {
-  GenotypeCombinator[][] genotypes;
+  GenotypeSymbolMapper[][] genotypes;
   genotypes.reserve(marker_map.length*n_individuals);
 
   // parents
@@ -107,7 +107,7 @@ unittest {
 }
 
 // simulate RIL by selfing, to complete inbreeding
-GenotypeCombinator[][] simulate_riself(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
+GenotypeSymbolMapper[][] simulate_riself(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
                                        in uint m, in double p, ref Random gen)
 in {
   assert(founders.length == 2, "founders must have length 2");
@@ -116,7 +116,7 @@ in {
   assert(p >= 0.0 && p <= 1.0, "p must be in [0,1]");
 }
 body {
-  GenotypeCombinator[][] genotypes;
+  GenotypeSymbolMapper[][] genotypes;
   genotypes.reserve(marker_map.length*n_individuals);
 
   // parents
@@ -167,7 +167,7 @@ uint count_het_genotypes(in TrueGenotype[] genotypes)
 }
 
 // simulate RIL by sib-mating, to complete inbreeding
-GenotypeCombinator[][] simulate_risib_autosome(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
+GenotypeSymbolMapper[][] simulate_risib_autosome(in Marker[] marker_map, in size_t n_individuals, in FounderIndex[] founders,
                                                in uint m, in double p, ref Random gen)
 in {
   assert(founders.length == 2, "founders must have length 2");
@@ -176,7 +176,7 @@ in {
   assert(p >= 0.0 && p <= 1.0, "p must be in [0,1]");
 }
 body {
-  GenotypeCombinator[][] genotypes;
+  GenotypeSymbolMapper[][] genotypes;
   genotypes.reserve(marker_map.length*n_individuals);
 
   // parents
