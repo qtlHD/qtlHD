@@ -24,6 +24,15 @@ bool[] filter_matrix_by_row_2bool(T)(T[][] matrix, bool delegate (T) test ) {
 }
 
 /**
+ * pull out a column of a matrix indexed as matrix[row][col]
+ **/
+T[] get_column(T)(in size_t column_index, T[][] matrix)
+{
+  return map!( (row) { return row[column_index]; })(matrix).array();
+}
+
+
+/**
  * transpose of a matrix
  */
 T[][] transpose_matrix(T)(in T[][] matrix)
@@ -40,7 +49,7 @@ T[][] transpose_matrix(T)(in T[][] matrix)
 
 
 unittest {
-  writeln("Test transpose of phenotype matrix");
+  writeln("Test get_column and transpose_matrix");
 
   Phenotype pheno[][];
   auto pdbl = [ ["0.0", "0.0", "0.0", "0.0", "0.0"],
@@ -63,6 +72,12 @@ unittest {
     pheno ~= ps;
   }
 
+  writeln("Test get_column");
+  auto pcol = get_column(1, pheno);
+  foreach(i, row; pheno)
+    assert(row[1] == pcol[i]);
+
+  writeln("Test transpose of phenotype matrix");
   auto tpheno = transpose_matrix(pheno);
 
   foreach(i, row; tpheno)
