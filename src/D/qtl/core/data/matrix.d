@@ -238,7 +238,7 @@ unittest {
  **/
 T[] get_column(T)(in size_t column_index, T[][] matrix)
 {
-  return map!( (row) { return row[column_index]; })(matrix).array();
+  return map!( row => row[column_index] )(matrix).array();
 }
 
 
