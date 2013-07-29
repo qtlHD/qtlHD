@@ -99,6 +99,32 @@ Phenotype[][] omit_ind_from_phenotypes(Phenotype[][] pheno, bool[] to_omit)
   return ret;
 }
 
+// pull out one phenotype as a vector
+Phenotype[] get_phenotype(in size_t index, in Phenotype[][] pheno_matrix)
+{
+  Phenotype[] ret;
+
+  foreach(i, p; pheno_matrix)
+    ret ~= p[index];
+
+  return ret;
+}
+
+// pull out phenotype as a vector, selected by name
+Phenotype[] get_phenotype(in string phename_to_get, in string[] phenames, in Phenotype[][] pheno_matrix)
+{
+  if(phenames.length != pheno_matrix[0].length)
+    throw new Exception("no. phenotypes in phenames (" ~ to!string(phenames.length) ~ 
+                        ") doesn't match no. columns in pheno_matrix (" ~ to!string(pheno_matrix[0].length) ~ ")");
+
+  // find name in vector of names
+  auto index = countUntil!("a == b")(phenames, phename_to_get);
+  if(index < 0)
+    throw new Exception("Phenotype not found.");
+
+  return get_phenotype(index, pheno_matrix);
+}
+
 // batches of phenotypes with common missing data patterns
 size_t[][] create_phenotype_batches(Phenotype[][] pheno)
 {
@@ -170,7 +196,3 @@ size_t[][string] create_phenotype_batches_hash(Phenotype[][] pheno)
 
   return phenotype_batches;
 }
-
-
-
-

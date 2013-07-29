@@ -69,6 +69,37 @@ unittest {
 
 
 unittest {
+  writeln("Test get_phenotype");
+
+  Phenotype pheno[][];
+  auto pdbl = [ ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                [  "-", "0.0", "0.0",   "-", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                [  "-",   "-",   "-",   "-",   "-"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                [  "-",   "-", "0.0",   "-",   "-"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0",   "-",   "-", "0.0",   "-"],
+                ["0.0",   "-",   "-", "0.0",   "-"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"]];
+
+  foreach(line; pdbl) {
+    Phenotype[] ps = std.array.array(map!((a) {return set_phenotype(a);})(line));
+    pheno ~= ps;
+  }
+
+  auto phe = get_phenotype(1, pheno);
+  foreach(i, p; phe) assert(p == pheno[i][1]);
+
+  auto phecolumns = ["col1", "col2", "col3", "col4", "col5"];
+  phe = get_phenotype("col3", phecolumns, pheno);
+  foreach(i, p; phe) assert(p == pheno[i][2]);
+}
+
+unittest {
   writeln("Test create_phenotype_batches");
 
   Phenotype pheno[][];
