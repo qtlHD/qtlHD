@@ -21,12 +21,13 @@ import qtl.core.hmm.cross;
 
 
 // ---- Get sex and cross direction from phenotypes
-Tuple!(bool [], int [][]) get_sex_and_cross(Cross cross, string sexcolumn, string crosscolumn, string[] phenames, Phenotype[][] pheno_matrix)
+Tuple!(bool [], int [][]) get_sex_and_cross(Cross cross, string sexcolumn, string crosscolumn, 
+                                            string[] phenames, Phenotype[][] pheno_matrix)
 {
   auto sex = get_phenotype(sexcolumn, phenames, pheno_matrix);
   auto is_female = new bool[](sex.length);
   foreach(i, val; sex)
-    is_female[i] = (val == cast(AnyPhenotype!(double))0.0 ); // why do I need to cast here?
+    is_female[i] = (val.value == 0.0);
 
   int[][] cross_dir;
 
@@ -36,7 +37,7 @@ Tuple!(bool [], int [][]) get_sex_and_cross(Cross cross, string sexcolumn, strin
   else if(cross.cross_type == "F2") {
     auto tmp = get_phenotype(crosscolumn, phenames, pheno_matrix);
     foreach(i, val; tmp)
-      cross_dir[i][0] = cast(int)val; // this gives an error
+      cross_dir[i][0] = cast(int)(val.value);
   }
   else {
     throw new Exception("cross type " ~ cross.cross_type ~ " not supported.");
