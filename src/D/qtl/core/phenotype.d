@@ -110,6 +110,9 @@ Phenotype[][] omit_ind_from_phenotypes(Phenotype[][] pheno, bool[] to_omit)
 // pull out one phenotype as a vector
 Phenotype[] get_phenotype(in size_t index, Phenotype[][] pheno_matrix)
 {
+  if(index < 0 || index >= pheno_matrix[0].length)
+    throw new Exception("index outside of allowable range");
+
   return map!( row => row[index] )(pheno_matrix).array();
 }
 

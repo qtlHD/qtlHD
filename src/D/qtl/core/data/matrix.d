@@ -238,6 +238,9 @@ unittest {
  **/
 T[] get_column(T)(in size_t column_index, T[][] matrix)
 {
+  if(column_index < 0 || column_index >= matrix[0].length)
+    throw new Exception("column_index outside of allowable range");
+
   return map!( row => row[column_index] )(matrix).array();
 }
 
