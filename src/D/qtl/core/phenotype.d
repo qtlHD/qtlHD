@@ -100,18 +100,13 @@ Phenotype[][] omit_ind_from_phenotypes(Phenotype[][] pheno, bool[] to_omit)
 }
 
 // pull out one phenotype as a vector
-Phenotype[] get_phenotype(in size_t index, in Phenotype[][] pheno_matrix)
+Phenotype[] get_phenotype(in size_t index, Phenotype[][] pheno_matrix)
 {
-  Phenotype[] ret;
-
-  foreach(i, p; pheno_matrix)
-    ret ~= p[index];
-
-  return ret;
+  return map!( (row) { return row[index]; })(pheno_matrix).array();
 }
 
 // pull out phenotype as a vector, selected by name
-Phenotype[] get_phenotype(in string phename_to_get, in string[] phenames, in Phenotype[][] pheno_matrix)
+Phenotype[] get_phenotype(in string phename_to_get, in string[] phenames, Phenotype[][] pheno_matrix)
 {
   if(phenames.length != pheno_matrix[0].length)
     throw new Exception("no. phenotypes in phenames (" ~ to!string(phenames.length) ~ 
