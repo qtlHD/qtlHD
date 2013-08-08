@@ -18,7 +18,7 @@ import qtl.core.marker;
 import qtl.core.phenotype;
 import qtl.core.primitives;
 import qtl.core.hmm.cross;
-
+import qtl.core.data.matrix;
 
 // ---- Get sex and cross direction from phenotypes
 Tuple!(bool [], int [][]) get_sex_and_cross(Cross cross, string sexcolumn, string crosscolumn, 
@@ -60,6 +60,16 @@ double[][] xchr_covar(Cross cross, bool[] is_female, int[][] cross_direction)
     throw new Exception("cross type " ~ cross.cross_type ~ " not supported.");
   }
 }
+
+// ---- Version that takes additive covariate matrix as input and gives combined matrix as output
+double [][] xchr_covar(Cross cross, bool[] is_female, int[][] cross_direction, double [][] addcovar)
+{
+  auto newcovar = xchr_covar(cross, is_female, cross_direction);
+
+  return(bind_columns(addcovar, newcovar));
+}
+
+
 
 // ---- Backcross: special covariates for X chr
 double [][] xchr_covar_bc(bool[] is_female)
