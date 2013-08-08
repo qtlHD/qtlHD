@@ -221,3 +221,28 @@ size_t[][string] create_phenotype_batches_hash(Phenotype[][] pheno)
 
   return phenotype_batches;
 }
+
+// ---- Phenotype vector to double[]
+T[] get_values(T)(AnyPhenotype!T[] input)
+{
+  return std.array.array(map!"a.value"(input));
+}
+
+// ---- Phenotype matrix to double[][]
+T[][] get_values(T)(AnyPhenotype!T[][] input)
+{
+  return std.array.array(map!(a => get_values(a))(input));
+}
+
+// ---- Phenotype matrix to double[]
+T[] get_values_singleindex(T)(AnyPhenotype!T[][] input)
+{
+  auto nrow = input.length;
+  auto result = new T[](nrow * input[0].length);
+
+  foreach(i, row; input)
+    foreach(j, el; row)
+      result[j*nrow + i] = el.value;
+
+  return result;
+}
