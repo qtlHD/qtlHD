@@ -52,7 +52,7 @@ alias AnyPhenotype!double Phenotype ;
  * PhenotypeMatrix holds phenotypes (cols) against individuals (rows)
  */
 
-alias Phenotype[][] PhenotypeMatrix; // = new double[][][](n_ind,n_phe);
+alias Phenotype[][] PhenotypeMatrix; // = new double[][](n_ind,n_phe);
 
 Phenotype set_phenotype(in string s) {
   // writeln(s);
