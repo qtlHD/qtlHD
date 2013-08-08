@@ -46,6 +46,41 @@ Tuple!(bool [], int [][]) get_sex_and_cross(Cross cross, string sexcolumn, strin
   return tuple(is_female, cross_dir);
 }
 
+// ---- Test if all male
+bool all_male(bool[] is_female)
+{
+  foreach(val; is_female) {
+    if(val) return(false);
+  }
+  return(true); // if is_female.length == 0, still return true
+}
+
+// ---- Test if all female
+bool all_female(bool[] is_female)
+{
+  foreach(val; is_female) {
+    if(!val) return(false);
+  }
+  return(true); // if is_female.length == 0, still return true
+}
+
+// ---- Test if all one sex
+bool all_same_sex(bool[] is_female)
+{
+  foreach(val; is_female) {
+    if(val != is_female[0]) return(false);
+  }
+  return(true); // if is_female.length == 0, still return true
+}
+
+// ---- Test if all same cross direction
+bool all_same_cross_direction(int [][] cross_direction)
+{
+  foreach(val; cross_direction) {
+    if(val[0] != cross_direction[0][0]) return(false);
+  }
+  return(true);
+}
 
 // ---- Special covariates for QTL analysis of the X chromosome
 double[][] xchr_covar(Cross cross, bool[] is_female, int[][] cross_direction)
@@ -69,25 +104,10 @@ double [][] xchr_covar(Cross cross, bool[] is_female, int[][] cross_direction, d
   return(bind_columns(addcovar, newcovar));
 }
 
-
-
 // ---- Backcross: special covariates for X chr
 double [][] xchr_covar_bc(bool[] is_female)
 {
-  if(is_female.length < 2) { // 0 or 1 individual
-    auto ret = new double[][](is_female.length, 0);
-    return ret;
-  }
-
-  auto all_same = true;
-  foreach(i; 1..is_female.length) {
-    if(is_female[i] != is_female[0]) {
-      all_same = false;
-      break;
-    }
-  }
-  
-  if(all_same) { // all females or all males, no covariate
+  if(all_same_sex(is_female)) { // all females or all males, no covariate
     auto ret = new double[][](is_female.length, 0);
     return ret;
   }
@@ -109,29 +129,11 @@ double [][] xchr_covar_f2(bool[] is_female, int[][] cross_direction)
 
   auto n_ind = is_female.length;
 
-  if(n_ind < 2) { // 0 or 1 individual
-    auto ret = new double[][](n_ind, 0);
-    return ret;
-  }
+  auto all_same_sex = all_same_sex(is_female);
+  auto all_same_cross_direction = all_same_cross_direction(cross_direction);
 
-  auto all_same_sex = true;
-  foreach(i; 1..n_ind) {
-    if(is_female[i] != is_female[0]) {
-      all_same_sex = false;
-      break;
-    }
-  }
-  
-  auto all_same_cross_direction = true;
-  foreach(i; 1..n_ind) {
-    if(cross_direction[i][0] != cross_direction[0][0]) {
-      all_same_cross_direction = false;
-      break;
-    }
-  }
-  
   if(all_same_sex) { // all same sex
-    if(!is_female[0] || all_same_cross_direction) { // all males, or all females of same cross direction
+    if(all_same_cross_direction || !is_female[0]) { // all males, or all females of same cross direction
       auto ret = new double[][](n_ind, 0);
       return ret;
     }
