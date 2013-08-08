@@ -41,27 +41,33 @@ unittest {
     Phenotype[] ps = std.array.array(map!((a) { return set_phenotype(a); })(line));
     pheno ~= ps;
   }
-
-  auto bc = form_cross("BC");
-  auto bc_bothsex   = get_sex_and_cross(bc, "bothsex",   "", phenames, pheno);
-  auto bc_allfemale = get_sex_and_cross(bc, "allfemale", "", phenames, pheno);
-  auto bc_allmale   = get_sex_and_cross(bc, "allmale",   "", phenames, pheno);
-
-  assert(!all_female(bc_bothsex[0]));
-  assert( all_female(bc_allfemale[0]));
-  assert(!all_female(bc_allmale[0]));
-
-  assert(!all_male(bc_bothsex[0]));
-  assert(!all_male(bc_allfemale[0]));
-  assert( all_male(bc_allmale[0]));
-
-  assert(!all_same_sex(bc_bothsex[0]));
-  assert( all_same_sex(bc_allfemale[0]));
-  assert( all_same_sex(bc_allmale[0]));
-
-  auto f2 = form_cross("F2");
   auto sexcols = phenames[0..3];
   auto dircols = phenames[3..$];
+
+  auto bc = form_cross("BC");
+  auto bc_sex = new bool[][](sexcols.length, pheno.length);
+  foreach(i, sexcol; sexcols) {
+    auto sexdir = get_sex_and_cross(bc, sexcol, "", phenames, pheno);
+    bc_sex[i] = sexdir[0];
+
+    if(sexcol=="bothsex") {
+      assert(!all_female(bc_sex[i]));
+      assert(!all_male(bc_sex[i]));
+      assert(!all_same_sex(bc_sex[i]));
+    }
+    if(sexcol=="allfemale") {
+      assert( all_female(bc_sex[i]));
+      assert(!all_male(bc_sex[i]));
+      assert( all_same_sex(bc_sex[i]));
+    }
+    if(sexcol=="allmale") {
+      assert(!all_female(bc_sex[i]));
+      assert( all_male(bc_sex[i]));
+      assert( all_same_sex(bc_sex[i]));
+    }
+  }
+
+  auto f2 = form_cross("F2");
   auto f2_sex = new bool[][][](sexcols.length, dircols.length, pheno.length);
   auto f2_dir = new int[][][][](sexcols.length, dircols.length, pheno.length, 1);
   foreach(i, sexcol; sexcols) {
