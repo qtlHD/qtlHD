@@ -298,3 +298,69 @@ unittest {
     foreach(j, element; row)
       assert(isSame(element, pheno[j][i]));
 }
+
+double[][] bind_columns(double[][] matrix1, double[][] matrix2)
+{
+  if(matrix1.length != matrix2.length)
+    throw new Exception("matrices need to have the same number of rows.");
+
+  // if one matrix has no columns
+  if(matrix2[0].length == 0) return(matrix1);
+  if(matrix1[0].length == 0) return(matrix2);
+
+  auto result = new double[][](matrix1.length, matrix1[0].length + matrix2[0].length);
+  foreach(i, m1; matrix1)
+    result[i] = (m1 ~ matrix2[i]);
+
+  return(result);
+}
+
+unittest {
+  import std.random;
+  writeln("Test bind_columns");
+
+  Random gen;
+  gen.seed(unpredictableSeed);
+
+  // random numbers of rows and columns
+  auto nrow = cast(size_t)uniform(5.0, 30.0, gen);
+  auto ncol1 = cast(size_t)uniform(1.0, 10.0, gen);
+  auto ncol2 = cast(size_t)uniform(1.0, 10.0, gen);
+
+  auto mat1 = new double[][](nrow, ncol1);
+  auto mat2 = new double[][](nrow, ncol2);
+
+  // fill in with random numbers
+  foreach(ref row; mat1)
+    foreach(ref cell; row)
+      cell = uniform(-5.0, 5.0, gen);
+  foreach(ref row; mat2)
+    foreach(ref cell; row)
+      cell = uniform(-5.0, 5.0, gen);
+
+  // column bind
+  auto mat3 = bind_columns(mat1, mat2);
+
+  assert(mat3.length == mat1.length);
+  assert(mat3[0].length == mat1[0].length + mat2[0].length);
+  foreach(i, row; mat1) {
+    foreach(j, cell; row) {
+      assert(cell == mat3[i][j]);
+    }
+    foreach(j, cell; mat2[i]) {
+      assert(cell == mat3[i][j+row.length]);
+    }
+  }
+
+  // 0 column cases
+  auto mat1b = new double[][](nrow, 0);
+  auto mat3b = bind_columns(mat1, mat1b);
+  auto mat3c = bind_columns(mat1b, mat1);
+
+  foreach(i, row; mat1) {
+    foreach(j, cell; row) {
+      assert(mat3b[i][j] == cell);
+      assert(mat3c[i][j] == cell);
+    }
+  }
+}
