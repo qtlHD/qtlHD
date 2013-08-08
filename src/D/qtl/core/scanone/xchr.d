@@ -36,6 +36,7 @@ Tuple!(bool [], int [][]) get_sex_and_cross(Cross cross, string sexcolumn, strin
   }
   else if(cross.cross_type == "F2") {
     auto tmp = get_phenotype(crosscolumn, phenames, pheno_matrix);
+    cross_dir = new int[][](sex.length, 1);
     foreach(i, val; tmp)
       cross_dir[i][0] = cast(int)(val.value);
   }
