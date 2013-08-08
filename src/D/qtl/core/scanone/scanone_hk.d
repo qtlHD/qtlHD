@@ -20,7 +20,7 @@ import std.exception;
 
 // scanone, one position
 //    returns vector of residual sums of squares
-double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype[][] pheno,
+double[] scanone_hk_onelocus(in Probability[][] genoprobs, Phenotype[][] pheno,
                              in double[][] addcovar, in double[][] intcovar,
                              in double[] weights, in double tol=1e-8)
 {
@@ -48,10 +48,7 @@ double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype[][] phen
   if(intcovar.length>0) n_intcovar = intcovar[0].length;
 
   // create simple double[] array for phenotypes
-  auto Ymatrix = new double[](n_ind * n_phe);
-  foreach(i; 0..n_ind)
-    foreach(j; 0..n_phe)
-      Ymatrix[i+j*n_ind] = pheno[i][j].value;
+  auto Ymatrix = get_values_singleindex(pheno);
 
   // create simple double[] array with X matrix
   auto ncolx = n_gen + n_addcovar + (n_gen-1)*n_intcovar;
@@ -64,7 +61,7 @@ double[] scanone_hk_onelocus(in Probability[][] genoprobs, in Phenotype[][] phen
 
 // scanone, many positions
 //    returns matrix of residual sums of squares [position][phenotype]
-double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype[][] pheno,
+double[][] scanone_hk(in Probability[][][] genoprobs, Phenotype[][] pheno,
                       in double[][] addcovar, in double[][] intcovar,
                       in double[] weights, in double tol=1e-8)
 {
@@ -102,7 +99,7 @@ double[][] scanone_hk(in Probability[][][] genoprobs, in Phenotype[][] pheno,
 
 
 // one phenotype version
-double[] scanone_hk(in Probability[][][] genoprobs, in Phenotype[] pheno,
+double[] scanone_hk(in Probability[][][] genoprobs, Phenotype[] pheno,
                     in double[][] addcovar, in double[][] intcovar,
                     in double[] weights, in double tol=1e-8)
 {
@@ -120,7 +117,7 @@ double[] scanone_hk(in Probability[][][] genoprobs, in Phenotype[] pheno,
 
 
 // scanone for null model
-double[] scanone_hk_null(in Phenotype[][] pheno, in double[][] addcovar,
+double[] scanone_hk_null(Phenotype[][] pheno, in double[][] addcovar,
                          in double[] weights, in double tol=1e-8)
 {
   if(weights.length > 0 && pheno.length != weights.length)
@@ -149,7 +146,7 @@ double[] scanone_hk_null(in Phenotype[][] pheno, in double[][] addcovar,
 }
 
 // one phenotype version
-double scanone_hk_null(in Phenotype[] pheno, in double[][] addcovar, 
+double scanone_hk_null(Phenotype[] pheno, in double[][] addcovar,
                        in double[] weights, in double tol=1e-8)
 {
   auto pheno_2d = new Phenotype[][](pheno.length, 1);
