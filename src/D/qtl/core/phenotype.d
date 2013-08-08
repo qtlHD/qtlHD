@@ -21,7 +21,7 @@ import qtl.core.primitives;
 import qtl.core.phenotype;
 import qtl.core.data.matrix;
 
-immutable PHENOTYPE_NA = double.nan; 
+immutable PHENOTYPE_NA = double.nan;
 
 /**
  * AnyPhenotype is the most primitive representation of a phenotype. The type
@@ -35,7 +35,7 @@ immutable PHENOTYPE_NA = double.nan;
 
 struct AnyPhenotype(T) {
   T value;
-  
+
   /// String representation of phenotype.
   const string toString(){
     if(to!double(value) != PHENOTYPE_NA){
@@ -72,7 +72,7 @@ Phenotype set_phenotype(in string s) {
 /**
  * Check whether a phenotype is missing
  */
-bool isNA(Phenotype p) { 
+bool isNA(Phenotype p) {
   return(isNaN(p.value));
 }
 
@@ -83,7 +83,7 @@ bool isSame(Phenotype p1, Phenotype p2) {
   return false;
 }
 
-// return boolean vector of size individuals indicating whether a 
+// return boolean vector of size individuals indicating whether a
 // phenotype is missing (true)
 bool[] individuals_missing_a_phenotype(Phenotype[][] phenotype_matrix)
 {

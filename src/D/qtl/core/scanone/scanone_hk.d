@@ -196,4 +196,3 @@ unittest {
   // See ./test/scanone/test_scanone.d
   writeln("Unit test " ~ __FILE__);
 }
-
