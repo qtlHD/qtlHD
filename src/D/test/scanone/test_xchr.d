@@ -44,6 +44,13 @@ unittest {
   auto sexcols = phenames[0..3];
   auto dircols = phenames[3..$];
 
+  auto addcovar = new double[][](pheno.length, pheno[0].length);
+  foreach(i, row; pheno) {
+    foreach(j, el; row) {
+      addcovar[i][j] = el.value;
+    }
+  }
+
   auto bc = form_cross("BC");
   auto bc_sex = new bool[][](sexcols.length, pheno.length);
   foreach(i, sexcol; sexcols) {
@@ -65,6 +72,11 @@ unittest {
       assert( all_male(bc_sex[i]));
       assert( all_same_sex(bc_sex[i]));
     }
+
+    auto covar1 = xchr_covar(bc, sexdir[0], sexdir[1]);
+    auto covar2 = xchr_covar(bc, sexdir);
+    auto covar3 = xchr_covar(bc, sexdir[0], sexdir[1]);
+    auto covar4 = xchr_covar(bc, sexdir);
   }
 
   auto f2 = form_cross("F2");
@@ -102,6 +114,8 @@ unittest {
         assert(all_same_cross_direction(f2_dir[i][j]));
       }
 
+      auto covar1 = xchr_covar(f2, sexdir[0], sexdir[1]);
+      auto covar2 = xchr_covar(f2, sexdir);
     }
   }
 }
