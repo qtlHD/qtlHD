@@ -69,6 +69,33 @@ unittest {
       auto sexdir = get_sex_and_cross(f2, sexcol, dircol, phenames, pheno);
       f2_sex[i][j] = sexdir[0];
       f2_dir[i][j] = sexdir[1];
+
+      if(sexcol=="bothsex") {
+        assert(!all_female(f2_sex[i][j]));
+        assert(!all_male(f2_sex[i][j]));
+        assert(!all_same_sex(f2_sex[i][j]));
+      }
+      if(sexcol=="allfemale") {
+        assert(all_female(f2_sex[i][j]));
+        assert(!all_male(f2_sex[i][j]));
+        assert(all_same_sex(f2_sex[i][j]));
+      }
+      if(sexcol=="allmale") {
+        assert(!all_female(f2_sex[i][j]));
+        assert(all_male(f2_sex[i][j]));
+        assert(all_same_sex(f2_sex[i][j]));
+      }
+
+      if(sexcol=="bothdir") {
+        assert(!all_same_cross_direction(f2_dir[i][j]));
+      }
+      if(sexcol=="allforw") {
+        assert(all_same_cross_direction(f2_dir[i][j]));
+      }
+      if(sexcol=="allback") {
+        assert(all_same_cross_direction(f2_dir[i][j]));
+      }
+
     }
   }
 }
