@@ -3,6 +3,7 @@ module test.qtl.core.phenotype;
 import std.conv;
 import std.stdio;
 import std.string;
+import std.math;
 
 import std.exception, std.path, std.file;
 import qtl.core.primitives;
@@ -144,5 +145,43 @@ unittest {
     assert(p.length == 2);
     assert(isSame(p[0], pheno[i][1]));
     assert(isSame(p[1], pheno[i][3]));
+  }
+}
+
+unittest {
+  writeln("Test pheno -> dbl");
+
+  Phenotype pheno[][];
+  auto pdbl = [ ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                [  "-", "0.0", "0.0",   "-", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                [  "-",   "-",   "-",   "-",   "-"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                [  "-",   "-", "0.0",   "-",   "-"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"],
+                ["0.0",   "-",   "-", "0.0",   "-"],
+                ["0.0",   "-",   "-", "0.0",   "-"],
+                ["0.0", "0.0", "0.0", "0.0", "0.0"]];
+
+  foreach(line; pdbl) {
+      Phenotype[] ps = std.array.array(map!((a) {return set_phenotype(a);})(line));
+      pheno ~= ps;
+  }
+
+  auto double_vector = get_values(pheno[0]);
+  auto double_matrix = get_values(pheno);
+
+  foreach(i, p; pheno[0]) {
+    assert((isNaN(double_vector[i]) && isNaN(p.value)) ||
+           (!isNaN(double_vector[i]) && !isNaN(p.value) && double_vector[i] == p.value));
+  }
+  foreach(i, row; pheno) {
+    foreach(j, el; row) {
+      assert((isNaN(double_matrix[i][j]) && isNaN(el.value)) ||
+             (!isNaN(double_matrix[i][j]) && !isNaN(el.value) && double_matrix[i][j] == el.value));
+    }
   }
 }
