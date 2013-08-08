@@ -105,6 +105,18 @@ double [][] xchr_covar(Cross cross, bool[] is_female, int[][] cross_direction, d
   return(bind_columns(addcovar, newcovar));
 }
 
+// ---- Versions that take a tuple in place of sex and cross_direction separately
+double [][] xchr_covar(Cross cross, Tuple!(bool[], int[][]) sexdir)
+{
+  return xchr_covar(cross, sexdir[0], sexdir[1]);
+}
+
+double [][] xchr_covar(Cross cross, Tuple!(bool[], int[][]) sexdir, double [][] addcovar)
+{
+  return xchr_covar(cross, sexdir[0], sexdir[1], addcovar);
+}
+
+
 // ---- Backcross: special covariates for X chr
 double [][] xchr_covar_bc(bool[] is_female)
 {
