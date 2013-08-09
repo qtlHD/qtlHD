@@ -1,6 +1,6 @@
 /*
  * SVG: singular value decomposition
- * 
+ *
  * dgesvd calculates singular value decomposition
  */
 
@@ -85,7 +85,7 @@ double[] calc_singular_values(double x[], size_t nrow, size_t ncol)
   int ldu=1, ldvt=1;
   auto U = new double[1];
   auto VT = new double[1];
-  
+
   gesvd('N', 'N', cast(int)nrow, cast(int)ncol, cast(double *)x, lda, cast(double *)result, cast(double *)U, ldu, cast(double *)VT, ldvt, cast(double *)work, lwork, &info);
 
   return result;
@@ -98,7 +98,7 @@ double[] calc_singular_values(double [][]matrix)
 
   return calc_singular_values(vector_tuple[0], vector_tuple[1], vector_tuple[2]);
 }
-  
+
 // matrix rank
 int matrix_rank(double x[], size_t nrow, size_t ncol, double tol=1e-16)
 {
@@ -108,7 +108,7 @@ int matrix_rank(double x[], size_t nrow, size_t ncol, double tol=1e-16)
   int rank=0;
   foreach(s; sv)
     if(s > tol) rank++;
-  
+
   return(rank);
 }
 
@@ -136,7 +136,7 @@ unittest {
   auto sv1 = calc_singular_values(x);
   auto sv2 = calc_singular_values(xv[0], xv[1], xv[2]);
 
-  foreach(i, val; sv) 
+  foreach(i, val; sv)
     writeln(val, " ", sv1[i], " ", sv2[i]);
 
   assert(sv1.length == sv.length);
@@ -148,6 +148,3 @@ unittest {
 
   assert(matrix_rank(x) == 4);
 }
-  
-  
-  
