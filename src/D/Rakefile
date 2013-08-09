@@ -54,6 +54,7 @@ lapack_dfiles = Dir.glob("./math/lapack/*.d")+ Dir.glob("./qtl/plugins/renv/*.d"
 if windows? then
 lapack_dfiles += Dir.glob("./arch/*.d") + Dir.glob("./qtl/plugins/renv/*.d")
 end
+math_matrix_dfiles = Dir.glob("./math/*.d")
 csv_dfiles = Dir.glob("./qtl/plugins/csv/*.d")
 test_csv_dfiles = Dir.glob("./test/qtl/plugins/csv/*.d")
 csvr_dfiles = Dir.glob("./qtl/plugins/csvr/*.d") + [ './qtl/core/mqm/matrix.d' ]
@@ -81,7 +82,7 @@ all_dfiles = (all_core_dfiles +
 all_test_dfiles = all_core_dfiles + test_core_dfiles
 
 # for bin and lib builds:
-all_scanone_dfiles = all_core_dfiles + scanone_dfiles + csv_dfiles + simulate_dfiles + distributions_dfiles + lapack_dfiles + example_dfiles + test_scanone_dfiles
+all_scanone_dfiles = all_core_dfiles + scanone_dfiles + csv_dfiles + simulate_dfiles + distributions_dfiles + lapack_dfiles + math_matrix_dfiles + example_dfiles + test_scanone_dfiles
 
 def shlib_suffix
   if windows? then
@@ -137,12 +138,12 @@ exe_list = {
   'read_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + main_dfile },
   'write_xgapbin' => { :path => './qtl/plugins/xgap', :list => all_core_dfiles + xgap_dfiles + csvr_dfiles + main_dfile },
   'test_core' => { :path => './test/qtl/core', :list => all_test_dfiles + main_dfile  },
-  'test_scanone' => { :path => './test/scanone', :list => test_scanone_dfiles + all_core_dfiles + scanone_dfiles + main_dfile + lapack_dfiles + util_dfiles + simulate_dfiles + distributions_dfiles },
-  'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] + renv_dfiles + arch_dfiles },
+  'test_scanone' => { :path => './test/scanone', :list => test_scanone_dfiles + all_core_dfiles + scanone_dfiles + main_dfile + lapack_dfiles + math_matrix_dfiles +util_dfiles + simulate_dfiles + distributions_dfiles },
+  'test_lapack' => { :path => './test/lapack', :list => [ './test/lapack/test_lapack.d'] + math_matrix_dfiles + renv_dfiles + arch_dfiles },
   'test_rlib' => { :path => './test/rlib', :list => [ './test/rlib/test_rlib.d'] + renv_dfiles + arch_dfiles },
   'test_mqmscan' => { :path => './test/mqm', :list => core_dfiles + mqm_dfiles + main_dfile + csv_dfiles + example_dfiles + map_dfiles },
   'test_hmm' => { :path => './test/hmm', :list => test_hmm_dfiles + all_core_dfiles + qtab_read_dfiles + main_dfile },
-  'test_simulate' => { :path => './test/simulate', :list => test_simulate_dfiles + simulate_dfiles + distributions_dfiles + main_dfile + all_core_dfiles + scanone_dfiles + lapack_dfiles },
+  'test_simulate' => { :path => './test/simulate', :list => test_simulate_dfiles + simulate_dfiles + distributions_dfiles + main_dfile + all_core_dfiles + scanone_dfiles + lapack_dfiles + math_matrix_dfiles },
 }
 
 build_list = {
