@@ -170,7 +170,7 @@ unittest {
   }
 
   import math.matrix;
-  phenosub = subset_columns(pheno, [1,3]);
+  auto phenosub = subset_columns(pheno, [1,3]);
   foreach(i, p; phenosub) {
     assert(p.length == 2);
     assert(isSame(p[0], pheno[i][1]));

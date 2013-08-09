@@ -68,7 +68,7 @@ unittest {
              [2.91, 2.40, 2.89, 3.39, 3.74],
              [2.63, 3.70, 3.05, 3.62, 2.72] ];
 
-  auto y = subset_Columns(x, [0, 1, 4]);
+  auto y = subset_columns(x, [0, 1, 4]);
   assert(y.length == 4);
   assert(y[0].length == 3);
   foreach(i, row; x) {
