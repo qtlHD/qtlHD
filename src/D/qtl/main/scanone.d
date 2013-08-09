@@ -50,6 +50,7 @@ string usage = "
     --cross           F2|BC|RISELF|RISIB (default F2)
     --genotypes       genotype codes (default for BC is 'A H')
     --na              missing data identifiers (default '- NA')
+    --sexchr          name of sex chromosome (default 'X')
     --sex             name of sex phenotype (default 'sex')
     --crossdir        name of cross direction phenotype (default 'pgm')
 
@@ -93,6 +94,7 @@ int main(string[] args) {
   bool contributors = false;
   string format = "qtab";
   string na_ids = "- NA";
+  string sexchr = "X";
   string sexcol = "sex";
   string crossdircol = "pgm";
   string phenocol = "";
@@ -110,6 +112,7 @@ int main(string[] args) {
                "genotypes", (string o, string s) { genotype_ids = s; },
                "credits", (string o) { contributors = true; },
                "phenocol", (string o, string s) { phenocol = s; },
+               "sexchr", (string o, string s) { sexchr = s; },
                "sex", (string o, string s) { sexcol = s; },
                "crossdir", (string o, string s) { crossdircol = s; }
          );
@@ -144,7 +147,7 @@ int main(string[] args) {
  
   switch(format) {
     case "qtab" :
-      auto res = load_qtab(args[1..$]);
+      auto res = load_qtab(args[1..$], sexchr);
       s  = res[0];  // symbols
       founders = res[1];  // founder format (contains Cross information)
       ms = res[2];  // markers
@@ -159,7 +162,7 @@ int main(string[] args) {
       writeln("genotype_ids: ", genotype_ids);
       auto observed_genotypes = parse_genotype_ids(cross,genotype_ids,na_ids);
       writeln("Observed ", observed_genotypes.toEncodingString(), " ", observed_genotypes);
-      auto res = load_csv(args[1], observed_genotypes);
+      auto res = load_csv(args[1], observed_genotypes, sexchr);
       founders["Cross"] = cross;
       ms = res[0];  // markers
       i  = res[1];  // individuals
@@ -186,6 +189,8 @@ int main(string[] args) {
     writeln(p[0..3]);
     writeln("* Marker data (partial)");
     writeln(ms[0..3]);
+    write("* sex chromosome: ");
+    writeln(sexchr);
   }
 
   // ---- Find individuals missing phenotype

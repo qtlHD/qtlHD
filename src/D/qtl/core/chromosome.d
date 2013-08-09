@@ -23,11 +23,11 @@ import std.typecons;
  * (this may change)
  */
 
-Chromosome get_chromosome_with_id(string name) {
+Chromosome get_chromosome_with_id(string name, string sexchr="X") {
   uint id;
   if (name == "X") id = 0;
-  else             id = to!int(name);
-  return get_chromosome(name,id,(name == "X"));
+  else             id = to!int(name); // FIXME : it might not be an integer
+  return get_chromosome(name,id,(name == sexchr));
 }
 
 /**

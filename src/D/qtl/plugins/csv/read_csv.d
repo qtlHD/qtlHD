@@ -48,7 +48,7 @@ class ReadSimpleCSV(XType,CrossType) {
   GenotypeSymbolMapper[][] genotypecombinator;
   size_t n_phenotypes;
 
-  this(in string fn, CrossType observed = null) {
+  this(in string fn, CrossType observed = null, string sexchr="X") {
     f = File(fn,"r");
     scope(exit) f.close();
     if (observed is null)
@@ -97,7 +97,7 @@ class ReadSimpleCSV(XType,CrossType) {
     {
       immutable cname2 = strip(cname);
       if (!(cname in chromosomes))
-        chromosomes[cname2] = get_chromosome_with_id(cname2);
+        chromosomes[cname2] = get_chromosome_with_id(cname2, sexchr);
       markers[i].chromosome = chromosomes[cname2];
     }
 
@@ -138,11 +138,11 @@ class ReadSimpleCSV(XType,CrossType) {
 }
 
 Tuple!(Marker[],Inds,PhenotypeMatrix,string[],ObservedGenotypes,GenotypeSymbolMapper[][])
-  load_csv(string fn, ObservedGenotypes observed_genotypes) {
+load_csv(string fn, ObservedGenotypes observed_genotypes, string sexchr) {
   PhenotypeMatrix p;
   // FIXME: note we currently force an F2 here
   // auto data = new ReadSimpleCSV!(F2,ObservedF2)(fn);
-  auto data = new ReadSimpleCSV!(F2,ObservedGenotypes)(fn,observed_genotypes);
+  auto data = new ReadSimpleCSV!(F2,ObservedGenotypes)(fn,observed_genotypes, sexchr);
   // Convert individuals to string[]
   auto iter = new ListIter!Individuals(data.individuals);
   string[] inds = map!(ind => to!string(ind.name))(iter).array();

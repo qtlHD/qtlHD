@@ -175,7 +175,7 @@ Tuple!(string, string, double) parse_marker_qtab(string line) {
 }
 
 
-Ms[] read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
+Ms[] read_marker_map_qtab(Ms)(string fn, string sexchr="X") {  // Ms is Marker[] (vs Markers)
   Ms ret_ms[];
   Chromosome[string] clist; // track chromosome objects
   uint id=0;
@@ -184,11 +184,11 @@ Ms[] read_marker_map_qtab(Ms)(string fn) {  // Ms is Marker[] (vs Markers)
       auto res = parse_marker_qtab(line);
       auto name = res[0];
       auto cname = res[1];
-      auto c = (cname in clist ? clist[cname] : new Chromosome(cname));
+      auto c = (cname in clist ? clist[cname] : get_chromosome_with_id(cname, sexchr));
       auto pos = res[2];
       auto marker = new Marker(c,pos,name,id);
-    	id++;
-	    ret_ms ~= marker;
+      id++;
+      ret_ms ~= marker;
     }
   );
   return ret_ms;
@@ -501,7 +501,7 @@ unittest {
  * Note the use of Variant is a health hazard
  */
 
-Variant[] load_qtab(string fn) {
+Variant[] load_qtab(string fn, string sexchr="X") {
   auto t = autodetect_qtab_file_type(fn);
   with (QtabFileType) {
     switch (t) {
@@ -519,7 +519,7 @@ Variant[] load_qtab(string fn) {
         auto res = get_phenotype_matrix(fn);
         return variantArray(t,res[0],res[1],res[2]);
       case location: 
-        auto ms = read_marker_map_qtab!Marker(fn);
+        auto ms = read_marker_map_qtab!Marker(fn, sexchr);
         return variantArray(t,ms);
       default: return null; // tuple(QtabFileType.undefined,variantArray(null));
     }
@@ -580,7 +580,7 @@ unittest {
  * containers.
  */
 
-Tuple!(SymbolSettings, Founders, Marker[], Inds, PhenotypeMatrix, string[], ObservedGenotypes, GenotypeMatrix) load_qtab(string[] fns) {
+Tuple!(SymbolSettings, Founders, Marker[], Inds, PhenotypeMatrix, string[], ObservedGenotypes, GenotypeMatrix) load_qtab(string[] fns, string sexchr="X") {
   SymbolSettings s;
   Founders f;
   Marker[] ms;
@@ -590,7 +590,7 @@ Tuple!(SymbolSettings, Founders, Marker[], Inds, PhenotypeMatrix, string[], Obse
   string[][] g;
   ObservedGenotypes observed;
   foreach (fn ; fns) {
-    auto res = load_qtab(fn);
+    auto res = load_qtab(fn, sexchr);
     auto t = res[0].get!QtabFileType;
     auto d = res[1];
     with (QtabFileType) {
