@@ -148,3 +148,23 @@ unittest {
 
   assert(matrix_rank(x) == 4);
 }
+
+unittest {
+  writeln("A less-than-full rank matrix");
+
+  auto x = [ [1.0, 1.0, 1.0, 1.0],
+             [1.0, 1.0, 1.0, 1.0],
+             [1.0, 1.0, 1.0, 1.0],
+             [1.0, 1.0, 1.0, 1.0],
+             [1.0, 2.0, 1.0, 0.0],
+             [1.0, 2.0, 1.0, 0.0],
+             [1.0, 2.0, 1.0, 0.0],
+             [1.0, 2.0, 2.0, 0.0],
+             [1.0, 2.0, 2.0, 0.0],
+             [1.0, 2.0, 2.0, 0.0] ];
+
+  assert(matrix_rank(x) == 3);
+
+  auto xv = matrix_as_vector(x);
+  assert(matrix_rank(xv[0], xv[1], xv[2]) == 3);
+}
