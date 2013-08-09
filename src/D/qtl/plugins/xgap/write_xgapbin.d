@@ -9,6 +9,7 @@ import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.xgap.xgap;
+import example.genotype_examples;
 
 import std.stdio;
 import std.conv;

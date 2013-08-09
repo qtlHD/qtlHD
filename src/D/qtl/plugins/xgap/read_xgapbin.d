@@ -10,6 +10,7 @@ import qtl.core.chromosome;
 import qtl.core.phenotype;
 import qtl.core.genotype;
 import qtl.core.xgap.xgap;
+import example.genotype_examples;
 
 import qtl.plugins.csvr.read_csvr;
 import qtl.plugins.xgap.write_xgapbin;
