@@ -86,7 +86,7 @@ double[] calc_singular_values(double x[], size_t nrow, size_t ncol)
   auto U = new double[1];
   auto VT = new double[1];
 
-  gesvd('N', 'N', cast(int)nrow, cast(int)ncol, cast(double *)x, lda, cast(double *)result, cast(double *)U, ldu, cast(double *)VT, ldvt, cast(double *)work, lwork, &info);
+  gesvd('N', 'N', cast(int)nrow, cast(int)ncol, x.ptr, lda, result.ptr, U.ptr, ldu, VT.ptr, ldvt, work.ptr, lwork, &info);
 
   return result;
 }
