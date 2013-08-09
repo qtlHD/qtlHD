@@ -216,6 +216,13 @@ int main(string[] args) {
 
   auto markers_by_chr = sort_chromosomes_by_marker_id(get_markers_by_chromosome(ms));
 
+  if(debug_level > 2) {
+    write(markers_by_chr.length, " chr:\n    ");
+    foreach(chr; markers_by_chr)
+      write(chr[0].name, " (", is_X_chr(chr[0]) ? "X" : "A", ")  ");
+    writeln();
+  }
+
   // ---- add pseudomarkers at 2.0 cM spacing
   auto pmar_by_chr = add_minimal_markers(markers_by_chr, 2.0);
 
