@@ -92,6 +92,8 @@ int main()
 {
   int i, j;
 
+  writeln("Test " ~ __FILE__);
+
   for (i=0; i<3; ++i) {
     for (j=0; j<3; ++j) printf("%5.1f", m[i*3+j]);
     putchar('\n');
