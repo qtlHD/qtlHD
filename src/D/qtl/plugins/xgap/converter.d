@@ -9,6 +9,7 @@ import std.conv;
 import std.string;
 import std.path;
 import std.file;
+import example.genotype_examples;
 
 import qtl.core.primitives;
 import qtl.core.phenotype;
