@@ -131,25 +131,6 @@ Phenotype[] get_phenotype(in string phename_to_get, in string[] phenames, Phenot
   return get_phenotype(index, pheno_matrix);
 }
 
-// select a subset of phenotype columns
-Phenotype[][] subset_phenotype_columns(Phenotype[][] pheno, size_t[] pheno_columns)
-{
-  foreach(col; pheno_columns)
-    if(col < 0 || col >= pheno[0].length)
-      throw new Exception("pheno_columns outside of allowable range");
-
-  Phenotype[][] ret;
-
-  foreach(pherow; pheno) {
-    Phenotype[] thisrow;
-    foreach(col; pheno_columns)
-      thisrow ~= pherow[col];
-    ret ~= thisrow;
-  }
-
-  return ret;
-}
-
 // batches of phenotypes with common missing data patterns
 size_t[][] create_phenotype_batches(Phenotype[][] pheno)
 {

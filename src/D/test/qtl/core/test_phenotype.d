@@ -169,9 +169,8 @@ unittest {
       pheno ~= ps;
   }
 
-  auto phenosub = subset_phenotype_columns(pheno, [1,3]);
-
-  assert(phenosub.length == pheno.length);
+  import math.matrix;
+  phenosub = subset_columns(pheno, [1,3]);
   foreach(i, p; phenosub) {
     assert(p.length == 2);
     assert(isSame(p[0], pheno[i][1]));
