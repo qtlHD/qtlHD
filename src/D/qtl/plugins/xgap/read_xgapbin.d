@@ -62,7 +62,7 @@ class XbinReader {
       for(int c=0;c<h.ncol;c++){
         int s = lengths[(r*h.ncol)+c];
         if(h.type == MatrixType.FIXEDCHARMATRIX || h.type == MatrixType.VARCHARMATRIX){
-          row ~= byteToString(inputbuffer[skip..skip+s]);
+          row ~= to!T(byteToString(inputbuffer[skip..skip+s]));
         }else{
           row ~= convbyte!T(inputbuffer[skip..skip+s]);
         }
@@ -79,8 +79,11 @@ class XbinReader {
       data.rowlengths ~= byteToInt(inputbuffer[(start+(r*int.sizeof))..(start + int.sizeof + (r*int.sizeof))]);
     }
     auto skip = start + (header.nrow*int.sizeof);
-    for(int r=0;r<header.nrow;r++){
+    for(int r = 0; r < header.nrow;r++){
       if(data.rowlengths[r] != 0){
+        if(skip+data.rowlengths[r] > inputbuffer.length){
+           throw new Exception("L: " ~ to!string(skip+data.rowlengths[r]) ~ " >> " ~ to!string(inputbuffer.length));
+        }
         data.rownames ~= byteToString(inputbuffer[skip..skip+data.rowlengths[r]]);
       }else{
         data.rownames ~= "";
@@ -162,7 +165,6 @@ class XbinReader {
       break;
       default:
         throw new Exception("Trying to load unsupported matrix type format");
-      break;             
     }
     return returnmatrix;
   }

@@ -35,12 +35,13 @@ class XbinConverter{
     return all_genotypes;
   }
   
-  Phenotype[][] toPhenotype(T)(XgapMatrix m){
+  Phenotype[][] toPhenotype(XgapMatrix m){
     Phenotype[][] all_phenotypes;
     for(int r=0;r<m.header.nrow;r++){
       Phenotype[] phenotype;
       for(int c=0;c<m.header.ncol;c++){
-        phenotype ~= set_phenotype(to!string((cast(DoubleMatrix)(m.data)).data[r][c]));
+        string pheValue = to!string((cast(DoubleMatrix)(m.data)).data[r][c]);
+        if(pheValue != "nan"){ phenotype ~= set_phenotype(pheValue); }
       }
       all_phenotypes ~= phenotype;
     }
