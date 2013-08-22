@@ -38,7 +38,7 @@ class CSVrReader(XType,ObservedXType) {
   Individuals individuals;
   Chromosome[string] chromosomes;
   Phenotype[][] phenotypes;
-  GenotypeSymbolMapper[][] genotypes;
+  GenotypeSymbolMapper[][] genotypecombinator;
   size_t n_phenotypes;
   
   bool is_phenotype(string[] location){ return(location == ["",""]); }
@@ -88,11 +88,11 @@ class CSVrReader(XType,ObservedXType) {
         foreach (field; fields[3..$]) {
           gs ~= symbols.decode(strip(field));
         }
-        genotypes ~= gs;
+        genotypecombinator ~= gs;
       }
       linecount++;
     }
-    writefln("Read %s with %d phenotypes and %d markers measured at %d individuals",fn, phenotypes.length, genotypes.length, genotypes[0].length);
+    writefln("Read %s with %d phenotypes and %d markers measured at %d individuals",fn, phenotypes.length, genotypecombinator.length, genotypecombinator[0].length);
     f.close();
   }
 }
@@ -106,6 +106,6 @@ unittest{
   assert(data.phenotypes.length == 24, to!string(data.phenotypes.length));
   assert(data.markers.length == 117, to!string(data.markers.length));
   assert(data.phenotypes[0].length == 162, to!string(data.phenotypes[0].length));
-  assert(data.genotypes[0].length == 162, to!string(data.genotypes[0].length));
+  assert(data.genotypecombinator[0].length == 162, to!string(data.genotypecombinator[0].length));
 }
 

@@ -109,6 +109,7 @@ class BinaryWriter(Reader, XType) {
   
     myWrite(elementsizes,outfile);
     foreach(T[] e;towrite){
+//      writeln(e);
       myWrite(e,outfile,t);
     }
   }
@@ -117,10 +118,15 @@ class BinaryWriter(Reader, XType) {
     f = File(filename,"wb");
     XgapFileHeader h = XgapFileHeader(xgap_magicnumber,xgap_version,3);
     myWrite([h],f);
+    writeln("Wrote header");
     write_matrix!(Phenotype)(data.phenotypes, f, MatrixType.DOUBLEMATRIX,MatrixClass.PHENOTYPE);
-    write_matrix!(GenotypeSymbolMapper)(data.genotypes,f, MatrixType.FIXEDCHARMATRIX,MatrixClass.GENOTYPE);
+    writeln("Wrote phenotypes");
+    write_matrix!(GenotypeSymbolMapper)(data.genotypecombinator,f, MatrixType.VARCHARMATRIX,MatrixClass.GENOTYPE);
+    writeln("Wrote genotypes");
     write_matrix!(string)(getMarkerInfoMatrix(data.markers),f, MatrixType.VARCHARMATRIX,MatrixClass.MAP);
+    writeln("Wrote marker info");
     myWrite(xgap_magicnumber,f);
+    writeln("Wrote end");
     f.close();
   }
 
@@ -139,13 +145,13 @@ unittest {
   auto data = new CSVrReader!(RISELF,ObservedRISELF)(infn);
   auto result = new BinaryWriter!(CSVrReader!(RISELF,ObservedRISELF),RISELF)(data,outfn);
   writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn), toKb(outfn));
-  
+  /*
   auto infn1 = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","listeria.csv"));
   auto outfn1 = to!string(dirName(__FILE__) ~ dirSeparator ~ buildPath("..","..","..","..","..","test","data","input","listeria.xbin"));
   writeln("  - reading CSVR " ~ infn1 ~" to " ~ outfn1);
   auto data1 = new ReadSimpleCSV!(F2,ObservedF2)(infn1);
   auto result1 = new BinaryWriter!(ReadSimpleCSV!(F2,ObservedF2),F2)(data1,outfn1);
-  writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn1), toKb(outfn1));
+  writefln("Size (txt to xbin): (%.2f Kb to %.2f Kb)", toKb(infn1), toKb(outfn1));*/
 }
 
 
