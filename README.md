@@ -1,5 +1,8 @@
 # R/qtlHD
 
+**We are no longer actively developing this package; we've transferred
+  our efforts to work on [R/qtl2](http://kbroman.org/qtl2).**
+
 R/qtlHD (or qtlHD) is the next generation implementation of
 [R/qtl][rqtl]. qtlHD is aimed at QTL analysis of high-density,
 high-throughput data; for example for RNA-seq.
